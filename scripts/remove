@@ -1,0 +1,27 @@
+#!/bin/bash
+app=hubzilla
+
+# Retrieve arguments
+domain=$(sudo yunohost app setting $app domain)
+path=$(sudo yunohost app setting $app path)
+admin=$(sudo yunohost app setting $app admin)
+is_public=$(sudo yunohost app setting $app is_public)
+
+db_user=$app
+db_name=$app
+root_pwd=$(sudo cat /etc/yunohost/mysql)
+domain=$(sudo yunohost app setting $app domain)
+
+mysql -u root -p$root_pwd -e "DROP DATABASE $db_name ; DROP USER $db_user@localhost ;"
+# Remove sources
+sudo rm -rf /var/www/$app
+
+# Remove configuration files
+sudo rm -f /etc/nginx/conf.d/$domain.d/$app.conf
+
+# Remove poller cron job
+sudo rm -f /etc/cron.d/poller-cron
+
+# Restart services
+sudo service nginx reload
+sudo yunohost app ssowatconf

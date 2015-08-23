@@ -1,0 +1,47 @@
+{
+    "name": "Hubzilla",
+    "id": "hubzilla",
+    "description": {
+        "en": "Hubzilla is a decentralized publication platform and social network."
+    },
+    "licence": "CopyLeft",
+    "developer": {
+        "name": "Mike Macgirvin",
+        "email": "",
+        "url": "https://github.com/redmatrix/hubzilla"
+    },
+    "multi_instance": "false",
+    "arguments": {
+        "install" : [
+            {
+                "name": "domain",
+                "ask": {
+                    "en": "Choose a domain for your Hubzilla hub. Hubzilla must run in the root of this domain."
+                },
+                "example": "hub.example.com"
+            },
+            {
+                "name": "admin",
+                "ask": {
+                    "en": "Choose an admin user"
+                },
+                "example": "johndoe"
+            },
+            {
+                "name": "adminemail",
+                "ask": {
+                    "en": "Email address for the Hubzilla hub admin"
+                },
+                "example": "johndoe@example.com"
+            },
+            {
+                "name": "is_public",
+                "ask": {
+                    "en": "Is it a public application ?"
+                },
+                "choices": ["Yes", "No"],
+                "default": "Yes"
+            }
+        ]
+    }
+}

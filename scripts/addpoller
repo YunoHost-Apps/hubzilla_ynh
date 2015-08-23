@@ -1,0 +1,2 @@
+final_path=$1
+(crontab -l ; echo "*/10 * * * * cd $final_path; php include/poller.php") 2>&1 | grep -v "no crontab" | sort | uniq | crontab -
