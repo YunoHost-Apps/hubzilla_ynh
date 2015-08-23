@@ -3,7 +3,7 @@
 Notes
 --------------
 
-Before installing, read the [Red Matrix installation instructions](https://github.com/redmatrix/hubzilla/blob/master/install/INSTALL.txt) for important information about 
+Before installing, read the [Hubzilla installation instructions](https://github.com/redmatrix/hubzilla/blob/master/install/INSTALL.txt) for important information about 
 
 - SSL certificate validation requirement
 - Dedicated domain (must install under web root like **https://hub.example.com/** not **https://example.com/hub/** )
