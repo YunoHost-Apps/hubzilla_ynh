@@ -1,0 +1,13 @@
+#mitem-list-table {
+	width: 100%;
+}
+
+#mitem-list-table th:nth-child(1),
+#mitem-list-table td:nth-child(1){
+	padding: 7px 3px 7px 10px;
+	white-space: nowrap;
+}
+
+.mitem-list-tool {
+	padding: 7px 10px;
+}

@@ -1,0 +1,338 @@
+Hubzilla Installation
+
+We've tried very hard to ensure that the Hubzilla will run on commodity
+hosting platforms - such as those used to host Wordpress blogs and Drupal 
+websites. It will run on most any Linux VPS system. Windows LAMP platforms
+such as XAMPP and WAMP are not officially supported at this time - however 
+we welcome patches if you manage to get it working. 
+
+Be aware that the Hubzilla is more than a simple web application. It is a 
+complex communications system which more closely resembles an email server 
+than a web server. For reliability and performance, messages are delivered in
+the background and are queued for later delivery when sites are down. This
+kind of functionality requires a bit more of the host system than the typical
+blog. Not every PHP/MySQL hosting provider will be able to support the 
+Hubzilla. Many will - but please review the requirements and confirm these 
+with your hosting provider prior to installation. (And preferably before 
+entering into a long-term contract.)
+
+If you encounter installation issues, please let us know via the Github issue 
+tracker (https://github.com/redmatrix/hubzilla/issues). Please be as clear as you 
+can about your operating environment and provide as much detail as possible
+about any error messages you may see, so that we can prevent it from happening 
+in the future. Due to the large variety of operating systems and PHP platforms 
+in existence we may have only limited ability to debug your PHP installation or 
+acquire any missing modules - but we will do our best to solve any general code 
+issues.
+
+
+
+Before you begin: Choose a domain name or subdomain name for your server.
+
+The Hubzilla can only be installed into the root of a domain or
+sub-domain, and can not be installed using alternate TCP ports. 
+
+Decide if you will use SSL and obtain an SSL certificate before software
+installation.  You SHOULD use SSL. If you use SSL, you MUST use a
+"browser-valid" certificate.  You MUST NOT use self-signed certificates!
+
+Please test your certificate prior to installation. A web tool for testing your
+certificate is available at "http://www.digicert.com/help/". When visiting your
+site for the first time, please use the SSL ("https://") URL if SSL is
+available. This will avoid problems later. The installation routine will not
+allow you to use a non browser-valid certificate.
+
+This restriction is incorporated because public posts from you may contain 
+references to images on your own hub. Other members viewing their stream on
+other hubs will get warnings if your certificate is not trusted by their web
+browser. This will confuse many people because this is a decentralised network
+and they will get the warning about your hub while viewing their own hub and may 
+think their own hub has an issue. These warnings are very technical and scary to 
+some folks, many of whom will not know how to proceed except to follow the browser
+advice. This is disruptive to the community. That said, we recognise the issues
+surrounding the current certificate infrastructure and agree there are many
+problems, but that doesn't change the requirement. 
+
+Free "browser-valid" certificates are available from providers such as StartSSL. 
+
+If you do NOT use SSL, there may be a delay of up to a minute for the initial
+install script - while we check the SSL port to see if anything responds there.
+When communicating with new sites, Hubzilla always attempts connection on the
+SSL port first, before falling back to a less secure connection.  If you do not
+use SSL, your webserver must not listen on port 443 at all.
+
+1. Requirements
+    - Apache with mod-rewrite enabled and "AllowOverride All" so you can use a 
+    local .htaccess file. Some folks have successfully used nginx and lighttpd.
+	Example config scripts are available for these platforms in doc/install.
+	Apache and nginx have the most support. 
+
+    - PHP 5.4 or later. The later the better. 
+
+    - PHP *command line* access with register_argc_argv set to true in the 
+    php.ini file - and with no hosting provider restrictions on the use of 
+    exec() and proc_open().
+
+    - curl, gd (with at least jpeg and png support), mysqli, mbstring, mcrypt, 
+    and openssl extensions. The imagick extension is not required but desirable.
+
+    - xml extension is required if you want webdav to work.
+
+    - some form of email server or email gateway such that PHP mail() works.
+
+    - Mysql 5.x or MariaDB or postgres database server.
+    
+    - ability to schedule jobs with cron.
+
+    - Installation into a top-level domain or sub-domain (without a 
+    directory/path component in the URL) is REQUIRED.
+
+2. Unpack the Hubzilla files into the root of your web server document area.
+    
+     If you copy the directory tree to your webserver, make sure that you 
+    also copy .htaccess - as "dot" files are often hidden and aren't normally 
+    copied.
+
+    - If you are able to do so, we recommend using git to clone the source 
+    repository rather than to use a packaged tar or zip file.  This makes the 
+    software much easier to update. The Linux command to clone the repository 
+    into a directory "mywebsite" would be
+
+        git clone https://github.com/redmatrix/hubzilla.git mywebsite
+
+    - and then you can pick up the latest changes at any time with
+
+        git pull
+
+    - make sure folders *store/[data]/smarty3* and *store* exist and are 
+    writable by the webserver
+
+        mkdir -p "store/[data]/smarty3"
+
+        chmod -R 777 store
+
+        [This permission (777) is very dangerous and if you have sufficient
+        privilege and knowledge you should make these directories writeable
+        only by the webserver and, if different, the user that will run the
+        cron job (see below). In many shared hosting environments this may be
+        difficult without opening a trouble ticket with your provider. The
+        above permissions will allow the software to work, but are not
+        optimal.]
+ 
+    - For installing addons
+
+        - First you should be **on** your website folder
+
+            cd mywebsite
+
+    - Then you should clone the addon repository (separately). We'll give this repository
+         a nickname of 'matrix'. You can pull in other hubzilla addon repositories by 
+         giving them different nicknames.
+
+            util/add_addon_repo https://github.com/redmatrix/hubzilla-addons.git matrix
+
+    - For keeping the addon tree updated, you should be on your top level website 
+		directory and issue an update command for that repository.
+
+            cd mywebsite
+            util/update_addon_repo matrix
+
+	- Create searchable represenations of the online documentation. You may do this any time
+		that the documentation is updated.
+
+			cd mywebsite
+			util/importdoc
+
+
+
+
+3. Create an empty database and note the access details (hostname, username, 
+password, database name).
+
+4. If you know in advance that it will be impossible for the web server to 
+write or create files in your web directory, create an empty file called 
+.htconfig.php and make it writable by the web server.
+
+5. Visit your website with a web browser and follow the instructions. Please 
+note any error messages and correct these before continuing. If you are using
+SSL with a known signature authority, use the https: link to your
+website. 
+
+6. *If* the automated installation fails for any reason, check the following:
+
+    - ".htconfig.php" exists 
+        If not, edit htconfig.php and change system settings. Rename 
+    to .htconfig.php
+	-  Database is populated.
+        If not, import the contents of "install/schema_xxxxx.sql" with phpmyadmin 
+        or mysql command line (replace 'xxxxx' with your DB type).
+
+7. At this point visit your website again, and register your personal account. 
+Registration errors should all be recoverable automatically. 
+If you get any *critical* failure at this point, it generally indicates the
+database was not installed correctly. You might wish to move/rename 
+.htconfig.php to another name and empty (called 'dropping') the database 
+tables, so that you can start fresh.  
+
+****************************************************************************
+****************************************************************************
+********          THIS NEXT STEP IS IMPORTANT!!!!                ***********
+****************************************************************************
+****************************************************************************
+
+8. Set up a cron job or scheduled task to run the poller once every 5-10 
+minutes to pick up the recent "public" postings of your friends. Example:
+
+	cd /base/directory; /path/to/php include/poller.php
+
+Change "/base/directory", and "/path/to/php" as appropriate for your situation.
+
+If you are using a Linux server, run "crontab -e" and add a line like the 
+one shown, substituting for your unique paths and settings:
+
+*/10 * * * *	cd /home/myname/mywebsite; /usr/bin/php include/poller.php
+
+You can generally find the location of PHP by executing "which php". If you 
+have troubles with this section please contact your hosting provider for 
+assistance. Hubzilla will not work correctly if you cannot perform this step.
+
+You should also be sure that $a->config['system']['php_path'] is set correctly, 
+it should look like (changing it to the correct PHP location)
+
+$a->config['system']['php_path'] = '/usr/local/php53/bin/php';
+  
+ 
+#####################################################################
+
+		If things don't work...
+
+#####################################################################
+
+
+#####################################################################
+- If you get the message 
+	"System is currently unavailable. Please try again later"
+#####################################################################
+	
+Check your database settings. It usually means your database could not be 
+opened or accessed. If the database resides on the same machine, check that
+the database server name is the word "localhost". 
+
+#####################################################################
+- 500 Internal Error
+#####################################################################
+
+This could be the result of one of our Apache directives not being 
+supported by your version of Apache. Examine your apache server logs.
+Also check your file permissions. Your website and all contents must generally 
+be world-readable.
+
+It is likely that your web server reported the source of the problem in
+its error log files. Please review these system error logs to determine what 
+caused the problem. Often this will need to be resolved with your hosting
+provider or (if self-hosted) your web server configuration. 
+
+#####################################################################
+- 400 and 4xx "File not found" errors
+#####################################################################
+
+First check your file permissions. Your website and all contents must 
+generally be world-readable.
+
+Ensure that mod-rewite is installed and working, and that your
+.htaccess file is being used. To verify the latter, create a file test.out
+containing the word "test" in the top directory of the Hubzilla, make it world 
+readable and point your web browser to
+
+http://yoursitenamehere.com/test.out
+
+This file should be blocked. You should get a permission denied message.
+
+If you see the word "test" your Apache configuration is not allowing your 
+.htaccess file to be used (there are rules in this file to block access
+to any file with .out at the end, as these are typically used for system logs).
+
+Make certain the .htaccess file exists and is readable by everybody, then 
+look for the existence of "AllowOverride None" in the Apache server 
+configuration for your site. This will need to be changed to 
+"AllowOverride All".  
+
+	If you do not see the word "test", your .htaccess is working, but it is 
+likely that mod-rewrite is not installed in your web server or is not working.
+
+	On most flavours of Linux,
+
+% a2enmod rewrite
+% /etc/init.d/apache2 restart
+
+Consult your hosting provider, experts on your particular Linux 
+distribution or (if Windows) the provider of your Apache server software if 
+you need to change either of these and can not figure out how. There is 
+a lot of help available on the web. Google "mod-rewrite" along with the 
+name of your operating system distribution or Apache package.
+
+  
+#####################################################################
+- If you are unable to write the file .htconfig.php during installation 
+due to permissions issues:
+#####################################################################
+
+create an empty file with that name and give it world-write permission.
+For Linux:
+
+% touch .htconfig.php
+% chmod 777 .htconfig.php
+
+Retry the installation. As soon as the database has been created, 
+
+******* this is important *********
+
+% chmod 755 .htconfig.php
+
+#####################################################################
+- Some configurations with "suhosin" security are configured without
+an ability to run external processes. The Hubzilla requires this ability.
+Following are some notes provided by one of our members.
+#####################################################################
+
+On my server I use the php protection system Suhosin
+[http://www.hardened-php.net/suhosin/]. One of the things it does is to block
+certain functions like proc_open, as configured in /etc/php5/conf.d/suhosin.ini:
+
+ suhosin.executor.func.blacklist = proc_open, ...
+
+For those sites like Hubzilla that really need these functions they can be
+enabled, e.g. in /etc/apache2/sites-available/hubzilla:
+
+ <Directory /var/www/hubzilla/>
+  php_admin_value suhosin.executor.func.blacklist none
+  php_admin_value suhosin.executor.eval.blacklist none
+ </Directory>
+
+This enables every function for Hubzilla if accessed via browser, but not for
+the cronjob that is called via php command line. I attempted to enable it for
+cron by using something like
+
+ */10 * * * * cd /var/www/hubzilla/ && sudo -u www-data /usr/bin/php
+-d suhosin.executor.func.blacklist=none -d suhosin.executor.eval.blacklist=none
+-f include/poller.php
+
+This worked well for simple test cases, but the cron job still failed with
+a fatal error:
+suhosin[22962]: ALERT - function within blacklist called: proc_open() (attacker
+'REMOTE_ADDR not set', file '/var/www/hubzilla/boot.php', line 1341)
+
+After a while I noticed, that include/poller.php calls further php script via
+proc_open. These scripts themselves also use proc_open and fail, because they
+are NOT called with -d suhosin.executor.func.blacklist=none.
+
+So the simple solution is to put the correct parameters into .htconfig.php:
+ // Location of PHP command line processor
+ $a->config['system']['php_path'] = '/usr/bin/php -d suhosin.executor.func.blacklist=none
+-d suhosin.executor.eval.blacklist=none';
+
+
+This is obvious as soon as you notice that the cron uses proc_open to
+execute php-scripts that also use proc_open, but it took me quite some time to
+find that out. I hope this saves some time for other people using suhosin with
+function blacklists.

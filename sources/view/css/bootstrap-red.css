@@ -1,0 +1,92 @@
+/* override some bootstrap settings */
+
+/* nav overrides */
+
+nav .badge {
+	position: relative;
+	top: -49px;
+	float: left;
+	font-size: 10px;
+	line-height: 20px;
+	padding: 0px 5px;
+	height: 20px;
+	min-width: 20px;
+	border-radius: 10px;
+	cursor: pointer;
+}
+
+@media screen and (max-width: 767px) {
+	nav .badge {
+		top: -46px;
+	}
+}
+
+nav i {
+	font-size: 14px;
+}
+
+nav ul li {
+	max-height: 50px;
+}
+
+nav img {
+	height: 49px;
+	width: 49px;
+	margin-top: 1px;
+}
+
+nav .dropdown-menu {
+	max-height: 450px;
+	max-width: 300px;
+	overflow-y: auto;
+	margin-top: 0px;
+}
+
+nav .navbar-collapse .navbar-left {
+	float: left;
+}
+
+nav .navbar-collapse .navbar-right {
+	float: right;
+}
+
+nav .navbar-toggle {
+	margin-bottom: 7px;
+}
+
+/* nav overrides end */
+
+
+aside .nav-pills > li > a {
+	padding: 6px 10px;
+}
+
+.dropdown-menu img {
+	float: left;
+	width: 32px;
+	height: 32px;
+	margin-right: 5px;
+}
+
+.dropdown-menu li a {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	line-height: 1em;
+	padding: 5px 10px;
+}
+
+.nav-tabs.nav-justified > li {
+	white-space: nowrap;
+}
+
+code {
+	white-space: normal;
+}
+
+.form-control {
+	font-size: unset;
+}
+
+/* Bootstrap assumes that checkboxes are on the left of labels, while it's usually the opposite in Red */
+.field.checkbox input[type="checkbox"] { margin-left: 0px; }
+.field.checkbox label { padding-left: 0px; font-weight: 700}

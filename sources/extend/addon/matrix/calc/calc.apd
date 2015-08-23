@@ -1,0 +1,3 @@
+url: $baseurl/calc
+name: Calculator
+photo: $baseurl/addon/calc/calc.png

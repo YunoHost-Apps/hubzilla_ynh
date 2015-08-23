@@ -1,0 +1,100 @@
+#!/usr/bin/env php
+<?php
+
+// Temporary service class utility - see baseurl/help/service_classes
+
+require_once('include/cli_startup.php');
+
+cli_startup();
+
+if($argc > 3) {
+	$d = get_config('service_class', $argv[1]);
+	$d[$argv[2]] = $argv[3];
+	set_config('service_class', $argv[1], $d);
+	echo 'Updated service class "' . $argv[1] . '" service "' . $argv[2] . '" to ' . $argv[3] . "\n";
+}
+
+if($argc == 3) {
+	if(substr($argv[1], 0, 10) == '--account=') {
+		$acct = substr($argv[1], 10);
+	} else if(substr($argv[1], 0, 10) == '--channel=') {
+		$chan = substr($argv[1], 10);
+		$r = q("SELECT channel_account_id FROM channel WHERE channel_address='%s'",
+			dbesc($chan)
+		);
+		if(!$r)
+			die('could not find channel');
+			
+		$acct = intval($r[0]['channel_account_id']);
+	} else {
+		exit();
+	}
+	$r = q('SELECT account_service_class FROM account WHERE account_id=%d',
+		intval($acct)
+	);
+	if(!$r)
+		die('could not find account');
+		
+	$c = q('SELECT channel_address FROM channel WHERE channel_account_id=%d',
+		intval($acct)
+	);
+	
+	echo "Account $acct: ";
+	
+	foreach($c as $chan)
+		echo $chan['channel_address'] . ', ';
+		
+	echo "\n\033[1mProperty                  Old\t\tNew\033[0m\n";
+	
+	if(empty($r[0]['account_service_class'])) {
+		$oclass = 'None';
+		$old = false;
+	} else {
+		$oclass = $r[0]['account_service_class'];
+		$old = get_config('service_class', $oclass);
+	}
+	echo "service_class             $oclass\t\t\033[1m" . $argv[2] . "\033[0m\n";
+	
+	$new = get_config('service_class', $argv[2]);
+	foreach(array('photo_upload_limit','total_items','total_pages','total_identities','total_channels','total_feeds','attach_upload_limit','minimum_feedcheck_minutes','chatrooms','chatters_inroom') as $prop) {
+		echo $prop . str_repeat(' ',26 - strlen($prop)) . (($old && $old[$prop]) ? $old[$prop] : 'unlimited') . "\t\t\033[1m" . (($new && $new[$prop]) ? $new[$prop] : 'unlimited') . "\033[0m\n";
+	}
+	$r = '';
+	$k = fopen('php://stdin', 'r');
+	while($r != 'y' && $r != 'n') {
+		echo "Are you sure? (y/n)";
+		$r = substr(fgets($k), 0, 1);
+	}
+	if($r == 'n')
+		die('no update done');
+		
+	$r = q("UPDATE account SET account_service_class='%s' WHERE account_id=%d",
+		dbesc($argv[2]),
+		intval($acct)
+	);
+	if($r) {
+		echo "updated successfully\n";
+	} else {
+		echo "failed\n";
+	}
+}	
+
+
+if($argc == 2) {
+	$d = get_config('service_class', $argv[1]);
+	echo $argv[1] . ":\n";
+	foreach($d as $k => $v) {
+		echo "$k = $v\n";
+	}
+}
+
+if($argc == 1) {
+	load_config('service_class');
+	foreach($a->config['service_class'] as $class=>$props) {
+		echo "$class:\n";
+		$d = unserialize($props);
+		foreach($d as $k => $v) {
+			echo "\t$k = $v\n";
+		}
+	}
+}

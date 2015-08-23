@@ -1,0 +1,55 @@
+
+#event-desc-textarea, #event-location-textarea {
+    width: 400px;
+}
+
+#event-summary-text, #event-start-text, #event-finish-text {
+    width: 200px;
+    float: left;
+}
+
+#event-summary, #start_text {
+	width: 95%;
+    float: left;
+}
+
+#finish_text {
+	width: 100%;
+    float: left;
+}
+
+
+#event-category-wrap {
+	margin-top: 15px;
+}
+
+.event-cats {
+	margin-top: 15px;
+}
+
+.bootstrap-tagsinput {
+	width: 100%;
+}
+
+
+.required {
+    float: left;
+	cursor: default;
+}
+
+#event-datetime-break {
+    clear: both;
+}
+
+#event-nofinish-break {
+    margin-bottom: 10px;
+}
+
+#event-desc-text, #event-location-text, .event-form-location-end {
+	margin-top: 15px;
+}
+
+#event-edit-preview-btn {
+	margin-right: 15px;
+}
+
