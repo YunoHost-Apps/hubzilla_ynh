@@ -5,7 +5,7 @@ Hubzilla
 ###Websites. Redefined.
 
 
-![Hubzilla](images/ghash-32.png)
+![Hubzilla](../images/hz-32.png)
 
 **What are Hubs?**
 

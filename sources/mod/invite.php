@@ -73,7 +73,7 @@ function invite_post(&$a) {
 		$account = $a->get_account();
 
 
-		$res = mail($recip, sprintf( t('Please join us on Red'), $a->config['sitename']), 
+		$res = mail($recip, sprintf( t('Please join us on $Projectname'), $a->config['sitename']), 
 			$nmessage, 
 			"From: " . $account['account_email'] . "\n"
 			. 'Content-type: text/plain; charset=UTF-8' . "\n"

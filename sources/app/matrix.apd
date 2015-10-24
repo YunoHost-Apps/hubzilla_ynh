@@ -1,4 +1,0 @@
-url: $baseurl/network
-requires: local_channel
-name: Matrix
-photo: $baseurl/app/matrix.png

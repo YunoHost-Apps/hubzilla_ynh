@@ -15,7 +15,10 @@ function deliver_run($argv, $argc) {
 
 	logger('deliver: invoked: ' . print_r($argv,true), LOGGER_DATA);
 
+
 	for($x = 1; $x < $argc; $x ++) {
+
+		$dresult = null;
 		$r = q("select * from outq where outq_hash = '%s' limit 1",
 			dbesc($argv[$x])
 		);
@@ -25,6 +28,8 @@ function deliver_run($argv, $argc) {
 			 * Check to see if we have any recent communications with this hub (in the last month).
 			 * If not, reduce the outq_priority.
 			 */
+
+			$base = '';
 
 			$h = parse_url($r[0]['outq_posturl']);
 			if($h) {
@@ -50,18 +55,45 @@ function deliver_run($argv, $argc) {
 							continue;
 						}
 					}
+					else {
+
+						// zot sites should all have a site record, unless they've been dead for as long as 
+						// your site has existed. Since we don't know for sure what these sites are, 
+						// call them unknown
+
+						q("insert into site (site_url, site_update, site_dead, site_type) values ('%s','%s',0,%d) ",
+							dbesc($base),
+							dbesc(datetime_convert()),
+							intval(($r[0]['outq_driver'] === 'post') ? SITE_TYPE_NOTZOT : SITE_TYPE_UNKNOWN)
+						);
+					}
 				}
 			} 
 
 			// "post" queue driver - used for diaspora and friendica-over-diaspora communications.
 
 			if($r[0]['outq_driver'] === 'post') {
+
+
 				$result = z_post_url($r[0]['outq_posturl'],$r[0]['outq_msg']); 
 				if($result['success'] && $result['return_code'] < 300) {
 					logger('deliver: queue post success to ' . $r[0]['outq_posturl'], LOGGER_DEBUG);
+					if($base) {
+						q("update site set site_update = '%s', site_dead = 0 where site_url = '%s' ",
+							dbesc(datetime_convert()),
+							dbesc($base)
+						);
+					}
+					q("update dreport set dreport_result = '%s', dreport_time = '%s' where dreport_queue = '%s' limit 1",
+						dbesc('accepted for delivery'),
+						dbesc(datetime_convert()),
+						dbesc($argv[$x])
+					);
+
 					$y = q("delete from outq where outq_hash = '%s'",
 						dbesc($argv[$x])
 					);
+
 				}
 				else {
 					logger('deliver: queue post returned ' . $result['return_code'] . ' from ' . $r[0]['outq_posturl'],LOGGER_DEBUG);
@@ -92,15 +124,35 @@ function deliver_run($argv, $argc) {
 					$m = json_decode($r[0]['outq_msg'],true);
 					if(array_key_exists('message_list',$m)) {
 						foreach($m['message_list'] as $mm) {
-							$msg = array('body' => json_encode(array('pickup' => array(array('notify' => $notify,'message' => $mm)))));
+							$msg = array('body' => json_encode(array('success' => true, 'pickup' => array(array('notify' => $notify,'message' => $mm)))));
 							zot_import($msg,z_root());
 						}
 					}	
 					else {	
-						$msg = array('body' => json_encode(array('pickup' => array(array('notify' => $notify,'message' => $m)))));
-						zot_import($msg,z_root());
+						$msg = array('body' => json_encode(array('success' => true, 'pickup' => array(array('notify' => $notify,'message' => $m)))));
+						$dresult = zot_import($msg,z_root());
 					}
 					$r = q("delete from outq where outq_hash = '%s'",
+						dbesc($argv[$x])
+					);
+					if($dresult && is_array($dresult)) {
+						foreach($dresult as $xx) {
+							if(is_array($xx) && array_key_exists('message_id',$xx)) {
+								if(delivery_report_is_storable($xx)) {
+									q("insert into dreport ( dreport_mid, dreport_site, dreport_recip, dreport_result, dreport_time, dreport_xchan ) values ( '%s', '%s','%s','%s','%s','%s' ) ",
+										dbesc($xx['message_id']),
+										dbesc($xx['location']),
+										dbesc($xx['recipient']),
+										dbesc($xx['status']),
+										dbesc(datetime_convert($xx['date'])),
+										dbesc($xx['sender'])
+									);
+								}
+							}
+						}
+					}
+
+					q("delete from dreport where dreport_queue = '%s' limit 1",
 						dbesc($argv[$x])
 					);
 				}

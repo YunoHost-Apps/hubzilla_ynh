@@ -22,7 +22,7 @@ function public_content(&$a, $update = 0, $load = false) {
 
 		$maxheight = get_config('system','home_divmore_height');
 		if(! $maxheight)
-			$maxheight = 75;
+			$maxheight = 400;
 
 		$o .= '<div id="live-public"></div>' . "\r\n";
 		$o .= "<script> var profile_uid = " . ((intval(local_channel())) ? local_channel() : (-1)) 
@@ -80,9 +80,11 @@ function public_content(&$a, $update = 0, $load = false) {
 		$a->data['firehose'] = intval($sys['channel_id']);
 	}
 
+	if(get_config('system','public_list_mode'))
+		$page_mode = 'list';
+	else
+		$page_mode = 'client';
 
-
-	$page_mode = 'list';
 
 	$simple_update = (($update) ? " and item.item_unseen = 1 " : '');
 

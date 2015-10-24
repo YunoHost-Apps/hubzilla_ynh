@@ -62,7 +62,7 @@
 
   function setBoxHeights(element) {
     var el = element,
-        expandedHeight = el.outerHeight(),
+        expandedHeight = el.outerHeight(true),
         cssMaxHeight = parseInt(el.css({maxHeight: ''}).css('max-height').replace(/[^-\d\.]/g, ''), 10),
         defaultHeight = element.data('defaultHeight');
 

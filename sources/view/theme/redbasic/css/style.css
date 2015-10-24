@@ -24,13 +24,15 @@ body {
 	height: 100%;
 }
 
-aside#region_1 {
+aside {
 	width: $aside_widthpx;
 	min-width: $aside_widthpx;
 	max-width: $aside_widthpx;
 }
 
 main {
+	margin-left: auto;
+	margin-right: auto;
 	max-width: $main_widthpx;
 }
 
@@ -127,7 +129,7 @@ pre code {
 
 code {
 	font-size: 1em;
-	padding: 5px;
+	padding: 1em;
 	border: 1px solid #ccc;
 	background: #ccc;
 	color: #000;
@@ -199,13 +201,14 @@ nav #banner #logo-text a:hover { text-decoration: none; }
 .nav-channel-select { margin-left: 8px; }
 
 header #banner {
-/*  overflow: hidden; */
-  text-align: center;
-  font-size: 14px;
-  font-family: tahoma, "Lucida Sans", sans;
-  color: $banner_colour;
-  font-weight: bold;
-  margin-top: 14px;
+	z-index: 1040;
+	margin-top: 14px;
+	text-align: center;
+	font-size: 14px;
+	font-family: tahoma, "Lucida Sans", sans;
+	color: $banner_colour;
+	font-weight: bold;
+	whitespace: nowrap;
 }
 
 header #banner a,
@@ -213,15 +216,17 @@ header #banner a:active,
 header #banner a:visited,
 header #banner a:link,
 header #banner a:hover {
-  color: #FFF;
-  text-decoration: none;
-  outline: none;
-  vertical-align: bottom;
+	color: $banner_colour;
+	text-decoration: none;
+	outline: none;
+	vertical-align: bottom;
 }
+
 header #banner #logo-img {
   height: 22px;
   margin-top: 5px;
 }
+
 header #banner #logo-text {
   font-size: 22px;
 }
@@ -347,7 +352,7 @@ footer {
 .vcard {
 	margin-bottom: 10px;
 	padding: 10px;
-	background-color: $comment_item_colour;
+	background-color: rgba(254,254,254,0.5);
 	border-bottom: 1px solid rgba(238,238,238,0.8);
 	-moz-border-radius: $radiuspx;
 	-webkit-border-radius: $radiuspx;
@@ -698,7 +703,7 @@ a.rateme, div.rateme {
 #contact-block {
 	width: 100%;
 	float: left;
-	background-color: $comment_item_colour;
+	background-color: rgba(254,254,254,0.5);
 	border-bottom: 1px solid rgba(238,238,238,0.8);
 	-moz-border-radius: $radiuspx;
 	-webkit-border-radius: $radiuspx;
@@ -751,8 +756,7 @@ a.rateme, div.rateme {
 }
 
 .wall-item-conv {
-	padding-top: 5px;
-	padding-bottom: 10px;
+	padding: 7px 10px;
 }
 
 
@@ -790,11 +794,11 @@ a.rateme, div.rateme {
 }
 
 #nav-search-text::-webkit-input-placeholder {
-	font-family: FontAwesome;
+	font-family: FontAwesome, sans-serif;
 }
 
 #nav-search-text::-moz-placeholder {
-	font-family: FontAwesome;
+	font-family: FontAwesome, sans-serif;
 }
 
 nav .acpopup {
@@ -1301,15 +1305,8 @@ a.rconnect:hover, a.rateme:hover, div.rateme:hover {
 	padding: 0;
 }
 
-/* header */
-header {
-  position: fixed;
-  left: 43%;
-  right: 43%;
-  margin: 0px;
-  padding: 0px;
-  z-index: 1040;
-  color: #fff;
+.widget .conv-participants {
+	color: $font_colour;
 }
 
 .notif-item a {
@@ -1435,7 +1432,10 @@ header {
 .profile-match-connect { margin-top: 5px; }
 
 .reshared-content { margin-left: 20px; }
-.shared_header img { margin-right: 10px; }
+.shared_header img {
+	border-radius: $radiuspx;
+	margin-right: 10px;
+}
 
 .tag1 {
     font-size : 0.9em !important;
@@ -1529,22 +1529,6 @@ a .drop-icons:hover {
 	margin-right: 10px;
 	color: #FF0000;
 }
- 
-.attachlink {
-	float: left;
-	border: 1px solid black;
-	padding: 5px;
-	margin-right: 8px;
-}
-
-.attach-icons {
-	font-size: 1.4em;
-}
-
-.attach-clip {
-	margin-right: 3px;
-	font-size: 1.8em;
-}
 
 #menulist {
 	list-style-type: none;
@@ -1568,9 +1552,9 @@ th,td {
 	overflow: hidden;
 }
 	
-/* message */
+/* mail */
 
-img.mail-list-sender-photo {
+img.mail-conv-sender-photo {
 	-moz-border-radius: $radiuspx;
 	border-radius: $radiuspx;
 }
@@ -1637,46 +1621,54 @@ img.mail-list-sender-photo {
 }
 
 /* conversation */
-
-.wall-item-title {
-   font-size: $font_size;
+.nsfw-wrap {
+	text-align: center;
+	font-size: $body_font_size;
 }
 
-.hide-comments-outer,
-.thread-wrapper .wall-item-comment-wrapper,
-.wall-item-content-wrapper.comment {
-	margin-left: $comment_indent;
+.wall-item-head {
+	padding: 10px 10px 0.5em 10px;
 }
 
-.wall-item-content-wrapper {
-	background-color: $item_colour;
-	padding: 10px;
+.wall-item-content {
+	padding: 0.5em 10px;
+}
+
+.wall-photo-item {
+	/*padding: 0.5em 10px;*/
+}
+
+.wall-photo-item img {
+	max-width: 100% !important;
 	border-top-right-radius: $radiuspx;
 	border-top-left-radius: $radiuspx;
 }
 
-.generic-content-wrapper-styled {
-	background-color: $comment_item_colour;
-	padding: 10px;
-	border-radius: $radiuspx;
+.wall-item-tools {
+	padding: 0.5em 10px 10px 10px;
+}
+
+
+.wall-item-title {
+	font-size: $font_size;
+}
+
+.wall-item-content-wrapper {
+	background-color: $item_colour;
+	border-top-right-radius: $radiuspx;
+	border-top-left-radius: $radiuspx;
 }
 
 .wall-item-content-wrapper.comment {
 	background-color: $comment_item_colour;
-	border-color: $comment_border_colour;
-	border-style: solid;
-	border-width: 0px 0px 0px 3px;
-	border-radius: 0px;
-	padding: 7px 10px 7px 7px;
 }
 
 .hide-comments-outer {
 	background-color: $comment_item_colour;
-	border-color: $comment_border_colour;
 	border-top-color: #ccc;
 	border-style: solid;
 	border-top-style: dashed;
-	border-width: 1px 0px 0px 3px;
+	border-width: 1px 0px 0px 0px;
 	text-align: center;
 	border-radius: 0px;
 }
@@ -1731,6 +1723,7 @@ img.mail-list-sender-photo {
 }
 
 .wall-item-content,
+.mail-conv-body,
 .page-body {
 	font-size: $font_size;
 	clear: both;
@@ -1779,14 +1772,13 @@ img.mail-list-sender-photo {
 
 .divgrow-showmore:hover {
 	border-top: 1px dashed #adadad;
-	text-decoration: underline;
 }
 
 
 /* widgets */
 
 .widget {
-	background-color: $comment_item_colour;
+	background-color: rgba(254,254,254,0.5);
 	border-bottom: 1px solid rgba(238,238,238,0.8);
 	-moz-border-radius: $radiuspx;
 	-webkit-border-radius: $radiuspx;
@@ -1865,6 +1857,19 @@ nav .dropdown-menu {
 
 .page-title {
 	margin: 7px 0px;
+}
+
+.generic-content-wrapper-styled {
+	background-color: $bgcolour;
+	padding: 10px;
+	border-radius: $radiuspx;
+}
+
+.generic-content-wrapper {
+	border: 1px solid #ccc;
+	box-shadow: 0px 0px 5px 1px rgba(0,0,0,0.2);
+	border-radius:  $radiuspx;
+	background-color: #fff;
 }
 
 .section-title-wrapper {
@@ -2296,3 +2301,11 @@ nav .badge.mail-update:hover {
 /*.channels_ckbx, .pending_ckbx, .users_ckbx {
 	margin-top: -5px !important;
 }*/
+
+.help-searchlist {
+	list-style-type: none;
+}
+
+.help-searchlist a {
+	font-size: 130%;
+}

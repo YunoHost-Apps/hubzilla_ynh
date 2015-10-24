@@ -27,8 +27,8 @@
 			previewWrap: 'previewWrap',
 			minWidth: 300,
 			minHeight: 300,
-			maxWidth: 640,
-			maxHeight: 640,
+			maxWidth: 1024,
+			maxHeight: 1024,
 			ratioDim: { x: 100, y:100 },
 			displayOnInit: true,
 			onEndCrop: onEndCrop

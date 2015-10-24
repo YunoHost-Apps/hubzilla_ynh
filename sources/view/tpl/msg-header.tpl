@@ -48,17 +48,6 @@ else
 <script type="text/javascript" src="view/js/ajaxupload.js" ></script>
 <script>
 	$(document).ready(function() {
-		var uploader = new window.AjaxUpload(
-			'prvmail-upload-wrapper',
-			{ action: 'wall_upload/{{$nickname}}',
-				name: 'userfile',
-				onSubmit: function(file,ext) { $('#prvmail-rotator').spin('tiny'); },
-				onComplete: function(file,response) {
-					addmailtext(response);
-					$('#prvmail-rotator').spin(false);
-				}				 
-			}
-		);
 
 		var file_uploader = new window.AjaxUpload(
 			'prvmail-attach-wrapper',
@@ -68,9 +57,22 @@ else
 				onComplete: function(file,response) {
 					addmailtext(response);
 					$('#prvmail-rotator').spin(false);
-				}				 
+				}
 			}
 		);
+
+		var file_uploader_sub = new window.AjaxUpload(
+			'prvmail-attach-sub',
+			{ action: 'wall_attach/{{$nickname}}',
+				name: 'userfile',
+				onSubmit: function(file,ext) { $('#prvmail-rotator').spin('tiny'); },
+				onComplete: function(file,response) {
+					addmailtext(response);
+					$('#prvmail-rotator').spin(false);
+				}
+			}
+		);
+
 
 	});
 
@@ -78,7 +80,7 @@ else
 		reply = prompt("{{$linkurl}}");
 		if(reply && reply.length) {
 			$('#prvmail-rotator').spin('tiny');
-			$.get('urlinfo?f=&url=' + reply, function(data) {
+			$.get('linkinfo?f=&url=' + reply, function(data) {
 				addmailtext(data);
 				$('#prvmail-rotator').spin(false);
 			});
@@ -104,7 +106,7 @@ else
 		event.preventDefault();
 		if(reply && reply.length) {
 			$('#prvmail-rotator').spin('tiny');
-			$.get('urlinfo?f=&url=' + reply, function(data) {
+			$.get('linkinfo?f=&url=' + reply, function(data) {
 				addmailtext(data);
 				$('#prvmail-rotator').spin(false);
 			});

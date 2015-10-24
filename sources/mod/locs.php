@@ -50,8 +50,17 @@ function locs_post(&$a) {
 				return;
 			}
 			if(intval($r[0]['hubloc_primary'])) {
-				notice( t('Primary location cannot be removed.') . EOL);
-				return;
+				$x = q("select hubloc_id from hubloc where hubloc_primary = 1 and hubloc_hash = '%s'",
+					dbesc($channel['channel_hash'])
+				);
+				if(! $x) {
+					notice( t('Location lookup failed.'));
+					return;
+				}
+				if(count($x) == 1) {
+					notice( t('Please select another location to become primary before removing the primary location.') . EOL);
+					return;
+				}
 			}
 
 			$r = q("update hubloc set hubloc_deleted = 1 where hubloc_id = %d and hubloc_hash = '%s'",
@@ -90,8 +99,6 @@ function locs_content(&$a) {
 		$r[$x]['primary'] = (intval($r[$x]['hubloc_primary']) ? true : false);
 		$r[$x]['deleted'] = (intval($r[$x]['hubloc_deleted']) ? true : false);
 	}
-
-
 
 	$o = replace_macros(get_markup_template('locmanage.tpl'), array(
 		'$header' => t('Manage Channel Locations'),

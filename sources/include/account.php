@@ -217,6 +217,8 @@ function create_account($arr) {
 	$result['email']    = $email;
 	$result['password'] = $password;
 
+	call_hooks('register_account',$result);
+
 	return $result;
 }
 

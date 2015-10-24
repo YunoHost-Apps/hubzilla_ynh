@@ -47,6 +47,7 @@ function editpost_content(&$a) {
 	$a->page['htmlhead'] .= replace_macros(get_markup_template('jot-header.tpl'), array(
 		'$baseurl' => $a->get_baseurl(),
 		'$editselect' =>  (($plaintext) ? 'none' : '/(profile-jot-text|prvmail-text)/'),
+		'$pretext' => '',
 		'$ispublic' => '&nbsp;', // t('Visible to <strong>everybody</strong>'),
 		'$geotag' => $geotag,
 		'$nickname' => $channel['channel_address'],
@@ -128,7 +129,7 @@ function editpost_content(&$a) {
 		'$consensus' => intval($itm[0]['item_consensus']),
 		'$wait' => t('Please wait'),
 		'$permset' => t('Permission settings'),
-		'$ptyp' => $itm[0]['type'],
+		'$ptyp' => $itm[0]['obj_type'],
 		'$content' => undo_post_tagging($itm[0]['body']),
 		'$post_id' => $post_id,
 		'$parent' => (($itm[0]['parent'] != $itm[0]['id']) ? $itm[0]['parent'] : ''),

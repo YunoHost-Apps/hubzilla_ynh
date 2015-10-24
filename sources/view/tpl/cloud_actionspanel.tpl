@@ -8,6 +8,7 @@
 	<div class="clear"></div>
 </div>
 <div id="files-upload-tools" class="section-content-tools-wrapper form-group">
+	{{if $quota.limit || $quota.used}}<div class="{{if $quota.warning}}section-content-danger-wrapper{{else}}section-content-info-wrapper{{/if}}">{{if $quota.warning}}<strong>{{$quota.warning}} </strong>{{/if}}{{$quota.desc}}</div>{{/if}}
 	<label for="files-upload">{{$upload_header}}</label>
 	<form method="post" action="" enctype="multipart/form-data">
 		<input type="hidden" name="sabreAction" value="put">

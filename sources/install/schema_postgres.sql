@@ -107,6 +107,8 @@ CREATE TABLE "app" (
   "app_price" text NOT NULL DEFAULT '',
   "app_page" text NOT NULL DEFAULT '',
   "app_requires" text NOT NULL DEFAULT '',
+  "app_created" timestamp NOT NULL DEFAULT '0001-01-01 00:00:00',
+  "app_edited" timestamp NOT NULL DEFAULT '0001-01-01 00:00:00',
   PRIMARY KEY ("id")
 );
 create index "app_id" on app ("app_id");
@@ -116,6 +118,8 @@ create index "app_photo" on app ("app_photo");
 create index "app_version" on app ("app_version");
 create index "app_channel" on app ("app_channel");
 create index "app_price" on app ("app_price");
+create index "app_created" on app ("app_created");
+create index "app_edited" on app ("app_edited");
 CREATE TABLE "attach" (
   "id" serial  NOT NULL,
   "aid" bigint  NOT NULL DEFAULT '0',
@@ -337,6 +341,30 @@ CREATE TABLE "conv" (
 create index "conv_created_idx" on conv ("created");
 create index "conv_updated_idx" on conv ("updated");
 
+CREATE TABLE IF NOT EXISTS "dreport" (
+  "dreport_id" int(11) NOT NULL,
+  "dreport_channel" int(11) NOT NULL DEFAULT '0',
+  "dreport_mid" char(255) NOT NULL DEFAULT '',
+  "dreport_site" char(255) NOT NULL DEFAULT '',
+  "dreport_recip" char(255) NOT NULL DEFAULT '',
+  "dreport_result" char(255) NOT NULL DEFAULT '',
+  "dreport_time" timestamp NOT NULL DEFAULT '0001-01-01 00:00:00',
+  "dreport_xchan" char(255) NOT NULL DEFAULT '',
+  "dreport_queue" char(255) NOT NULL DEFAULT '',
+  PRIMARY KEY ("dreport_id")
+);
+
+create index "dreport_mid" on dreport ("dreport_mid");
+create index "dreport_site" on dreport ("dreport_site");
+create index "dreport_time" on dreport ("dreport_time");
+create index "dreport_xchan" on dreport ("dreport_xchan");
+create index "dreport_queue" on dreport ("dreport_queue");
+create index "dreport_channel" on dreport ("dreport_channel");
+
+
+
+
+
 CREATE TABLE "event" (
   "id" serial NOT NULL,
   "aid" bigint  NOT NULL DEFAULT '0',
@@ -364,6 +392,7 @@ CREATE TABLE "event" (
   "event_repeat" text NOT NULL,
   "event_sequence" smallint NOT NULL DEFAULT '0',
   "event_priority" smallint NOT NULL DEFAULT '0',
+  "event_vdata" text NOT NULL,
   PRIMARY KEY ("id")
 );
 create index "event_uid_idx" on event ("uid");
@@ -681,6 +710,7 @@ CREATE TABLE "likes" (
   "liker" char(128) NOT NULL DEFAULT '',
   "likee" char(128) NOT NULL DEFAULT '',
   "iid" bigint  NOT NULL DEFAULT '0',
+  "i_mid" char(255) NOT NULL DEFAULT '',
   "verb" text NOT NULL DEFAULT '',
   "target_type" text NOT NULL DEFAULT '',
   "target_id" char(128) NOT NULL DEFAULT '',
@@ -691,12 +721,14 @@ create index "likes_channel_id" on likes ("channel_id");
 create index "likes_liker" on likes ("liker");
 create index "likes_likee" on likes ("likee");
 create index "likes_iid" on likes ("iid");
+create index "likes_i_mid" on likes ("i_mid");
 create index "likes_verb" on likes ("verb");
 create index "likes_target_type" on likes ("target_type");
 create index "likes_target_id" on likes ("target_id");
 CREATE TABLE "mail" (
   "id" serial  NOT NULL,
   "convid" bigint  NOT NULL DEFAULT '0',
+  "conv_guid" text NOT NULL,
   "mail_flags" bigint  NOT NULL DEFAULT '0',
   "from_xchan" text NOT NULL DEFAULT '',
   "to_xchan" text NOT NULL DEFAULT '',
@@ -719,6 +751,7 @@ CREATE TABLE "mail" (
   PRIMARY KEY ("id")
 );
 create index "mail_convid" on mail ("convid");
+create index "mail_conv_guid" on mail ("conv_guid");
 create index "mail_created" on mail ("created");
 create index "mail_flags" on mail ("mail_flags");
 create index "mail_account_id" on mail ("account_id");
@@ -810,6 +843,11 @@ CREATE TABLE "obj" (
   "obj_type" bigint  NOT NULL DEFAULT '0',
   "obj_obj" text NOT NULL DEFAULT '',
   "obj_channel" bigint  NOT NULL DEFAULT '0',
+  "obj_term" char(255) NOT NULL DEFAULT '',
+  "obj_url" char(255) NOT NULL DEFAULT '',
+  "obj_imgurl" char(255) NOT NULL DEFAULT '',
+  "obj_created" timestamp NOT NULL DEFAULT '0001-01-01 00:00:00',
+  "obj_edited" timestamp NOT NULL DEFAULT '0001-01-01 00:00:00',
   "allow_cid" text NOT NULL,
   "allow_gid" text NOT NULL,
   "deny_cid" text NOT NULL,
@@ -822,6 +860,11 @@ create index "obj_page" on obj ("obj_page");
 create index "obj_type" on obj ("obj_type");
 create index "obj_channel" on obj ("obj_channel");
 create index "obj_obj" on obj ("obj_obj");
+create index "obj_term" on obj ("obj_term");
+create index "obj_url" on obj ("obj_url");
+create index "obj_imgurl" on obj ("obj_imgurl");
+create index "obj_created" on obj ("obj_created");
+create index "obj_edited" on obj ("obj_edited");
 
 CREATE TABLE "outq" (
   "outq_hash" text NOT NULL,
@@ -1081,6 +1124,8 @@ CREATE TABLE "site" (
   "site_realm" text NOT NULL DEFAULT '',
   "site_valid" smallint NOT NULL DEFAULT '0',
   "site_dead" smallint NOT NULL DEFAULT '0',
+  "site_type" smallint NOT NULL DEFAULT '0',
+  "site_project" text NOT NULL DEFAULT '',
   PRIMARY KEY ("site_url")
 );
 create index "site_flags" on site ("site_flags");
@@ -1092,6 +1137,8 @@ create index "site_sellpage" on site ("site_sellpage");
 create index "site_realm" on site ("site_realm");
 create index "site_valid" on site ("site_valid");
 create index "site_dead" on site ("site_dead");
+create index "site_type" on site ("site_type");
+create index "site_project" on site ("site_project");
 
 CREATE TABLE "source" (
   "src_id" serial  NOT NULL,

@@ -59,12 +59,14 @@ function home_content(&$a, $update = 0, $load = false) {
 				return $o;
 			}
 		}
+		if(strpos($frontpage,'http') !== 0)
+			$frontpage = z_root() . '/' . $frontpage;
 		if(intval(get_config('system','mirror_frontpage'))) {
-			$o = '<html><head><title>' . t('$Projectname') . '</title></head><body style="margin: 0; padding: 0; border: none;" ><iframe src="' . z_root() . '/' . $frontpage . '" width="100%" height="100%" style="margin: 0; padding: 0; border: none;" ></iframe></body></html>';
+			$o = '<html><head><title>' . t('$Projectname') . '</title></head><body style="margin: 0; padding: 0; border: none;" ><iframe src="' . $frontpage . '" width="100%" height="100%" style="margin: 0; padding: 0; border: none;" ></iframe></body></html>';
 			echo $o;
 			killme();
 		}
-		goaway(z_root() . '/' . $frontpage);
+		goaway($frontpage);
 	}
 
 

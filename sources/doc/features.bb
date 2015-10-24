@@ -8,14 +8,14 @@ $Projectname provides distributed web publishing and social communications with 
 
 So what exactly are "decentralised permissions"? They give me the ability to share something on my website (photos, media, files, webpages, etc.) with specific people on completely different websites - but not necessarily [i]everybody[/i] on those websites; and they do not need a password on my website and do not need to login to my website to view the things I've shared with them. They have one password on their own website and "magic authentication" between affiliated websites in the network. Also, as it is decentralised, there is no third party which has the ability to bypass permissions and see everything in the network.
 
-$Projectname combines many features of traditional blogs, social networking and media, content management systems, and personal cloud storage into an easy to use framework. Each node in the matrix can operate standalone or link with other nodes to create a super-network; leaving privacy under the control of the original publisher. 
+$Projectname combines many features of traditional blogs, social networking and media, content management systems, and personal cloud storage into an easy to use framework. Each node in the grid can operate standalone or link with other nodes to create a super-network; leaving privacy under the control of the original publisher. 
 
 $Projectname is an open source webserver application written originally in PHP/MySQL and is easily installable by those with basic website administration skills. It is also easily extended via plugins and themes and other third-party tools. 
 
 [b][size=24]$Projectname Features[/size][/b]
 
 
-The $Projectname is a general-purpose web publishing and communication network, with several unique features.  It is designed to be used by the widest range of people on the web, from non-technical bloggers, to expert PHP programmers and seasoned systems administrators.
+$Projectname is a general-purpose web publishing and communication network, with several unique features.  It is designed to be used by the widest range of people on the web, from non-technical bloggers, to expert PHP programmers and seasoned systems administrators.
 
 This page lists some of the core features of $Projectname that are bundled with the official release.  As with most free and open source software, there may be many other extensions, additions, plugins, themes and configurations that are limited only by the needs and imagination of the members.
 
@@ -29,9 +29,13 @@ When adding connnections in $Projectname, members have the option of assigning "
 
 On the other hand, when adding a friend's channel, they could be placed under the affinity level of &quot;Friends&quot;.
 
-At this point, the $Projectname [i]Affinity Slider[/i] tool, which usually appears at the top of your &quot;Matrix&quot; page, adjusts the content on the page to include those within the desired affinity range. Channels outside that range will not be displayed, unless you adjust the slider to include them.
+At this point, $Projectname [i]Affinity Slider[/i] tool, which usually appears at the top of your &quot;Matrix&quot; page, adjusts the content on the page to include those within the desired affinity range. Channels outside that range will not be displayed, unless you adjust the slider to include them.
 
 The Affinity Slider allows instantaneous filtering of large amounts of content, grouped by levels of closeness.
+
+[b]Connection Filtering[/b]
+
+You have the ability to control precisely what appears in your stream using the optional "Connection Filter". When enabled, the Connection Editor provides inputs for selecting criteria which needs to be matched in order to include or exclude a specific post from a specific channel. Once a post has been allowed, all comments to that post are allowed regardless of whether they match the selection criteria. You may select words that if present block the post or ensure it is included in your stream. Regular expressions may be used for even finer control, as well as hashtags or even the detected language of the post.  
 
 [b]Access Control Lists[/b]
 
@@ -43,7 +47,7 @@ Access Control Lists may be applied to content and posts, photos, events, webpag
 
 [b]Single Sign-on[/b]
 
-Access Control Lists work for all channels in the matrix due to our unique single sign-on technology. Most internal links provide an identity token which can be verified on other $Projectname sites and used to control access to private resources. You login once to your home hub. After that, authentication to all $Projectname resources is "magic".
+Access Control Lists work for all channels in the grid due to our unique single sign-on technology. Most internal links provide an identity token which can be verified on other $Projectname sites and used to control access to private resources. You login once to your home hub. After that, authentication to all $Projectname resources is "magic".
 
 
 [b]WebDAV enabled File Storage[/b]
@@ -85,7 +89,7 @@ Messages marked [b]private[/b] are encrypted with AES-CBC 256-bit symmetric ciph
 
 These private messages are also stored in an encrypted form on remote systems. 
 
-Each Red channel has it's own unique set of private and associated public RSA 4096-bit keys, generated when the channels is first created.
+Each$Projectname channel has it's own unique set of private and associated public RSA 4096-bit keys, generated when the channels is first created.
 
 Additionally, messages may be created utilising "end-to-end encryption" which cannot be read by $Projectname operators or ISPs or anybody who does not know the passcode. 
 
@@ -142,9 +146,9 @@ Forums are typically channels which may be open to participation from multiple a
 
 [b]Account Cloning[/b]
 
-Accounts in the $Projectname are referred to as [i]nomadic identities[/i], because a member's identity is not bound to the hub where the identity was originally created.  For example, when you create a Facebook or Gmail account, it is tied to those services.  They cannot function without Facebook.com or Gmail.com.  
+Accounts in $Projectname are referred to as [i]nomadic identities[/i], because a member's identity is not bound to the hub where the identity was originally created.  For example, when you create a Facebook or Gmail account, it is tied to those services.  They cannot function without Facebook.com or Gmail.com.  
 
-By contrast, say you've created a Red identity called [b]tina@redhub.com[/b].  You can clone it to another Red hub by choosing the same, or a different name: [b]liveForever@Some$ProjectnameHub.info[/b]
+By contrast, say you've created a$Projectname identity called [b]tina@redhub.com[/b].  You can clone it to another$Projectname hub by choosing the same, or a different name: [b]liveForever@Some$ProjectnameHub.info[/b]
 
 Both channels are now synchronized, which means all your contacts and preferences will be duplicated on your clone.  It doesn't matter whether you send a post from your original hub, or the new hub.  Posts will be mirrored on both accounts.
 
@@ -152,9 +156,9 @@ This is a rather revolutionary feature, if we consider some scenarios:
 
  - What happens if the hub where an identity is based suddenly goes offline?  Without cloning, a member will not be able to communicate until that hub comes back online (no doubt many of you have seen and cursed the Twitter "Fail Whale").  With cloning, you just log into your cloned account, and life goes on happily ever after. 
 
- - The administrator of your hub can no longer afford to pay for his free and public $Projectname hub. He announces that the hub will be shutting down in two weeks.  This gives you ample time to clone your identity(ies) and preserve your Red relationships, friends and content.
+ - The administrator of your hub can no longer afford to pay for his free and public $Projectname hub. He announces that the hub will be shutting down in two weeks.  This gives you ample time to clone your identity(ies) and preserve your$Projectname relationships, friends and content.
 
- - What if your identity is subject to government censorship?  Your hub provider may be compelled to delete your account, along with any identities and associated data.  With cloning, the $Projectname offers [b]censorship resistance[/b].  You can have hundreds of clones, if you wanted to, all named different, and existing on many different hubs, strewn around the internet.  
+ - What if your identity is subject to government censorship?  Your hub provider may be compelled to delete your account, along with any identities and associated data.  With cloning, $Projectname offers [b]censorship resistance[/b].  You can have hundreds of clones, if you wanted to, all named different, and existing on many different hubs, strewn around the internet.  
 
 Red offers interesting new possibilities for privacy. You can read more at the &lt;&lt;Private Communications Best Practices&gt;&gt; page.
 
@@ -172,7 +176,7 @@ Backups can then be used to clone or restore a profile.
 
 [b]Account Deletion[/b]
 
-Accounts can be immediately deleted by clicking on a link. That's it.  All associated content is then deleted from the matrix (this includes posts and any other content produced by the deleted profile). Depending on the number of connections you have, the process of deleting remote content could take some time but it is scheduled to happen as quickly as is practical.
+Accounts can be immediately deleted by clicking on a link. That's it.  All associated content is then deleted from the grid (this includes posts and any other content produced by the deleted profile). Depending on the number of connections you have, the process of deleting remote content could take some time but it is scheduled to happen as quickly as is practical.
 
 [b][size=20]Content Creation[/size][/b]
 
@@ -183,10 +187,10 @@ Red supports a number of different ways of adding rich-text content. The default
 When creating &quot;Websites&quot;, content may be entered in HTML, Markdown, BBcode, and/or plain text.
 
 [b]Deletion of content[/b]
-Any content created in the $Projectname remains under the control of the member (or channel) that originally created it.  At any time, a member can delete a message, or a range of messages.  The deletion process ensures that the content is deleted, regardless of whether it was posted on a channel's primary (home) hub, or on another hub, where the channel was remotely authenticated via Zot (the $Projectname communication and authentication protocol).
+Any content created in $Projectname remains under the control of the member (or channel) that originally created it.  At any time, a member can delete a message, or a range of messages.  The deletion process ensures that the content is deleted, regardless of whether it was posted on a channel's primary (home) hub, or on another hub, where the channel was remotely authenticated via Zot ($Projectname communication and authentication protocol).
 
 [b]Media[/b]
-Similar to any other modern blogging system, social network, or a micro-blogging service, Red supports the uploading of files, embedding of videos, linking web pages.
+Similar to any other modern blogging system, social network, or a micro-blogging service, $Projectname supports the uploading of files, embedding of videos, linking web pages.
 
 [b]Previewing/Editing[/b] 
 Post can be previewed prior to sending and edited after sending.

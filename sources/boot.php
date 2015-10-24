@@ -43,13 +43,14 @@ require_once('include/taxonomy.php');
 require_once('include/identity.php');
 require_once('include/Contact.php');
 require_once('include/account.php');
+require_once('include/AccessList.php');
 
 
 define ( 'PLATFORM_NAME',           'hubzilla' );
 define ( 'RED_VERSION',             trim(file_get_contents('version.inc')) . 'H');
 define ( 'ZOT_REVISION',            1     );
 
-define ( 'DB_UPDATE_VERSION',       1148  );
+define ( 'DB_UPDATE_VERSION',       1158  );
 
 /**
  * @brief Constant with a HTML line break.
@@ -80,9 +81,8 @@ $DIRECTORY_FALLBACK_SERVERS = array(
 	'https://zothub.com', 
 	'https://zotid.net', 
 	'https://red.zottel.red',
-	'https://redmatrix.info',
-	'https://my.federated.social',
-	'https://redmatrix.nl'
+	'https://gravizot.de',
+	'https://my.federated.social'
 );
 
 
@@ -332,6 +332,12 @@ define ( 'ATTACH_FLAG_OS',     0x0002);
 define ( 'MENU_ITEM_ZID',       0x0001);
 define ( 'MENU_ITEM_NEWWIN',    0x0002);
 define ( 'MENU_ITEM_CHATROOM',  0x0004);
+
+
+
+define ( 'SITE_TYPE_ZOT',           0);
+define ( 'SITE_TYPE_NOTZOT',        1);
+define ( 'SITE_TYPE_UNKNOWN',       2);
 
 /**
  * Poll/Survey types
@@ -800,7 +806,7 @@ class App {
 		$this->is_mobile = $mobile_detect->isMobile();
 		$this->is_tablet = $mobile_detect->isTablet();
 
-		$this->head_set_icon('/images/rm-32.png');
+		$this->head_set_icon('/images/hz-32.png');
 
 		BaseObject::set_app($this);
 

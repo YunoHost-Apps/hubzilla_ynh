@@ -97,7 +97,7 @@ function notification($params) {
 
 	if ($params['type'] == NOTIFY_MAIL) {
 		logger('notification: mail');
-		$subject = 	sprintf( t('[Red:Notify] New mail received at %s'),$sitename);
+		$subject = 	sprintf( t('[Hubzilla:Notify] New mail received at %s'),$sitename);
 
 		$preamble = sprintf( t('%1$s, %2$s sent you a new private message at %3$s.'),$recip['channel_name'], $sender['xchan_name'],$sitename);
 		$epreamble = sprintf( t('%1$s sent you %2$s.'),'[zrl=' . $sender['xchan_url'] . ']' . $sender['xchan_name'] . '[/zrl]', '[zrl=$itemlink]' . t('a private message') . '[/zrl]');
@@ -183,7 +183,7 @@ function notification($params) {
 		// Before this we have the name of the replier on the subject rendering 
 		// differents subjects for messages on the same thread.
 
-		$subject = sprintf( t('[Red:Notify] Comment to conversation #%1$d by %2$s'), $parent_id, $sender['xchan_name']);
+		$subject = sprintf( t('[Hubzilla:Notify] Comment to conversation #%1$d by %2$s'), $parent_id, $sender['xchan_name']);
 		$preamble = sprintf( t('%1$s, %2$s commented on an item/conversation you have been following.'), $recip['channel_name'], $sender['xchan_name']); 
 		$epreamble = $dest_str; 
 
@@ -193,7 +193,7 @@ function notification($params) {
 	}
 
 	if($params['type'] == NOTIFY_WALL) {
-		$subject = sprintf( t('[Red:Notify] %s posted to your profile wall') , $sender['xchan_name']);
+		$subject = sprintf( t('[Hubzilla:Notify] %s posted to your profile wall') , $sender['xchan_name']);
 
 		$preamble = sprintf( t('%1$s, %2$s posted to your profile wall at %3$s') , $recip['channel_name'], $sender['xchan_name'], $sitename);
 
@@ -221,7 +221,7 @@ function notification($params) {
 			return;
 		}
 	
-		$subject =	sprintf( t('[Red:Notify] %s tagged you') , $sender['xchan_name']);
+		$subject =	sprintf( t('[Hubzilla:Notify] %s tagged you') , $sender['xchan_name']);
 		$preamble = sprintf( t('%1$s, %2$s tagged you at %3$s') , $recip['channel_name'], $sender['xchan_name'], $sitename);
 		$epreamble = sprintf( t('%1$s, %2$s [zrl=%3$s]tagged you[/zrl].') ,
 			$recip['channel_name'],
@@ -235,7 +235,7 @@ function notification($params) {
 	}
 
 	if ($params['type'] == NOTIFY_POKE) {
-		$subject =	sprintf( t('[Red:Notify] %1$s poked you') , $sender['xchan_name']);
+		$subject =	sprintf( t('[Hubzilla:Notify] %1$s poked you') , $sender['xchan_name']);
 		$preamble = sprintf( t('%1$s, %2$s poked you at %3$s') , $recip['channel_name'], $sender['xchan_name'], $sitename);
 		$epreamble = sprintf( t('%1$s, %2$s [zrl=%2$s]poked you[/zrl].') ,
 			$recip['channel_name'], 
@@ -253,7 +253,7 @@ function notification($params) {
 	}
 
 	if ($params['type'] == NOTIFY_TAGSHARE) {
-		$subject =	sprintf( t('[Red:Notify] %s tagged your post') , $sender['xchan_name']);
+		$subject =	sprintf( t('[Hubzilla:Notify] %s tagged your post') , $sender['xchan_name']);
 		$preamble = sprintf( t('%1$s, %2$s tagged your post at %3$s') , $recip['channel_name'],$sender['xchan_name'], $sitename);
 		$epreamble = sprintf( t('%1$s, %2$s tagged [zrl=%3$s]your post[/zrl]') ,
 			$recip['channel_name'],
@@ -267,7 +267,7 @@ function notification($params) {
 	}
 
 	if ($params['type'] == NOTIFY_INTRO) {
-		$subject = sprintf( t('[Red:Notify] Introduction received'));
+		$subject = sprintf( t('[Hubzilla:Notify] Introduction received'));
 		$preamble = sprintf( t('%1$s, you\'ve received an new connection request from \'%2$s\' at %3$s'), $recip['channel_name'], $sender['xchan_name'], $sitename); 
 		$epreamble = sprintf( t('%1$s, you\'ve received [zrl=%2$s]a new connection request[/zrl] from %3$s.'),
 			$recip['channel_name'],
@@ -282,7 +282,7 @@ function notification($params) {
 	}
 
 	if ($params['type'] == NOTIFY_SUGGEST) {
-		$subject = sprintf( t('[Red:Notify] Friend suggestion received'));
+		$subject = sprintf( t('[Hubzilla:Notify] Friend suggestion received'));
 		$preamble = sprintf( t('%1$s, you\'ve received a friend suggestion from \'%2$s\' at %3$s'), $recip['channel_name'], $sender['xchan_name'], $sitename); 
 		$epreamble = sprintf( t('%1$s, you\'ve received [zrl=%2$s]a friend suggestion[/zrl] for %3$s from %4$s.'),
 			$recip['channel_name'],
@@ -315,9 +315,12 @@ function notification($params) {
 		'epreamble' => $epreamble,
 		'body'      => $body,
 		'sitelink'  => $sitelink,
+		'sitename'  => $sitename,
 		'tsitelink' => $tsitelink,
 		'hsitelink' => $hsitelink,
-		'itemlink'  => $itemlink
+		'itemlink'  => $itemlink,
+		'sender'    => $sender,
+		'recipient' => $recip
 	);
 
 	call_hooks('enotify', $h);
@@ -505,7 +508,7 @@ function notification($params) {
 					$private_activity = true;
 				case NOTIFY_MAIL:
 					$datarray['textversion'] = $datarray['htmlversion'] = $datarray['title'] = '';
-					$datarray['subject'] = preg_replace('/' . preg_quote(t('[Red:Notify]')) . '/','$0*',$datarray['subject']);
+					$datarray['subject'] = preg_replace('/' . preg_quote(t('[Hubzilla:Notify]')) . '/','$0*',$datarray['subject']);
 					break;
 				default:
 					break;

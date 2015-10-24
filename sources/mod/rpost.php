@@ -94,15 +94,13 @@ function rpost_content(&$a) {
 
 	$channel = $a->get_channel();
 
-	$channel_acl = array(
-		'allow_cid' => $channel['channel_allow_cid'],
-		'allow_gid' => $channel['channel_allow_gid'],
-		'deny_cid'  => $channel['channel_deny_cid'],
-		'deny_gid'  => $channel['channel_deny_gid']
-	);
+
+	$acl = new AccessList($channel);
+
+	$channel_acl = $acl->get();
 
 	if($_REQUEST['url']) {
-		$x = z_fetch_url(z_root() . '/urlinfo?f=&url=' . urlencode($_REQUEST['url']));
+		$x = z_fetch_url(z_root() . '/linkinfo?f=&url=' . urlencode($_REQUEST['url']));
 		if($x['success'])
 			$_REQUEST['body'] = $_REQUEST['body'] . $x['body'];
 	}
@@ -112,8 +110,7 @@ function rpost_content(&$a) {
 		'allow_location' => ((intval(get_pconfig($channel['channel_id'],'system','use_browser_location'))) ? '1' : ''),
 		'default_location' => $channel['channel_location'],
 		'nickname' => $channel['channel_address'],
-		'lockstate' => (($channel['channel_allow_cid'] || $channel['channel_allow_gid'] 
-			|| $channel['channel_deny_cid'] || $channel['channel_deny_gid']) ? 'lock' : 'unlock'),
+		'lockstate' => (($acl->is_private()) ? 'lock' : 'unlock'),
 		'acl' => populate_acl($channel_acl),
 		'bang' => '',
 		'visitor' => true,

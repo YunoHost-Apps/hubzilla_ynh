@@ -24,13 +24,7 @@ function message_content(&$a) {
 	if(! $cipher)
 		$cipher = 'aes256';
 
-
-	$tpl = get_markup_template('mail_head.tpl');
-	$header = replace_macros($tpl, array(
-		'$messages' => t('Messages'),
-		'$tab_content' => $tab_content
-	));
-
+/*
 	if((argc() == 3) && (argv(1) === 'dropconv')) {
 		if(! intval(argv(2)))
 			return;
@@ -38,44 +32,73 @@ function message_content(&$a) {
 		$r = private_messages_drop(local_channel(), argv(2), true);
 		if($r)
 			info( t('Conversation removed.') . EOL );
-		goaway($a->get_baseurl(true) . '/message' );
+		goaway($a->get_baseurl(true) . '/mail/combined' );
 	}
-	if(argc() == 1) {
 
-		// list messages
+	if(argc() == 2) {
 
-		$o .= $header;
+		switch(argv(1)) {
+			case 'combined':
+				$mailbox = 'combined';
+				$header = t('Conversations');
+				break;
+			case 'inbox':
+				$mailbox = 'inbox';
+				$header = t('Received Messages');
+				break;
+			case 'outbox':
+				$mailbox = 'outbox';
+				$header = t('Sent Messages');
+				break;
+			default:
+				break;
+		}
 
 		// private_messages_list() can do other more complicated stuff, for now keep it simple
 
-		$r = private_messages_list(local_channel(), '', $a->pager['start'], $a->pager['itemspage']);
+		$r = private_messages_list(local_channel(), $mailbox, $a->pager['start'], $a->pager['itemspage']);
 
 		if(! $r) {
 			info( t('No messages.') . EOL);
 			return $o;
 		}
 
-		$tpl = get_markup_template('mail_list.tpl');
+		$messages = array();
+
 		foreach($r as $rr) {
-			
-			$o .= replace_macros($tpl, array(
-				'$id'         => $rr['id'],
-				'$from_name'  => $rr['from']['xchan_name'],
-				'$from_url'   => chanlink_hash($rr['from_xchan']),
-				'$from_photo' => $rr['from']['xchan_photo_s'],
-				'$to_name'    => $rr['to']['xchan_name'],
-				'$to_url'     => chanlink_hash($rr['to_xchan']),
-				'$to_photo'   => $rr['to']['xchan_photo_s'],
-				'$subject'    => (($rr['seen']) ? $rr['title'] : '<strong>' . $rr['title'] . '</strong>'),
-				'$delete'     => t('Delete conversation'),
-				'$body'       => smilies(bbcode($rr['body'])),
-				'$date'       => datetime_convert('UTC',date_default_timezone_get(),$rr['created'], t('D, d M Y - g:i A')),
-				'$seen'       => $rr['seen']
-			));
+
+			$messages[] = array(
+				'id'         => $rr['id'],
+				'from_name'  => $rr['from']['xchan_name'],
+				'from_url'   => chanlink_hash($rr['from_xchan']),
+				'from_photo' => $rr['from']['xchan_photo_s'],
+				'to_name'    => $rr['to']['xchan_name'],
+				'to_url'     => chanlink_hash($rr['to_xchan']),
+				'to_photo'   => $rr['to']['xchan_photo_s'],
+				'subject'    => (($rr['seen']) ? $rr['title'] : '<strong>' . $rr['title'] . '</strong>'),
+				'delete'     => t('Delete conversation'),
+				'body'       => smilies(bbcode($rr['body'])),
+				'date'       => datetime_convert('UTC',date_default_timezone_get(),$rr['created'], t('D, d M Y - g:i A')),
+				'seen'       => $rr['seen']
+			);
 		}
+
+
+		$tpl = get_markup_template('mail_head.tpl');
+		$o = replace_macros($tpl, array(
+			'$header' => $header,
+			'$messages' => $messages
+		));
+
+
 		$o .= alt_pager($a,count($r));	
+
 		return $o;
+
+		return;
+
 	}
+*/
 
-
+	return;
 }

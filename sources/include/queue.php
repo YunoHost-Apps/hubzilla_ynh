@@ -22,6 +22,25 @@ function queue_run($argv, $argc){
 
 	logger('queue: start');
 
+
+	// delete all queue items more than 3 days old
+	// but first mark these sites dead if we haven't heard from them in a month
+
+	$r = q("select outq_posturl from outq where outq_created < %s - INTERVAL %s",
+		db_utcnow(), db_quoteinterval('3 DAY')
+	);
+	if($r) {
+		foreach($r as $rr) {
+			$site_url = '';
+			$h = parse_url($rr['outq_posturl']);
+			$desturl = $h['scheme'] . '://' . $h['host'] . (($h['port']) ? ':' . $h['port'] : '');
+			q("update site set site_dead = 1 where site_dead = 0 and site_url = '%s' and site_update < %s - INTERVAL %s",
+				dbesc($desturl),
+				db_utcnow(), db_quoteinterval('1 MONTH')
+			);
+		}
+	}
+
 	$r = q("DELETE FROM outq WHERE outq_created < %s - INTERVAL %s",
 		db_utcnow(), db_quoteinterval('3 DAY')
 	);
@@ -69,15 +88,34 @@ function queue_run($argv, $argc){
 		return;
 
 	foreach($r as $rr) {
+
+		$dresult = null;
+
 		if(in_array($rr['outq_posturl'],$deadguys))
 			continue;
+
+		$base = '';
+		$h = parse_url($rr['outq_posturl']);
+		if($h)
+			$base = $h['scheme'] . '://' . $h['host'] . (($h['port']) ? ':' . $h['port'] : '');
 
 		if($rr['outq_driver'] === 'post') {
 			$result = z_post_url($rr['outq_posturl'],$rr['outq_msg']); 
 			if($result['success'] && $result['return_code'] < 300) {
 				logger('queue: queue post success to ' . $rr['outq_posturl'], LOGGER_DEBUG);
+				if($base) {
+					q("update site set site_update = '%s', site_dead = 0 where site_url = '%s' ",
+						dbesc(datetime_convert()),
+						dbesc($base)
+					);
+				}
+				q("update dreport set dreport_result = '%s', dreport_time = '%s' where dreport_queue = '%s' limit 1",
+					dbesc('accepted for delivery'),
+					dbesc(datetime_convert()),
+					dbesc($rr['outq_hash'])
+				);
 				$y = q("delete from outq where outq_hash = '%s'",
-					dbesc($rr['ouq_hash'])
+					dbesc($rr['outq_hash'])
 				);
 			}
 			else {
@@ -86,6 +124,7 @@ function queue_run($argv, $argc){
 					dbesc(datetime_convert()),
 					dbesc($rr['outq_hash'])
 				);
+				$deadguys[] = $rr['outq_posturl'];
 			}
 			continue;
 		}

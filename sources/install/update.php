@@ -1,6 +1,6 @@
 <?php
 
-define( 'UPDATE_VERSION' , 1148 );
+define( 'UPDATE_VERSION' , 1158 );
 
 /**
  *
@@ -1728,3 +1728,192 @@ function update_r1147() {
         return UPDATE_SUCCESS;
     return UPDATE_FAILED;
 }
+
+function update_r1148() {
+    $r1 = q("alter table likes add i_mid char(255) not null default '' ");
+    $r2 = q("create index i_mid on likes ( i_mid ) ");
+
+    if($r1 && $r2)
+        return UPDATE_SUCCESS;
+    return UPDATE_FAILED;
+
+}
+
+function update_r1149() {
+	if(ACTIVE_DBTYPE == DBTYPE_POSTGRES) { 
+		$r1 = q("ALTER TABLE obj ADD obj_term CHAR( 255 ) NOT NULL DEFAULT '',
+			ADD obj_url CHAR( 255 ) NOT NULL DEFAULT '',
+			ADD obj_imgurl CHAR( 255 ) NOT NULL DEFAULT '',
+			ADD obj_created timestamp NOT NULL DEFAULT '0001-01-01 00:00:00',
+			ADD obj_edited timestamp NOT NULL DEFAULT '0001-01-01 00:00:00' ");
+	}
+	else {
+		$r1 = q("ALTER TABLE obj ADD obj_term CHAR( 255 ) NOT NULL DEFAULT '',
+			ADD obj_url CHAR( 255 ) NOT NULL DEFAULT '',
+			ADD obj_imgurl CHAR( 255 ) NOT NULL DEFAULT '',
+			ADD obj_created DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
+			ADD obj_edited DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' ");
+	}
+
+	$r2 = q("create index obj_term on obj ( obj_term ) ");
+	$r3 = q("create index obj_url on obj ( obj_url ) ");
+	$r4 = q("create index obj_imgurl on obj ( obj_imgurl ) ");
+	$r5 = q("create index obj_created on obj ( obj_created ) ");
+	$r6 = q("create index obj_edited on obj ( obj_edited ) ");
+	$r = $r1 && $r2 && $r3 && $r4 && $r5 && $r6;
+    if($r)
+        return UPDATE_SUCCESS;
+    return UPDATE_FAILED;
+
+}
+
+function update_r1150() {
+
+	if(ACTIVE_DBTYPE == DBTYPE_POSTGRES) { 
+		$r1 = q("ALTER TABLE app ADD app_created timestamp NOT NULL DEFAULT '0001-01-01 00:00:00',
+			ADD app_edited timestamp NOT NULL DEFAULT '0001-01-01 00:00:00' ");
+	}
+	else {
+		$r1 = q("ALTER TABLE app ADD app_created DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
+			ADD app_edited DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' ");
+	}
+
+	$r2 = q("create index app_created on app ( app_created ) ");
+	$r3 = q("create index app_edited on app ( app_edited ) ");
+
+	$r = $r1 && $r2 && $r3;
+    if($r)
+        return UPDATE_SUCCESS;
+    return UPDATE_FAILED;
+
+}
+
+function update_r1151() {
+
+	$r3 = q("select likes.*, item.mid from likes left join item on likes.iid = item.id");
+	if($r3) {
+		foreach($r3 as $rr) {
+			q("update likes set i_mid = '%s' where id = $d",
+				dbesc($rr['mid']),
+				intval($rr['id'])
+			);
+		}
+	}
+
+
+	return UPDATE_SUCCESS;
+
+}
+
+function update_r1152() {
+
+	if(ACTIVE_DBTYPE == DBTYPE_POSTGRES) { 
+
+		$r1 = q("CREATE TABLE IF NOT EXISTS \"dreport\" (
+  \"dreport_id\" int(11) NOT NULL,
+  \"dreport_channel\" int(11) NOT NULL DEFAULT '0',
+  \"dreport_mid\" char(255) NOT NULL DEFAULT '',
+  \"dreport_site\" char(255) NOT NULL DEFAULT '',
+  \"dreport_recip\" char(255) NOT NULL DEFAULT '',
+  \"dreport_result\" char(255) NOT NULL DEFAULT '',
+  \"dreport_time\" timestamp NOT NULL DEFAULT '0001-01-01 00:00:00',
+  \"dreport_xchan\" char(255) NOT NULL DEFAULT '',
+  PRIMARY KEY (\"dreport_id\") ");
+
+	$r2 = q("create index \"dreport_mid\" on dreport (\"dreport_mid\") ");
+	$r3 = q("create index \"dreport_site\" on dreport (\"dreport_site\") ");
+	$r4 = q("create index \"dreport_time\" on dreport (\"dreport_time\") ");
+	$r5 = q("create index \"dreport_xchan\" on dreport (\"dreport_xchan\") ");
+	$r6 = q("create index \"dreport_channel\" on dreport (\"dreport_channel\") ");
+
+	$r = $r1 && $r2 && $r3 && $r4 && $r5 && $r6;
+
+	}
+	else {
+		$r = q("CREATE TABLE IF NOT EXISTS `dreport` (
+  `dreport_id` int(11) NOT NULL AUTO_INCREMENT,
+  `dreport_channel` int(11) NOT NULL DEFAULT '0',
+  `dreport_mid` char(255) NOT NULL DEFAULT '',
+  `dreport_site` char(255) NOT NULL DEFAULT '',
+  `dreport_recip` char(255) NOT NULL DEFAULT '',
+  `dreport_result` char(255) NOT NULL DEFAULT '',
+  `dreport_time` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `dreport_xchan` char(255) NOT NULL DEFAULT '',
+  PRIMARY KEY (`dreport_id`),
+  KEY `dreport_mid` (`dreport_mid`),
+  KEY `dreport_site` (`dreport_site`),
+  KEY `dreport_time` (`dreport_time`),
+  KEY `dreport_xchan` (`dreport_xchan`),
+  KEY `dreport_channel` (`dreport_channel`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ");
+
+	}
+
+    if($r)
+        return UPDATE_SUCCESS;
+    return UPDATE_FAILED;
+
+}
+
+function update_r1153() {
+
+	$r1 = q("ALTER TABLE dreport ADD dreport_queue CHAR( 255 ) NOT NULL DEFAULT '' ");
+	$r2 = q("create index dreport_queue on dreport ( dreport_queue) ");
+    if($r1 && $r2)
+        return UPDATE_SUCCESS;
+    return UPDATE_FAILED;
+
+
+}
+
+function update_r1154() {
+
+	$r = q("ALTER TABLE event ADD event_vdata text NOT NULL ");
+    if($r)
+        return UPDATE_SUCCESS;
+    return UPDATE_FAILED;
+
+}
+
+
+function update_r1155() {
+
+	$r1 = q("alter table site add site_type smallint not null default '0' ");
+	$r2 = q("create index site_type on site ( site_type ) ");
+	if($r1 && $r2)
+		return UPDATE_SUCCESS;
+	return UPDATE_FAILED;
+}
+
+
+function update_r1156() {
+	$r1 = q("ALTER TABLE mail ADD conv_guid CHAR( 255 ) NOT NULL DEFAULT '' ");
+	$r2 = q("create index conv_guid on mail ( conv_guid ) ");
+
+	$r3 = q("select mail.id, mail.convid, conv.guid from mail left join conv on mail.convid = conv.id where true");
+	if($r3) {
+		foreach($r3 as $rr) {
+			if($rr['convid']) {
+				q("update mail set conv_guid = '%s' where id = %d",
+					dbesc($rr['guid']),
+					intval($rr['id'])
+				);
+			}
+		}
+	}
+		
+    if($r1 && $r2)
+        return UPDATE_SUCCESS;
+	return UPDATE_FAILED;
+}
+
+function update_r1157() {
+	$r1 = q("alter table site add site_project char(255) not null default '' ");
+    $r2 = q("create index site_project on site ( site_project ) ");
+    if($r1 && $r2)
+        return UPDATE_SUCCESS;
+    return UPDATE_FAILED;
+
+}
+
+

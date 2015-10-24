@@ -10,6 +10,7 @@
 {{if $polled}}
 <p>{{$polled}} {{$lastpoll}}</p>
 {{/if}}
+<p>{{$load_average}} {{$loadavg_all}}</p>
 <p>{{$web_location}}</p>
 <p>{{$visit}}</p>
 <p>{{$bug_text}} <a href="{{$bug_link_url}}">{{$bug_link_text}}</a></p>

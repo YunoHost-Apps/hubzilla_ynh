@@ -155,7 +155,7 @@ function openid_content(&$a) {
 				);
 				if($r) {
 
-					$photos = import_profile_photo($pphoto,$url);
+					$photos = import_xchan_photo($pphoto,$url);
 					if($photos) {
 						$z = q("update xchan set xchan_photo_date = '%s', xchan_photo_l = '%s', xchan_photo_m = '%s', 
 							xchan_photo_s = '%s', xchan_photo_mimetype = '%s' where xchan_hash = '%s'",

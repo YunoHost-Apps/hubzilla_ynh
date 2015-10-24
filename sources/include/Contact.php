@@ -174,9 +174,6 @@ function abook_toggle_flag($abook,$flag) {
 		);
 	}
 
-	$a = get_app();
-	if($a->data['abook'])
-		$a->data['abook']['abook_flags'] = $a->data['abook']['abook_flags'] ^ $flag;
 	return $r;
 
 }
@@ -321,6 +318,8 @@ function channel_remove($channel_id, $local = true, $unset_session=true) {
 	q("DELETE FROM `profile` WHERE `uid` = %d", intval($channel_id));
 	q("DELETE FROM `pconfig` WHERE `uid` = %d", intval($channel_id));
 	q("DELETE FROM `spam` WHERE `uid` = %d", intval($channel_id));
+
+	// @FIXME At this stage we need to remove the file resources located under /store/$nickname
 
 
 	q("delete from abook where abook_xchan = '%s' and abook_self = 1 ",

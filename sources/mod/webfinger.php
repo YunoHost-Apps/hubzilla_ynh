@@ -15,7 +15,7 @@ function webfinger_content(&$a) {
 	if(x($_GET,'addr')) {
 		$addr = trim($_GET['addr']);
 		if(strpos($addr,'@') !== false) {
-			$res = webfinger_rfc7033($addr);
+			$res = webfinger_rfc7033($addr,true);
 			if(! $res)
 				$res = old_webfinger($addr);
 		}

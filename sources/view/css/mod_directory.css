@@ -29,3 +29,6 @@
 	margin-top: -2px;
 }
 
+.directory-collapse {
+		overflow: auto;
+}

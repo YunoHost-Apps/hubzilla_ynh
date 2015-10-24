@@ -446,6 +446,20 @@ function event_addtocal($item_id, $uid) {
 				intval($channel['channel_id'])
 			);
 
+			$item['resource_id'] = $event['event_hash'];
+			$item['resource_type'] = 'event';
+
+			$i = array($item);
+			xchan_query($i);
+			$sync_item = fetch_post_tags($i);
+			$z = q("select * from event where event_hash = '%s' and uid = %d limit 1",
+				dbesc($event['event_hash']),
+				intval($channel['channel_id'])
+			);
+			if($z) {
+				build_sync_packet($channel['channel_id'],array('event_item' => array(encode_item($sync_item[0],true)),'event' => $z));
+			}
+
 			return true;
 		}
 	}
@@ -512,13 +526,17 @@ function event_import_ical($ical, $uid) {
 
 //	logger('dtstart: ' . var_export($dtstart,true));
 
-	if(($dtstart->timezone_type == 2) || (($dtstart->timezone_type == 3) && ($dtstart->timezone === 'UTC'))) {
-		$ev['adjust'] = 1;
+
+	switch($dtstart->timezone_type) {
+		case VObject\Property\DateTime::UTC :
+			$ev['adjust'] = 0;
+			break;
+		case VObject\Property\DateTime::LOCALTZ :
+		default:
+			$ev['adjust'] = 1;
+			break;
 	}
-	else {
-		$ev['adjust'] = 0;
-	}
-	
+
 	$ev['start'] = datetime_convert((($ev['adjust']) ? 'UTC' : date_default_timezone_get()),'UTC',
 		$dtstart->format(\DateTime::W3C));
 
@@ -737,12 +755,15 @@ function event_store_item($arr, $event) {
 		}
 	}
 
+
+
 	$item_arr = array();
 	$prefix = '';
 //	$birthday = false;
 
 	if($event['type'] === 'birthday') {
-		$prefix =  t('This event has been added to your calendar.');
+		if(! is_sys_channel($arr['uid']))
+			$prefix =  t('This event has been added to your calendar.');
 //		$birthday = true;
 
 		// The event is created on your own site by the system, but appears to belong 
@@ -778,7 +799,12 @@ function event_store_item($arr, $event) {
 
 		$private = (($arr['allow_cid'] || $arr['allow_gid'] || $arr['deny_cid'] || $arr['deny_gid']) ? 1 : 0);
 
-		q("UPDATE item SET title = '%s', body = '%s', object = '%s', allow_cid = '%s', allow_gid = '%s', deny_cid = '%s', deny_gid = '%s', edited = '%s', item_flags = %d, item_private = %d, obj_type = '%s'  WHERE id = %d AND uid = %d",
+		// @FIXME can only update sig if we have the author's channel on this site
+		// Until fixed, set it to nothing so it won't give us signature errors
+
+		$sig = '';
+
+		q("UPDATE item SET title = '%s', body = '%s', object = '%s', allow_cid = '%s', allow_gid = '%s', deny_cid = '%s', deny_gid = '%s', edited = '%s', sig = '%s', item_flags = %d, item_private = %d, obj_type = '%s'  WHERE id = %d AND uid = %d",
 			dbesc($arr['summary']),
 			dbesc($prefix . format_event_bbcode($arr)),
 			dbesc($object),
@@ -787,6 +813,7 @@ function event_store_item($arr, $event) {
 			dbesc($arr['deny_cid']),
 			dbesc($arr['deny_gid']),
 			dbesc($arr['edited']),
+			dbesc($sig),
 			intval($r[0]['item_flags']),
 			intval($private),
 			dbesc(ACTIVITY_OBJ_EVENT),

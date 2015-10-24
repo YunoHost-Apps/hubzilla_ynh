@@ -28,9 +28,10 @@ function externals_run($argv, $argc){
 		} 
 		else {
 			$randfunc = db_getfunc('RAND');
-			$r = q("select site_url, site_pull from site where site_url != '%s' and site_flags != %d order by $randfunc limit 1",
+			$r = q("select site_url, site_pull from site where site_url != '%s' and site_flags != %d and site_type = %d order by $randfunc limit 1",
 				dbesc(z_root()),
-				intval(DIRECTORY_MODE_STANDALONE)
+				intval(DIRECTORY_MODE_STANDALONE),
+				intval(SITE_TYPE_ZOT)
 			);
 			if($r)
 				$url = $r[0]['site_url'];

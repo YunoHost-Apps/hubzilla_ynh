@@ -86,8 +86,9 @@ function regdir_init(&$a) {
 		if ($dirmode == DIRECTORY_MODE_STANDALONE) {
 			$r = array(array('site_url' => z_root()));
 		} else {
-			$r = q("select site_url from site where site_flags in ( 1, 2 ) and site_realm = '%s' $sql_extra ",
-				dbesc(get_directory_realm())
+			$r = q("select site_url from site where site_flags in ( 1, 2 ) and site_realm = '%s' and site_type = %d $sql_extra ",
+				dbesc(get_directory_realm()),
+				intval(SITE_TYPE_ZOT)
 			);
 		}
 		if ($r) {

@@ -84,7 +84,6 @@ function siteinfo_init(&$a) {
 			'register_policy' =>  $register_policy[$a->config['system']['register_policy']],
 			'directory_mode' =>  $directory_mode[$a->config['system']['directory_mode']],
 			'language' => get_config('system','language'),
-			'diaspora_emulation' => get_config('system','diaspora_enabled'),
 			'rss_connections' => get_config('system','feed_contacts'),
 			'expiration' => $site_expire,
 			'default_service_restrictions' => $service_class,
@@ -151,6 +150,9 @@ function siteinfo_content(&$a) {
 	if(file_exists('doc/site_donate.html'))
 		$donate .= file_get_contents('doc/site_donate.html');
 
+	if(function_exists('sys_getloadavg'))
+		$loadavg = sys_getloadavg();
+
 	$o = replace_macros(get_markup_template('siteinfo.tpl'), array(
 		'$title' => t('$Projectname'),
 		'$description' => t('This is a hub of $Projectname - a global cooperative network of decentralized privacy enhanced websites.'),
@@ -159,9 +161,11 @@ function siteinfo_content(&$a) {
 		'$tag' => $tag,
 		'$polled' => t('Last background fetch: '),
 		'$lastpoll' => get_poller_runtime(),
+		'$load_average' => t('Current load average: '),
+		'$loadavg_all' => $loadavg[0] . ', ' . $loadavg[1] . ', ' . $loadavg[2],		
 		'$commit' => $commit,
 		'$web_location' => t('Running at web location') . ' ' . z_root(),
-		'$visit' => t('Please visit <a href="https://redmatrix.me">redmatrix.me</a> to learn more about $Projectname.'),
+		'$visit' => t('Please visit <a href="http://hubzilla.org">hubzilla.org</a> to learn more about $Projectname.'),
 		'$bug_text' => t('Bug reports and issues: please visit'),
 		'$bug_link_url' => 'https://github.com/redmatrix/hubzilla/issues',
 		'$bug_link_text' => t('$projectname issues'),

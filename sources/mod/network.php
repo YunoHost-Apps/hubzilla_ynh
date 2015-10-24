@@ -115,6 +115,8 @@ function network_content(&$a, $update = 0, $load = false) {
 	$file     = ((x($_GET,'file'))  ? $_GET['file']          : '');
 
 
+	$deftag = '';
+
 	if(x($_GET,'search') || x($_GET,'file'))
 		$nouveau = true;
 	if($cid) {
@@ -130,7 +132,10 @@ function network_content(&$a, $update = 0, $load = false) {
 			goaway($a->get_baseurl(true) . '/network');
 			// NOTREACHED
 		}
-		$def_acl = array('allow_cid' => '<' . $r[0]['abook_xchan'] . '>');
+		if($_GET['pf'] === '1')
+			$deftag = '@' . t('forum') . '+' . intval($cid) . '+';
+		else
+			$def_acl = array('allow_cid' => '<' . $r[0]['abook_xchan'] . '>');
 	}
 
 	if(! $update) {
@@ -153,17 +158,21 @@ function network_content(&$a, $update = 0, $load = false) {
 			'deny_gid'  => $channel['channel_deny_gid']
 		); 
 
+		$private_editing = ((($group || $cid) && (! intval($_GET['pf']))) ? true : false);
+
 		$x = array(
 			'is_owner'         => true,
 			'allow_location'   => ((intval(get_pconfig($channel['channel_id'],'system','use_browser_location'))) ? '1' : ''),
 			'default_location' => $channel['channel_location'],
 			'nickname'         => $channel['channel_address'],
-			'lockstate'        => (($group || $cid || $channel['channel_allow_cid'] || $channel['channel_allow_gid'] || $channel['channel_deny_cid'] || $channel['channel_deny_gid']) ? 'lock' : 'unlock'),
-			'acl'              => populate_acl((($group || $cid) ? $def_acl : $channel_acl)),
-			'bang'             => (($group || $cid) ? '!' : ''),
+			'lockstate'        => (($private_editing || $channel['channel_allow_cid'] || $channel['channel_allow_gid'] || $channel['channel_deny_cid'] || $channel['channel_deny_gid']) ? 'lock' : 'unlock'),
+			'acl'              => populate_acl((($private_editing) ? $def_acl : $channel_acl)),
+			'bang'             => (($private_editing) ? '!' : ''),
 			'visitor'          => true,
 			'profile_uid'      => local_channel()
 		);
+		if($deftag)
+			$x['pretext'] = $deftag;
 
 		$status_editor = status_editor($a,$x);
 		$o .= $status_editor;
@@ -223,7 +232,7 @@ function network_content(&$a, $update = 0, $load = false) {
 		if($r) {
 			$sql_extra = " AND item.parent IN ( SELECT DISTINCT parent FROM item WHERE true $sql_options AND uid = " . intval(local_channel()) . " AND ( author_xchan = '" . dbesc($r[0]['abook_xchan']) . "' or owner_xchan = '" . dbesc($r[0]['abook_xchan']) . "' ) $item_normal ) ";
 			$title = replace_macros(get_markup_template("section_title.tpl"),array(
-				'$title' => t('Connection: ') . $r[0]['xchan_name']
+				'$title' => '<a href="' . zid($r[0]['xchan_url']) . '" ><img src="' . zid($r[0]['xchan_photo_s'])  . '" alt="' . urlencode($r[0]['xchan_name']) . '" /></a> <a href="' . zid($r[0]['xchan_url']) . '" >' . $r[0]['xchan_name'] . '</a>'
 			));
 			$o = $tabs;
 			$o .= $title;

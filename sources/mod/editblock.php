@@ -111,6 +111,7 @@ function editblock_content(&$a) {
 	$a->page['htmlhead'] .= replace_macros(get_markup_template('jot-header.tpl'), array(
 		'$baseurl'       => $a->get_baseurl(),
 		'$editselect'    => (($plaintext) ? 'none' : '/(profile-jot-text|prvmail-text)/'),
+		'$pretext'       => '',
 		'$ispublic'      => '&nbsp;', // t('Visible to <strong>everybody</strong>'),
 		'$geotag'        => '',
 		'$nickname'      => $channel['channel_address'],

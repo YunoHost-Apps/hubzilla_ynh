@@ -1,5 +1,7 @@
 <?php
 
+require_once('include/zot.php');
+
 function wfinger_init(&$a) {
 
 	$result = array();
@@ -11,15 +13,16 @@ function wfinger_init(&$a) {
 	elseif(x($_SERVER,'SERVER_PORT') && (intval($_SERVER['SERVER_PORT']) == 443))
 		$scheme = 'https';
 
-	// Don't complain to me - I'm just implementing the spec. 
+	$zot = intval($_REQUEST['zot']);
 
-	if($scheme !== 'https') {
+	if(($scheme !== 'https') && (! $zot)) {
 		header($_SERVER["SERVER_PROTOCOL"] . ' ' . 500 . ' ' . 'Webfinger requires HTTPS');
 		killme();
 	}
 
-	$resource = $_REQUEST['resource'];
 
+	$resource = $_REQUEST['resource'];
+	logger('webfinger: ' . $resource,LOGGER_DEBUG);
 
 	$r = null;
 
@@ -30,7 +33,7 @@ function wfinger_init(&$a) {
 			if(strpos($channel,'@') !== false) {
 				$host = substr($channel,strpos($channel,'@')+1);
 				if(strcasecmp($host,get_app()->get_hostname())) {
-					goaway('https://' . $host . '/.well-known/webfinger?resource=' . $resource);
+					goaway('https://' . $host . '/.well-known/webfinger?f=&resource=' . $resource . (($zot) ? '&zot=' . $zot : ''));
 				}
 				$channel = substr($channel,0,strpos($channel,'@'));
 			}		
@@ -46,16 +49,14 @@ function wfinger_init(&$a) {
 
 	}
 
-
 	header('Access-Control-Allow-Origin: *');
 
 	header('Content-type: application/jrd+json');
 
 
-
 	if($resource && $r) {
 
-		$h = q("select hubloc_addr from hubloc where hubloc_hash = '%s'",
+		$h = q("select hubloc_addr from hubloc where hubloc_hash = '%s' and hubloc_deleted = 0",
 			dbesc($r[0]['channel_hash'])
 		);
 
@@ -105,6 +106,10 @@ function wfinger_init(&$a) {
 			)
 		);
 
+		if($zot) {
+			// get a zotinfo packet and return it with webfinger
+			$result['zot'] = zotinfo(array('address' => $r[0]['xchan_addr']));
+		}
 	}
 	else {
 		header($_SERVER["SERVER_PROTOCOL"] . ' ' . 400 . ' ' . 'Bad Request');

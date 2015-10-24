@@ -311,17 +311,16 @@ function settings_post(&$a) {
 			foreach($global_perms as $k => $v) {
 				$set_perms .= ', ' . $v[0] . ' = ' . intval($_POST[$k]) . ' ';
 			}
+			$acl = new AccessList($channel);
+			$acl->set_from_array($_POST);
+			$x = $acl->get();
 
-			$str_group_allow   = perms2str($_POST['group_allow']);
-			$str_contact_allow = perms2str($_POST['contact_allow']);
-			$str_group_deny    = perms2str($_POST['group_deny']);
-			$str_contact_deny  = perms2str($_POST['contact_deny']);
-			$r = q("update channel set channel_allow_cid = '%s', channel_allow_gid = '%s', channel_deny_cid = '%s', channel_deny_gid = '%s'
-				where channel_id = %d",
-				dbesc($str_contact_allow),
-				dbesc($str_group_allow),
-				dbesc($str_contact_deny),
-				dbesc($str_group_deny),
+			$r = q("update channel set channel_allow_cid = '%s', channel_allow_gid = '%s', 
+				channel_deny_cid = '%s', channel_deny_gid = '%s' where channel_id = %d",
+				dbesc($x['allow_cid']),
+				dbesc($x['allow_gid']),
+				dbesc($x['deny_cid']),
+				dbesc($x['deny_gid']),
 				intval(local_channel())
 			);
 		}
@@ -983,14 +982,8 @@ function settings_content(&$a) {
 
 		$stpl = get_markup_template('settings.tpl');
 
-		$celeb = false;
-
-		$perm_defaults = array(
-			'allow_cid' => $channel['channel_allow_cid'], 
-			'allow_gid' => $channel['channel_allow_gid'], 
-			'deny_cid' => $channel['channel_deny_cid'], 
-			'deny_gid' => $channel['channel_deny_gid']
-		); 
+		$acl = new AccessList($channel);
+		$perm_defaults = $acl->get();
 
 		require_once('include/group.php');
 		$group_select = mini_group_select(local_channel(),$channel['channel_default_group']);

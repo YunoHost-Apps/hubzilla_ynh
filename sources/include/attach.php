@@ -181,7 +181,7 @@ function attach_list_files($channel_id, $observer, $hash = '', $filename = '', $
 
 	$ret = array('success' => false);
 
-	if(! perm_is_allowed($channel_id,$observer, 'read_storage')) {
+	if(! perm_is_allowed($channel_id,$observer, 'view_storage')) {
 		$ret['message'] = t('Permission denied.');
 		return $ret;
 	}
@@ -203,7 +203,7 @@ function attach_list_files($channel_id, $observer, $hash = '', $filename = '', $
 
 	// Retrieve all columns except 'data'
 
-	$r = q("select id, aid, uid, hash, filename, filetype, filesize, revision, folder, os_storage, is_dir, is_photo, flags, created, edited, allow_cid, allow_gid, deny_cid, deny_gid from attach where uid = %d $sql_extra $orderby $limit",
+	$r = q("select id, aid, uid, hash, filename, filetype, filesize, revision, folder, os_storage, is_dir, is_photo, flags, created, edited, allow_cid, allow_gid, deny_cid, deny_gid from attach where uid = %d $sql_extra ORDER BY $orderby $limit",
 		intval($channel_id)
 	);
 
@@ -405,6 +405,8 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 
 	require_once('include/photos.php');
 
+	call_hooks('photo_upload_begin',$arr);
+
 	$ret = array('success' => false);
 	$channel_id = $channel['channel_id'];
 	$sql_options = '';
@@ -413,10 +415,21 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 	$newalbum = (($arr) ? $arr['newalbum'] : '');
 	$hash = (($arr && $arr['hash']) ? $arr['hash'] : null);
 	$upload_path = (($arr && $arr['directory']) ? $arr['directory'] : '');
+	$visible = (($arr && $arr['visible']) ? $arr['visible'] : '');
 
-	 logger('arr: ' . print_r($arr,true));
+	$observer = array();
 
-	if(! perm_is_allowed($channel_id,get_observer_hash(), 'write_storage')) {
+	if($observer_hash) {
+		$x = q("select * from xchan where xchan_hash = '%s' limit 1",
+			dbesc($observer_hash)
+		);
+		if($x)
+			$observer = $x[0];
+	}
+
+	logger('arr: ' . print_r($arr,true));
+
+	if(! perm_is_allowed($channel_id,$observer_hash, 'write_storage')) {
 		$ret['message'] = t('Permission denied.');
 		return $ret;
 	}
@@ -434,16 +447,57 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 
 	// revise or update must provide $arr['hash'] of the thing to revise/update
 
-	if($options !== 'update') {
-		if(! x($_FILES,'userfile')) {
-			$ret['message'] = t('No source file.');
-			return $ret;
+	// By default remove $src when finished
+
+	$remove_when_processed = true;
+
+	if($options === 'import') {		
+		$src      = $arr['src'];
+		$filename = $arr['filename'];
+		$filesize = @filesize($src);
+
+		$hash     = $arr['resource_id'];
+
+		if(array_key_exists('hash',$arr))
+			$hash = $arr['hash'];
+		if(array_key_exists('type',$arr))
+			$type = $arr['type'];
+
+		if($arr['preserve_original'])
+			$remove_when_processed = false;
+
+		// if importing a directory, just do it now and go home - we're done.
+
+		if(array_key_exists('is_dir',$arr) && intval($arr['is_dir'])) {
+			$x = attach_mkdir($channel,$observer_hash,$arr);
+			if($x['message'])
+				logger('import_directory: ' . $x['message']);
+			return;
 		}
+	}
+	elseif($options !== 'update') {
+		$f = array('src' => '', 'filename' => '', 'filesize' => 0, 'type' => '');
 
-		$src      = $_FILES['userfile']['tmp_name'];
-		$filename = basename($_FILES['userfile']['name']);
-		$filesize = intval($_FILES['userfile']['size']);
+        call_hooks('photo_upload_file',$f);
+		call_hooks('attach_upload_file',$f);
 
+        if (x($f,'src') && x($f,'filesize')) {
+            $src      = $f['src'];
+            $filename = $f['filename'];
+            $filesize = $f['filesize'];
+            $type     = $f['type'];
+
+        } else {
+
+			if(! x($_FILES,'userfile')) {
+				$ret['message'] = t('No source file.');
+				return $ret;
+			}
+
+			$src      = $_FILES['userfile']['tmp_name'];
+			$filename = basename($_FILES['userfile']['name']);
+			$filesize = intval($_FILES['userfile']['size']);
+		}
 	}
 
 	$existing_size = 0;
@@ -480,21 +534,38 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 
 
 
-
+	$def_extension = '';
 	$is_photo = 0;
 	$gis = @getimagesize($src);
 	logger('getimagesize: ' . print_r($gis,true), LOGGER_DATA); 
 	if(($gis) && ($gis[2] === IMAGETYPE_GIF || $gis[2] === IMAGETYPE_JPEG || $gis[2] === IMAGETYPE_PNG)) {
 		$is_photo = 1;
+		if($gis[2] === IMAGETYPE_GIF)
+			$def_extension =  '.gif';
+		if($gis[2] === IMAGETYPE_JPEG)
+			$def_extension =  '.jpg';
+		if($gis[2] === IMAGETYPE_PNG)
+			$def_extension =  '.png';
+
 	}
 
 	$pathname = '';
 
 	if($is_photo) {
-		if($newalbum)
+		if($newalbum) {
 			$pathname = filepath_macro($newalbum);
-		else
+		}
+		elseif(array_key_exists('folder',$arr)) {
+			$x = q("select filename from attach where hash = '%s' and uid = %d limit 1",
+				dbesc($arr['folder']),
+				intval($channel['channel_id'])
+			);
+			if($x)
+				$pathname = $x[0]['filename'];
+		}
+		else {
 			$pathname = filepath_macro($album);
+		}
 	}
 	else {
 		$pathname = filepath_macro($upload_path);
@@ -524,10 +595,10 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 		}
 	}
 	else {
-		$folder_hash = '';
+		$folder_hash = ((($arr) && array_key_exists('folder',$arr)) ? $arr['folder'] : '');
 	}		
 
-	if(! $options) {
+	if((! $options) || ($options === 'import')) {
 
 		// A freshly uploaded file. Check for duplicate and resolve with the channel's overwrite settings.
 
@@ -544,9 +615,18 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 				$hash = $x[0]['hash'];
 			}
 			else {
+				if(strpos($filename,'.') !== false) {
+					$basename = substr($filename,0,strrpos($filename,'.'));
+					$ext = substr($filename,strrpos($filename,'.'));
+				}
+				else {
+					$basename = $filename;
+					$ext = $def_extension;
+				}
+
 				$r = q("select filename from attach where ( filename = '%s' OR filename like '%s' ) and folder = '%s' ",
-					dbesc($filename),
-					dbesc($filename . '(%)'),
+					dbesc($basename . $ext),
+					dbesc($basename . '(%)' . $ext),
 					dbesc($folder_hash)
 				);
 
@@ -556,7 +636,7 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 					do {
 						$found = false;
 						foreach($r as $rr) {
-							if($rr['filename'] === $filename . '(' . $x . ')') {
+							if($rr['filename'] === $basename . '(' . $x . ')' . $ext) {
 								$found = true;
 								break;
 							}
@@ -565,8 +645,10 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 							$x++;
 					}			
 					while($found);
-					$filename = $filename . '(' . $x . ')';
+					$filename = $basename . '(' . $x . ')' . $ext;
 				}
+				else
+					$filename = $basename . $ext;
 			}
 		}
 	}
@@ -580,7 +662,9 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 
 		if(($maxfilesize) && ($filesize > $maxfilesize)) {
 			$ret['message'] = sprintf( t('File exceeds size limit of %d'), $maxfilesize);
-			@unlink($src);
+			if($remove_when_processed)
+				@unlink($src);
+			call_hooks('photo_upload_end',$ret);
 			return $ret;
 		}
 
@@ -592,11 +676,14 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 			);
 			if(($r) &&  (($r[0]['total'] + $filesize) > ($limit - $existing_size))) {
 				$ret['message'] = upgrade_message(true) . sprintf(t("You have reached your limit of %1$.0f Mbytes attachment storage."), $limit / 1024000);
-				@unlink($src);
+				if($remove_when_processed)
+					@unlink($src);
+
+				call_hooks('photo_upload_end',$ret);
 				return $ret;
 			}
 		}
-		$mimetype = z_mime_content_type($filename);
+		$mimetype = ((isset($type) && $type) ? $type : z_mime_content_type($filename));
 	}
 
 	$os_basepath = 'store/' . $channel['channel_address'] . '/' ;
@@ -614,7 +701,15 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 	if($src)
 		@file_put_contents($os_basepath . $os_relpath,@file_get_contents($src));
 
-	$created = datetime_convert();
+	if(array_key_exists('created', $arr))
+		$created = $arr['created'];
+	else
+		$created = datetime_convert();
+
+	if(array_key_exists('edited', $arr))
+		$edited = $arr['edited'];
+	else
+		$edited = $created;
 
 	if($options === 'replace') {
 		$r = q("update attach set filename = '%s', filetype = '%s', folder = '%s', filesize = %d, os_storage = %d, is_photo = %d, data = '%s', edited = '%s' where id = %d and uid = %d",
@@ -671,6 +766,7 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 		);
 	}
 	else {
+
 		$r = q("INSERT INTO attach ( aid, uid, hash, creator, filename, filetype, folder, filesize, revision, os_storage, is_photo, data, created, edited, allow_cid, allow_gid,deny_cid, deny_gid )
 			VALUES ( %d, %d, '%s', '%s', '%s', '%s', '%s', %d, %d, %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s' ) ",
 			intval($channel['channel_account_id']),
@@ -695,7 +791,8 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 	}
 
 	if($is_photo) {
-		$args = array( 'source' => $source, 'visible' => 0, 'resource_id' => $hash, 'album' => basename($pathname), 'os_path' => $os_basepath . $os_relpath, 'filename' => $filename, 'getimagesize' => $gis, 'directory' => $direct);
+
+		$args = array( 'source' => $source, 'visible' => $visible, 'resource_id' => $hash, 'album' => basename($pathname), 'os_path' => $os_basepath . $os_relpath, 'filename' => $filename, 'getimagesize' => $gis, 'directory' => $direct);
 		if($arr['contact_allow'])
 			$args['contact_allow'] = $arr['contact_allow'];
 		if($arr['group_allow'])
@@ -704,17 +801,32 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 			$args['contact_deny'] = $arr['contact_deny'];
 		if($arr['group_deny'])
 			$args['group_deny'] = $arr['group_deny'];
-		$p = photo_upload($channel,get_app()->get_observer(),$args);
+		if(array_key_exists('allow_cid',$arr))
+			$args['allow_cid'] = $arr['allow_cid'];
+		if(array_key_exists('allow_gid',$arr))
+			$args['allow_gid'] = $arr['allow_gid'];
+		if(array_key_exists('deny_cid',$arr))
+			$args['deny_cid'] = $arr['deny_cid'];
+		if(array_key_exists('deny_gid',$arr))
+			$args['deny_gid'] = $arr['deny_gid'];
+
+		$args['created'] = $created;
+		$args['edited'] = $edited;
+		if($arr['item'])
+			$args['item'] = $arr['item'];
+
+		$p = photo_upload($channel,$observer,$args);
 		if($p['success']) {
 			$ret['body'] = $p['body'];
 		}
 	}
 
-	if($options !== 'update')
+	if(($options !== 'update') && ($remove_when_processed))
 		@unlink($src);
 
 	if(! $r) {
 		$ret['message'] = t('File upload failed. Possible system limit or action terminated.');
+		call_hooks('photo_upload_end',$ret);
 		return $ret;
 	}
 
@@ -727,13 +839,17 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 
 	if(! $r) {
 		$ret['message'] = t('Stored file could not be verified. Upload failed.');
+		call_hooks('photo_upload_end',$ret);
 		return $ret;
 	}
 
 
 	$ret['success'] = true;
 	$ret['data'] = $r[0];
-
+	if(! $is_photo) {
+		// This would've been called already with a success result in photos_upload() if it was a photo.
+		call_hooks('photo_upload_end',$ret);
+	}
 	return $ret;
 }
 
@@ -878,7 +994,6 @@ function attach_mkdir($channel, $observer_hash, $arr = null) {
 				intval($channel['channel_id']),
 				dbesc($lfile)
 			);
-
 			if(! $r) {
 				logger('attach_mkdir: hash ' . $lfile . ' not found in ' . $lpath);
 				$ret['message'] = t('Path not found.');
@@ -1051,7 +1166,7 @@ function attach_mkdirp($channel, $observer_hash, $arr = null) {
  */
 function attach_change_permissions($channel_id, $resource, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $recurse = false) {
 
-	$r = q("select hash, flags, is_dir from attach where hash = '%s' and uid = %d limit 1",
+	$r = q("select hash, flags, is_dir, is_photo from attach where hash = '%s' and uid = %d limit 1",
 		dbesc($resource),
 		intval($channel_id)
 	);
@@ -1081,6 +1196,16 @@ function attach_change_permissions($channel_id, $resource, $allow_cid, $allow_gi
 		dbesc($resource),
 		intval($channel_id)
 	);
+	if($r[0]['is_photo']) {
+		$x = q("update photo set allow_cid = '%s', allow_gid = '%s', deny_cid = '%s', deny_gid = '%s' where resource_id = '%s' and uid = %d",
+			dbesc($allow_cid),
+			dbesc($allow_gid),
+			dbesc($deny_cid),
+			dbesc($deny_gid),
+			dbesc($resource),
+			intval($channel_id)
+		);
+	}
 }
 
 /**
@@ -1104,7 +1229,7 @@ function attach_delete($channel_id, $resource, $is_photo = 0) {
 	$channel_address = (($c) ? $c[0]['channel_address'] : 'notfound');
 	$photo_sql = (($is_photo) ? " and is_photo = 1 " : '');
 
-	$r = q("SELECT hash, flags, is_dir, folder FROM attach WHERE hash = '%s' AND uid = %d $photo_sql limit 1",
+	$r = q("SELECT hash, flags, is_dir, is_photo, folder FROM attach WHERE hash = '%s' AND uid = %d $photo_sql limit 1",
 		dbesc($resource),
 		intval($channel_id)
 	);
@@ -1150,6 +1275,21 @@ function attach_delete($channel_id, $resource, $is_photo = 0) {
 		intval($channel_id)
 	);
 
+	if($r[0]['is_photo']) {
+		$x = q("select id, item_hidden from item where resource_id = '%s' and resource_type = 'photo' and uid = %d",
+			dbesc($resource),
+			intval($channel_id)
+		);
+		if($x) {
+			drop_item($x[0]['id'],false,(($x[0]['item_hidden']) ? DROPITEM_NORMAL : DROPITEM_PHASE1),true);
+
+			q("DELETE FROM photo WHERE uid = %d AND resource_id = '%s'",
+				intval($channel_id),
+				dbesc($resource)
+			);
+		}
+	}
+			
 	// update the parent folder's lastmodified timestamp
 	$e = q("UPDATE attach SET edited = '%s' WHERE hash = '%s' AND uid = %d",
 		dbesc(datetime_convert()),

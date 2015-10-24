@@ -586,7 +586,7 @@ function scale_external_images($s, $include_link = true, $scale_replace = false)
 			
 			if(substr($mtch[1],0,1) == '=') {
 				$owidth = intval(substr($mtch[2],1));
-				if(intval($owidth) > 0 && intval($owidth) < 640)
+				if(intval($owidth) > 0 && intval($owidth) < 1024)
 					continue;
 			}
 
@@ -624,9 +624,9 @@ function scale_external_images($s, $include_link = true, $scale_replace = false)
 					$orig_width = $ph->getWidth();
 					$orig_height = $ph->getHeight();
 
-					if($orig_width > 640 || $orig_height > 640) {
+					if($orig_width > 1024 || $orig_height > 1024) {
 						$tag = (($match[1] == 'z') ? 'zmg' : 'img');
-						$ph->scaleImage(640);
+						$ph->scaleImage(1024);
 						$new_width = $ph->getWidth();
 						$new_height = $ph->getHeight();
 						logger('scale_external_images: ' . $orig_width . '->' . $new_width . 'w ' . $orig_height . '->' . $new_height . 'h' . ' match: ' . $mtch[0], LOGGER_DEBUG);
@@ -1035,7 +1035,7 @@ function discover_by_url($url,$arr = null) {
 		dbesc(datetime_convert())
 	);
 
-	$photos = import_profile_photo($photo,$guid);
+	$photos = import_xchan_photo($photo,$guid);
 	$r = q("update xchan set xchan_photo_date = '%s', xchan_photo_l = '%s', xchan_photo_m = '%s', xchan_photo_s = '%s', xchan_photo_mimetype = '%s' where xchan_hash = '%s'",
 		dbesc(datetime_convert()),
 		dbesc($photos[0]),
@@ -1053,16 +1053,20 @@ function discover_by_webbie($webbie) {
 
 	$webbie = strtolower($webbie);
 
-	$x = webfinger_rfc7033($webbie);
+	$x = webfinger_rfc7033($webbie,true);
 	if($x && array_key_exists('links',$x) && $x['links']) {
 		foreach($x['links'] as $link) {
 			if(array_key_exists('rel',$link) && $link['rel'] == 'http://purl.org/zot/protocol') {
 				logger('discover_by_webbie: zot found for ' . $webbie, LOGGER_DEBUG);
-				$z = z_fetch_url($link['href']);
-				if($z['success']) {
-					$j = json_decode($z['body'],true);
-					$i = import_xchan($j);
-					return true;
+				if(array_key_exists('zot',$x) && $x['zot']['success'])
+					$i = import_xchan($x['zot']);
+				else {
+					$z = z_fetch_url($link['href']);
+					if($z['success']) {
+						$j = json_decode($z['body'],true);
+						$i = import_xchan($j);
+						return true;
+					}
 				}
 			}
 		}
@@ -1137,6 +1141,8 @@ function discover_by_webbie($webbie) {
 			if($hcard) {
 				$vcard = scrape_vcard($hcard);
 				$vcard['nick'] = substr($webbie,0,strpos($webbie,'@'));
+				if(! $vcard['fn'])
+					$vcard['fn'] = $webbie;
 			} 
 
 			$r = q("select * from xchan where xchan_hash = '%s' limit 1",
@@ -1192,7 +1198,7 @@ function discover_by_webbie($webbie) {
 					dbescdate(datetime_convert())
 				);
 			}
-			$photos = import_profile_photo($vcard['photo'],$addr);
+			$photos = import_xchan_photo($vcard['photo'],$addr);
 			$r = q("update xchan set xchan_photo_date = '%s', xchan_photo_l = '%s', xchan_photo_m = '%s', xchan_photo_s = '%s', xchan_photo_mimetype = '%s' where xchan_hash = '%s'",
 				dbescdate(datetime_convert('UTC','UTC',$arr['photo_updated'])),
 				dbesc($photos[0]),
@@ -1280,7 +1286,7 @@ LSIeXnd14lQYK/uxW/8cTFjcmddsKxeXysoQxbSa9VdDK+KkpZdgYXYrTTofXs6v+
 }
 
 
-function webfinger_rfc7033($webbie) {
+function webfinger_rfc7033($webbie,$zot = false) {
 
 
 	if(! strpos($webbie,'@'))
@@ -1290,7 +1296,7 @@ function webfinger_rfc7033($webbie) {
 
 	$resource = 'acct:' . $webbie;
 
-	$s = z_fetch_url('https://' . $rhs . '/.well-known/webfinger?resource=' . $resource);
+	$s = z_fetch_url('https://' . $rhs . '/.well-known/webfinger?f=&resource=' . $resource . (($zot) ? '&zot=1' : ''));
 
 	if($s['success'])
 		$j = json_decode($s['body'],true);
@@ -1671,13 +1677,40 @@ function format_and_send_email($sender,$xchan,$item) {
 			'additionalMailHeader' => '',
 		));
 
+}
 
 
+function do_delivery($deliveries) {
+
+	if(! (is_array($deliveries) && count($deliveries)))
+		return;
+
+	$interval = ((get_config('system','delivery_interval') !== false) 
+			? intval(get_config('system','delivery_interval')) : 2 );
+
+	$deliveries_per_process = intval(get_config('system','delivery_batch_count'));
+
+	if($deliveries_per_process <= 0)
+		$deliveries_per_process = 1;
 
 
+	$deliver = array();
+	foreach($deliveries as $d) {
 
+		$deliver[] = $d;
 
+		if(count($deliver) >= $deliveries_per_process) {
+			proc_run('php','include/deliver.php',$deliver);
+			$deliver = array();
+			if($interval)
+				@time_sleep_until(microtime(true) + (float) $interval);
+		}
+	}
 
+	// catch any stragglers
 
+	if($deliver)
+		proc_run('php','include/deliver.php',$deliver);
+	
 
 }

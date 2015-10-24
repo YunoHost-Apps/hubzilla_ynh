@@ -57,6 +57,10 @@ function import_diaspora($data) {
 
 	$channel_id = $c['channel']['channel_id'];
 
+	// Hubzilla only: Turn on the Diaspora protocol so that follow requests will be sent.
+
+	set_pconfig($channel_id,'system','diaspora_allowed','1');
+
 	// todo - add auto follow settings, (and strip exif in hubzilla)
 
 	$location = escape_tags($data['user']['profile']['location']);
@@ -70,7 +74,6 @@ function import_diaspora($data) {
 	);
 
 	if($data['user']['profile']['nsfw']) { 
-		// fixme for hubzilla which doesn't use pageflags any more
 		q("update channel set channel_pageflags = (channel_pageflags | %d) where channel_id = %d",
 				intval(PAGE_ADULT),
 				intval($channel_id)

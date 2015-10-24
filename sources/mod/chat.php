@@ -54,19 +54,23 @@ function chat_post(&$a) {
 		goaway(z_root() . '/chat/' . $channel['channel_address']);
 	}
 
+	$acl = new AccessList($channel);
+	$acl->set_from_array($_REQUEST);
 
-	$arr = array('name' => $room);
-	$arr['allow_gid']   = perms2str($_REQUEST['group_allow']);
-    $arr['allow_cid']   = perms2str($_REQUEST['contact_allow']);
-    $arr['deny_gid']    = perms2str($_REQUEST['group_deny']);
-    $arr['deny_cid']    = perms2str($_REQUEST['contact_deny']);
+	$arr = $acl->get();
+	$arr['name'] = $room;
+	$arr['expire'] = intval($_POST['chat_expire']);
+	if(intval($arr['expire']) < 0)
+		$arr['expire'] = 0;
 
 	chatroom_create($channel,$arr);
 
-	$x = q("select cr_id from chatroom where cr_name = '%s' and cr_uid = %d limit 1",
+	$x = q("select * from chatroom where cr_name = '%s' and cr_uid = %d limit 1",
 		dbesc($room),
 		intval(local_channel())
 	);
+
+	build_sync_packet(0, array('chatroom' => $x));
 
 	if($x)
 		goaway(z_root() . '/chat/' . $channel['channel_address'] . '/' . $x[0]['cr_id']);
@@ -158,7 +162,10 @@ function chat_content(&$a) {
 			intval($a->profile['profile_uid'])
 		);
 		if($x) {
-			$private = ((($x[0]['allow_cid']) || ($x[0]['allow_gid']) || ($x[0]['deny_cid']) || ($x[0]['deny_gid'])) ? true : false);
+			$acl = new AccessList(false);
+			$acl->set($x[0]);
+
+			$private = $acl->is_private();
 			$room_name = $x[0]['cr_name'];
 			if($bookmark_link)
 				$bookmark_link .= '&url=' . z_root() . '/chat/' . argv(1) . '/' . argv(2) . '&title=' . urlencode($x[0]['cr_name']) . (($private) ? '&private=1' : '') . '&ischat=1'; 
@@ -192,20 +199,15 @@ function chat_content(&$a) {
 
 	if(local_channel() && argc() > 2 && argv(2) === 'new') {
 
-
-
-		$channel_acl = array(
-			'allow_cid' => $channel['channel_allow_cid'], 
-			'allow_gid' => $channel['channel_allow_gid'], 
-			'deny_cid'  => $channel['channel_deny_cid'], 
-			'deny_gid'  => $channel['channel_deny_gid']
-		); 
+		$acl = new AccessList($channel);
+		$channel_acl = $acl->get();
 
 		require_once('include/acl_selectors.php');
 
 		$o = replace_macros(get_markup_template('chatroom_new.tpl'),array(
 			'$header' => t('New Chatroom'),
 			'$name' => array('room_name',t('Chatroom Name'),'', ''),
+			'$chat_expire' => array('chat_expire',t('Expiration of chats (minutes)'),120,''),
 			'$permissions' =>  t('Permissions'),
 			'$acl' => populate_acl($channel_acl,false),
 			'$submit' => t('Submit')

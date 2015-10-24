@@ -2,7 +2,7 @@
 
 {{if $is_owner}}
 <p>
-<a href="{{$baseurl}}/chat/{{$nickname}}/new">{{$newroom}}</a>
+<span class="btn btn-default"><a href="{{$baseurl}}/chat/{{$nickname}}/new">{{$newroom}}</a></span>
 </p>
 {{/if}}
 

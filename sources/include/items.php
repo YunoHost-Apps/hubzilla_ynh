@@ -272,6 +272,8 @@ function can_comment_on_post($observer_xchan, $item) {
 	}
 	if(strstr($item['comment_policy'],'network:') && strstr($item['comment_policy'],'red'))
 		return true;
+	if(strstr($item['comment_policy'],'network:') && strstr($item['comment_policy'],'diaspora'))
+		return true;
 	if(strstr($item['comment_policy'],'site:') && strstr($item['comment_policy'],get_app()->get_hostname()))
 		return true;
 
@@ -831,10 +833,14 @@ function title_is_body($title, $body) {
 }
 
 
-function get_item_elements($x) {
+function get_item_elements($x,$allow_code = false) {
 
 	$arr = array();
-	$arr['body']         = (($x['body']) ? htmlspecialchars($x['body'],ENT_COMPAT,'UTF-8',false) : '');
+
+	if($allow_code)
+		$arr['body'] = $x['body'];
+	else
+		$arr['body']         = (($x['body']) ? htmlspecialchars($x['body'],ENT_COMPAT,'UTF-8',false) : '');
 
 	$key = get_config('system','pubkey');
 
@@ -1125,7 +1131,7 @@ function import_author_rss($x) {
 
 	if($r && $x['photo']) {
 
-		$photos = import_profile_photo($x['photo']['src'],$x['url']);
+		$photos = import_xchan_photo($x['photo']['src'],$x['url']);
 
 		if($photos) {
 			/** @bug $arr is undefined in this SQL query */
@@ -1170,7 +1176,7 @@ function import_author_unknown($x) {
 	);
 	if($r && $x['photo']) {
 
-		$photos = import_profile_photo($x['photo']['src'],$x['url']);
+		$photos = import_xchan_photo($x['photo']['src'],$x['url']);
 
 		if($photos) {
 			/** @bug $arr is undefined in this SQL query */
@@ -1307,7 +1313,7 @@ function encode_item($item,$mirror = false) {
 		$x['comment_scope'] = $c_scope;
 
 	if($item['term'])
-		$x['tags']        = encode_item_terms($item['term']);
+		$x['tags']        = encode_item_terms($item['term'],$mirror);
 
 	if($item['diaspora_meta']) {
 		$z = json_decode($item['diaspora_meta'],true);
@@ -1399,10 +1405,15 @@ function encode_item_xchan($xchan) {
 	return $ret;
 }
 
-function encode_item_terms($terms) {
+function encode_item_terms($terms,$mirror = false) {
 	$ret = array();
 
 	$allowed_export_terms = array( TERM_UNKNOWN, TERM_HASHTAG, TERM_MENTION, TERM_CATEGORY, TERM_BOOKMARK );
+
+	if($mirror) {
+		$allowed_export_terms[] = TERM_PCATEGORY;
+		$allowed_export_terms[] = TERM_FILE;
+	}
 
 	if($terms) {
 		foreach($terms as $term) {
@@ -1548,7 +1559,7 @@ function encode_item_flags($item) {
 	return $ret;
 }
 
-function encode_mail($item) {
+function encode_mail($item,$extended = false) {
 	$x = array();
 	$x['type'] = 'mail';
 	$x['encoding'] = 'zot';
@@ -1581,6 +1592,18 @@ function encode_mail($item) {
 		$x['body']  = '';
 	}
 
+	if($extended) {
+		$x['conv_guid'] = $item['conv_guid'];
+		if(intval($item['mail_deleted']))
+			$x['flags'][] = 'deleted';
+		if(intval($item['mail_replied']))
+			$x['flags'][] = 'replied';
+		if(intval($item['mail_isreply']))
+			$x['flags'][] = 'isreply';
+		if(intval($item['mail_seen']))
+			$x['flags'][] = 'seen';
+	}
+
 	return $x;
 }
 
@@ -1593,6 +1616,8 @@ function get_mail_elements($x) {
 	$arr['body']         = (($x['body']) ? htmlspecialchars($x['body'], ENT_COMPAT,'UTF-8',false) : '');
 	$arr['title']        = (($x['title'])? htmlspecialchars($x['title'],ENT_COMPAT,'UTF-8',false) : '');
 
+	$arr['conv_guid']    = (($x['conv_guid'])? htmlspecialchars($x['conv_guid'],ENT_COMPAT,'UTF-8',false) : '');
+
 	$arr['created']      = datetime_convert('UTC','UTC',$x['created']);
 	if((! array_key_exists('expires',$x)) || ($x['expires'] === NULL_DATE))
 		$arr['expires'] = NULL_DATE;
@@ -1604,6 +1629,18 @@ function get_mail_elements($x) {
 	if($x['flags'] && is_array($x['flags'])) {
 		if(in_array('recalled',$x['flags'])) {
 			$arr['mail_recalled'] = 1;
+		}
+		if(in_array('replied',$x['flags'])) {
+			$arr['mail_replied'] = 1;
+		}
+		if(in_array('isreply',$x['flags'])) {
+			$arr['mail_isreply'] = 1;
+		}
+		if(in_array('seen',$x['flags'])) {
+			$arr['mail_seen'] = 1;
+		}
+		if(in_array('deleted',$x['flags'])) {
+			$arr['mail_deleted'] = 1;
 		}
 	}
 
@@ -1618,6 +1655,7 @@ function get_mail_elements($x) {
 	}
 	if($arr['created'] > datetime_convert())
 		$arr['created']  = datetime_convert();
+
 
 	$arr['mid']          = (($x['message_id'])     ? htmlspecialchars($x['message_id'],     ENT_COMPAT,'UTF-8',false) : '');
 	$arr['parent_mid']   = (($x['message_parent']) ? htmlspecialchars($x['message_parent'], ENT_COMPAT,'UTF-8',false) : '');
@@ -3320,7 +3358,7 @@ function start_delivery_chain($channel, $item, $item_id, $parent) {
 		dbesc($title),
 		dbesc($body),
 		intval($item_wall),
-		$intval($item_origin),
+		intval($item_origin),
 		intval($item_id)
 	);
 
@@ -3431,6 +3469,8 @@ function post_is_importable($item,$abook) {
 	if($exclude) {
 		foreach($exclude as $word) {
 			$word = trim($word);
+			if(! $word)
+				continue;
 			if(substr($word,0,1) === '#' && $tags) {
 				foreach($tags as $t)
 					if(($t['type'] == TERM_HASHTAG) && (($t['term'] === substr($word,1)) || (substr($word,1) === '*')))
@@ -3450,6 +3490,8 @@ function post_is_importable($item,$abook) {
 	if($include) {
 		foreach($include as $word) {
 			$word = trim($word);
+			if(! $word)
+				continue;
 			if(substr($word,0,1) === '#' && $tags) {
 				foreach($tags as $t)
 					if(($t['type'] == TERM_HASHTAG) && (($t['term'] === substr($word,1)) || (substr($word,1) === '*')))
@@ -3495,6 +3537,7 @@ function mail_store($arr) {
 	$arr['title']         = ((x($arr,'title'))         ? trim($arr['title'])         : '');
 	$arr['parent_mid']    = ((x($arr,'parent_mid'))    ? notags(trim($arr['parent_mid']))    : '');
 	$arr['body']          = ((x($arr,'body'))          ? trim($arr['body'])                  : '');
+	$arr['conv_guid']     = ((x($arr,'conv_guid'))     ? trim($arr['conv_guid'])             : '');
 
 	$arr['mail_flags']    = ((x($arr,'mail_flags'))    ? intval($arr['mail_flags'])          : 0 );
 
@@ -3507,8 +3550,14 @@ function mail_store($arr) {
 		dbesc($arr['mid']),
 		intval($arr['channel_id'])
 	);
+
 	if($r) {
 		logger('mail_store: duplicate item ignored. ' . print_r($arr,true));
+		return 0;
+	}
+
+	if(! $r && $arr['mail_recalled'] == 1) {
+		logger('mail_store: recalled item not found. ' . print_r($arr,true));
 		return 0;
 	}
 
@@ -4366,7 +4415,7 @@ function delete_item_lowlevel($item, $stage = DROPITEM_NORMAL, $force = false) {
 				);
 			}
 			else {
-				$r = q("UPDATE item set item_deleted = 1, changed = '%s', edited = '%s' where if = %d",
+				$r = q("UPDATE item set item_deleted = 1, changed = '%s', edited = '%s' where id = %d",
 					dbesc(datetime_convert()),
 					dbesc(datetime_convert()),
 					intval($item['id'])
@@ -4402,6 +4451,18 @@ function delete_item_lowlevel($item, $stage = DROPITEM_NORMAL, $force = false) {
 		intval($item['id']),
 		intval($item['uid'])
 	);
+
+	// remove delivery reports
+
+	$c = q("select channel_hash from channel where channel_id = %d limit 1",
+		intval($item['uid'])
+	);
+	if($c) {
+		q("delete from dreport where dreport_xchan = '%s' and  dreport_mid = '%s'",
+			dbesc($c[0]['channel_hash']),
+			dbesc($item['mid'])
+		);
+	}
 
 	// network deletion request. Keep the message structure so that we can deliver delete notifications.
 	// Come back after several days (or perhaps a month) to do the lowlevel delete (DROPITEM_PHASE2).
@@ -4630,10 +4691,12 @@ function zot_feed($uid,$observer_hash,$arr) {
 
 	$items = array();
 
-	/** @FIXME fix this part for PostgreSQL */
+	/** @FIXME re-unite these SQL statements. There is no need for them to be separate. The mySQL is convoluted with misuse of group by. As it stands, there is a slight difference where the postgres version doesn't remove the duplicate parents up to 100. In practice this doesn't matter. It could be made to match behavior by adding "distinct on (parent) " to the front of the selection list, at a not-worth-it performance penalty (page temp results to disk). duplicates are still ignored in the in() clause, you just get less than 100 parents if there are many children. */
 
 	if(ACTIVE_DBTYPE == DBTYPE_POSTGRES) {
-		return array();
+		$groupby = '';
+	} else {
+		$groupby = 'GROUP BY parent';
 	}
 
 	$item_normal = item_normal();
@@ -4643,7 +4706,7 @@ function zot_feed($uid,$observer_hash,$arr) {
 			WHERE uid != %d
 			$item_normal
 			AND item_wall = 1
-			and item_private = 0 $sql_extra GROUP BY parent ORDER BY created ASC $limit",
+			and item_private = 0 $sql_extra $groupby ORDER BY created ASC $limit",
 			intval($uid)
 		);
 	}
@@ -4651,7 +4714,7 @@ function zot_feed($uid,$observer_hash,$arr) {
 		$r = q("SELECT parent, created, postopts from item
 			WHERE uid = %d $item_normal
 			AND item_wall = 1
-			$sql_extra GROUP BY parent ORDER BY created ASC $limit",
+			$sql_extra $groupby ORDER BY created ASC $limit",
 			intval($uid)
 		);
 	}
@@ -4722,6 +4785,12 @@ function items_fetch($arr,$channel = null,$observer_hash = null,$client_mode = C
 
 	if($arr['wall'])
 		$sql_options .= " and item_wall = 1 ";
+
+	if($arr['item_id'])
+		$sql_options .= " and parent = " . intval($arr['item_id']) . " ";
+
+	if($arr['mid'])
+		$sql_options .= " and parent_mid = '" . dbesc($arr['mid']) . "' ";
 									
 	$sql_extra = " AND item.parent IN ( SELECT parent FROM item WHERE item_thread_top = 1 $sql_options ) ";
 	
@@ -4848,10 +4917,14 @@ function items_fetch($arr,$channel = null,$observer_hash = null,$client_mode = C
 	require_once('include/security.php');
 	$sql_extra .= item_permissions_sql($channel['channel_id'],$observer_hash);
 
+
 	if($arr['pages'])
 		$item_restrict = " AND item_type = " . ITEM_TYPE_WEBPAGE . " ";
 	else
 		$item_restrict = " AND item_type = 0 ";
+
+	if($arr['item_type'] === '*')
+		$item_restrict = '';
 
 	if ($arr['nouveau'] && ($client_mode & CLIENT_MODE_LOAD) && $channel) {
 		// "New Item View" - show all items unthreaded in reverse created date order

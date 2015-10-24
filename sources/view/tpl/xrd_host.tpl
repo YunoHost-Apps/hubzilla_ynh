@@ -4,7 +4,7 @@
  
     <hm:Host>{{$zhost}}</hm:Host>
  
-    <Link rel='lrdd' template='{{$zroot}}/xrd/?uri={uri}' />
+    <Link rel='lrdd' type="application/xrd+xml" template='{{$zroot}}/xrd/?uri={uri}' />
 	<Link rel="http://oexchange.org/spec/0.8/rel/resident-target" type="application/xrd+xml" 
         href="{{$zroot}}/oexchange/xrd" />
 

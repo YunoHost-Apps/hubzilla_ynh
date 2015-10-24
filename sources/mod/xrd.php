@@ -5,6 +5,7 @@ require_once('include/crypto.php');
 function xrd_init(&$a) {
 
 	$uri = urldecode(notags(trim($_GET['uri'])));
+	logger('xrd: ' . $uri,LOGGER_DEBUG);
 
 	if(substr($uri,0,4) === 'http')
 		$name = basename($uri);
@@ -24,14 +25,14 @@ function xrd_init(&$a) {
 
 	$dspr = replace_macros(get_markup_template('xrd_diaspora.tpl'),array(
 		'$baseurl' => $a->get_baseurl(),
-		'$dspr_guid' => $r[0]['channel_guid'],
+		'$dspr_guid' => $r[0]['channel_guid'] . str_replace('.','',$a->get_hostname()),
 		'$dspr_key' => base64_encode(pemtorsa($r[0]['channel_pubkey']))
 	));
 
 	$salmon_key = salmon_key($r[0]['channel_pubkey']);
 
 	header('Access-Control-Allow-Origin: *');
-	header("Content-type: text/xml");
+	header("Content-type: application/xrd+xml");
 
 
 	$tpl = get_markup_template('view/xrd_person.tpl');

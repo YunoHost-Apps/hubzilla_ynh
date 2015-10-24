@@ -1,4 +1,7 @@
 {{include file="field_select.tpl" field=$schema}}
+{{include file="field_checkbox.tpl" field=$align_left}}
+{{include file="field_checkbox.tpl" field=$narrow_navbar}}
+{{include file="field_input.tpl" field=$converse_width}}
 {{if $expert}}
 	{{include file="field_colorinput.tpl" field=$nav_bg}}
 	{{include file="field_colorinput.tpl" field=$nav_gradient_top}}
@@ -13,8 +16,8 @@
 	{{include file="field_colorinput.tpl" field=$background_image}}
 	{{include file="field_colorinput.tpl" field=$item_colour}}
 	{{include file="field_colorinput.tpl" field=$comment_item_colour}}
-	{{include file="field_colorinput.tpl" field=$comment_border_colour}}
-	{{include file="field_input.tpl" field=$comment_indent}}
+	{{*include file="field_colorinput.tpl" field=$comment_border_colour*}}
+	{{*include file="field_input.tpl" field=$comment_indent*}}
 	{{include file="field_input.tpl" field=$body_font_size}}
 	{{include file="field_input.tpl" field=$font_size}}
 	{{include file="field_colorinput.tpl" field=$font_colour}}
@@ -26,11 +29,7 @@
 	{{include file="field_input.tpl" field=$shadow}}
 	{{include file="field_input.tpl" field=$top_photo}}
 	{{include file="field_input.tpl" field=$reply_photo}}
-{{/if}}
-{{include file="field_input.tpl" field=$converse_width}}
-{{include file="field_checkbox.tpl" field=$converse_center}}
-{{include file="field_checkbox.tpl" field=$narrow_navbar}}
-{{if $expert}}
+
 <script>
 	$(function(){
 		$('#id_redbasic_nav_bg,#id_redbasic_nav_gradient_top,#id_redbasic_nav_gradient_bottom,#id_redbasic_nav_active_gradient_top,#id_redbasic_nav_active_gradient_bottom').colorpicker({format: 'rgba'});

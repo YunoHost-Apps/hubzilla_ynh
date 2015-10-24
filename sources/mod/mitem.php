@@ -64,6 +64,7 @@ function mitem_post(&$a) {
 		$_REQUEST['mitem_id'] = $mitem_id;
 		$r = menu_edit_item($_REQUEST['menu_id'],$uid,$_REQUEST);	
 		if($r) {
+			menu_sync_packet($uid,get_observer_hash(),$_REQUEST['menu_id']);
 			//info( t('Menu element updated.') . EOL);
 			goaway(z_root() . '/mitem/' . $_REQUEST['menu_id'] . (($a->is_sys) ? '?f=&sys=1' : ''));
 		}
@@ -74,6 +75,7 @@ function mitem_post(&$a) {
 	else {
 		$r = menu_add_item($_REQUEST['menu_id'],$uid,$_REQUEST);	
 		if($r) {
+			menu_sync_packet($uid,get_observer_hash(),$_REQUEST['menu_id']);
 			//info( t('Menu element added.') . EOL);
 			if($_REQUEST['submit']) {
 				goaway(z_root() . '/menu' . (($a->is_sys) ? '?f=&sys=1' : ''));
@@ -125,12 +127,7 @@ function mitem_content(&$a) {
 			$menu_names[] = $menus['menu_name'];
 	}
 
-	$perm_defaults = array(
-		'allow_cid' => $channel['channel_allow_cid'],
-		'allow_gid' => $channel['channel_allow_gid'],
-		'deny_cid'  => $channel['channel_deny_cid'],
-		'deny_gid'  => $channel['channel_deny_gid']
-	);
+	$acl = new AccessList($channel);
 
 	$lockstate = (($channel['channel_allow_cid'] || $channel['channel_allow_gid'] || $channel['channel_deny_cid'] || $channel['channel_deny_gid']) ? 'lock' : 'unlock');
 
@@ -151,7 +148,7 @@ function mitem_content(&$a) {
 			'$menu_id'     => $a->data['menu']['menu_id'],
 			'$permissions' => t('Menu Item Permissions'),
 			'$permdesc'    => t("\x28click to open/close\x29"),
-			'$aclselect'   => populate_acl($perm_defaults,false),
+			'$aclselect'   => populate_acl($acl->get(),false),
 			'$mitem_desc'  => array('mitem_desc', t('Link Name'), '', 'Visible name of the link','*'),
 			'$mitem_link'  => array('mitem_link', t('Link or Submenu Target'), '', t('Enter URL of the link or select a menu name to create a submenu'), '*', 'list="menu-names"'),
 			'$usezid'      => array('usezid', t('Use magic-auth if available'), true, '', array(t('No'), t('Yes'))),
@@ -207,7 +204,9 @@ function mitem_content(&$a) {
 			$lockstate = (($mitem['allow_cid'] || $mitem['allow_gid'] || $mitem['deny_cid'] || $mitem['deny_gid']) ? 'lock' : 'unlock');
 
 			if(argc() == 4 && argv(3) == 'drop') {
+				menu_sync_packet($uid,get_observer_hash(),$mitem['mitem_menu_id']);
 				$r = menu_del_item($mitem['mitem_menu_id'], $uid, intval(argv(2)));
+				menu_sync_packet($uid,get_observer_hash(),$mitem['mitem_menu_id']);
 				if($r)
 					info( t('Menu item deleted.') . EOL);
 				else

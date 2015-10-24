@@ -185,7 +185,7 @@ function dir_tagadelic($count = 0) {
 	$count = intval($count);
 
 	// Fetch tags
-	$r = q("select xtag_term, count(xtag_term) as total from xtag
+	$r = q("select xtag_term, count(xtag_term) as total from xtag where xtag_flags = 0
 		group by xtag_term order by total desc %s",
 		((intval($count)) ? "limit $count" : '')
 	);
@@ -341,7 +341,7 @@ function get_things($profile_hash,$uid) {
 
 	$sql_extra = (($profile_hash) ? " and obj_page = '" . $profile_hash . "' " : '');
 
-	$r = q("select * from obj left join term on obj_obj = term_hash where term_hash != '' and uid = %d and obj_type = %d $sql_extra order by obj_verb, term",
+	$r = q("select * from obj where obj_channel = %d and obj_type = %d $sql_extra order by obj_verb, obj_term",
 		intval($uid),
 		intval(TERM_OBJ_THING)
 	);
@@ -357,8 +357,8 @@ function get_things($profile_hash,$uid) {
 
 		foreach($r as $rr) {
 			$rr['profile_name'] = '';
-			if(! in_array($rr['term_hash'],$profile_hashes))
-				$profile_hashes[] = $rr['term_hash'];
+			if(! in_array($rr['obj_obj'],$profile_hashes))
+				$profile_hashes[] = $rr['obj_obj'];
 		}
 		stringify_array_elms($profile_hashes);
 		if(! $profile_hash) {
@@ -390,7 +390,7 @@ function get_things($profile_hash,$uid) {
 			$l = q("select xchan_name, xchan_url from likes left join xchan on likee = xchan_hash where
 				target_type = '%s' and target_id = '%s' and channel_id = %d",
 				dbesc(ACTIVITY_OBJ_THING),
-				dbesc($rr['term_hash']),
+				dbesc($rr['obj_obj']),
 				intval($uid)
 			);
 
@@ -400,7 +400,7 @@ function get_things($profile_hash,$uid) {
 			if(! $things[$rr['obj_verb']])
 				$things[$rr['obj_verb']] = array();
 
-			$things[$rr['obj_verb']][] = array('term' => $rr['term'],'url' => $rr['url'],'img' => $rr['imgurl'], 'profile' => $rr['profile_name'],'term_hash' => $rr['term_hash'], 'likes' => $l,'like_count' => count($l),'like_label' => tt('Like','Likes',count($l),'noun'));
+			$things[$rr['obj_verb']][] = array('term' => $rr['obj_term'],'url' => $rr['obj_url'],'img' => $rr['obj_imgurl'], 'profile' => $rr['profile_name'],'term_hash' => $rr['obj_obj'], 'likes' => $l,'like_count' => count($l),'like_label' => tt('Like','Likes',count($l),'noun'));
 		} 
 		$sorted_things = array();
 		if($things) {

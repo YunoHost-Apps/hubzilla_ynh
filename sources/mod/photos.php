@@ -85,6 +85,7 @@ function photos_post(&$a) {
 
 	$owner_record = $s[0];	
 
+	$acl = new AccessList($a->data['channel']);
 
 	if((argc() > 3) && (argv(2) === 'album')) {
 
@@ -148,8 +149,9 @@ function photos_post(&$a) {
 			if($r) {
 				foreach($r as $i) {
 					attach_delete($page_owner_uid, $i['resource_id'], 1 );
-					drop_item($i['id'],false,DROPITEM_PHASE1,true /* force removal of linked items */);
-					proc_run('php','include/notifier.php','drop',$i['id']);
+		// This is now being done in attach_delete()
+		//			drop_item($i['id'],false,DROPITEM_PHASE1,true /* force removal of linked items */);
+		//			proc_run('php','include/notifier.php','drop',$i['id']);
 				}
 			}
 
@@ -181,10 +183,12 @@ function photos_post(&$a) {
 		);
 
 		if($r) {
+
 			q("DELETE FROM `photo` WHERE `uid` = %d AND `resource_id` = '%s'",
 				intval($page_owner_uid),
 				dbesc($r[0]['resource_id'])
 			);
+
 			attach_delete($page_owner_uid, $r[0]['resource_id'], 1 );
 
 			$i = q("SELECT * FROM `item` WHERE `resource_id` = '%s' AND resource_type = 'photo' and `uid` = %d LIMIT 1",
@@ -200,6 +204,7 @@ function photos_post(&$a) {
 		goaway($a->get_baseurl() . '/photos/' . $a->data['channel']['channel_address'] . '/album/' . $_SESSION['album_return']);
 	}
 
+
 	if(($a->argc > 2) && ((x($_POST,'desc') !== false) || (x($_POST,'newtag') !== false)) || (x($_POST,'albname') !== false)) {
 
 
@@ -208,10 +213,9 @@ function photos_post(&$a) {
 		$item_id     = ((x($_POST,'item_id')) ? intval($_POST['item_id'])       : 0);
 		$albname     = ((x($_POST,'albname')) ? notags(trim($_POST['albname'])) : '');
 		$is_nsfw     = ((x($_POST,'adult'))   ? intval($_POST['adult'])         : 0);
-		$str_group_allow   = perms2str($_POST['group_allow']);
-		$str_contact_allow = perms2str($_POST['contact_allow']);
-		$str_group_deny    = perms2str($_POST['group_deny']);
-		$str_contact_deny  = perms2str($_POST['contact_deny']);
+	
+		$acl->set_from_array($_POST);
+		$perm = $acl->get();
 
 		$resource_id = $a->argv[2];
 
@@ -228,15 +232,46 @@ function photos_post(&$a) {
 				intval($page_owner_uid)
 			);
 			if(count($r)) {
-				$ph = photo_factory(dbunescbin($r[0]['data']), $r[0]['type']);
+				$d = (($r[0]['os_storage']) ? @file_get_contents($r[0]['data']) : dbunescbin($r[0]['data']));
+				$ph = photo_factory($d, $r[0]['type']);
 				if($ph->is_valid()) {
 					$rotate_deg = ( (intval($_POST['rotate']) == 1) ? 270 : 90 );
 					$ph->rotate($rotate_deg);
 
 					$width  = $ph->getWidth();
 					$height = $ph->getHeight();
+					
+					if(intval($r[0]['os_storage'])) {
+						@file_put_contents($r[0]['data'],$ph->imageString());
+						$data = $r[0]['data'];
+						$fsize = @filesize($r[0]['data']);
+						q("update attach set filesize = %d where hash = '%s' and uid = %d limit 1",
+							intval($fsize),
+							dbesc($resource_id),
+							intval($page_owner_uid)
+						);
+					}
+					else {
+						$data = $ph->imageString();
+						$fsize = strlen($data);
+					}
 
-					$x = q("update photo set data = '%s', height = %d, width = %d where `resource_id` = '%s' and uid = %d and scale = 0",
+					$x = q("update photo set data = '%s', `size` = %d, height = %d, width = %d where `resource_id` = '%s' and uid = %d and scale = 0",
+						dbescbin($data),
+						intval($fsize),
+						intval($height),
+						intval($width),
+						dbesc($resource_id),
+						intval($page_owner_uid)
+					);
+
+					if($width > 1024 || $height > 1024) 
+						$ph->scaleImage(1024);
+
+					$width  = $ph->getWidth();
+					$height = $ph->getHeight();
+
+					$x = q("update photo set data = '%s', height = %d, width = %d where `resource_id` = '%s' and uid = %d and scale = 1",
 						dbescbin($ph->imageString()),
 						intval($height),
 						intval($width),
@@ -244,38 +279,40 @@ function photos_post(&$a) {
 						intval($page_owner_uid)
 					);
 
-					if($width > 640 || $height > 640) {
+
+					if($width > 640 || $height > 640) 
 						$ph->scaleImage(640);
-						$width  = $ph->getWidth();
-						$height = $ph->getHeight();
-		
-						$x = q("update photo set data = '%s', height = %d, width = %d where `resource_id` = '%s' and uid = %d and scale = 1",
-							dbescbin($ph->imageString()),
-							intval($height),
-							intval($width),
-							dbesc($resource_id),
-							intval($page_owner_uid)
-						);
-					}
 
-					if($width > 320 || $height > 320) {
+					$width  = $ph->getWidth();
+					$height = $ph->getHeight();
+
+					$x = q("update photo set data = '%s', height = %d, width = %d where `resource_id` = '%s' and uid = %d and scale = 2",
+						dbescbin($ph->imageString()),
+						intval($height),
+						intval($width),
+						dbesc($resource_id),
+						intval($page_owner_uid)
+					);
+
+
+					if($width > 320 || $height > 320) 
 						$ph->scaleImage(320);
-						$width  = $ph->getWidth();
-						$height = $ph->getHeight();
 
-						$x = q("update photo set data = '%s', height = %d, width = %d where `resource_id` = '%s' and uid = %d and scale = 2",
-							dbescbin($ph->imageString()),
-							intval($height),
-							intval($width),
-							dbesc($resource_id),
-							intval($page_owner_uid)
-						);
-					}	
+					$width  = $ph->getWidth();
+					$height = $ph->getHeight();
+
+					$x = q("update photo set data = '%s', height = %d, width = %d where `resource_id` = '%s' and uid = %d and scale = 3",
+						dbescbin($ph->imageString()),
+						intval($height),
+						intval($width),
+						dbesc($resource_id),
+						intval($page_owner_uid)
+					);
 				}
 			}
 		}
 
-		$p = q("SELECT * FROM `photo` WHERE `resource_id` = '%s' AND `uid` = %d ORDER BY `scale` DESC",
+		$p = q("SELECT type, is_nsfw, description, resource_id, scale, allow_cid, allow_gid, deny_cid, deny_gid FROM photo WHERE resource_id = '%s' AND uid = %d ORDER BY scale DESC",
 			dbesc($resource_id),
 			intval($page_owner_uid)
 		);
@@ -284,10 +321,10 @@ function photos_post(&$a) {
 
 			$r = q("UPDATE `photo` SET `description` = '%s', `allow_cid` = '%s', `allow_gid` = '%s', `deny_cid` = '%s', `deny_gid` = '%s' WHERE `resource_id` = '%s' AND `uid` = %d",
 				dbesc($desc),
-				dbesc($str_contact_allow),
-				dbesc($str_group_allow),
-				dbesc($str_contact_deny),
-				dbesc($str_group_deny),
+				dbesc($perm['allow_cid']),
+				dbesc($perm['allow_gid']),
+				dbesc($perm['deny_cid']),
+				dbesc($perm['deny_gid']),
 				dbesc($resource_id),
 				intval($page_owner_uid)
 			);
@@ -331,20 +368,20 @@ function photos_post(&$a) {
 		// make sure the linked item has the same permissions as the photo regardless of any other changes
 		$x = q("update item set allow_cid = '%s', allow_gid = '%s', deny_cid = '%s', deny_gid = '%s', item_private = %d
 			where id = %d",
-				dbesc($str_contact_allow),
-				dbesc($str_group_allow),
-				dbesc($str_contact_deny),
-				dbesc($str_group_deny),
-				intval($item_private),
+				dbesc($perm['allow_cid']),
+				dbesc($perm['allow_gid']),
+				dbesc($perm['deny_cid']),
+				dbesc($perm['deny_gid']),
+				intval($acl->is_private()),
 				intval($item_id)
 		);
 
 		// make sure the attach has the same permissions as the photo regardless of any other changes
 		$x = q("update attach set allow_cid = '%s', allow_gid = '%s', deny_cid = '%s', deny_gid = '%s' where hash = '%s' and uid = %d and is_photo = 1",
-				dbesc($str_contact_allow),
-				dbesc($str_group_allow),
-				dbesc($str_contact_deny),
-				dbesc($str_group_deny),
+				dbesc($perm['allow_cid']),
+				dbesc($perm['allow_gid']),
+				dbesc($perm['deny_cid']),
+				dbesc($perm['deny_gid']),
 				dbesc($resource_id),
 				intval($page_owner_uid)
 		);
@@ -418,11 +455,11 @@ function photos_post(&$a) {
 	$_REQUEST['source'] = 'photos';
 	require_once('include/attach.php');
 
-	if(!local_channel()) {
+	if(! local_channel()) {
 		$_REQUEST['contact_allow'] = expand_acl($channel['channel_allow_cid']);
-		$_REQUEST['group_allow'] = expand_acl($channel['channel_allow_gid']);
-		$_REQUEST['contact_deny'] = expand_acl($channel['channel_deny_cid']);
-		$_REQUEST['group_deny'] = expand_acl($channel['channel_deny_gid']);
+		$_REQUEST['group_allow']   = expand_acl($channel['channel_allow_gid']);
+		$_REQUEST['contact_deny']  = expand_acl($channel['channel_deny_cid']);
+		$_REQUEST['group_deny']    = expand_acl($channel['channel_deny_gid']);
 	}
 
 	$r = attach_store($a->channel,get_observer_hash(), '', $_REQUEST);
@@ -557,14 +594,10 @@ function photos_content(&$a) {
 		if($_is_owner) {
 			$channel = $a->get_channel();
 
-			$channel_acl = array(
-				'allow_cid' => $channel['channel_allow_cid'], 
-				'allow_gid' => $channel['channel_allow_gid'], 
-				'deny_cid' => $channel['channel_deny_cid'], 
-				'deny_gid' => $channel['channel_deny_gid']
-			);
+			$acl = new AccessList($channel);
+			$channel_acl = $acl->get();
 
-			$lockstate = (($channel['channel_allow_cid'] || $channel['channel_allow_gid'] || $channel['channel_deny_cid'] || $channel['channel_deny_gid']) ? 'lock' : 'unlock');
+			$lockstate = (($acl->is_private()) ? 'lock' : 'unlock');
 		}
 
 		$aclselect = (($_is_owner) ? populate_acl($channel_acl,false) : '');
@@ -773,7 +806,7 @@ function photos_content(&$a) {
 
 		// fetch image, item containing image, then comments
 
-		$ph = q("SELECT aid,uid,xchan,resource_id,created,edited,title,`description`,album,filename,`type`,height,width,`size`,scale,photo_usage,is_nsfw,allow_cid,allow_gid,deny_cid,deny_gid FROM `photo` WHERE `uid` = %d AND `resource_id` = '%s' 
+		$ph = q("SELECT id,aid,uid,xchan,resource_id,created,edited,title,`description`,album,filename,`type`,height,width,`size`,scale,photo_usage,is_nsfw,allow_cid,allow_gid,deny_cid,deny_gid FROM `photo` WHERE `uid` = %d AND `resource_id` = '%s' 
 			$sql_extra ORDER BY `scale` ASC ",
 			intval($owner_uid),
 			dbesc($datum)
@@ -985,13 +1018,13 @@ function photos_content(&$a) {
 			$likebuttons = '';
 
 			if($can_post || $can_comment) {
-				$likebuttons = replace_macros($like_tpl,array(
-					'$id' => $link_item['id'],
-					'$likethis' => t("I like this \x28toggle\x29"),
-					'$nolike' => t("I don't like this \x28toggle\x29"),
-					'$share' => t('Share'),
-					'$wait' => t('Please wait')
-				));
+				$likebuttons = array(
+					'id' => $link_item['id'],
+					'likethis' => t("I like this \x28toggle\x29"),
+					'nolike' => t("I don't like this \x28toggle\x29"),
+					'share' => t('Share'),
+					'wait' => t('Please wait')
+				);
 			}
 
 			$comments = '';
@@ -1150,7 +1183,7 @@ function photos_content(&$a) {
 
 		$photo_tpl = get_markup_template('photo_view.tpl');
 		$o .= replace_macros($photo_tpl, array(
-			'$id' => $link_item['id'], //$ph[0]['id'],
+			'$id' => $ph[0]['id'],
 			'$album' => $album_e,
 			'$tools' => $tools,
 			'$lock' => $lockstate[1],

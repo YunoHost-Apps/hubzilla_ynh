@@ -94,9 +94,8 @@ EOT;
 
 		require_once('include/chat.php');
 		$has_chats = chatroom_list_count(local_channel());
-		if($has_chats) {
-			$nav['usermenu'][] = Array('chat/' . $channel['channel_address'],t('Chat'),"",t('Your chatrooms'),'chat_nav_btn');
-		}
+		$nav['usermenu'][] = Array('chat/' . $channel['channel_address'] . (($has_chats) ? '' : '/new'), t('Chat'),"",t('Your chatrooms'),'chat_nav_btn');
+
 
 		require_once('include/menu.php');
 		$has_bookmarks = menu_list_count(local_channel(),'',MENU_BOOKMARK) + menu_list_count(local_channel(),'',MENU_SYSTEM|MENU_BOOKMARK);
@@ -172,8 +171,8 @@ EOT;
 	if(local_channel()) {
 
 	
-		$nav['network'] = array('network', t('Matrix'), "", t('Your matrix'),'network_nav_btn');
-		$nav['network']['mark'] = array('', t('Mark all matrix notifications seen'), '','');
+		$nav['network'] = array('network', t('Grid'), "", t('Your grid'),'network_nav_btn');
+		$nav['network']['mark'] = array('', t('Mark all grid notifications seen'), '','');
 
 		$nav['home'] = array('channel/' . $channel['channel_address'], t('Channel Home'), "", t('Channel home'),'home_nav_btn');
 		$nav['home']['mark'] = array('', t('Mark all channel notifications seen'), '','');
@@ -186,11 +185,11 @@ EOT;
 		$nav['notifications']['all']=array('notifications/system', t('See all notifications'), "", "");
 		$nav['notifications']['mark'] = array('', t('Mark all system notifications seen'), '','');
 
-		$nav['messages'] = array('message', t('Mail'), "", t('Private mail'),'mail_nav_btn');
-		$nav['messages']['all']=array('message', t('See all private messages'), "", "");
+		$nav['messages'] = array('mail/combined', t('Mail'), "", t('Private mail'),'mail_nav_btn');
+		$nav['messages']['all']=array('mail/combined', t('See all private messages'), "", "");
 		$nav['messages']['mark'] = array('', t('Mark all private messages seen'), '','');
-		$nav['messages']['inbox'] = array('message', t('Inbox'), "", t('Inbox'));
-		$nav['messages']['outbox']= array('message/sent', t('Outbox'), "", t('Outbox'));
+		$nav['messages']['inbox'] = array('mail/inbox', t('Inbox'), "", t('Inbox'));
+		$nav['messages']['outbox']= array('mail/outbox', t('Outbox'), "", t('Outbox'));
 		$nav['messages']['new'] = array('mail/new', t('New Message'), "", t('New Message'));
 
 

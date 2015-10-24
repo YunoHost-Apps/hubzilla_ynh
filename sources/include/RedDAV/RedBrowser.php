@@ -217,31 +217,6 @@ class RedBrowser extends DAV\Browser\Plugin {
 			$f[] = $ft;
 		}
 
-		// Storage and quota for the account (all channels of the owner of this directory)!
-		$limit = service_class_fetch($owner, 'attach_upload_limit');
-		$r = q("SELECT SUM(filesize) AS total FROM attach WHERE aid = %d",
-			intval($this->auth->channel_account_id)
-		);
-		$used = $r[0]['total'];
-		if ($used) {
-			$quotaDesc = t('%1$s used');
-			$quotaDesc = sprintf($quotaDesc,
-				userReadableSize($used));
-		}
-		if ($limit && $used) {
-			$quotaDesc = t('%1$s used of %2$s (%3$s&#37;)');
-			$quotaDesc = sprintf($quotaDesc,
-				userReadableSize($used),
-				userReadableSize($limit),
-				round($used / $limit, 1));
-		}
-
-		// prepare quota for template
-		$quota = array();
-		$quota['used'] = $used;
-		$quota['limit'] = $limit;
-		$quota['desc'] = $quotaDesc;
-
 		$output = '';
 		if ($this->enablePost) {
 			$this->server->broadcastEvent('onHTMLActionsPanel', array($parent, &$output));
@@ -249,7 +224,6 @@ class RedBrowser extends DAV\Browser\Plugin {
 
 		$html .= replace_macros(get_markup_template('cloud.tpl'), array(
 				'$header' => t('Files') . ": " . $this->escapeHTML($path) . "/",
-				'$quota' => $quota,
 				'$total' => t('Total'),
 				'$actionspanel' => $output,
 				'$shared' => t('Shared'),
@@ -298,11 +272,38 @@ class RedBrowser extends DAV\Browser\Plugin {
 		if (get_class($node) === 'Sabre\\DAV\\SimpleCollection')
 			return;
 
+		// Storage and quota for the account (all channels of the owner of this directory)!
+		$limit = service_class_fetch($owner, 'attach_upload_limit');
+		$r = q("SELECT SUM(filesize) AS total FROM attach WHERE aid = %d",
+			intval($this->auth->channel_account_id)
+		);
+		$used = $r[0]['total'];
+		if ($used) {
+			$quotaDesc = t('You are using %1$s of your available file storage.');
+			$quotaDesc = sprintf($quotaDesc,
+				userReadableSize($used));
+		}
+		if ($limit && $used) {
+			$quotaDesc = t('You are using %1$s of %2$s available file storage. (%3$s&#37;)');
+			$quotaDesc = sprintf($quotaDesc,
+				userReadableSize($used),
+				userReadableSize($limit),
+				round($used / $limit, 1) * 100);
+		}
+
+		// prepare quota for template
+		$quota = array();
+		$quota['used'] = $used;
+		$quota['limit'] = $limit;
+		$quota['desc'] = $quotaDesc;
+		$quota['warning'] = ((($limit) && ((round($used / $limit, 1) * 100) >= 90)) ? t('WARNING:') : ''); // 10485760 bytes = 100MB
+
 		$output .= replace_macros(get_markup_template('cloud_actionspanel.tpl'), array(
 				'$folder_header' => t('Create new folder'),
 				'$folder_submit' => t('Create'),
 				'$upload_header' => t('Upload file'),
-				'$upload_submit' => t('Upload')
+				'$upload_submit' => t('Upload'),
+				'$quota' => $quota
 			));
 	}
 

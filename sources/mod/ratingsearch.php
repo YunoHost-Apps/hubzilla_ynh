@@ -35,8 +35,9 @@ function ratingsearch_init(&$a) {
 	if($p)
 		$target = $p[0]['xchan_hash'];
 	else {
-		$p = q("select * from site where site_url like '%s' ",
-			dbesc('%' . $hash)
+		$p = q("select * from site where site_url like '%s' and site_type = %d ",
+			dbesc('%' . $hash),
+			intval(SITE_TYPE_ZOT)
 		);
 		if($p) {
 			$target = strtolower($hash);

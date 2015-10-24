@@ -557,14 +557,14 @@ function guess_image_type($filename, $headers = '') {
 
 }
 
-function import_profile_photo($photo,$xchan,$thing = false) {
+function import_xchan_photo($photo,$xchan,$thing = false) {
 
 	$a = get_app();
 
 	$flags = (($thing) ? PHOTO_THING : PHOTO_XCHAN);
 	$album = (($thing) ? 'Things' : 'Contact Photos');
 
-	logger('import_profile_photo: updating channel photo from ' . $photo . ' for ' . $xchan, LOGGER_DEBUG);
+	logger('import_xchan_photo: updating channel photo from ' . $photo . ' for ' . $xchan, LOGGER_DEBUG);
 
 	if($thing)
 		$hash = photo_new_resource();
@@ -591,67 +591,85 @@ function import_profile_photo($photo,$xchan,$thing = false) {
 		if(! $type)
 			$type = 'image/jpeg';
 
+
 		$result = z_fetch_url($photo,true);
 
-		if($result['success'])
+		if($result['success']) {
 			$img_str = $result['body'];
-	}
 
-	$img = photo_factory($img_str, $type);
-	if($img->is_valid()) {
-		$width = $img->getWidth();
-		$height = $img->getHeight();
-	
-		if($width && $height) {
-			if(($width / $height) > 1.2) {
-				// crop out the sides
-				$margin = $width - $height;
-				$img->cropImage(300,($margin / 2),0,$height,$height);
+			$h = explode("\n",$result['header']);
+			if($h) {
+				foreach($h as $hl) {
+					if(stristr($hl,'content-type:')) {
+						if(! stristr($hl,'image/')) {
+							$photo_failure = true;
+						}
+					}
+				}
 			}
-			elseif(($height / $width) > 1.2) {
-				// crop out the bottom
-				$margin = $height - $width;
-				$img->cropImage(300,0,0,$width,$width);
-
-			}
-			else {
-				$img->scaleImageSquare(300);
-			}
-
 		}
-		else 
-			$photo_failure = true;
-
-		$p = array('xchan' => $xchan,'resource_id' => $hash, 'filename' => basename($photo), 'album' => $album, 'photo_usage' => $flags, 'scale' => 4);
-
-		$r = $img->save($p);
-
-		if($r === false)
-			$photo_failure = true;
-
-		$img->scaleImage(80);
-		$p['scale'] = 5;
-
-		$r = $img->save($p);
-
-		if($r === false)
-			$photo_failure = true;
-
-		$img->scaleImage(48);
-		$p['scale'] = 6;
-
-		$r = $img->save($p);
-
-		if($r === false)
-			$photo_failure = true;
-
-		$photo = $a->get_baseurl() . '/photo/' . $hash . '-4';
-		$thumb = $a->get_baseurl() . '/photo/' . $hash . '-5';
-		$micro = $a->get_baseurl() . '/photo/' . $hash . '-6';
 	}
 	else {
-		logger('import_profile_photo: invalid image from ' . $photo);	
 		$photo_failure = true;
+	}
+
+	if(! $photo_failure) {
+		$img = photo_factory($img_str, $type);
+		if($img->is_valid()) {
+			$width = $img->getWidth();
+			$height = $img->getHeight();
+	
+			if($width && $height) {
+				if(($width / $height) > 1.2) {
+					// crop out the sides
+					$margin = $width - $height;
+					$img->cropImage(300,($margin / 2),0,$height,$height);
+				}
+				elseif(($height / $width) > 1.2) {
+					// crop out the bottom
+					$margin = $height - $width;
+					$img->cropImage(300,0,0,$width,$width);
+
+				}
+				else {
+					$img->scaleImageSquare(300);
+				}
+
+			}
+			else 
+				$photo_failure = true;
+
+			$p = array('xchan' => $xchan,'resource_id' => $hash, 'filename' => basename($photo), 'album' => $album, 'photo_usage' => $flags, 'scale' => 4);
+
+			$r = $img->save($p);
+
+			if($r === false)
+				$photo_failure = true;
+
+			$img->scaleImage(80);
+			$p['scale'] = 5;
+	
+			$r = $img->save($p);
+
+			if($r === false)
+				$photo_failure = true;
+	
+			$img->scaleImage(48);
+			$p['scale'] = 6;
+	
+			$r = $img->save($p);
+
+			if($r === false)
+				$photo_failure = true;
+
+			$photo = $a->get_baseurl() . '/photo/' . $hash . '-4';
+			$thumb = $a->get_baseurl() . '/photo/' . $hash . '-5';
+			$micro = $a->get_baseurl() . '/photo/' . $hash . '-6';
+		}
+		else {
+			logger('import_xchan_photo: invalid image from ' . $photo);	
+			$photo_failure = true;
+		}
 	}
 	if($photo_failure) {
 		$photo = $a->get_baseurl() . '/' . get_default_profile_photo();

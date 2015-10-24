@@ -133,27 +133,27 @@ function new_contact($uid,$url,$channel,$interactive = false, $confirm = false) 
 		$their_perms = 0;
 		$xchan_hash = '';
 
+
 		$r = q("select * from xchan where xchan_hash = '%s' or xchan_url = '%s' limit 1",
 			dbesc($url),
 			dbesc($url)
 		);
 
+
 		if(! $r) {
 			// attempt network auto-discovery
 			if(strpos($url,'@') && (! $is_http)) {
-				$r = discover_by_webbie($url);
+				$d = discover_by_webbie($url);
 			}
 			elseif($is_http) {
-				$r = discover_by_url($url);
-				$r['allowed'] = intval(get_config('system','feed_contacts'));
-			}
-			if($r) {
-				$r['channel_id'] = $uid;
-				call_hooks('follow_allow',$r);
-				if(! $r['allowed']) {
+				if(get_config('system','feed_contacts'))
+					$d = discover_by_url($url);
+				else {
 					$result['message'] = t('Protocol disabled.');
 					return $result;
 				}
+			}
+			if($d) {
 				$r = q("select * from xchan where xchan_hash = '%s' or xchan_url = '%s' limit 1",
 					dbesc($url),
 					dbesc($url)
@@ -171,6 +171,16 @@ function new_contact($uid,$url,$channel,$interactive = false, $confirm = false) 
 		logger('follow: ' . $result['message']);
 		return $result;
 	}
+
+	$x = array('channel_id' => $uid, 'follow_address' => $url, 'xchan' => $r[0], 'allowed' => 1);
+
+	call_hooks('follow_allow',$x);
+
+	if(! $x['allowed']) {
+		$result['message'] = t('Protocol disabled.');
+		return $result;
+	}
+
 
 	if((local_channel()) && $uid == local_channel()) {
 		$aid = get_account_id();
@@ -251,7 +261,7 @@ function new_contact($uid,$url,$channel,$interactive = false, $confirm = false) 
 	);
 	if($r) {
 		$result['abook'] = $r[0];
-		proc_run('php', 'include/notifier.php', 'permission_update', $result['abook']['abook_id']);
+		proc_run('php', 'include/notifier.php', 'permission_create', $result['abook']['abook_id']);
 	}
 
 	$arr = array('channel_id' => $uid, 'abook' => $result['abook']);

@@ -5,8 +5,8 @@ su aprobación.
 
 Los detalles del inicio de sesión son los siguientes:
 
-Localización del Sitio:	{{$siteurl}}
-Nombre de usuario:	{{$email}}
+Localización del sitio:⇥{{$siteurl}}
+Nombre de usuario:⇥{{$email}}
 Dirección IP:  {{$details}}
 
 Para aprobar la petición siga el enlace:
@@ -15,7 +15,7 @@ Para aprobar la petición siga el enlace:
 {{$siteurl}}/regmod/allow/{{$hash}} 
 
 
-Para denegar la petición y eliminar la cuenta , siga:
+Para rechazar la petición y eliminar la cuenta , siga:
 
 
 {{$siteurl}}/regmod/deny/{{$hash}}

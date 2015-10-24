@@ -3,9 +3,10 @@
 require_once('include/security.php');
 require_once('include/bbcode.php');
 
+
 function menu_fetch($name,$uid,$observer_xchan) {
 
-	$sql_options = permissions_sql($uid);
+	$sql_options = permissions_sql($uid,$observer_xchan);
 
 	$r = q("select * from menu where menu_channel_id = %d and menu_name = '%s' limit 1",
 		intval($uid),
@@ -237,7 +238,6 @@ function menu_edit($arr) {
 		return false;
 	}
 
-
 	$r = q("select * from menu where menu_id = %d and menu_channel_id = %d limit 1",
 		intval($menu_id),
 		intval($menu_channel_id)
@@ -299,19 +299,18 @@ function menu_add_item($menu_id, $uid, $arr) {
 		$channel = get_app()->get_channel();	
 	}
 
-	$str_group_allow   = perms2str($arr['group_allow']);
-	$str_contact_allow = perms2str($arr['contact_allow']);
-	$str_group_deny    = perms2str($arr['group_deny']);
-	$str_contact_deny  = perms2str($arr['contact_deny']);
+	$acl = new AccessList($channel);
+	$acl->set_from_array($arr);
+	$p = $acl->get();
 
 	$r = q("insert into menu_item ( mitem_link, mitem_desc, mitem_flags, allow_cid, allow_gid, deny_cid, deny_gid, mitem_channel_id, mitem_menu_id, mitem_order ) values ( '%s', '%s', %d, '%s', '%s', '%s', '%s', %d, %d, %d ) ",
 		dbesc($mitem_link),
 		dbesc($mitem_desc),
 		intval($mitem_flags),
-		dbesc($str_contact_allow),
-		dbesc($str_group_allow),
-		dbesc($str_contact_deny),
-		dbesc($str_group_deny),
+		dbesc($p['allow_cid']),
+		dbesc($p['allow_gid']),
+		dbesc($p['deny_cid']),
+		dbesc($p['deny_gid']),
 		intval($uid),
 		intval($menu_id),
 		intval($mitem_order)
@@ -341,19 +340,19 @@ function menu_edit_item($menu_id, $uid, $arr) {
 		$channel = get_app()->get_channel();	
 	}
 
-	$str_group_allow   = perms2str($arr['group_allow']);
-	$str_contact_allow = perms2str($arr['contact_allow']);
-	$str_group_deny    = perms2str($arr['group_deny']);
-	$str_contact_deny  = perms2str($arr['contact_deny']);
+	$acl = new AccessList($channel);
+	$acl->set_from_array($arr);
+	$p = $acl->get();
+
 
 	$r = q("update menu_item set mitem_link = '%s', mitem_desc = '%s', mitem_flags = %d, allow_cid = '%s', allow_gid = '%s', deny_cid = '%s', deny_gid = '%s', mitem_order = %d  where mitem_channel_id = %d and mitem_menu_id = %d and mitem_id = %d",
 		dbesc($mitem_link),
 		dbesc($mitem_desc),
 		intval($mitem_flags),
-		dbesc($str_contact_allow),
-		dbesc($str_group_allow),
-		dbesc($str_contact_deny),
-		dbesc($str_group_deny),
+		dbesc($p['allow_cid']),
+		dbesc($p['allow_gid']),
+		dbesc($p['deny_cid']),
+		dbesc($p['deny_gid']),
 		intval($mitem_order),
 		intval($uid),
 		intval($menu_id),
@@ -388,3 +387,14 @@ function menu_del_item($menu_id,$uid,$item_id) {
 	return $r;
 }
 
+function menu_sync_packet($uid,$observer_hash,$menu_id,$delete = false) {
+	$r = menu_fetch_id($menu_id,$uid);
+	if($r) {
+		$m = menu_fetch($r['menu_name'],$uid,$observer_hash);	
+		if($m) {
+			if($delete)
+				$m['menu_delete'] = 1;
+			build_sync_packet($uid,array('menu' => array(menu_element($m))));
+		}
+	}
+}

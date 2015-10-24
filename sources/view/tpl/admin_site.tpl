@@ -78,6 +78,7 @@
 	{{include file="field_input.tpl" field=$proxyuser}}
 	{{include file="field_input.tpl" field=$timeout}}
 	{{include file="field_input.tpl" field=$delivery_interval}}
+	{{include file="field_input.tpl" field=$delivery_batch_count}}
 	{{include file="field_input.tpl" field=$poll_interval}}
 	{{include file="field_input.tpl" field=$maxloadavg}}
 	{{include file="field_input.tpl" field=$abandon_days}}

@@ -1,3 +1,4 @@
 [region=aside]
-[widget=vcard][/widget]
+[widget=mailmenu][/widget]
+[widget=conversations][/widget]
 [/region]

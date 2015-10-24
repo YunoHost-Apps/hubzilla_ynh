@@ -37,6 +37,7 @@ function menu_post(&$a) {
 		$_REQUEST['menu_id'] = intval(argv(1));
 		$r = menu_edit($_REQUEST);
 		if($r) {
+			menu_sync_packet($uid,get_observer_hash(),$menu_id);
 			//info( t('Menu updated.') . EOL);
 			goaway(z_root() . '/mitem/' . $menu_id . (($a->is_sys) ? '?f=&sys=1' : '')); 
 		}
@@ -45,7 +46,9 @@ function menu_post(&$a) {
 	}
 	else {
 		$r = menu_create($_REQUEST);
-			if($r) {
+		if($r) {
+			menu_sync_packet($uid,get_observer_hash(),$r);
+
 			//info( t('Menu created.') . EOL);
 			goaway(z_root() . '/mitem/' . $r . (($a->is_sys) ? '?f=&sys=1' : '')); 
 		}
@@ -54,6 +57,8 @@ function menu_post(&$a) {
 
 	}
 }
+
+
 
 
 function menu_content(&$a) {
@@ -121,6 +126,7 @@ function menu_content(&$a) {
 		if(intval(argv(1))) {
 
 			if(argc() == 3 && argv(2) == 'drop') {
+				menu_sync_packet($uid,get_observer_hash(),intval(argv(1)),true);
 				$r = menu_delete_id(intval(argv(1)),$uid);
 				if(!$r)
 					notice( t('Menu could not be deleted.'). EOL);

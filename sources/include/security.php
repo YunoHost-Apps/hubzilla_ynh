@@ -245,6 +245,9 @@ function item_permissions_sql($owner_id, $remote_observer = null) {
 		$observer = (($remote_observer) ? $remote_observer : get_observer_hash());
 
 		if($observer) {
+
+			$s = scopes_sql($owner_id,$observer);
+
 			$groups = init_groups_visitor($observer);
 
 			$gs = '<<>>'; // should be impossible to match
@@ -255,9 +258,9 @@ function item_permissions_sql($owner_id, $remote_observer = null) {
 			}
 			$regexop = db_getfunc('REGEXP');
 			$sql = sprintf(
-				" AND ( NOT (deny_cid like '%s' OR deny_gid $regexop '%s')
-				  AND ( allow_cid like '%s' OR allow_gid $regexop '%s' OR ( allow_cid = '' AND allow_gid = '') )
-				  )
+				" AND (( NOT (deny_cid like '%s' OR deny_gid $regexop '%s')
+				  AND ( allow_cid like '%s' OR allow_gid $regexop '%s' OR ( allow_cid = '' AND allow_gid = '' AND item_private = 0 ))
+				  ) OR ( item_private = 1 $s ))
 				",
 				dbesc(protect_sprintf( '%<' . $observer . '>%')),
 				dbesc($gs),
@@ -269,6 +272,39 @@ function item_permissions_sql($owner_id, $remote_observer = null) {
 
 	return $sql;
 }
+
+/**
+ * Remote visitors also need to be checked against the public_scope parameter if item_private is set.
+ * This function checks the various permutations of that field for any which apply to this observer.
+ * 
+ */
+
+
+
+function scopes_sql($uid,$observer) {
+	$str = " and ( public_policy = 'authenticated' ";
+	if(! is_foreigner($observer))
+		$str .= " or public_policy = 'network: red' ";
+	if(local_channel())
+		$str .= " or public_policy = 'site: " . get_app()->get_hostname() . "' ";
+
+	$ab = q("select * from abook where abook_xchan = '%s' and abook_channel = %d limit 1",
+		dbesc($observer),
+		intval($uid)
+	);
+	if(! $ab)
+		return $str . " ) ";
+	if($ab[0]['abook_pending'])
+		$str .= " or public_policy = 'any connections' ";
+	$str .= " or public_policy = 'contacts' ) ";
+	return $str;
+}
+ 
+	
+	
+
+
+
 
 /**
  * @param string $observer_hash
@@ -291,7 +327,7 @@ function public_permissions_sql($observer_hash) {
 		$regexop = db_getfunc('REGEXP');
 		$sql = sprintf(
 			" OR (( NOT (deny_cid like '%s' OR deny_gid $regexop '%s')
-			  AND ( allow_cid like '%s' OR allow_gid $regexop '%s' OR ( allow_cid = '' AND allow_gid = '') )
+			  AND ( allow_cid like '%s' OR allow_gid $regexop '%s' OR ( allow_cid = '' AND allow_gid = '' AND item_private = 0 ) )
 			  ))
 			",
 			dbesc(protect_sprintf( '%<' . $observer_hash . '>%')),

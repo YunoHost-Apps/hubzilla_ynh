@@ -151,16 +151,18 @@ function sync_directories($dirmode) {
 
 	$realm = get_directory_realm();
 	if ($realm == DIRECTORY_REALM) {
-		$r = q("select * from site where (site_flags & %d) > 0 and site_url != '%s' and ( site_realm = '%s' or site_realm = '') ",
+		$r = q("select * from site where (site_flags & %d) > 0 and site_url != '%s' and site_type = %d and ( site_realm = '%s' or site_realm = '') ",
 			intval(DIRECTORY_MODE_PRIMARY|DIRECTORY_MODE_SECONDARY),
 			dbesc(z_root()),
+			intval(SITE_TYPE_ZOT),
 			dbesc($realm)
 		);
 	} else {
-		$r = q("select * from site where (site_flags & %d) > 0 and site_url != '%s' and site_realm like '%s' ",
+		$r = q("select * from site where (site_flags & %d) > 0 and site_url != '%s' and site_realm like '%s' and site_type = %d ",
 			intval(DIRECTORY_MODE_PRIMARY|DIRECTORY_MODE_SECONDARY),
 			dbesc(z_root()),
-			dbesc(protect_sprintf('%' . $realm . '%'))
+			dbesc(protect_sprintf('%' . $realm . '%')),
+			intval(SITE_TYPE_ZOT)
 		);
 	}
 
@@ -176,9 +178,10 @@ function sync_directories($dirmode) {
 			'site_directory' => DIRECTORY_FALLBACK_MASTER . '/dirsearch',
 			'site_realm' => DIRECTORY_REALM,
 			'site_valid' => 1
+			
 		);
 		$x = q("insert into site ( site_url, site_flags, site_update, site_directory, site_realm, site_valid )
-			values ( '%s', %d', '%s', '%s', '%s' ) ",
+			values ( '%s', %d, '%s', '%s', '%s', %d ) ",
 			dbesc($r[0]['site_url']),
 			intval($r[0]['site_flags']),
 			dbesc($r[0]['site_update']),
@@ -187,9 +190,10 @@ function sync_directories($dirmode) {
 			intval($r[0]['site_valid'])
 		);
 
-		$r = q("select * from site where (site_flags & %d) > 0 and site_url != '%s'",
+		$r = q("select * from site where (site_flags & %d) > 0 and site_url != '%s' and site_type = %d ",
 			intval(DIRECTORY_MODE_PRIMARY|DIRECTORY_MODE_SECONDARY),
-			dbesc(z_root())
+			dbesc(z_root()),
+			intval(SITE_TYPE_ZOT)
 		);
 	}
 	if (! $r)

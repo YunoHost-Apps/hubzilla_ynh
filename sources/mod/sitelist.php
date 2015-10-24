@@ -28,7 +28,9 @@ function sitelist_init(&$a) {
 
 	$result = array('success' => false);
 
-	$r = q("select count(site_url) as total from site where true $sql_extra ");
+	$r = q("select count(site_url) as total from site where site_type = %d $sql_extra ",
+		intval(SITE_TYPE_ZOT)
+	);
 	
 	if($r)
 		$result['total'] = intval($r[0]['total']);
@@ -36,7 +38,9 @@ function sitelist_init(&$a) {
 	$result['start'] = $start;
 	$result['limit'] = $limit;	
 
-	$r = q("select * from site where true $sql_extra $sql_order $sql_limit");
+	$r = q("select * from site where site_type = %d $sql_extra $sql_order $sql_limit",
+		intval(SITE_TYPE_ZOT)
+	);
 
 	$result['results'] = 0;
 	$result['entries'] = array();

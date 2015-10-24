@@ -97,11 +97,15 @@ function mail_post(&$a) {
 	
 	$ret = send_message(0, $recipient, $body, $subject, $replyto, $expires);
 
-	if(! $ret['success']) {
+	if($ret['success']) {
+		xchan_mail_query($ret['mail']);
+		build_sync_packet(0,array('conv' => array($ret['conv']),'mail' => array(encode_mail($ret['mail'],true))));
+	}
+	else {
 		notice($ret['message']);
 	}
 
-	goaway(z_root() . '/message');
+	goaway(z_root() . '/mail/combined');
 		
 }
 
@@ -125,42 +129,59 @@ function mail_content(&$a) {
 
 	$tpl = get_markup_template('mail_head.tpl');
 	$header = replace_macros($tpl, array(
-		'$messages' => t('Messages'),
-		'$tab_content' => $tab_content
+		'$header' => t('Messages'),
 	));
 
-	if((argc() == 3) && (argv(1) === 'drop')) {
-		if(! intval(argv(2)))
+	if((argc() == 4) && (argv(2) === 'drop')) {
+		if(! intval(argv(3)))
 			return;
-		$cmd = argv(1);
-
-		$r = private_messages_drop(local_channel(), argv(2));
+		$cmd = argv(2);
+		$mailbox = argv(1);
+		$r = private_messages_drop(local_channel(), argv(3));
 		if($r) {
-			info( t('Message deleted.') . EOL );
+			//info( t('Message deleted.') . EOL );
 		}
-		goaway($a->get_baseurl(true) . '/message' );
+		goaway($a->get_baseurl(true) . '/mail/' . $mailbox);
 	}
 
-	if((argc() == 3) && (argv(1) === 'recall')) {
-		if(! intval(argv(2)))
+	if((argc() == 4) && (argv(2) === 'recall')) {
+		if(! intval(argv(3)))
 			return;
-		$cmd = argv(1);
+		$cmd = argv(2);
+		$mailbox = argv(1);
 		$r = q("update mail set mail_recalled = 1 where id = %d and channel_id = %d",
-			intval(argv(2)),
+			intval(argv(3)),
 			intval(local_channel())
 		);
-		proc_run('php','include/notifier.php','mail',intval(argv(2)));
+		$x = q("select * from mail where id = %d and channel_id = %d",
+			intval(argv(3)),
+			intval(local_channel())
+		);
+		if($x) {
+			build_sync_packet(local_channel(),array('mail' => encode_mail($x[0],true)));
+		}
+
+		proc_run('php','include/notifier.php','mail',intval(argv(3)));
 
 		if($r) {
 				info( t('Message recalled.') . EOL );
 		}
-		goaway($a->get_baseurl(true) . '/message' );
+		goaway($a->get_baseurl(true) . '/mail/' . $mailbox . '/' . argv(3));
 
 	}
 
+	if((argc() == 4) && (argv(2) === 'dropconv')) {
+		if(! intval(argv(3)))
+			return;
+		$cmd = argv(2);
+		$mailbox = argv(1);
+		$r = private_messages_drop(local_channel(), argv(3), true);
+		if($r)
+			info( t('Conversation removed.') . EOL );
+		goaway($a->get_baseurl(true) . '/mail/' . $mailbox);
+	}
+
 	if((argc() > 1) && (argv(1) === 'new')) {
-		
-		$o .= $header;
 		
 		$plaintext = true;
 
@@ -176,68 +197,48 @@ function mail_content(&$a) {
 
 		$a->page['htmlhead'] .= $header;
 
-	
-		$preselect = (isset($a->argv[2])?array($a->argv[2]):false);
-		$prename = $preurl = $preid = '';
-			
+		$prename = '';
+		$preid = '';
+
 		if(x($_REQUEST,'hash')) {
+
 			$r = q("select abook.*, xchan.* from abook left join xchan on abook_xchan = xchan_hash
 				where abook_channel = %d and abook_xchan = '%s' limit 1",
 				intval(local_channel()),
 				dbesc($_REQUEST['hash'])
 			);
-			if($r) {
-				$prename = $r[0]['xchan_name'];
-				$preurl = $r[0]['xchan_url'];
-				$preid = $r[0]['abook_id'];
-				$preselect = array($preid);
+
+			if(!$r) {
+				$r = q("select * from xchan where xchan_hash = '%s' and xchan_network = 'zot' limit 1",
+					dbesc($_REQUEST['hash'])
+				);
 			}
-		}
 
-
-		if($preselect) {
-			$r = q("select abook.*, xchan.* from abook left join xchan on abook_xchan = xchan_hash
-				where abook_channel = %d and abook_id = %d limit 1",
-				intval(local_channel()),
-				intval(argv(2))
-			);
 			if($r) {
-				$prename = $r[0]['xchan_name'];
+				$prename = (($r[0]['abook_id']) ? $r[0]['xchan_name'] : $r[0]['xchan_addr']);
 				$preurl = $r[0]['xchan_url'];
-				$preid = $r[0]['abook_id'];
+				$preid = (($r[0]['abook_id']) ? ($r[0]['xchan_hash']) : '');
 			}
-		}	 
+			else {
+				notice( t('Requested channel is not in this network') . EOL );
+			}
 
-		$prefill = (($preselect) ? $prename  : '');
-
-		if(! $prefill) {
-			if(array_key_exists('to',$_REQUEST))
-				$prefill = $_REQUEST['to'];
 		}
-
-		// the ugly select box
-		
-		$select = contact_select('messageto','message-to-select', $preselect, 4, true, false, false, 10);
 
 		$tpl = get_markup_template('prv_message.tpl');
 		$o .= replace_macros($tpl,array(
+			'$new' => true,
 			'$header' => t('Send Private Message'),
 			'$to' => t('To:'),
-			'$showinputs' => 'true', 
-			'$prefill' => $prefill,
-			'$autocomp' => $autocomp,
+			'$prefill' => $prename,
 			'$preid' => $preid,
 			'$subject' => t('Subject:'),
 			'$subjtxt' => ((x($_REQUEST,'subject')) ? strip_tags($_REQUEST['subject']) : ''),
 			'$text' => ((x($_REQUEST,'body')) ? htmlspecialchars($_REQUEST['body'], ENT_COMPAT, 'UTF-8') : ''),
-			'$readonly' => '',
 			'$yourmessage' => t('Your message:'),
-			'$select' => $select,
 			'$parent' => '',
-			'$upload' => t('Upload photo'),
 			'$attach' => t('Attach file'),
 			'$insert' => t('Insert web link'),
-			'$wait' => t('Please wait'),
 			'$submit' => t('Send'),
 			'$defexpire' => '',
 			'$feature_expire' => ((feature_enabled(local_channel(),'content_expire')) ? true : false),
@@ -245,124 +246,137 @@ function mail_content(&$a) {
 			'$feature_encrypt' => ((feature_enabled(local_channel(),'content_encrypt')) ? true : false),
 			'$encrypt' => t('Encrypt text'),
 			'$cipher' => $cipher,
-
-
 		));
 
 		return $o;
 	}
 
+	switch(argv(1)) {
+		case 'combined':
+			$mailbox = 'combined';
+			break;
+		case 'inbox':
+			$mailbox = 'inbox';
+			break;
+		case 'outbox':
+			$mailbox = 'outbox';
+			break;
+		default:
+			$mailbox = 'combined';
+			break;
+	}
 
-	if((argc() > 1) && (intval(argv(1)))) {
+	$last_message = private_messages_list(local_channel(), $mailbox, 0, 1);
 
-		$o .= $header;
+	$mid = ((argc() > 2) && (intval(argv(2)))) ? argv(2) : $last_message[0]['id'];
 
-		$plaintext = true;
+	$plaintext = true;
 
-//		if( local_channel() && feature_enabled(local_channel(),'richtext') )
-//			$plaintext = false;
-
-		$messages = private_messages_fetch_conversation(local_channel(), argv(1), true);
-
-		if(! $messages) {
-			info( t('Message not found.') . EOL);
-			return $o;
-		}
-
-		if($messages[0]['to_xchan'] === $channel['channel_hash'])
-			$a->poi = $messages[0]['from'];
-		else
-			$a->poi = $messages[0]['to'];
-
-//		require_once('include/Contact.php');
-
-//		$a->set_widget('mail_conversant',vcard_from_xchan($a->poi,$get_observer_hash,'mail'));
+//	if( local_channel() && feature_enabled(local_channel(),'richtext') )
+//		$plaintext = false;
 
 
-		$tpl = get_markup_template('msg-header.tpl');
+
+	if($mailbox == 'combined') {
+		$messages = private_messages_fetch_conversation(local_channel(), $mid, true);
+	}
+	else {
+		$messages = private_messages_fetch_message(local_channel(), $mid, true);
+	}
+
+	if(! $messages) {
+		//info( t('Message not found.') . EOL);
+		return;
+	}
+
+	if($messages[0]['to_xchan'] === $channel['channel_hash'])
+		$a->poi = $messages[0]['from'];
+	else
+		$a->poi = $messages[0]['to'];
+
+//	require_once('include/Contact.php');
+
+//	$a->set_widget('mail_conversant',vcard_from_xchan($a->poi,$get_observer_hash,'mail'));
+
+
+	$tpl = get_markup_template('msg-header.tpl');
 	
-		$a->page['htmlhead'] .= replace_macros($tpl, array(
-			'$nickname' => $channel['channel_address'],
-			'$baseurl' => $a->get_baseurl(true),
-			'$editselect' => (($plaintext) ? 'none' : '/(profile-jot-text|prvmail-text)/'),
-			'$linkurl' => t('Please enter a link URL:'),
-			'$expireswhen' => t('Expires YYYY-MM-DD HH:MM')
-		));
+	$a->page['htmlhead'] .= replace_macros($tpl, array(
+		'$nickname' => $channel['channel_address'],
+		'$baseurl' => $a->get_baseurl(true),
+		'$editselect' => (($plaintext) ? 'none' : '/(profile-jot-text|prvmail-text)/'),
+		'$linkurl' => t('Please enter a link URL:'),
+		'$expireswhen' => t('Expires YYYY-MM-DD HH:MM')
+	));
 
+	$mails = array();
 
-		$mails = array();
-		$seen = 0;
-		$unknown = false;
+	$seen = 0;
+	$unknown = false;
 
-		foreach($messages as $message) {
+	foreach($messages as $message) {
 
-			$s = theme_attachments($message);
+		$s = theme_attachments($message);
 
-			$mails[] = array(
-				'id' => $message['id'],
-				'from_name' => $message['from']['xchan_name'],
-				'from_url' =>  chanlink_hash($message['from_xchan']),
-				'from_photo' => $message['from']['xchan_photo_m'],
-				'to_name' => $message['to']['xchan_name'],
-				'to_url' =>  chanlink_hash($message['to_xchan']),
-				'to_photo' => $message['to']['xchan_photo_m'],
-				'subject' => $message['title'],
-				'body' => smilies(bbcode($message['body']) . $s),
-				'delete' => t('Delete message'),
-				'recall' => t('Recall message'),
-				'can_recall' => (($channel['channel_hash'] == $message['from_xchan']) ? true : false),
-				'is_recalled' => (intval($message['mail_recalled']) ? t('Message has been recalled.') : ''),
-				'date' => datetime_convert('UTC',date_default_timezone_get(),$message['created'],'D, d M Y - g:i A'),
-			);
+		$mails[] = array(
+			'mailbox' => $mailbox,
+			'id' => $message['id'],
+			'mid' => $message['mid'],
+			'from_name' => $message['from']['xchan_name'],
+			'from_url' =>  chanlink_hash($message['from_xchan']),
+			'from_photo' => $message['from']['xchan_photo_s'],
+			'to_name' => $message['to']['xchan_name'],
+			'to_url' =>  chanlink_hash($message['to_xchan']),
+			'to_photo' => $message['to']['xchan_photo_s'],
+			'subject' => $message['title'],
+			'body' => smilies(bbcode($message['body']) . $s),
+			'delete' => t('Delete message'),
+			'dreport' => t('Delivery report'),
+			'recall' => t('Recall message'),
+			'can_recall' => (($channel['channel_hash'] == $message['from_xchan']) ? true : false),
+			'is_recalled' => (intval($message['mail_recalled']) ? t('Message has been recalled.') : ''),
+			'date' => datetime_convert('UTC',date_default_timezone_get(),$message['created'],'D, d M Y - g:i A'),
+		);
 				
-			$seen = $message['seen'];
+		$seen = $message['seen'];
 
-		}
-
-		$recp = (($message['from_xchan'] === $channel['channel_hash']) ? 'to' : 'from');
-
-// FIXME - move this HTML to template
-
-		$select = $message[$recp]['xchan_name'] . '<input type="hidden" name="messageto" value="' . $message[$recp]['xchan_hash'] . '" />';
-		$parent = '<input type="hidden" name="replyto" value="' . $message['parent_mid'] . '" />';
-
-		$tpl = get_markup_template('mail_display.tpl');
-		$o = replace_macros($tpl, array(
-			'$prvmsg_header' => t('Private Conversation'),
-			'$thread_id' => $a->argv[1],
-			'$thread_subject' => $message['title'],
-			'$thread_seen' => $seen,
-			'$delete' =>  t('Delete conversation'),
-			'$canreply' => (($unknown) ? false : '1'),
-			'$unknown_text' => t("No secure communications available. You <strong>may</strong> be able to respond from the sender's profile page."),			
-			'$mails' => $mails,
-			
-			// reply
-			'$header' => t('Send Reply'),
-			'$to' => t('To:'),
-			'$showinputs' => '',
-			'$subject' => t('Subject:'),
-			'$subjtxt' => $message['title'],
-			'$readonly' => ' readonly="readonly" style="background: #BBBBBB;" ',
-			'$yourmessage' => t('Your message:'),
-			'$text' => '',
-			'$select' => $select,
-			'$parent' => $parent,
-			'$upload' => t('Upload photo'),
-			'$attach' => t('Attach file'),
-			'$insert' => t('Insert web link'),
-			'$submit' => t('Submit'),
-			'$wait' => t('Please wait'),
-			'$defexpire' => '',
-			'$feature_expire' => ((feature_enabled(local_channel(),'content_expire')) ? true : false),
-			'$expires' => t('Set expiration date'),
-			'$feature_encrypt' => ((feature_enabled(local_channel(),'content_encrypt')) ? true : false),
-			'$encrypt' => t('Encrypt text'),
-			'$cipher' => $cipher,
-
-		));
-
-		return $o;
 	}
+
+	$recp = (($message['from_xchan'] === $channel['channel_hash']) ? 'to' : 'from');
+
+	$tpl = get_markup_template('mail_display.tpl');
+	$o = replace_macros($tpl, array(
+		'$mailbox' => $mailbox,
+		'$prvmsg_header' => $message['title'],
+		'$thread_id' => $mid,
+		'$thread_subject' => $message['title'],
+		'$thread_seen' => $seen,
+		'$delete' =>  t('Delete Conversation'),
+		'$canreply' => (($unknown) ? false : '1'),
+		'$unknown_text' => t("No secure communications available. You <strong>may</strong> be able to respond from the sender's profile page."),
+		'$mails' => $mails,
+			
+		// reply
+		'$header' => t('Send Reply'),
+		'$to' => t('To:'),
+		'$reply' => true,
+		'$subject' => t('Subject:'),
+		'$subjtxt' => $message['title'],
+		'$yourmessage' => sprintf(t('Your message for %s (%s):'), $message[$recp]['xchan_name'], $message[$recp]['xchan_addr']),
+		'$text' => '',
+		'$parent' => $message['parent_mid'],
+		'$recphash' => $message[$recp]['xchan_hash'],
+		'$attach' => t('Attach file'),
+		'$insert' => t('Insert web link'),
+		'$submit' => t('Submit'),
+		'$defexpire' => '',
+		'$feature_expire' => ((feature_enabled(local_channel(),'content_expire')) ? true : false),
+		'$expires' => t('Set expiration date'),
+		'$feature_encrypt' => ((feature_enabled(local_channel(),'content_encrypt')) ? true : false),
+		'$encrypt' => t('Encrypt text'),
+		'$cipher' => $cipher,
+	));
+
+	return $o;
 
 }

@@ -2,7 +2,8 @@
 
 <form action="chat" method="post" >
 {{include file="field_input.tpl" field=$name}}
-<button id="dbtn-acl" class="btn btn-default btn-xs" data-toggle="modal" data-target="#aclModal" onclick="return false;" >{{$permissions}}</button>
+{{include file="field_input.tpl" field=$chat_expire}}
+<button id="dbtn-acl" class="btn btn-default" data-toggle="modal" data-target="#aclModal" onclick="return false;" >{{$permissions}}</button>
 {{$acl}}
 <div class="clear"></div>
 <br />

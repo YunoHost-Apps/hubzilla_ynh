@@ -96,7 +96,19 @@ function notifier_run($argv, $argc){
 	require_once('include/identity.php');
 	$sys = get_sys_channel();
 
-	if($cmd == 'permission_update') {
+	$deliveries = array();
+
+	$dead_hubs = array();
+
+	$dh = q("select site_url from site where site_dead = 1");
+	if(dh) {
+		foreach($dh as $dead) {
+			$dead_hubs[] = $dead['site_url'];
+		}
+	}
+
+
+	if($cmd == 'permission_update' || $cmd == 'permission_create') {
 		// Get the recipient	
 		$r = q("select abook.*, hubloc.* from abook 
 			left join hubloc on hubloc_hash = abook_xchan
@@ -113,8 +125,16 @@ function notifier_run($argv, $argc){
 				intval($r[0]['abook_channel'])
 			);
 			if($s) {
-				$perm_update = array('sender' => $s[0], 'recipient' => $r[0], 'success' => false);
-				call_hooks('permissions_update',$perm_update);
+				$perm_update = array('sender' => $s[0], 'recipient' => $r[0], 'success' => false, 'deliveries' => '');
+
+				if($cmd == 'permission_create')
+					call_hooks('permissions_create',$perm_update);
+				else
+					call_hooks('permissions_update',$perm_update);
+
+				if($perm_update['success'] && $perm_update['deliveries'])
+					$deliveries[] = $perm_update['deliveries'];
+
 				if(! $perm_update['success']) {
 					// send a refresh message to each hub they have registered here	
 					$h = q("select * from hubloc where hubloc_hash = '%s' 
@@ -125,36 +145,40 @@ function notifier_run($argv, $argc){
 					);
 					if($h) {
 						foreach($h as $hh) {
+							if(in_array($hh['hubloc_url'],$dead_hubs)) {
+								logger('skipping dead hub: ' . $hh['hubloc_url'], LOGGER_DEBUG);
+									continue;
+							}
+
 							$data = zot_build_packet($s[0],'refresh',array(array(
 								'guid' => $hh['hubloc_guid'],
 								'guid_sig' => $hh['hubloc_guid_sig'],
 								'url' => $hh['hubloc_url'])
 							));
 							if($data) {
-								$result = zot_zot($hh['hubloc_callback'],$data);
-
-								// if immediate delivery failed, stick it in the queue to try again later.
-
-								if(! $result['success']) {
-									$hash = random_string();
-									q("insert into outq ( outq_hash, outq_account, outq_channel, outq_driver, outq_posturl, outq_async, outq_created, outq_updated, outq_notify, outq_msg ) 
-										values ( '%s', %d, %d, '%s', '%s', %d, '%s', '%s', '%s', '%s' )",
-                						dbesc($hash),
-										intval($s[0]['channel_account_id']),
-										intval($s[0]['channel_id']),
-										dbesc('zot'),
-										dbesc($hh['hubloc_callback']),
-										intval(1),
-										dbesc(datetime_convert()),
-										dbesc(datetime_convert()),
-										dbesc($data),
-										dbesc('')
-									);
-								}
+								$hash = random_string();
+								q("insert into outq ( outq_hash, outq_account, outq_channel, outq_driver, outq_posturl, outq_async, outq_created, outq_updated, outq_notify, outq_msg ) 
+									values ( '%s', %d, %d, '%s', '%s', %d, '%s', '%s', '%s', '%s' )",
+                					dbesc($hash),
+									intval($s[0]['channel_account_id']),
+									intval($s[0]['channel_id']),
+									dbesc('zot'),
+									dbesc($hh['hubloc_callback']),
+									intval(1),
+									dbesc(datetime_convert()),
+									dbesc(datetime_convert()),
+									dbesc($data),
+									dbesc('')
+								);
+								$deliveries[] = $hash;
 							}
-						}	
+						}
+
 					}
 				}
+
+				if($deliveries) 
+					do_delivery($deliveries);
 			}
 		}
 		return;
@@ -486,20 +510,6 @@ function notifier_run($argv, $argc){
 	if($details) {
 		foreach($details as $d) {
 
-			// If the recipient is federated from a traditional network they won't be able to 
-			// handle nomadic identity. If we're publishing from a site that they aren't
-			// directly connected with, ignore them.
-
-			// FIXME: make sure we run through a notifier loop on the hub they're connected
-			// with if this post comes in from a different hub - so that we will deliver to them.
-
-			// On the down side, these channels will stop working if the hub they connected with
-			// goes down permanently, as they are (doh) not nomadic. 
-
-			if(($d['xchan_instance_url']) && ($d['xchan_instance_url'] != z_root()))
-				continue; 
-
-
 			$recip_list[] = $d['xchan_addr'] . ' (' . $d['xchan_hash'] . ')'; 
 			if($private)
 				$env_recips[] = array('guid' => $d['xchan_guid'],'guid_sig' => $d['xchan_guid_sig'],'hash' => $d['xchan_hash']);
@@ -526,31 +536,10 @@ function notifier_run($argv, $argc){
 	// Now we have collected recipients (except for external mentions, FIXME)
 	// Let's reduce this to a set of hubs.
 
-	logger('notifier: hub choice: ' . intval($relay_to_owner) . ' ' . intval($private) . ' ' . $cmd, LOGGER_DEBUG);
-
-	// FIXME: I think we need to remove the private bit or this clause will never execute. Needs more coffee to think it through.
-	// We may in fact have to send it to clones in case the one we pick recently died. 
-
-	if($relay_to_owner && (! $private) && ($cmd !== 'relay')) {
-
-		// If sending a followup to the post owner, only send it to one channel clone - to avoid race conditions.
-		// In this case we'll pick the most recently contacted hub, as their primary might be down and the most
-		// recently contacted has the best chance of being alive.
-
-		// For private posts or uplinks we have to do things differently as only the sending clone will have the recipient list. 
-		// We have to send to all clone channels of the owner to find out who has the definitive list. Posts with 
-		// item_private set (but no ACL list) will return empty recipients (except for the sender and owner) in 
-		// collect_recipients() above. The end result is we should get only one delivery per delivery chain if we 
-		// aren't the owner or author.  
-
-
-		$r = q("select * from hubloc 
-			where hubloc_hash in (" . implode(',',$recipients) . ") order by hubloc_connected desc limit 1");
-	} 
-	else {
-		$r = q("select * from hubloc where hubloc_hash in (" . implode(',',$recipients) . ") 
-			and hubloc_error = 0 and hubloc_deleted = 0");		
-	} 
+	$r = q("select * from hubloc where hubloc_hash in (" . implode(',',$recipients) . ") 
+		and hubloc_error = 0 and hubloc_deleted = 0"
+	);		
+ 
 
 	if(! $r) {
 		logger('notifier: no hubs');
@@ -558,6 +547,7 @@ function notifier_run($argv, $argc){
 	}
 
 	$hubs = $r;
+
 
 
 	/**
@@ -574,6 +564,11 @@ function notifier_run($argv, $argc){
 
 
 	foreach($hubs as $hub) {
+		if(in_array($hub['hubloc_url'],$dead_hubs)) {
+			logger('skipping dead hub: ' . $hub['hubloc_url'], LOGGER_DEBUG);
+			continue;
+		}
+
 		if($hub['hubloc_network'] == 'zot') {
 			if(! in_array($hub['hubloc_sitekey'],$keys)) {
 				$hublist[] = $hub['hubloc_host'];
@@ -592,15 +587,6 @@ function notifier_run($argv, $argc){
 
 	logger('notifier: will notify/deliver to these hubs: ' . print_r($hublist,true), LOGGER_DEBUG);
 			 
-	$interval = ((get_config('system','delivery_interval') !== false) 
-			? intval(get_config('system','delivery_interval')) : 2 );
-
-	$deliveries_per_process = intval(get_config('system','delivery_batch_count'));
-
-	if($deliveries_per_process <= 0)
-		$deliveries_per_process = 1;
-
-	$deliver = array();
 
 	foreach($dhubs as $hub) {
 
@@ -626,11 +612,16 @@ function notifier_run($argv, $argc){
 				'request' => $request,
 				'normal_mode' => $normal_mode,
 				'packet_type' => $packet_type,
-				'walltowall' => $walltowall
+				'walltowall' => $walltowall,
+				'queued' => array()
 			);
 
 
 			call_hooks('notifier_hub',$narr);
+			if($narr['queued']) {
+				foreach($narr['queued'] as $pq)
+					$deliveries[] = $pq;
+			}
 			continue;
 
 		}
@@ -683,28 +674,33 @@ function notifier_run($argv, $argc){
 				dbesc($n),
 				dbesc(json_encode($encoded_item))
 			);
+			// only create delivery reports for normal undeleted items
+			if(array_key_exists('postopts',$target_item) && (! $target_item['item_deleted'])) {
+				q("insert into dreport ( dreport_mid, dreport_site, dreport_recip, dreport_result, dreport_time, dreport_xchan, dreport_queue ) values ( '%s','%s','%s','%s','%s','%s','%s' ) ",
+					dbesc($target_item['mid']),
+					dbesc($hub['hubloc_host']),
+					dbesc($hub['hubloc_host']),
+					dbesc('queued'),
+					dbesc(datetime_convert()),
+					dbesc($channel['channel_hash']),
+					dbesc($hash)
+				);
+			}
 		}
-		$deliver[] = $hash;
 
-		if(count($deliver) >= $deliveries_per_process) {
-			proc_run('php','include/deliver.php',$deliver);
-			$deliver = array();
-			if($interval)
-				@time_sleep_until(microtime(true) + (float) $interval);
-		}
+		$deliveries[] = $hash;	
+	}
+	
+	if($normal_mode) {
+		$x = q("select * from hook where hook = 'notifier_normal'");
+		if($x)
+			proc_run('php','include/deliver_hooks.php', $target_item['id']);
 	}
 
-	// catch any stragglers
-
-	if(count($deliver)) {
-		proc_run('php','include/deliver.php',$deliver);
-	}
+	if($deliveries)
+		do_delivery($deliveries);
 
 	logger('notifier: basic loop complete.', LOGGER_DEBUG);
-	
-	if($normal_mode)
-		call_hooks('notifier_normal',$target_item);
-
 
 	call_hooks('notifier_end',$target_item);
 

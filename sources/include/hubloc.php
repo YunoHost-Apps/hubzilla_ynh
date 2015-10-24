@@ -16,7 +16,9 @@ function is_matrix_url($url) {
 
 function prune_hub_reinstalls() {
 
-	$r = q("select site_url from site where true");
+	$r = q("select site_url from site where site_type = %d",
+		intval(SITE_TYPE_ZOT)
+	);
 	if($r) {
 		foreach($r as $rr) {
 			$x = q("select count(*) as t, hubloc_sitekey, max(hubloc_connected) as c from hubloc where hubloc_url = '%s' group by hubloc_sitekey order by c",
@@ -230,7 +232,7 @@ function xchan_store($arr) {
 	if(! $r)
 		return $r;
 
-	$photos = import_profile_photo($arr['photo'],$arr['hash']);
+	$photos = import_xchan_photo($arr['photo'],$arr['hash']);
 	$r = q("update xchan set xchan_photo_date = '%s', xchan_photo_l = '%s', xchan_photo_m = '%s', xchan_photo_s = '%s', xchan_photo_mimetype = '%s' where xchan_hash = '%s'",
 		dbesc(datetime_convert()),
 		dbesc($photos[0]),
@@ -275,4 +277,34 @@ function xchan_fetch($arr) {
 			$ret[str_replace('xchan_','',$k)] = $v;
 	}
 	return $ret;
+}
+
+
+
+function ping_site($url) {
+
+		$ret = array('success' => false);
+
+		$sys = get_sys_channel();
+
+		$m = zot_build_packet($sys,'ping');
+		$r = zot_zot($url . '/post',$m);
+		if(! $r['success']) {
+			$ret['message'] = 'no answer from ' . $url;
+			return $ret;
+		}
+		$packet_result = json_decode($r['body'],true);
+		if(! $packet_result['success']) {
+			$ret['message'] = 'packet failure from ' . $url;		
+			return $ret;
+		}
+
+		if($packet_result['success']) {
+			$ret['success'] = true;
+		}
+		else {
+			$ret['message'] = 'unknown error from ' . $url;
+		}
+
+		return $ret;
 }

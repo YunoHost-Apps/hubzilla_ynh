@@ -3,6 +3,7 @@
 var editor = false;
 var textlen = 0;
 var plaintext = '{{$editselect}}';
+var pretext = '{{$pretext}}';
 
 function initEditor(cb){
 	if (editor==false){
@@ -21,6 +22,8 @@ function initEditor(cb){
 			});
 			$(".jothidden").show();
 			if (typeof cb!="undefined") cb();
+			if(pretext.length)
+				addeditortext(pretext);
 			return;
 		}
 		tinyMCE.init({
@@ -191,7 +194,7 @@ function enableOnUser(){
 		if(reply && reply.length) {
 			reply = bin2hex(reply);
 			$('#profile-rotator').spin('tiny');
-			$.get('{{$baseurl}}/urlinfo?f=&binurl=' + reply, function(data) {
+			$.get('{{$baseurl}}/linkinfo?f=&binurl=' + reply, function(data) {
 				addeditortext(data);
 				$('#profile-rotator').spin(false);
 			});
@@ -258,7 +261,7 @@ function enableOnUser(){
 		if(reply && reply.length) {
 			reply = bin2hex(reply);
 			$('#profile-rotator').spin('tiny');
-			$.get('{{$baseurl}}/urlinfo?f=&binurl=' + reply, function(data) {
+			$.get('{{$baseurl}}/linkinfo?f=&binurl=' + reply, function(data) {
 				if (!editor) $("#profile-jot-text").val("");
 				initEditor(function(){
 					addeditortext(data);

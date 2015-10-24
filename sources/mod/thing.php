@@ -5,8 +5,9 @@
  */
 
 require_once('include/items.php');
+require_once('include/security.php');
 require_once('include/contact_selectors.php');
-
+require_once('include/acl_selectors.php');
 
 function thing_init(&$a) {
 
@@ -65,33 +66,58 @@ function thing_init(&$a) {
 	if((! $name) || (! $translated_verb))
 		return;
 
+	$acl = new AccessList($channel);
+
+	if(array_key_exists('contact_allow',$_REQUEST)
+		|| array_key_exists('group_allow',$_REQUEST)
+		|| array_key_exists('contact_deny',$_REQUEST)
+		|| array_key_exists('group_deny',$_REQUEST)) {
+		$acl->set_from_array($_REQUEST);
+	}
+
+	$x = $acl->get();
+ 
 	if($term_hash) {
-		$t = q("select * from obj left join term on obj_obj = term_hash where term_hash != '' and obj_type = %d and term_hash = '%s' limit 1",
-			intval(TERM_OBJ_THING),
-			dbesc($term_hash)
+		$t = q("select * from obj where obj_obj = '%s' and obj_channel = %d limit 1",
+			dbesc($term_hash),
+			intval(local_channel())
 		);
 		if(! $t) {
 			notice( t('Item not found.') . EOL);
 			return;
 		}
 		$orig_record = $t[0];
-		if($photo != $orig_record['imgurl']) {
-			$arr = import_profile_photo($photo,get_observer_hash(),true);
+		if($photo != $orig_record['obj_imgurl']) {
+			$arr = import_xchan_photo($photo,get_observer_hash(),true);
 			$local_photo = $arr[0];
 			$local_photo_type = $arr[3];
 		}
 		else
-			$local_photo = $orig_record['imgurl'];
+			$local_photo = $orig_record['obj_imgurl'];
 
-		$r = q("update term  set term = '%s', url = '%s', imgurl = '%s' where term_hash = '%s' and uid = %d",
+		$r = q("update obj set obj_term = '%s', obj_url = '%s', obj_imgurl = '%s', obj_edited = '%s', allow_cid = '%s', allow_gid = '%s', deny_cid = '%s', deny_gid = '%s' where obj_obj = '%s' and obj_channel = %d ",
 			dbesc($name),
 			dbesc(($url) ? $url : z_root() . '/thing/' . $term_hash),
 			dbesc($local_photo),
+			dbesc(datetime_convert()),
+			dbesc($x['allow_cid']),
+			dbesc($x['allow_gid']),
+			dbesc($x['deny_cid']),
+			dbesc($x['deny_gid']),
 			dbesc($term_hash),
 			intval(local_channel())
 		);
 
 		info( t('Thing updated') . EOL);
+
+		$r = q("select * from obj where obj_channel = %d and obj_obj = '%s' limit 1",
+			intval(local_channel()),
+			dbesc($term_hash)
+		);
+		if($r) {
+			build_sync_packet(0, array('obj' => $r));
+		}
+
 		return;
 	}
 
@@ -108,45 +134,29 @@ function thing_init(&$a) {
 	$local_photo = null;
 
 	if($photo) {
-		$arr = import_profile_photo($photo,get_observer_hash(),true);
+		$arr = import_xchan_photo($photo,get_observer_hash(),true);
 		$local_photo = $arr[0];
 		$local_photo_type = $arr[3];
 	}
 
-	$r = q("select * from term where uid = %d and otype = %d and type = %d and term = '%s' limit 1",
-		intval(local_channel()),
-		intval(TERM_OBJ_THING),
-		intval(TERM_THING),
-		dbesc($name)
-	);
-	if(! $r) {
-		$r = q("insert into term ( aid, uid, oid, otype, type, term, url, imgurl, term_hash )
-			values( %d, %d, %d, %d, %d, '%s', '%s', '%s', '%s' ) ",
-			intval($account_id),
-			intval(local_channel()),
-			0,
-			intval(TERM_OBJ_THING),
-			intval(TERM_THING),
-			dbesc($name),
-			dbesc(($url) ? $url : z_root() . '/thing/' . $hash),
-			dbesc(($photo) ? $local_photo : ''),
-			dbesc($hash)
-		);
-		$r = q("select * from term where uid = %d and otype = %d and type = %d and term = '%s' limit 1",
-			intval(local_channel()),
-			intval(TERM_OBJ_THING),
-			intval(TERM_THING),
-			dbesc($name)
-		);
-	}
-	$term = $r[0];
+	$created = datetime_convert();
+	$url = (($url) ? $url : z_root() . '/thing/' . $hash);
 
-	$r = q("insert into obj ( obj_page, obj_verb, obj_type, obj_channel, obj_obj) values ('%s','%s', %d, %d, '%s') ",
+	$r = q("insert into obj ( obj_page, obj_verb, obj_type, obj_channel, obj_obj, obj_term, obj_url, obj_imgurl, obj_created, obj_edited, allow_cid, allow_gid, deny_cid, deny_gid ) values ('%s','%s', %d, %d, '%s','%s','%s','%s','%s','%s','%s','%s','%s','%s') ",
 		dbesc($profile['profile_guid']),
 		dbesc($verb),
 		intval(TERM_OBJ_THING),
 		intval(local_channel()),
-		dbesc($term['term_hash'])
+		dbesc($hash),
+		dbesc($name),
+		dbesc($url),
+		dbesc(($photo) ? $local_photo : ''),
+		dbesc($created),
+		dbesc($created),
+		dbesc($x['allow_cid']),
+		dbesc($x['allow_gid']),
+		dbesc($x['deny_cid']),
+		dbesc($x['deny_gid'])
 	);
 
 	if(! $r) {
@@ -155,10 +165,18 @@ function thing_init(&$a) {
 	}
 
 	info( t('Thing added'));
+	
+	$r = q("select * from obj where obj_channel = %d and obj_obj = '%s' limit 1",
+		intval(local_channel()),
+		dbesc($hash)
+	);
+	if($r) {
+		build_sync_packet(0, array('obj' => $r));
+	}
 
 	if($activity) {
 		$arr = array();
-		$links = array(array('rel' => 'alternate','type' => 'text/html', 'href' => $term['url']));
+		$links = array(array('rel' => 'alternate','type' => 'text/html', 'href' => $url));
 		if($local_photo)
 			$links[] = array('rel' => 'photo', 'type' => $local_photo_type, 'href' => $local_photo);
 
@@ -166,10 +184,10 @@ function thing_init(&$a) {
 
 		$obj = json_encode(array(
 			'type'    => $objtype,
-			'id'      => $term['url'],
+			'id'      => $url,
 			'link'    => $links,
-			'title'   => $term['term'],
-			'content' => $term['term']
+			'title'   => $name,
+			'content' => $name
 		));
 
 		$bodyverb = str_replace('OBJ: ', '',t('OBJ: %1$s %2$s %3$s'));
@@ -182,7 +200,7 @@ function thing_init(&$a) {
 		$arr['item_thread_top'] = 1;
 
 		$ulink = '[zrl=' . $channel['xchan_url'] . ']' . $channel['channel_name'] . '[/zrl]';
-		$plink = '[zrl=' . $term['url'] . ']' . $term['term'] . '[/zrl]';
+		$plink = '[zrl=' . $url . ']' . $name . '[/zrl]';
 
 		$arr['body'] =  sprintf( $bodyverb, $ulink, $translated_verb, $plink );
 
@@ -216,9 +234,19 @@ function thing_init(&$a) {
 
 function thing_content(&$a) {
 
+	// @FIXME one problem with things is we can't share them unless we provide the channel in the url
+	// so we can definitively lookup the owner. 
+
 	if(argc() == 2) {
 
-		$r = q("select * from obj left join term on obj_obj = term_hash where term_hash != '' and obj_type = %d and term_hash = '%s' limit 1",
+		$r = q("select obj_channel from obj where obj_type = %d and obj_obj = '%s' limit 1",
+			intval(TERM_OBJ_THING),
+			dbesc(argv(1))
+		);
+		if($r) 
+			$sql_extra = permissions_sql($r[0]['obj_channel']);
+
+		$r = q("select * from obj where obj_type = %d and obj_obj = '%s' $sql_extra limit 1",
 			intval(TERM_OBJ_THING),
 			dbesc(argv(1))
 		);
@@ -244,12 +272,17 @@ function thing_content(&$a) {
 		return;
 	}
 
+	$acl = new AccessList($channel);
+	$channel_acl = $acl->get();
+
+	$lockstate = (($acl->is_private()) ? 'lock' : 'unlock');
+
 	$thing_hash = '';
 
 	if(argc() == 3 && argv(1) === 'edit') {
 		$thing_hash = argv(2);
 
-		$r = q("select * from obj left join term on obj_obj = term_hash where term_hash != '' and obj_type = %d and term_hash = '%s' limit 1",
+		$r = q("select * from obj where obj_type = %d and obj_obj = '%s' limit 1",
 			intval(TERM_OBJ_THING),
 			dbesc($thing_hash)
 		);
@@ -269,11 +302,14 @@ function thing_content(&$a) {
 			'$activity' => array('activity',t('Post an activity'),true,t('Only sends to viewers of the applicable profile')),
 			'$thing_hash' => $thing_hash,
 			'$thing_lbl' => t('Name of thing e.g. something'),
-			'$thething' => $r[0]['term'],
+			'$thething' => $r[0]['obj_term'],
 			'$url_lbl' => t('URL of thing (optional)'),
-			'$theurl' => $r[0]['url'],
+			'$theurl' => $r[0]['obj_url'],
 			'$img_lbl' => t('URL for photo of thing (optional)'),
-			'$imgurl' => $r[0]['imgurl'],
+			'$imgurl' => $r[0]['obj_imgurl'],
+			'$permissions' => t('Permissions'),
+			'$aclselect' => populate_acl($channel_acl,false),
+			'$lockstate' => $lockstate,
 			'$submit' => t('Submit')
 		));
 
@@ -283,7 +319,7 @@ function thing_content(&$a) {
 	if(argc() == 3 && argv(1) === 'drop') {
 		$thing_hash = argv(2);
 
-		$r = q("select * from obj left join term on obj_obj = term_hash where term_hash != '' and obj_type = %d and term_hash = '%s' limit 1",
+		$r = q("select * from obj where obj_type = %d and obj_obj = '%s' limit 1",
 			intval(TERM_OBJ_THING),
 			dbesc($thing_hash)
 		);
@@ -298,10 +334,10 @@ function thing_content(&$a) {
 			intval(TERM_OBJ_THING),
 			intval(local_channel())
 		);
-		$x = q("delete from term where term_hash = '%s' and uid = %d",
-			dbesc($thing_hash),
-			intval(local_channel())
-		);
+
+		$r[0]['obj_deleted'] = 1;
+
+		build_sync_packet(0,array('obj' => $r));
 
 		return $o;
 	}
@@ -317,6 +353,9 @@ function thing_content(&$a) {
 		'$thing_lbl' => t('Name of thing e.g. something'),
 		'$url_lbl' => t('URL of thing (optional)'),
 		'$img_lbl' => t('URL for photo of thing (optional)'),
+		'$permissions' => t('Permissions'),
+		'$aclselect' => populate_acl($channel_acl,false),
+		'$lockstate' => $lockstate,
 		'$submit' => t('Submit')
 	));
 

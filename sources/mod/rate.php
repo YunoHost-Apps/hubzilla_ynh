@@ -22,8 +22,9 @@ function rate_init(&$a) {
 			$a->poi = $r[0];
 		}
 		else {
-			$r = q("select * from site where site_url like '%s' ",
-				dbesc('%' . $target)
+			$r = q("select * from site where site_url like '%s' and site_type = %d",
+				dbesc('%' . $target),
+				intval(SITE_TYPE_ZOT)
 			);
 			if($r) {
 				$a->data['site'] = $r[0];

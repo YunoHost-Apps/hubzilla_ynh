@@ -12,9 +12,6 @@
 
 
 
-
-
-
 function load_doc_file($s) {
 	$lang = get_app()->language;
 	if(! isset($lang))
@@ -32,21 +29,6 @@ function load_doc_file($s) {
 }
 
 function find_doc_file($s) {
-
-	// If the file was edited more recently than we've stored a copy in the database, use the file.
-	// The stored database item will be searchable, the file won't be. 
-
-	$r = q("select item.* from item left join item_id on item.id = item_id.iid where service = 'docfile' and
-		sid = '%s' and item_type = %d limit 1",
-		dbesc($s),
-		intval(ITEM_TYPE_DOC)
-	);
-
-	if($r) {
-		if(file_exists($s) && (filemtime($s) > datetime_convert('UTC','UTC',$r[0]['edited'],'U')))
-			return file_get_contents($s);
-		return($r[0]['body']);
- 	}
 	if(file_exists($s))
 		return file_get_contents($s);
 	return '';
@@ -56,12 +38,9 @@ function search_doc_files($s) {
 
 	$a = get_app();
 
-        $itemspage = get_pconfig(local_channel(),'system','itemspage');
-        $a->set_pager_itemspage(((intval($itemspage)) ? $itemspage : 20));
-        $pager_sql = sprintf(" LIMIT %d OFFSET %d ", intval($a->pager['itemspage']), intval($a->pager['start']));
-
-	// If the file was edited more recently than we've stored a copy in the database, use the file.
-	// The stored database item will be searchable, the file won't be. 
+	$itemspage = get_pconfig(local_channel(),'system','itemspage');
+	$a->set_pager_itemspage(((intval($itemspage)) ? $itemspage : 20));
+	$pager_sql = sprintf(" LIMIT %d OFFSET %d ", intval($a->pager['itemspage']), intval($a->pager['start']));
 
 	$regexop = db_getfunc('REGEXP');
 
@@ -72,11 +51,10 @@ function search_doc_files($s) {
 	);
 	
 	$r = fetch_post_tags($r,true);
-	require_once('include/html2plain.php');
 
 	for($x = 0; $x < count($r); $x ++) {
 
-		$r[$x]['text'] = html2plain(prepare_text($r[$x]['body'],$r[$x]['mimetype'], true));
+		$r[$x]['text'] = $r[$x]['body'];
 
 		$r[$x]['rank'] = 0;
 		if($r[$x]['term']) {
@@ -89,16 +67,20 @@ function search_doc_files($s) {
 		if(stristr($r[$x]['sid'],$s))
 			$r[$x]['rank'] ++;
 		$r[$x]['rank'] += substr_count(strtolower($r[$x]['text']),strtolower($s));
+		// bias the results to the observer's native language
+		if($r[$x]['lang'] === $a->language)
+			$r[$x]['rank'] = $r[$x]['rank'] + 10;
+
 	}
 	usort($r,'doc_rank_sort');
 	return $r;
 }
 
 
-function doc_rank_sort($a,$b) {
-	if($a['rank'] == $b['rank'])
+function doc_rank_sort($s1,$s2) {
+	if($s1['rank'] == $s2['rank'])
 		return 0;
-	return (($a['rank'] < $b['rank']) ? 1 : (-1));
+	return (($s1['rank'] < $s2['rank']) ? 1 : (-1));
 }
 
 
@@ -118,14 +100,17 @@ function store_doc_file($s) {
 
 
 	if(strpos($s,'.md'))
-		$item['mimetype'] = 'text/markdown';
+		$mimetype = 'text/markdown';
 	elseif(strpos($s,'.html'))
-		$item['mimetype'] = 'text/html';
+		$mimetype = 'text/html';
 	else
-		$item['mimetype'] = 'text/bbcode';
+		$mimetype = 'text/bbcode';
 
+	require_once('include/html2plain.php');
+
+	$item['body'] = html2plain(prepare_text(file_get_contents($s),$mimetype, true));
+	$item['mimetype'] = 'text/plain';
 	
-	$item['body'] = file_get_contents($s);
 	$item['plink'] = z_root() . '/' . str_replace('doc','help',$s);
 	$item['owner_xchan'] = $item['author_xchan'] = $sys['channel_hash'];
 	$item['item_type'] = ITEM_TYPE_DOC;
@@ -158,9 +143,12 @@ function help_content(&$a) {
 	nav_set_selected('help');
 
 	if($_REQUEST['search']) {
+
+		$o .= '<h2>' . t('Documentation Search') . ' - ' . htmlspecialchars($_REQUEST['search']) . '</h2>';
+
 		$r = search_doc_files($_REQUEST['search']);
 		if($r) {
-			$o .= '<ul>';
+			$o .= '<ul class="help-searchlist">';
 			foreach($r as $rr) {
 				$dirname = dirname($rr['sid']);
 				$fname = basename($rr['sid']);

@@ -5,8 +5,8 @@
 	function confirm_delete_multi(){
 		return confirm("{{$confirm_delete_multi}}");
 	}
-	function selectall(cls){
-		$("."+cls).attr('checked','checked');
+	function toggle_selectall(cls){
+		$("."+cls).prop("checked", !$("."+cls).prop("checked"));
 		return false;
 	}
 </script>
@@ -40,7 +40,7 @@
 			{{/foreach}}
 				</tbody>
 			</table>
-			<div class="selectall"><a href="#" onclick="return selectall('pending_ckbx');">{{$select_all}}</a></div>
+			<div class="selectall"><a href="#" onclick="return toggle_selectall('pending_ckbx');">{{$select_all}}</a></div>
 			<div class="submit"><input type="submit" name="page_users_deny" value="{{$deny}}"> <input type="submit" name="page_users_approve" value="{{$approve}}"></div>
 		{{else}}
 			<p>{{$no_pending}}</p>
@@ -79,7 +79,7 @@
 				{{/foreach}}
 				</tbody>
 			</table>
-			<div class="selectall"><a href="#" onclick="return selectall('users_ckbx');">{{$select_all}}</a></div>
+			<div class="selectall"><a href="#" onclick="return toggle_selectall('users_ckbx');">{{$select_all}}</a></div>
 			<div class="submit"><input type="submit" name="page_users_block" value="{{$block}}/{{$unblock}}"> <input type="submit" name="page_users_delete" value="{{$delete}}" onclick="return confirm_delete_multi()"></div>
 		{{else}}
 			NO USERS?!?

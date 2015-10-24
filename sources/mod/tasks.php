@@ -73,7 +73,7 @@ function tasks_post(&$a) {
 		if(! $text)
 			return array('success' => false);
 		$event = array();
-		$event['aid'] = $channel['channel_account_id'];
+		$event['account'] = $channel['channel_account_id'];
 		$event['uid'] = $channel['channel_id'];
 		$event['event_xchan'] = $channel['channel_hash'];
 		$event['type'] = 'task';

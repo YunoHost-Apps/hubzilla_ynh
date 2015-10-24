@@ -1,0 +1,4 @@
+url: $baseurl/network
+requires: local_channel
+name: Grid
+photo: $baseurl/images/hubzilla_logo_6.png

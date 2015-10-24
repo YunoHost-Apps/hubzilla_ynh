@@ -117,8 +117,7 @@ function like_content(&$a) {
 		}
 		elseif($obj_type == 'thing') {
 
-			$r = q("select * from obj left join term on obj_obj = term_hash where term_hash != '' 
-				and obj_type = %d and term_hash = '%s' limit 1",
+			$r = q("select * from obj where obj_type = %d and obj_obj = '%s' limit 1",
             	intval(TERM_OBJ_THING),
             	dbesc(argv(2))
         	);
@@ -146,18 +145,18 @@ function like_content(&$a) {
 
 			$links   = array();
 			$links[] = array('rel' => 'alternate', 'type' => 'text/html',
-				'href' => z_root() . '/thing/' . $r[0]['term_hash']);
+				'href' => z_root() . '/thing/' . $r[0]['obj_obj']);
 			if($r[0]['imgurl'])	
-				$links[] = array('rel' => 'photo', 'href' => $r[0]['imgurl']);
+				$links[] = array('rel' => 'photo', 'href' => $r[0]['obj_imgurl']);
 
 			$target = json_encode(array(
 				'type'  => $tgttype,
-				'title' => $r[0]['term'],
-				'id'    => z_root() . '/thing/' . $r[0]['term_hash'],
+				'title' => $r[0]['obj_term'],
+				'id'    => z_root() . '/thing/' . $r[0]['obj_obj'],
 				'link'  => $links
 			));
 
-			$plink = '[zrl=' . z_root() . '/thing/' . $r[0]['term_hash'] . ']' . $r[0]['term'] . '[/zrl]';
+			$plink = '[zrl=' . z_root() . '/thing/' . $r[0]['obj_obj'] . ']' . $r[0]['obj_term'] . '[/zrl]';
 
 		}
 		
@@ -220,13 +219,23 @@ function like_content(&$a) {
 		);
 
 		if($z) {
+			$z[0]['deleted'] = 1;
+			build_sync_packet($ch[0]['channel_id'],array('likes' => $z));
+
 			q("delete from likes where id = %d limit 1",
 				intval($z[0]['id'])
 			);
-			drop_item($z[0]['iid'],false);
-			if($interactive) {
-				notice( t('Previous action reversed.') . EOL);
-				return $o;
+			if($z[0]['i_mid']) {
+				$r = q("select id from item where mid = '%s' and uid = %d limit 1",
+					dbesc($z[0]['i_mid']),
+					intval($ch[0]['channel_id'])
+				);
+				if($r)
+					drop_item($r[0]['id'],false);
+				if($interactive) {
+					notice( t('Previous action reversed.') . EOL);
+					return $o;
+				}
 			}
 			killme();
 		}
@@ -480,17 +489,29 @@ function like_content(&$a) {
 
 
 	if($extended_like) {
-		$r = q("insert into likes (channel_id,liker,likee,iid,verb,target_type,target_id,target) values (%d,'%s','%s',%d,'%s','%s','%s','%s')",
+		$r = q("insert into likes (channel_id,liker,likee,iid,i_mid,verb,target_type,target_id,target) values (%d,'%s','%s',%d,'%s','%s','%s','%s','%s')",
 			intval($ch[0]['channel_id']),
 			dbesc($observer['xchan_hash']),
 			dbesc($ch[0]['channel_hash']),
 			intval($post_id),
+			dbesc($mid),
 			dbesc($activity),
-			dbesc(($tgttype)?$tgttype:$objtype),
+			dbesc(($tgttype)? $tgttype : $objtype),
 			dbesc($obj_id),
-			dbesc(json_encode(($target)?$target:$object))
+			dbesc(($target) ? $target  : $object)
 		);
-	};
+		$r = q("select * from likes where liker = '%s' and likee = '%s' and i_mid = '%s' and verb = '%s' and target_type = '%s' and target_id = '%s' ",
+			dbesc($observer['xchan_hash']),
+			dbesc($ch[0]['channel_hash']),
+			dbesc($mid),
+			dbesc($activity),
+			dbesc(($tgttype)? $tgttype : $objtype),
+			dbesc($obj_id)
+		);
+		if($r)
+			build_sync_packet($ch[0]['channel_id'],array('likes' => $r));	
+
+	}
 
 
 	proc_run('php',"include/notifier.php","like","$post_id");

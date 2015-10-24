@@ -14,6 +14,9 @@ function gprobe_run($argv, $argc){
 
 	$url = hex2bin($argv[1]);
 
+	if(! strpos($url,'@'))
+		return;
+
 	$r = q("select * from xchan where xchan_addr = '%s' limit 1",
 		dbesc($url)
 	);

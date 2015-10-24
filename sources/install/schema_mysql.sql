@@ -108,6 +108,8 @@ CREATE TABLE IF NOT EXISTS `app` (
   `app_price` char(255) NOT NULL DEFAULT '',
   `app_page` char(255) NOT NULL DEFAULT '',
   `app_requires` char(255) NOT NULL DEFAULT '',
+  `app_created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `app_edited` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   PRIMARY KEY (`id`),
   KEY `app_id` (`app_id`),
   KEY `app_name` (`app_name`),
@@ -115,7 +117,9 @@ CREATE TABLE IF NOT EXISTS `app` (
   KEY `app_photo` (`app_photo`),
   KEY `app_version` (`app_version`),
   KEY `app_channel` (`app_channel`),
-  KEY `app_price` (`app_price`)
+  KEY `app_price` (`app_price`),
+  KEY `app_created` (`app_created`),
+  KEY `app_edited` (`app_edited`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `attach` (
@@ -346,6 +350,25 @@ CREATE TABLE IF NOT EXISTS `conv` (
   KEY `updated` (`updated`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
+CREATE TABLE IF NOT EXISTS `dreport` (
+  `dreport_id` int(11) NOT NULL AUTO_INCREMENT,
+  `dreport_channel` int(11) NOT NULL DEFAULT '0',
+  `dreport_mid` char(255) NOT NULL DEFAULT '',
+  `dreport_site` char(255) NOT NULL DEFAULT '',
+  `dreport_recip` char(255) NOT NULL DEFAULT '',
+  `dreport_result` char(255) NOT NULL DEFAULT '',
+  `dreport_time` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `dreport_xchan` char(255) NOT NULL DEFAULT '',
+  `dreport_queue` char(255) NOT NULL DEFAULT '',
+  PRIMARY KEY (`dreport_id`),
+  KEY `dreport_mid` (`dreport_mid`),
+  KEY `dreport_site` (`dreport_site`),
+  KEY `dreport_time` (`dreport_time`),
+  KEY `dreport_xchan` (`dreport_xchan`),
+  KEY `dreport_queue` (`dreport_queue`),
+  KEY `dreport_channel` (`dreport_channel`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `event` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `aid` int(10) unsigned NOT NULL DEFAULT '0',
@@ -373,6 +396,7 @@ CREATE TABLE IF NOT EXISTS `event` (
   `event_repeat` text NOT NULL,
   `event_sequence` smallint(6) NOT NULL DEFAULT '0',
   `event_priority` smallint(6) NOT NULL DEFAULT '0',
+  `event_vdata` text NOT NULL,
   PRIMARY KEY (`id`),
   KEY `uid` (`uid`),
   KEY `type` (`type`),
@@ -688,6 +712,7 @@ CREATE TABLE IF NOT EXISTS `likes` (
   `liker` char(128) NOT NULL DEFAULT '',
   `likee` char(128) NOT NULL DEFAULT '',
   `iid` int(11) unsigned NOT NULL DEFAULT '0',
+  `i_mid` char(255) NOT NULL DEFAULT '',
   `verb` char(255) NOT NULL DEFAULT '',
   `target_type` char(255) NOT NULL DEFAULT '',
   `target_id` char(128) NOT NULL DEFAULT '',
@@ -696,6 +721,7 @@ CREATE TABLE IF NOT EXISTS `likes` (
   KEY `liker` (`liker`),
   KEY `likee` (`likee`),
   KEY `iid` (`iid`),
+  KEY `i_mid` (`i_mid`),
   KEY `verb` (`verb`),
   KEY `target_type` (`target_type`),
   KEY `channel_id` (`channel_id`),
@@ -705,6 +731,7 @@ CREATE TABLE IF NOT EXISTS `likes` (
 CREATE TABLE IF NOT EXISTS `mail` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `convid` int(10) unsigned NOT NULL DEFAULT '0',
+  `conv_guid` char(255) NOT NULL DEFAULT '',
   `mail_flags` int(10) unsigned NOT NULL DEFAULT '0',
   `from_xchan` char(255) NOT NULL DEFAULT '',
   `to_xchan` char(255) NOT NULL DEFAULT '',
@@ -735,6 +762,7 @@ CREATE TABLE IF NOT EXISTS `mail` (
   KEY `parent_mid` (`parent_mid`),
   KEY `expires` (`expires`),
   KEY `convid` (`convid`),
+  KEY `conv_guid` (`conv_guid`),
   KEY `mail_deleted` (`mail_deleted`),
   KEY `mail_replied` (`mail_replied`),
   KEY `mail_isreply` (`mail_isreply`),
@@ -821,6 +849,11 @@ CREATE TABLE IF NOT EXISTS `obj` (
   `obj_type` int(10) unsigned NOT NULL DEFAULT '0',
   `obj_obj` char(255) NOT NULL DEFAULT '',
   `obj_channel` int(10) unsigned NOT NULL DEFAULT '0',
+  `obj_term` char(255) NOT NULL DEFAULT '',
+  `obj_url` char(255) NOT NULL DEFAULT '',
+  `obj_imgurl` char(255) NOT NULL DEFAULT '',
+  `obj_created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `obj_edited` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `allow_cid` mediumtext NOT NULL,
   `allow_gid` mediumtext NOT NULL,
   `deny_cid` mediumtext NOT NULL,
@@ -830,6 +863,11 @@ CREATE TABLE IF NOT EXISTS `obj` (
   KEY `obj_page` (`obj_page`),
   KEY `obj_type` (`obj_type`),
   KEY `obj_channel` (`obj_channel`),
+  KEY `obj_term` (`obj_term`),
+  KEY `obj_url` (`obj_url`),
+  KEY `obj_imgurl` (`obj_imgurl`),
+  KEY `obj_created` (`obj_created`),
+  KEY `obj_edited` (`obj_edited`),
   KEY `obj_obj` (`obj_obj`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
@@ -1095,6 +1133,8 @@ CREATE TABLE IF NOT EXISTS `site` (
   `site_realm` char(255) NOT NULL DEFAULT '',
   `site_valid` smallint NOT NULL DEFAULT '0',
   `site_dead` smallint NOT NULL DEFAULT '0',
+  `site_type` smallint NOT NULL DEFAULT '0',
+  `site_project` char(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`site_url`),
   KEY `site_flags` (`site_flags`),
   KEY `site_update` (`site_update`),
@@ -1105,7 +1145,9 @@ CREATE TABLE IF NOT EXISTS `site` (
   KEY `site_pull` (`site_pull`),
   KEY `site_realm` (`site_realm`),
   KEY `site_valid` (`site_valid`),
-  KEY `site_dead` (`site_dead`)
+  KEY `site_dead` (`site_dead`),
+  KEY `site_type` (`site_type`),
+  KEY `site_project` (`site_project`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `source` (

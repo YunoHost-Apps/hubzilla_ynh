@@ -72,10 +72,6 @@ function notags($string) {
 //	return(str_replace(array("<",">","\xBA","\xBC","\xBE"), array('[',']','','',''), $string));
 }
 
-// use this on "body" or "content" input where angle chars shouldn't be removed,
-// and allow them to be safely displayed.
-
-
 
 /**
  * use this on "body" or "content" input where angle chars shouldn't be removed,
@@ -458,63 +454,7 @@ function alt_pager(&$a, $i, $more = '', $less = '') {
 
 }
 
-/**
- * @brief Turn user/group ACLs stored as angle bracketed text into arrays.
- *
- * turn string array of angle-bracketed elements into string array
- * e.g. "<123xyz><246qyo><sxo33e>" => array(123xyz,246qyo,sxo33e);
- *
- * @param string $s
- * @return array
- */
-function expand_acl($s) {
-	$ret = array();
 
-	if(strlen($s)) {
-		$t = str_replace('<','',$s);
-		$a = explode('>',$t);
-		foreach($a as $aa) {
-			if($aa)
-				$ret[] = $aa;
-		}
-	}
-
-	return $ret;
-}
-
-/**
- * @brief Used to wrap ACL elements in angle brackets for storage.
- *
- * @param[in,out] array &$item
- */
-function sanitise_acl(&$item) {
-	if (strlen($item))
-		$item = '<' . notags(trim($item)) . '>';
-	else
-		unset($item);
-}
-
-/**
- * @brief Convert an ACL array to a storable string.
- *
- * @param array $p
- * @return array
- */
-function perms2str($p) {
-	$ret = '';
-
-	if (is_array($p))
-		$tmp = $p;
-	else
-		$tmp = explode(',', $p);
-
-	if (is_array($tmp)) {
-		array_walk($tmp, 'sanitise_acl');
-		$ret = implode('', $tmp);
-	}
-
-	return $ret;
-}
 
 /**
  * @brief Generate a guaranteed unique (for this domain) item ID for ATOM.
@@ -1276,36 +1216,15 @@ function theme_attachments(&$item) {
 	if(is_array($arr) && count($arr)) {
 		$attaches = array();
 		foreach($arr as $r) {
-			$icon = '';
-			$icontype = substr($r['type'],0,strpos($r['type'],'/'));
 
-			/**
-			 * @FIXME This should probably be a giant "if" statement in the
-			 * template so that we don't have icon names embedded in php code.
-			 */
-
-			switch($icontype) {
-				case 'video':
-					$icon = 'icon-facetime-video';
-					break;
-				case 'audio':
-					$icon = 'icon-volume-up';
-					break;
-				case 'image':
-					$icon = 'icon-picture';
-					break;
-				case 'text':
-					$icon = 'icon-align-justify';
-					break;
-				default:
-					$icon = 'icon-question';
-					break;
-			}
-
-			$title = htmlspecialchars($r['title'], ENT_COMPAT,'UTF-8');
-			if(! $title)
-				$title = t('unknown.???');
-			$title .= ' ' . (($r['length']) ? $r['length'] . ' ' . t('bytes') : '');
+			$icon = getIconFromType($r['type']);
+			$label = (($r['title']) ? urldecode(htmlspecialchars($r['title'], ENT_COMPAT, 'UTF-8')) : t('Unknown Attachment'));
+			
+			//some feeds provide an attachment where title an empty space
+			if($label  == ' ')
+				$label = t('Unknown Attachment');
+ 			
+			$title = t('Attachment') . ' - ' . (($r['length']) ? userReadableSize($r['length']) : t('Size Unknown'));
 
 			require_once('include/identity.php');
 			if(is_foreigner($item['author_xchan']))
@@ -1313,14 +1232,14 @@ function theme_attachments(&$item) {
 			else
 				$url = z_root() . '/magic?f=&hash=' . $item['author_xchan'] . '&dest=' . $r['href'] . '/' . $r['revision'];
 
-			$s .= '<a href="' . $url . '" title="' . $title . '" class="attachlink"  >' . $icon . '</a>';
-			$attaches[] = array('title' => $title, 'url' => $url, 'icon' => $icon );
+			//$s .= '<a href="' . $url . '" title="' . $title . '" class="attachlink"  >' . $icon . '</a>';
+			$attaches[] = array('label' => $label, 'url' => $url, 'icon' => $icon, 'title' => $title);
 		}
-	}
 
-	$s = replace_macros(get_markup_template('item_attach.tpl'), array(
-		'$attaches' => $attaches
-	));
+		$s = replace_macros(get_markup_template('item_attach.tpl'), array(
+			'$attaches' => $attaches
+		));
+	}
 
 	return $s;
 }
@@ -1339,11 +1258,12 @@ function format_categories(&$item,$writeable) {
 			$removelink = (($writeable) ?  z_root() . '/filerm/' . $item['id'] . '?f=&cat=' . urlencode($t['term']) : '');
 			$categories[] = array('term' => $term, 'writeable' => $writeable, 'removelink' => $removelink, 'url' => zid($t['url']));
 		}
+
+		$s = replace_macros(get_markup_template('item_categories.tpl'),array(
+			'$remove' => t('remove category'),
+			'$categories' => $categories
+		));
 	}
-	$s = replace_macros(get_markup_template('item_categories.tpl'),array(
-		'$remove' => t('remove category'),
-		'$categories' => $categories
-	));
 
 	return $s;
 }
@@ -1354,6 +1274,7 @@ function format_categories(&$item,$writeable) {
  * @param[in] array &$item
  * @return string HTML link of hashtag
  */
+
 function format_hashtags(&$item) {
 	$s = '';
 
@@ -1414,11 +1335,12 @@ function format_filer(&$item) {
 			$removelink = z_root() . '/filerm/' . $item['id'] . '?f=&term=' . urlencode($t['term']);
 			$categories[] = array('term' => $term, 'removelink' => $removelink);
 		}
+
+		$s = replace_macros(get_markup_template('item_filer.tpl'),array(
+			'$remove' => t('remove from file'),
+			'$categories' => $categories
+		));
 	}
-	$s = replace_macros(get_markup_template('item_filer.tpl'),array(
-		'$remove' => t('remove from file'),
-		'$categories' => $categories
-	));
 
 	return $s;
 }
@@ -1441,6 +1363,7 @@ function generate_named_map($location) {
 
 
 function prepare_body(&$item,$attach = false) {
+	require_once('include/identity.php');
 
 //	if($item['html']) {
 //		$s = bb_observer($item['html']);
@@ -1451,9 +1374,24 @@ function prepare_body(&$item,$attach = false) {
 		$s = prepare_text($item['body'],$item['mimetype'], false);
 //	}
 
-	$prep_arr = array('item' => $item, 'html' => $s);
+	$is_photo = (($item['obj_type'] === ACTIVITY_OBJ_PHOTO) ? true : false);
+	$photo = '';
+
+	if($is_photo) {
+		$object = json_decode($item['object'],true);
+		$photo = '<a href="' . zid(rawurldecode(get_rel_link($object['link'],'alternate'))) . '" target="_newwin"><img style="max-width:' . $object['width'] . 'px; width:100%; height:auto;" src="'. zid(rawurldecode($object['id'])) . '"></a>';
+	}
+
+	$prep_arr = array(
+		'item' => $item,
+		'html' => $s,
+		'photo' => $photo
+	);
+
 	call_hooks('prepare_body', $prep_arr);
+
 	$s = $prep_arr['html'];
+	$photo = $prep_arr['photo'];
 
 //	q("update item set html = '%s' where id = %d",
 //		dbesc($s),
@@ -1469,21 +1407,21 @@ function prepare_body(&$item,$attach = false) {
 		if($x) {
 			$s = preg_replace('/\<div class\=\"map\"\>/','$0' . $x,$s);
 		}
-	}		 
+	}
 
-	$s .= theme_attachments($item);
+	$attachments = theme_attachments($item);
 
 	$writeable = ((get_observer_hash() == $item['owner_xchan']) ? true : false);
 
-	$s .= format_hashtags($item);
+	$tags = format_hashtags($item);
 
 	if($item['resource_type'])
-		$s .= format_mentions($item);
+		$mentions = format_mentions($item);
 
-	$s .= format_categories($item,$writeable);
+	$categories = format_categories($item,$writeable);
 
 	if(local_channel() == $item['uid'])
-		$s .= format_filer($item);
+		$filer = format_filer($item);
 
 	$s = sslify($s);
 
@@ -1516,9 +1454,22 @@ function prepare_body(&$item,$attach = false) {
 		$s = substr($s, 0, $pos).$authorreplace.substr($s, $pos+strlen($authorsearch));
 	}
 
-	$prep_arr = array('item' => $item, 'html' => $s);
+	$prep_arr = array(
+		'item' => $item,
+		'photo' => $photo,
+		'html' => $s,
+		'categories' => $categories,
+		'folders' => $filer,
+		'tags' => $tags,
+		'mentions' => $mentions,
+		'attachments' => $attachments
+	);
+
 	call_hooks('prepare_body_final', $prep_arr);
-	return $prep_arr['html'];
+
+	unset($prep_arr['item']);
+
+	return $prep_arr;
 }
 
 /**
@@ -1746,14 +1697,14 @@ function mimetype_select($channel_id, $current = 'text/bbcode') {
 function lang_selector() {
 	global $a;
 
-	$langs = glob('view/*/strings.php');
+	$langs = glob('view/*/hstrings.php');
 
 	$lang_options = array();
 	$selected = "";
 
 	if(is_array($langs) && count($langs)) {
 		$langs[] = '';
-		if(! in_array('view/en/strings.php',$langs))
+		if(! in_array('view/en/hstrings.php',$langs))
 			$langs[] = 'view/en/';
 		asort($langs);
 		foreach($langs as $l) {
@@ -2035,15 +1986,15 @@ function xchan_query(&$items,$abook = true,$effective_uid = 0) {
 	if(count($arr)) {
 		if($abook) {
 			$chans = q("select * from xchan left join hubloc on hubloc_hash = xchan_hash left join abook on abook_xchan = xchan_hash and abook_channel = %d
-				where xchan_hash in (" . implode(',', $arr) . ") and hubloc_primary = 1",
+				where xchan_hash in (" . protect_sprintf(implode(',', $arr)) . ") and hubloc_primary = 1",
 				intval($item['uid'])
 			);
 		}
 		else {
 			$chans = q("select xchan.*,hubloc.* from xchan left join hubloc on hubloc_hash = xchan_hash
-				where xchan_hash in (" . implode(',', $arr) . ") and hubloc_primary = 1");
+				where xchan_hash in (" . protect_sprintf(implode(',', $arr)) . ") and hubloc_primary = 1");
 		}
-		$xchans = q("select * from xchan where xchan_hash in (" . implode(',',$arr) . ") and xchan_network in ('rss','unknown')");
+		$xchans = q("select * from xchan where xchan_hash in (" . protect_sprintf(implode(',',$arr)) . ") and xchan_network in ('rss','unknown')");
 		if(! $chans)
 			$chans = $xchans;
 		else
@@ -2281,7 +2232,7 @@ function handle_tag($a, &$body, &$access_tag, &$str_tags, $profile_uid, $tag, $d
 		}
 		if($tag == '#getzot') {
 			$basetag = 'getzot'; 
-			$url = 'https://redmatrix.me';
+			$url = 'http://hubzilla.org';
 			$newtag = '#[zrl=' . $url . ']' . $basetag . '[/zrl]';
 			$body = str_replace($tag,$newtag,$body);
 			$replaced = true;
@@ -2550,6 +2501,7 @@ function linkify_tags($a, &$body, $uid, $diaspora = false) {
  *
  * @param string $type mime type
  * @return string
+ * @todo rename to get_icon_from_type()
  */
 function getIconFromType($type) {
 	$iconMap = array(
@@ -2602,6 +2554,7 @@ function getIconFromType($type) {
  *
  * @param int $size filesize in bytes
  * @return string human readable formatted filesize
+ * @todo rename to user_readable_size()
  */
 function userReadableSize($size) {
 	$ret = '';
@@ -2623,4 +2576,48 @@ function str_rot47($str) {
 	return strtr($str,
 		'!"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~',
 		'PQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~!"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNO');
+}
+
+
+function string_replace($old,$new,&$s) {
+
+	$x = str_replace($old,$new,$s);
+	$replaced = false;
+	if($x !== $s) {
+		$replaced = true;
+	}
+	$s = $x;
+	return $replaced;
+}
+
+
+function json_url_replace($old,$new,&$s) {
+
+	$old = str_replace('/','\\/',$old);
+	$new = str_replace('/','\\/',$new);
+
+	$x = str_replace($old,$new,$s);
+	$replaced = false;
+	if($x !== $s) {
+		$replaced = true;
+	}
+	$s = $x;
+	return $replaced;
+}
+		
+
+function item_url_replace($channel,&$item,$old,$new) {
+	
+	if($item['attach'])
+		json_url_replace($old,$new,$item['attach']);
+	if($item['object'])
+		json_url_replace($old,$new,$item['object']);
+	if($item['target'])
+		json_url_replace($old,$new,$item['target']);
+
+	if(string_replace($old,$new,$item['body'])) {
+		$item['sig'] = base64url_encode(rsa_sign($item['body'],$channel['channel_prvkey']));
+		$item['item_verified']  = 1;
+	}
+
 }

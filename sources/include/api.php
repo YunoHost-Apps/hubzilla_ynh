@@ -8,6 +8,7 @@ require_once("html2plain.php");
 require_once('include/security.php');
 require_once('include/photos.php');
 require_once('include/items.php');
+require_once('include/attach.php');
 
 	/*
 	 *
@@ -619,6 +620,36 @@ require_once('include/items.php');
 	}
 	api_register_func('api/red/channel/stream','api_channel_stream', true);
 
+	function api_attach_list(&$a,$type) {
+		logger('api_user: ' . api_user());
+		json_return_and_die(attach_list_files(api_user(),get_observer_hash(),'','','','created asc'));
+	}
+	api_register_func('api/red/files','api_attach_list', true);
+
+
+	function api_file_detail(&$a,$type) {
+		if (api_user()===false) return false;
+		if(! $_REQUEST['file_id']) return false;
+		$r = q("select * from attach where uid = %d and hash = '%s' limit 1",
+			intval(api_user()),
+			dbesc($_REQUEST['file_id'])
+		);
+		if($r) {
+			if($r[0]['is_dir'])
+				$r[0]['data'] = '';
+			elseif(intval($r[0]['os_storage'])) 
+				$r[0]['data'] = base64_encode(file_get_contents(dbunescbin($r[0]['data'])));
+			else
+				$r[0]['data'] = base64_encode(dbunescbin($r[0]['data']));
+				
+			$ret = array('attach' => $r[0]);
+			json_return_and_die($ret);
+		}
+		killme();
+	}
+
+	api_register_func('api/red/file', 'api_file_detail', true);
+
 
 	function api_albums(&$a,$type) {
 		json_return_and_die(photos_albums_list($a->get_channel(),$a->get_observer()));
@@ -645,7 +676,27 @@ require_once('include/items.php');
 			if(array_key_exists('os_storage',$r[0]) && intval($r[0]['os_storage']))
 				$data = file_get_contents($data);
 			$r[0]['data'] = base64_encode($data);
-			json_return_and_die($r[0]);
+			$ret = array('photo' => $r[0]);
+			$i = q("select id from item where uid = %d and resource_type = 'photo' and resource_id = '%s' limit 1",
+				intval(local_channel()),
+				dbesc($_REQUEST['photo_id'])
+			);
+			if($i) {
+				$ii = q("select * from item where parent = %d order by id",
+					intval($i[0]['id'])
+				);
+				if($ii) {
+					xchan_query($ii,true,0);
+					$ii = fetch_post_tags($ii,true);
+					if($ii) {
+						$ret['item'] = array();
+						foreach($ii as $iii)
+							$ret['item'][] = encode_item($iii,true);
+					}
+				}
+			}
+
+			json_return_and_die($ret);
 		}
 		killme();
 	}
@@ -874,6 +925,55 @@ require_once('include/items.php');
 	}
 
 	api_register_func('api/red/item/new','red_item_new', true);
+
+
+	function red_item(&$a, $type) {
+
+		if (api_user() === false) {
+			logger('api_red_item_new: no user');
+			return false;
+		}
+
+		if($_REQUEST['mid']) {
+			$arr = array('mid' => $_REQUEST['mid']);
+		}
+		elseif($_REQUEST['item_id']) {
+			$arr = array('item_id' => $_REQUEST['item_id']);
+		}
+		else
+			json_return_and_die(array());
+
+		$arr['start'] = 0;
+		$arr['records'] = 999999;
+		$arr['item_type'] = '*';
+
+		$i = items_fetch($arr,$a->get_channel(),get_observer_hash());
+
+		if(! $i)
+			json_return_and_die(array());
+
+		$ret = array();
+		$tmp = array();
+		$str = '';
+		foreach($i as $ii) {
+			$tmp[] = encode_item($ii,true);
+			if($str)
+				$str .= ',';
+			$str .= $ii['id'];
+		}
+		$ret['item'] = $tmp;	
+		if($str) {
+			$r = q("select item_id.*, item.mid from item_id left join item on item_id.iid = item.id where item.id in ( $str ) ");
+
+		    if($r)
+        		$ret['item_id'] = $r;
+		}
+					 
+		json_return_and_die($ret);
+	}
+
+	api_register_func('api/red/item/full','red_item', true);
+
 
 
 	function api_get_status($xchan_hash) {
@@ -1387,7 +1487,7 @@ require_once('include/items.php');
 	 * 
 	 */
 
-// FIXME
+
 	function api_statuses_mentions(&$a, $type){
 		if (api_user()===false) return false;
 				
@@ -1412,38 +1512,24 @@ require_once('include/items.php');
 		$myurl = str_replace(array('www.','.'),array('','\\.'),$myurl);
 		$diasp_url = str_replace('/channel/','/u/',$myurl);
 
-		if (get_config('system','use_fulltext_engine'))
-						$sql_extra .= sprintf(" AND `item`.`parent` IN (SELECT distinct(`parent`) from item where (MATCH(`author-link`) AGAINST ('".'"%s"'."' in boolean mode) or MATCH(`tag`) AGAINST ('".'"%s"'."' in boolean mode) or MATCH(tag) AGAINST ('".'"%s"'."' in boolean mode))) ",
-								dbesc(protect_sprintf($myurl)),
-								dbesc(protect_sprintf($myurl)),
-								dbesc(protect_sprintf($diasp_url))
-						);
-				else
-						$sql_extra .= sprintf(" AND `item`.`parent` IN (SELECT distinct(`parent`) from item where ( `author-link` like '%s' or `tag` like '%s' or tag like '%s' )) ",
-								dbesc(protect_sprintf('%' . $myurl)),
-								dbesc(protect_sprintf('%' . $myurl . ']%')),
-								dbesc(protect_sprintf('%' . $diasp_url . ']%'))
-						);
-
+		$sql_extra .= " AND item_mentionsme = 1 ";
 		if ($max_id > 0)
-			$sql_extra .= ' AND `item`.`id` <= '.intval($max_id);
+			$sql_extra .= " AND item.id <= " . intval($max_id) . " ";
 
-		$r = q("SELECT `item`.*, `item`.`id` AS `item_id`, 
-			`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
-			`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn_id`, `contact`.`self`,
-			`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
-			FROM `item`, `contact`
-			WHERE `item`.`uid` = %d
-			AND `item`.`visible` = 1 and `item`.`moderated` = 0 AND `item`.`deleted` = 0
-			AND `contact`.`id` = `item`.`contact-id`
-			AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
-			$sql_extra
-			AND `item`.`id`>%d
-			ORDER BY `item`.`received` DESC LIMIT %d ,%d ",
-			intval($user_info['uid']),
+		require_once('include/security.php');
+		$item_normal = item_normal();
+
+        $r = q("select * from item where uid = " . intval(api_user()) . "
+			$item_normal $sql_extra
+			AND id > %d group by mid
+			order by received desc LIMIT %d OFFSET %d ",
 			intval($since_id),
-			intval($start),	intval($count)
+			intval($count),
+			intval($start)
 		);
+
+		xchan_query($r,true);
+
 
 		$ret = api_format_items($r,$user_info);
 

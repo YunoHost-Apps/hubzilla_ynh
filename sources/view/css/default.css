@@ -1,9 +1,9 @@
 header #banner {
 	position: fixed;
-	top: 0;
-	width: 250px;
-	margin-left: auto;
-	margin-right: auto;
+	top: 0px;
+	width: 33%;
+	margin-left: 33%;
+	margin-right: 33%;
 }
 
 main {
@@ -18,7 +18,6 @@ aside {
 	display: table-cell;
 	vertical-align: top;
 	padding: 80px 7px 0px 7px;
-
 }
 
 section {

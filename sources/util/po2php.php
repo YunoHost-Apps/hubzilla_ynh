@@ -9,7 +9,7 @@ function po2php_run($argv, $argc) {
 	}
 	
 	$pofile = $argv[1];
-	$outfile = dirname($pofile)."/strings.php";
+	$outfile = dirname($pofile)."/hstrings.php";
 
 	if(strstr($outfile,'util'))
 		$lang = 'en';

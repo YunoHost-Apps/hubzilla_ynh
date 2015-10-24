@@ -395,7 +395,9 @@ function count_descendants($item) {
  * @brief Check if the activity of the item is visible.
  *
  * likes (etc.) can apply to other things besides posts. Check if they are post
- * children, in which case we handle them specially.
+ * children, in which case we handle them specially. Activities which are unrecognised
+ * as having special meaning and hidden will be treated as posts or comments and visible
+ * in the stream.  
  *
  * @param array $item
  * @return boolean
@@ -403,11 +405,20 @@ function count_descendants($item) {
 function visible_activity($item) {
 	$hidden_activities = array(ACTIVITY_LIKE, ACTIVITY_DISLIKE, ACTIVITY_AGREE, ACTIVITY_DISAGREE, ACTIVITY_ABSTAIN, ACTIVITY_ATTEND, ACTIVITY_ATTENDNO, ACTIVITY_ATTENDMAYBE);
 
+	$post_types = array(ACTIVITY_OBJ_NOTE,ACTIVITY_OBJ_COMMENT,basename(ACTIVITY_OBJ_NOTE),basename(ACTIVITY_OBJ_COMMENT)); 
+
 	foreach ($hidden_activities as $act) {
 		if ((activity_match($item['verb'], $act)) && ($item['mid'] != $item['parent_mid'])) {
 			return false;
 		}
 	}
+
+	// In order to share edits with networks which have no concept of editing, we'll create 
+	// separate activities to indicate the edit. Our network will not require them, since our
+	// edits are automatically applied and the activity indicated.  
+
+	if(($item['verb'] === ACTIVITY_UPDATE) && (in_array($item['obj_type'],$post_types)))
+		return false;
 
 	return true;
 }
@@ -618,11 +629,6 @@ function conversation(&$a, $items, $mode, $update, $page_mode = 'traditional', $
 				if($item['author-link'] && (! $item['author-name']))
 					$profile_name = $item['author-link'];
 
-
-				$tags=array();
-				$hashtags = array();
-				$mentions = array();
-
 				$sp = false;
 				$profile_link = best_link_url($item,$sp);
 				if($sp)
@@ -667,13 +673,16 @@ function conversation(&$a, $items, $mode, $update, $page_mode = 'traditional', $
 
 				$unverified = '';
 
-				$tags=array();
-				$terms = get_terms_oftype($item['term'],array(TERM_HASHTAG,TERM_MENTION,TERM_UNKNOWN));
-				if(count($terms))
-					foreach($terms as $tag)
-						$tags[] = format_term_for_display($tag);
+//				$tags=array();
+//				$terms = get_terms_oftype($item['term'],array(TERM_HASHTAG,TERM_MENTION,TERM_UNKNOWN));
+//				if(count($terms))
+//					foreach($terms as $tag)
+//						$tags[] = format_term_for_display($tag);
 
 				$body = prepare_body($item,true);
+
+				$is_photo = ((($item['resource_type'] == 'photo') && (feature_enabled($profile_owner,'large_photos'))) ? true : false);
+				$has_tags = (($body['tags'] || $body['categories'] || $body['mentions'] || $body['attachments'] || $body['folders']) ? true : false);
 
 				$tmp_item = array(
 					'template' => $tpl,
@@ -688,10 +697,12 @@ function conversation(&$a, $items, $mode, $update, $page_mode = 'traditional', $
 					'lock' => $lock,
 					'thumb' => $profile_avatar,
 					'title' => $item['title'],
-					'body' => $body,
-					'tags' => $tags,
-					'hashtags' => $hashtags,
-					'mentions' => $mentions,
+					'body' => $body['html'],
+					'tags' => $body['tags'],
+					'categories' => $body['categories'],
+					'mentions' => $body['mentions'],
+					'attachments' => $body['attachments'],
+					'folders' => $body['folders'],
 					'verified' => $verified,
 					'unverified' => $unverified,
 					'forged' => $forged,
@@ -701,7 +712,7 @@ function conversation(&$a, $items, $mode, $update, $page_mode = 'traditional', $
 					'has_folders' => ((count($folders)) ? 'true' : ''),
 					'categories' => $categories,
 					'folders' => $folders,
-					'text' => strip_tags($body),
+					'text' => strip_tags($body['html']),
 					'ago' => relative_date($item['created']),
 					'app' => $item['app'],
 					'str_app' => sprintf( t('from %s'), $item['app']),
@@ -727,6 +738,8 @@ function conversation(&$a, $items, $mode, $update, $page_mode = 'traditional', $
 					'previewing' => $previewing,
 					'wait' => t('Please wait'),
 					'thread_level' => 1,
+					'is_photo' => $is_photo,
+					'has_tags' => $has_tags,
 				);
 
 				$arr = array('item' => $item, 'output' => $tmp_item);
@@ -932,9 +945,9 @@ function item_photo_menu($item){
 		t("View Status") => $status_link,
 		t("View Profile") => $profile_link,
 		t("View Photos") => $photos_link,
-		t("Matrix Activity") => $posts_link,
+		t("Activity/Posts") => $posts_link,
 		t("Connect") => $follow_url,
-		t("Edit Contact") => $contact_url,
+		t("Edit Connection") => $contact_url,
 		t("Send PM") => $pm_url,
 		t("Poke") => $poke_link
 	);
@@ -1126,6 +1139,7 @@ function status_editor($a, $x, $popup = false) {
 		'$newpost' => 'true',
 		'$baseurl' => $a->get_baseurl(true),
 		'$editselect' => (($plaintext) ? 'none' : '/(profile-jot-text|prvmail-text)/'),
+		'$pretext' => ((x($x,'pretext')) ? $x['pretext'] : ''),
 		'$geotag' => $geotag,
 		'$nickname' => $x['nickname'],
 		'$ispublic' => t('Visible to <strong>everybody</strong>'),
@@ -1402,7 +1416,7 @@ function prepare_page($item) {
 		'$auth_url' => (($naked) ? '' : zid($item['author']['xchan_url'])),
 		'$date' => (($naked) ? '' : datetime_convert('UTC', date_default_timezone_get(), $item['created'], 'Y-m-d H:i')),
 		'$title' => smilies(bbcode($item['title'])),
-		'$body' => $body,
+		'$body' => $body['html'],
 		'$preview' => $preview,
 		'$link' => $link,
 	));

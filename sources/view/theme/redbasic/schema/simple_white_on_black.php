@@ -34,3 +34,5 @@
 		$comment_border_colour = "rgba(0,0,0,0.8)";
 	if (! $font_colour)
 		$font_colour = "#fff";
+	if (! $converse_width)
+		$converse_width = "1024";

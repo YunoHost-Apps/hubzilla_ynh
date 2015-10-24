@@ -34,5 +34,8 @@
 		$toolicon_activecolour = '#fff';
 	if (! $font_colour)
 		$font_colour = "#ccc";
+	if (! $converse_width)
+		$converse_width = "1024";
+		
 
 

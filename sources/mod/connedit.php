@@ -190,7 +190,7 @@ function connedit_post(&$a) {
 		}
 	}
 
-	$abook_pending = $new_friend ? 0 : $orig_record[0]['abook_pending'];
+	$abook_pending = (($new_friend) ? 0 : $orig_record[0]['abook_pending']);
 
 	$r = q("UPDATE abook SET abook_profile = '%s', abook_my_perms = %d , abook_closeness = %d, abook_pending = %d,
 		abook_incl = '%s', abook_excl = '%s'
@@ -214,7 +214,6 @@ function connedit_post(&$a) {
 
 	}
 
-
 	if($r)
 		info( t('Connection updated.') . EOL);
 	else
@@ -222,7 +221,7 @@ function connedit_post(&$a) {
 
 	if($a->poi && $a->poi['abook_my_perms'] != $abook_my_perms 
 		&& (! intval($a->poi['abook_self']))) {
-		proc_run('php', 'include/notifier.php', 'permission_update', $contact_id);
+		proc_run('php', 'include/notifier.php', (($new_friend) ? 'permission_create' : 'permission_update'), $contact_id);
 	}
 
 	if($new_friend) {
@@ -314,6 +313,17 @@ function connedit_clone(&$a) {
 
 		if(! $a->poi)
 			return;
+
+		$r = q("SELECT abook.*, xchan.* 
+			FROM abook left join xchan on abook_xchan = xchan_hash
+			WHERE abook_channel = %d and abook_id = %d LIMIT 1",
+			intval(local_channel()),
+			intval($a->poi['abook_id'])
+		);
+		if($r) {
+			$a->poi = $r[0];
+		}
+
 		$clone = $a->poi;
 
 		unset($clone['abook_id']);

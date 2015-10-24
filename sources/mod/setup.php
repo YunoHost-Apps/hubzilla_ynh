@@ -292,7 +292,7 @@ function setup_content(&$a) {
 
 		case 2: { // Database config
 
-			$dbhost = ((x($_POST,'dbhost')) ? notags(trim($_POST['dbhost'])) : 'localhost');
+			$dbhost = ((x($_POST,'dbhost')) ? notags(trim($_POST['dbhost'])) : '127.0.0.1');
 			$dbuser = notags(trim($_POST['dbuser']));
 			$dbport = intval(notags(trim($_POST['dbport'])));
 			$dbpass = notags(trim($_POST['dbpass']));
@@ -312,7 +312,7 @@ function setup_content(&$a) {
 
 				'$status' => $wizard_status,
 
-				'$dbhost' => array('dbhost', t('Database Server Name'), $dbhost, t('Default is localhost')),
+				'$dbhost' => array('dbhost', t('Database Server Name'), $dbhost, t('Default is 127.0.0.1')),
 				'$dbport' => array('dbport', t('Database Port'), $dbport, t('Communication port number - use 0 for default')),
 				'$dbuser' => array('dbuser', t('Database Login Name'), $dbuser, ''),
 				'$dbpass' => array('dbpass', t('Database Login Password'), $dbpass, ''),
@@ -334,7 +334,7 @@ function setup_content(&$a) {
 		}; break;
 		case 3: { // Site settings
 			require_once('include/datetime.php');
-			$dbhost = ((x($_POST,'dbhost')) ? notags(trim($_POST['dbhost'])) : 'localhost');
+			$dbhost = ((x($_POST,'dbhost')) ? notags(trim($_POST['dbhost'])) : '127.0.0.1');
 			$dbport = intval(notags(trim($_POST['dbuser'])));
 			$dbuser = notags(trim($_POST['dbuser']));
 			$dbpass = notags(trim($_POST['dbpass']));

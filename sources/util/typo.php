@@ -67,11 +67,11 @@
 
 	echo "String files\n";
 
-	echo 'util/strings.php' . "\n";
-	include_once('util/strings.php');
+	echo 'util/hstrings.php' . "\n";
+	include_once('util/hstrings.php');
 	echo count($a->strings) . ' strings' . "\n";
 
-	$files = glob('view/*/strings.php');
+	$files = glob('view/*/hstrings.php');
 
 	foreach($files as $file) {
 		echo $file . "\n";

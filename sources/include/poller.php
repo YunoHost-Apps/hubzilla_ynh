@@ -175,6 +175,12 @@ function poller_run($argv, $argc){
 				logger('regdir: ' . print_r(z_fetch_url(get_directory_primary() . '/regdir?f=&url=' . urlencode(z_root()) . '&realm=' . urlencode(get_directory_realm())),true));
 			}
 
+			// Check for dead sites
+			proc_run('php', 'include/checksites.php');
+			
+			// update searchable doc indexes
+			proc_run('php', 'include/importdoc.php');
+
 			/**
 			 * End Cron Weekly
 			 */
@@ -193,6 +199,17 @@ function poller_run($argv, $argc){
 
 		q("delete from notify where seen = 1 and date < %s - INTERVAL %s",
 			db_utcnow(), db_quoteinterval('30 DAY')
+		);
+
+		// expire old delivery reports
+
+		$keep_reports = intval(get_config('system','expire_delivery_reports'));
+		if($keep_reports === 0)
+			$keep_reports = 30;
+
+		q("delete from dreport where dreport_time < %s - INTERVAL %s",
+			db_utcnow(),
+			db_quoteinterval($keep_reports . ' DAY')
 		);
 
 		// expire any expired accounts
@@ -232,7 +249,7 @@ function poller_run($argv, $argc){
 	if($r) {
 		require_once('include/photo/photo_driver.php');
 		foreach($r as $rr) {
-			$photos = import_profile_photo($rr['xchan_photo_l'],$rr['xchan_hash']);
+			$photos = import_xchan_photo($rr['xchan_photo_l'],$rr['xchan_hash']);
 			$x = q("update xchan set xchan_photo_l = '%s', xchan_photo_m = '%s', xchan_photo_s = '%s', xchan_photo_mimetype = '%s'
 				where xchan_hash = '%s'",
 				dbesc($photos[0]),

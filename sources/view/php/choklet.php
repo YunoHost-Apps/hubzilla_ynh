@@ -17,8 +17,8 @@
 			<div id="page-footer"></div>
 			<div id="pause"></div>
 		</section>
-		</main>
 		<aside id="region_3"><?php if(x($page,'right_aside')) echo $page['right_aside']; ?></aside>
+		</main>
 		<div class="clear"></div>
 		<footer><?php if(x($page,'footer')) echo $page['footer']; ?></footer>
 	</div>
