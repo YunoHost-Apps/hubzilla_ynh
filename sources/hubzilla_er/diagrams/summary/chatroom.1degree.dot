@@ -1,0 +1,40 @@
+// dot 2.26.3 on Linux 3.2.0-4-686-pae
+// SchemaSpy rev 590
+digraph "chatroom" {
+  graph [
+    rankdir="RL"
+    bgcolor="#f7f7f7"
+    nodesep="0.18"
+    ranksep="0.46"
+    fontname="Helvetica"
+    fontsize="11"
+  ];
+  node [
+    fontname="Helvetica"
+    fontsize="11"
+    shape="plaintext"
+  ];
+  edge [
+    arrowsize="0.8"
+  ];
+  "chatroom" [
+    label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">chatroom</TD></TR>
+      <TR><TD PORT="cr_id" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">cr_id</TD></TR>
+      <TR><TD PORT="cr_aid" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">cr_aid</TD></TR>
+      <TR><TD PORT="cr_uid" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">cr_uid</TD></TR>
+      <TR><TD PORT="cr_name" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">cr_name</TD></TR>
+      <TR><TD PORT="cr_created" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">cr_created</TD></TR>
+      <TR><TD PORT="cr_edited" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">cr_edited</TD></TR>
+      <TR><TD PORT="cr_expire" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">cr_expire</TD></TR>
+      <TR><TD PORT="allow_cid" COLSPAN="3" ALIGN="LEFT">allow_cid</TD></TR>
+      <TR><TD PORT="allow_gid" COLSPAN="3" ALIGN="LEFT">allow_gid</TD></TR>
+      <TR><TD PORT="deny_cid" COLSPAN="3" ALIGN="LEFT">deny_cid</TD></TR>
+      <TR><TD PORT="deny_gid" COLSPAN="3" ALIGN="LEFT">deny_gid</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">  </TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">0 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">  </TD></TR>
+    </TABLE>>
+    URL="tables/chatroom.html"
+    tooltip="chatroom"
+  ];
+}

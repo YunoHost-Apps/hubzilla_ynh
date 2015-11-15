@@ -1,3 +1,4 @@
+<div class="generic-content-wrapper-styled">
 <h1>{{$header}}</h1>
 
 <form action="chat" method="post" >
@@ -10,5 +11,4 @@
 <br />
 <input id="dbtn-submit" type="submit" name="submit" value="{{$submit}}" />
 </form>
-
-
+</div>

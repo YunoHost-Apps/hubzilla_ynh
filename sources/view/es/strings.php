@@ -1067,6 +1067,7 @@ $a->strings["Site URL"] = "Dirección del sitio";
 $a->strings["Access Type"] = "Tipo de Acceso";
 $a->strings["Registration Policy"] = "Normas de Registro";
 $a->strings["Location"] = "Localización";
+$a->strings["Project"] = "Proyecto";
 $a->strings["View hub ratings"] = "Ver las valoraciones del sitio";
 $a->strings["Rate"] = "Valorar";
 $a->strings["View ratings"] = "Ver valoraciones";

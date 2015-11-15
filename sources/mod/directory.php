@@ -121,6 +121,8 @@ function directory_content(&$a) {
 	}
 	if(! $url) {
 		$directory = find_upstream_directory($dirmode);
+		if((! $directory) || (! array_key_exists('url',$directory)) || (! $directory['url']))
+			logger('CRITICAL: No directory server URL');
 		$url = $directory['url'] . '/dirsearch';
 	}
 

@@ -1,3 +1,4 @@
+<div class="generic-content-wrapper-styled">
 <form action="{{$dest_url}}" id="{{$form_id}}" method="post" >
 	<input type="hidden" name="auth-params" value="login" />
 	<div id="login-main">
@@ -16,4 +17,5 @@
 		<input type="hidden" name="{{$k}}" value="{{$v}}" />
 	{{/foreach}}
 </form>
+</div>
 <script type="text/javascript"> $(document).ready(function() { $("#id_{{$lname.0}}").focus();} );</script>

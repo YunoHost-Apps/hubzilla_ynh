@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Redmatrix\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-10-17 16:47-0700\n"
-"PO-Revision-Date: 2015-10-18 13:28+0000\n"
+"POT-Creation-Date: 2015-10-23 00:04-0700\n"
+"PO-Revision-Date: 2015-10-26 15:27+0000\n"
 "Last-Translator: jeroenpraat <jeroenpraat@xs4all.nl>\n"
 "Language-Team: Dutch (http://www.transifex.com/Friendica/red-matrix/language/nl/)\n"
 "MIME-Version: 1.0\n"
@@ -4525,6 +4525,10 @@ msgstr "Registratiebeleid"
 #: ../../mod/pubsites.php:26 ../../mod/profiles.php:454
 msgid "Location"
 msgstr "Locatie"
+
+#: ../../mod/pubsites.php:26
+msgid "Project"
+msgstr "Project"
 
 #: ../../mod/pubsites.php:26
 msgid "View hub ratings"

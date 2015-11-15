@@ -1,19 +1,19 @@
-[img][baseurl]/assets/hashlogo.png[/img]
+[img][baseurl]/images/hubzilla-banner.png[/img]
 
-[zrl=[baseurl]/help/about]Was ist die RedMatrix?[/zrl]
-Die RedMatrix ist eine dezentrale Kommunikations- und Publishing-Plattform. Sie ermöglicht Dir die volle Kontrolle über all Deine Kommunikation mit Hilfe von automatischer Verschlüsselung und detaillierter Zugriffskontrolle. Du, und [i]nur[/i] Du, entscheidest, wer Deine Beiträge sehen darf.
+[zrl=[baseurl]/help/about]Was ist Hubzilla?[/zrl]
+Hubzilla ist eine dezentrale Kommunikations- und Publishing-Plattform. Sie ermöglicht Dir die volle Kontrolle über all Deine Kommunikation mit Hilfe von automatischer Verschlüsselung und detaillierter Zugriffskontrolle. Du, und [i]nur[/i] Du, entscheidest, wer Deine Beiträge sehen darf. Hubzilla ist der Nachfolger, der seit einigen Jahren erfolgreichen Plattformen Firendica und Red Matrix. 
 
-[zrl=[baseurl]/help/features]Features der RedMatrix[/zrl]
-Die RedMatrix funktioniert schon heute als ein globales verteiltes Netzwerk und beweist täglich ihre Vielseitigkeit und Skalierbarkeit auf kleinen Privatservern wie auch auf riesigen Sites.
-Kommunikationsplattformen für Familien, verteilte Online-Communities, Support-Foren, Blogs und Homepages. Oder auch professionelle Inhalte-Anbieter mit kommerziellen Premium-Kanälen und eingeschränktem Zugriff – was immer Du willst, die RedMatrix unterstützt Dich in Deinem kreativen Schaffen.
+[zrl=[baseurl]/help/features]Features von Hubzilla[/zrl]
+Hubzilla, basierend auf der Red Matrix, funktioniert schon heute als ein globales verteiltes Netzwerk und beweist täglich ihre Vielseitigkeit und Skalierbarkeit - auf kleinen Privatservern wie auch auf riesigen Sites.
+Kommunikationsplattformen für Familien, verteilte Online-Communities, Support-Foren, Blogs und Homepages. Oder auch professionelle Inhalte-Anbieter mit kommerziellen Premium-Kanälen und eingeschränktem Zugriff – was immer Du willst,  Hubzilla unterstützt Dich in Deinem kreativen Schaffen.
 
 [zrl=[baseurl]/help/what_is_zot]Got Zot? Hast Du schon Zot? Wenn nicht wird es Zeit.[/zrl]
-Zot ist das großartige neue Kommunikationsprotokoll, das extra für die RedMatrix entwickelt wurde. Als Mitglied bist Du dank „Nomadischer Identität“ nicht länger an einen einzigen Server oder Anbieter gebunden. Ziehe einfach auf einen anderen Server um und behalte dabei alle Deine Kontakte, oder klone Deinen Kanal und lasse ihn auf mehreren Servern gleichzeitig laufen – sollte einer davon plötzlich geschlossen werden, ist das kein Problem für Dich. Und bist Du erst Teil der RedMatrix, musst Du Dich nie wieder mehrfach anmelden, selbst wenn Du Seiten auf einem andere Red-Server betrachtest. Zot ist, was die RedMatrix besonders macht.
+Zot ist ein großartiges neues Kommunikationsprotokoll, das für Hubzilla - und vorher die Red Matrix - entwickelt wurde. Als Mitglied bist Du dank „Nomadischer Identität“ nicht länger an einen einzigen Server oder einen einzigen Anbieter gebunden. Ziehe einfach auf einen anderen Server um und behalte dabei alle Deine Kontakte, oder klone Deinen Kanal und lasse ihn auf mehreren Servern gleichzeitig laufen – sollte einer davon plötzlich geschlossen werden, ist das kein Problem für Dich. Und bist Du erst Teil des Hubzilla-Netzwerkes, musst Du Dich nie wieder mehrfach anmelden, selbst wenn Du Seiten auf einem andere Hub (den Hubzilla-Servern) betrachtest. Zot ist es, was das Hubzilla-Netzwerk besonders macht.
 
 [h3]Erste Schritte[/h3]
 [zrl=[baseurl]/help/Privacy]Datenschutz[/zrl]
 [zrl=[baseurl]/help/registration]Ein Konto registrieren[/zrl]
-[zrl=[baseurl]/help/accounts_profiles_channels_basics]Du in der RedMatrix: Konten, Profile und Kanäle kurz erklärt[/zrl]
+[zrl=[baseurl]/help/accounts_profiles_channels_basics]Du im Hubzilla-Netzwerk: Konten, Profile und Kanäle kurz erklärt[/zrl]
 [zrl=[baseurl]/help/profiles]Profile[/zrl]
 [zrl=[baseurl]/help/channels]Kanäle[/zrl]
 [zrl=[baseurl]/help/roles]Zugriffsrechte-Kategorien und Kanaltypen[/zrl]
@@ -26,7 +26,7 @@ Zot ist das großartige neue Kommunikationsprotokoll, das extra für die RedMatr
 [h3]Hilfe für $Projectname-Mitglieder[/h3]
 [zrl=[baseurl]/help/tags_and_mentions]Tags und Erwähnungen[/zrl]
 [zrl=[baseurl]/help/webpages]Webseiten[/zrl]
-[zrl=[baseurl]/help/bbcode]BBcode-Referenz für Posts und Kommentare[/zrl]
+[zrl=[baseurl]/help/bbcode]BBcode-Referenz für Beiträge und Kommentare[/zrl]
 [zrl=[baseurl]/help/checking_account_quota_usage]Überprüfung der Kontenlimits[/zrl]
 [zrl=[baseurl]/help/cloud_desktop_clients]Desktop-Anwendungen und die Cloud[/zrl]
 [zrl=[baseurl]/help/AdvancedSearch]Fortgeschrittene Suche im Kanalverzeichnis[/zrl]
@@ -36,7 +36,7 @@ Zot ist das großartige neue Kommunikationsprotokoll, das extra für die RedMatr
 
 [h3]Hilfe für Administratoren[/h3]
 [zrl=[baseurl]/help/install]Installation[/zrl]
-[zrl=[baseurl]/help/red2pi]Red auf einem Raspberry Pi installieren[/zrl]
+[zrl=[baseurl]/help/red2pi]Hubzilla auf einem Raspberry Pi installieren[/zrl]
 [zrl=[baseurl]/help/troubleshooting]Troubleshooting-Tipps[/zrl]
 [zrl=[baseurl]/help/hidden_configs]Versteckte Konfigurations-Optionen[/zrl]
 [zrl=[baseurl]/help/faq_admins]FAQ für Admins[/zrl]
@@ -60,9 +60,9 @@ Zot ist das großartige neue Kommunikationsprotokoll, das extra für die RedMatr
 [zrl=[baseurl]/help/database]Datenbank-Schema[/zrl]
 [zrl=[baseurl]/help/api_functions]API-Funktionen[/zrl]
 [zrl=[baseurl]/help/api_posting]Mit der API einen Beitrag erstellen[/zrl]
-[zrl=[baseurl]/help/developer_function_primer]Übersicht der wichtigsten Red-Funktionen[/zrl]
+[zrl=[baseurl]/help/developer_function_primer]Übersicht der wichtigsten Hubzilla-Funktionen[/zrl]
 [zrl=[baseurl]/doc/html/]Code-Referenz (mit doxygen generiert - setzt Cookies)[/zrl]
-[zrl=[baseurl]/help/to_do_doco]To-Do-Liste für das Projekt Red-Dokumentation[/zrl]
+[zrl=[baseurl]/help/to_do_doco]To-Do-Liste für das Projekt Hubzilla-Dokumentation[/zrl]
 [zrl=[baseurl]/help/to_do_code]To-Do-Liste für Entwickler[/zrl]
 [zrl=[baseurl]/help/roadmap]Roadmap für Version 3[/zrl]
 [zrl=[baseurl]/help/git_for_non_developers]Git für Nicht-Entwickler[/zrl]
@@ -80,7 +80,7 @@ Zot ist das großartige neue Kommunikationsprotokoll, das extra für die RedMatr
 
 [url=[baseurl]/help/credits]$Projectname Credits[/url]
 
-[h3]Über diesen Red-Server[/h3]
-[zrl=[baseurl]/help/TermsOfService]Nutzungsbedingungen dieses Red-Servers[/zrl]
-[zrl=[baseurl]/siteinfo]Informationen zu diesem Server und der Red-Version[/zrl]
+[h3]Über diesen Hub (Hubzilla-Server)[/h3]
+[zrl=[baseurl]/help/TermsOfService]Nutzungsbedingungen dieses Hubs (Hubzilla-Servers)[/zrl]
+[zrl=[baseurl]/siteinfo]Informationen zu diesem Server und der Hubzilla-Version[/zrl]
 [zrl=[baseurl]/siteinfo/json]Detaillierte technische Informationen zu diesem Server im JSON-Format[/zrl]

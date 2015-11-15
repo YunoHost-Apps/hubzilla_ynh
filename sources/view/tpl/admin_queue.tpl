@@ -1,3 +1,4 @@
+<div class="generic-content-wrapper-styled">
 <h3>{{$banner}}</h3>
 
 {{if $hasentries}}

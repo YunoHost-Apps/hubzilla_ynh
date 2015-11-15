@@ -30,7 +30,7 @@ $default_timezone = '{{$timezone}}';
 // What is your site name?
 
 $a->config['system']['baseurl'] = '{{$siteurl}}';
-$a->config['system']['sitename'] = "Red Matrix";
+$a->config['system']['sitename'] = "Hubzilla";
 $a->config['system']['location_hash'] = '{{$site_id}}';
 
 

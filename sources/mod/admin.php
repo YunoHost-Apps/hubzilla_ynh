@@ -237,7 +237,7 @@ function admin_page_site_post(&$a){
 	$register_text		=	((x($_POST,'register_text'))	? notags(trim($_POST['register_text']))		: '');
 	$frontpage		    =	((x($_POST,'frontpage'))	? notags(trim($_POST['frontpage']))		: '');
 	$mirror_frontpage   =	((x($_POST,'mirror_frontpage'))	? intval(trim($_POST['mirror_frontpage']))		: 0);
-
+	$directory_server   =   ((x($_POST,'directory_server')) ? trim($_POST['directory_server']) : '');
 	$allowed_sites        = ((x($_POST,'allowed_sites'))	? notags(trim($_POST['allowed_sites']))		: '');
 	$allowed_email        = ((x($_POST,'allowed_email'))	? notags(trim($_POST['allowed_email']))		: '');
 	$not_allowed_email    = ((x($_POST,'not_allowed_email'))	? notags(trim($_POST['not_allowed_email']))		: '');
@@ -271,6 +271,9 @@ function admin_page_site_post(&$a){
 	set_config('system', 'login_on_homepage', $login_on_homepage);
 	set_config('system', 'verify_email', $verify_email);
 	set_config('system', 'default_expire_days', $default_expire_days);
+
+	if($directory_server)
+		set_config('system','directory_server',$directory_server);
 
 	if ($banner == '') {
 		del_config('system', 'banner');
@@ -371,6 +374,26 @@ function admin_page_site(&$a) {
 		}
 	}
 
+	$dir_choices = null;
+	$dirmode = get_config('system','directory_mode');
+	$realm = get_directory_realm();
+
+	// directory server should not be set or settable unless we are a directory client
+
+	if($dirmode == DIRECTORY_MODE_NORMAL) {
+		$x = q("select site_url from site where site_flags in (%d,%d) and site_realm = '%s'",
+			intval(DIRECTORY_MODE_SECONDARY),
+			intval(DIRECTORY_MODE_PRIMARY),
+			dbesc($realm)
+		);
+		if($x) {
+			$dir_choices = array();
+			foreach($x as $xx) {
+				$dir_choices[$xx['site_url']] = $xx['site_url'];
+			}
+		}
+	}
+
 	/* Banner */
 	$banner = get_config('system', 'banner');
 	if($banner == false) 
@@ -439,6 +462,8 @@ function admin_page_site(&$a) {
 		'$force_publish'	=> array('publish_all', t("Force publish"), get_config('system','publish_all'), t("Check to force all profiles on this site to be listed in the site directory.")),
 		'$disable_discover_tab'	=> array('disable_discover_tab', t("Disable discovery tab"), get_config('system','disable_discover_tab'), t("Remove the tab in the network view with public content pulled from sources chosen for this site.")),
 		'$login_on_homepage'	=> array('login_on_homepage', t("login on Homepage"),((intval($homelogin) || $homelogin === false) ? 1 : '') , t("Present a login box to visitors on the home page if no other content has been configured.")),
+
+		'$directory_server' => (($dir_choices) ? array('directory_server', t("Directory Server URL"), get_config('system','directory_server'), t("Default directory server"), $dir_choices) : null),
 
 		'$proxyuser'		=> array('proxyuser', t("Proxy user"), get_config('system','proxyuser'), ""),
 		'$proxy'			=> array('proxy', t("Proxy URL"), get_config('system','proxy'), ""),
@@ -557,7 +582,7 @@ function admin_page_dbsync(&$a) {
 		}
 	}
 	if(! count($failed))
-		return '<h3>' . t('No failed updates.') . '</h3>';
+		return '<div class="generic-content-wrapper-styled"><h3>' . t('No failed updates.') . '</h3></div>';
 
 	$o = replace_macros(get_markup_template('failed_updates.tpl'),array(
 		'$base' => $a->get_baseurl(true),

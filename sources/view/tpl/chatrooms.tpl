@@ -1,3 +1,4 @@
+<div class="generic-content-wrapper-styled">
 <h2>{{$header}}</h2>
 
 {{if $is_owner}}
@@ -8,3 +9,4 @@
 
 {{$rooms}}
 
+</div>

@@ -1,7 +1,9 @@
 [b]Hubzilla on OpenShift[/b]
-You will notice a new .openshift folder when you fetch from upstream, i.e. from [url=https://github.com/redmatrix/hubzilla.git]https://github.com/redmatrix/hubzilla.git[/url] , which contains a deploy script to set up Hubzilla on OpenShift.
+You will notice a new .openshift folder when you fetch from upstream, i.e. from [url=https://github.com/redmatrix/hubzilla.git]https://github.com/redmatrix/hubzilla.git[/url] , which contains a deploy script to set up Hubzilla on OpenShift with plugins and extra themes.
 
-Create an account on OpenShift, then use the registration e-mail and password to create your first Hubzilla instance. Install git and RedHat's command line tools - rhc - if you have not already done so.
+As of this writing, 2015-10-28, you do not have to pay for OpenShift on the Free plan, which gives you three gears at no cost. The Bronze plan gives you three gears at no cost too, but you can expand to 16 gears by paying, and this requires you to register your payment card. The three gears can give three instances of Hubzilla with one gear each, or you can combine two gears into one high-availability Hubzilla instance and one extra gear. The main difference to be aware of is this: gears on the Free plan will go into hibernation if left idle for too long, this does not happen on the Bronze plan. 
+
+Create an account on OpenShift, then use the registration e-mail and password to create your first Hubzilla instance. Install git and RedHat's command line tools - rhc - if you have not already done so. See for example https://developers.openshift.com/en/getting-started-debian-ubuntu.html on how to do this on Debian GNU/Linux, or in the menu on that page for other GNU/Linux distributions or other operating systems. 
 
 [code]rhc app-create your_app_name php-5.4 mysql-5.5 cron phpmyadmin --namespace your_domain --from-code https://github.com/redmatrix/hubzilla.git -l your@email.address -p your_account_password
 [/code]

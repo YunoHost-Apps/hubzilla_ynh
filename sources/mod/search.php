@@ -35,6 +35,8 @@ function search_content(&$a,$update = 0, $load = false) {
 
 	$o = '<div id="live-search"></div>' . "\r\n";
 
+        $o = '<div class="generic-content-wrapper-styled">' . "\r\n";
+
 	$o .= '<h3>' . t('Search') . '</h3>';
 
 	if(x($a->data,'search'))
@@ -211,6 +213,8 @@ function search_content(&$a,$update = 0, $load = false) {
 		$o .= '<h2>' . sprintf( t('Search results for: %s'),htmlspecialchars($search, ENT_COMPAT,'UTF-8')) . '</h2>';
 
 	$o .= conversation($a,$items,'search',$update,'client');
+
+	$o .= '</div>';
 
 	return $o;
 }

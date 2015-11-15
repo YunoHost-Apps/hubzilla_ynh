@@ -9,11 +9,12 @@ require_once('include/identity.php');
 require_once('include/import.php');
 
 
-function import_post(&$a) {
+function import_account(&$a, $account_id) {
 
-	$account_id = get_account_id();
-	if(! $account_id)
+	if(! $account_id){
+		logger("import_account: No account ID supplied");
 		return;
+	}
 
 	$max_identities = account_service_class_fetch($account_id,'total_identities');
 	$max_friends = account_service_class_fetch($account_id,'total_channels');
@@ -492,6 +493,15 @@ function import_post(&$a) {
 
 }
 
+
+function import_post(&$a) {
+
+	$account_id = get_account_id();
+	if(! $account_id)
+		return;
+
+	import_account($a, $account_id);
+}
 
 function import_content(&$a) {
 

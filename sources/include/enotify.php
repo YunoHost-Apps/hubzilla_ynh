@@ -152,6 +152,8 @@ function notification($params) {
 //		$private = $p[0]['item_private'];
 		$parent_id = $p[0]['id'];
 
+		$parent_item = $p[0];
+
 		//$possess_desc = str_replace('<!item_type!>',$possess_desc);
 
 		// "a post"
@@ -358,6 +360,7 @@ function notification($params) {
 	$datarray['uid']    = $recip['channel_id'];
 	$datarray['link']   = $itemlink;
 	$datarray['parent'] = $parent_mid;
+	$datarray['parent_item'] = $parent_item;
 	$datarray['type']   = $params['type'];
 	$datarray['verb']   = $params['verb'];
 	$datarray['otype']  = $params['otype'];

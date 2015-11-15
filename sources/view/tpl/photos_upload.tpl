@@ -21,7 +21,11 @@
 			<div class="form-group">
 				<input id="photos-upload-choose" type="file" name="userfile" />
 			</div>
+			{{include file="field_input.tpl" field=$caption}}
 			{{include file="field_checkbox.tpl" field=$visible}}
+			<div id="body-textarea">
+			{{include file="field_textarea.tpl" field=$body}}
+			</div>
 			<div class="pull-right btn-group form-group">
 				<div class="btn-group">
 					{{if $lockstate}}
@@ -37,8 +41,11 @@
 			<div class="clear"></div>
 
 			{{if $uploader}}
-
+			{{include file="field_input.tpl" field=$caption}}
 			{{include file="field_checkbox.tpl" field=$visible}}
+			<div id="body-textarea">
+			{{include file="field_textarea.tpl" field=$body}}
+			</div>
 			<div id="photos-upload-perms" class="btn-group pull-right">
 				{{if $lockstate}}
 				<button class="btn btn-default btn-sm" data-toggle="modal" data-target="#aclModal" onclick="return false;">

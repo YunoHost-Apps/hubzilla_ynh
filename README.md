@@ -12,5 +12,5 @@ Before installing, read the [Hubzilla installation instructions](https://github.
 
 Current snapshot in *sources*: 
 
-* https://github.com/redmatrix/hubzilla: 4a044351a971a4fe44dbba6752852a4a0b9d342f
-* https://github.com/redmatrix/hubzilla-addons: 5859c5e4e7d7f5645a7aa2a99d59be328b7a2d18
+* https://github.com/redmatrix/hubzilla: def5edf93ced1527155053b64d666bf1812cbbca
+* https://github.com/redmatrix/hubzilla-addons: 7a842e95e538e45041ac5599f693cfd757888b6f

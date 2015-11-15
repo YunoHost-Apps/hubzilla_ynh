@@ -90,7 +90,6 @@ function editpost_content(&$a) {
 	                        $category .= ', ';
 	                $category .= $cat['term'];
 	        }
-
 	}
 
 	if($itm[0]['attach']) {

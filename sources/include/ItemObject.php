@@ -263,6 +263,7 @@ class Item extends BaseObject {
 
 
 		localize_item($item);
+
 		$body = prepare_body($item,true);
 
 		// $viewthread (below) is only valid in list mode. If this is a channel page, build the thread viewing link

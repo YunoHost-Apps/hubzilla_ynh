@@ -1,3 +1,4 @@
+<div class="generic-content-wrapper-styled">
 <h1>{{$title}}</h1>
 
 <form enctype="multipart/form-data" action="profile_photo" method="post">
@@ -26,4 +27,5 @@
 
 <div id="profile-photo-link-select-wrapper">
 {{$select}}
+</div>
 </div>

@@ -1,0 +1,35 @@
+// dot 2.26.3 on Linux 3.2.0-4-686-pae
+// SchemaSpy rev 590
+digraph "clients" {
+  graph [
+    rankdir="RL"
+    bgcolor="#f7f7f7"
+    nodesep="0.18"
+    ranksep="0.46"
+    fontname="Helvetica"
+    fontsize="11"
+  ];
+  node [
+    fontname="Helvetica"
+    fontsize="11"
+    shape="plaintext"
+  ];
+  edge [
+    arrowsize="0.8"
+  ];
+  "clients" [
+    label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">clients</TD></TR>
+      <TR><TD PORT="client_id" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">client_id</TD></TR>
+      <TR><TD PORT="pw" COLSPAN="3" ALIGN="LEFT">pw</TD></TR>
+      <TR><TD PORT="redirect_uri" COLSPAN="3" ALIGN="LEFT">redirect_uri</TD></TR>
+      <TR><TD PORT="name" COLSPAN="3" ALIGN="LEFT">name</TD></TR>
+      <TR><TD PORT="icon" COLSPAN="3" ALIGN="LEFT">icon</TD></TR>
+      <TR><TD PORT="uid" COLSPAN="3" ALIGN="LEFT">uid</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">  </TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">0 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">  </TD></TR>
+    </TABLE>>
+    URL="tables/clients.html"
+    tooltip="clients"
+  ];
+}

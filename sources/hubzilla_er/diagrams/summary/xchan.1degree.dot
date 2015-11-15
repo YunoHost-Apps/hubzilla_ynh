@@ -1,0 +1,55 @@
+// dot 2.26.3 on Linux 3.2.0-4-686-pae
+// SchemaSpy rev 590
+digraph "xchan" {
+  graph [
+    rankdir="RL"
+    bgcolor="#f7f7f7"
+    nodesep="0.18"
+    ranksep="0.46"
+    fontname="Helvetica"
+    fontsize="11"
+  ];
+  node [
+    fontname="Helvetica"
+    fontsize="11"
+    shape="plaintext"
+  ];
+  edge [
+    arrowsize="0.8"
+  ];
+  "xchan" [
+    label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">xchan</TD></TR>
+      <TR><TD PORT="xchan_hash" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">xchan_hash</TD></TR>
+      <TR><TD PORT="xchan_guid" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">xchan_guid</TD></TR>
+      <TR><TD PORT="xchan_guid_sig" COLSPAN="3" ALIGN="LEFT">xchan_guid_sig</TD></TR>
+      <TR><TD PORT="xchan_pubkey" COLSPAN="3" ALIGN="LEFT">xchan_pubkey</TD></TR>
+      <TR><TD PORT="xchan_photo_mimetype" COLSPAN="3" ALIGN="LEFT">xchan_photo_mimetype</TD></TR>
+      <TR><TD PORT="xchan_photo_l" COLSPAN="3" ALIGN="LEFT">xchan_photo_l</TD></TR>
+      <TR><TD PORT="xchan_photo_m" COLSPAN="3" ALIGN="LEFT">xchan_photo_m</TD></TR>
+      <TR><TD PORT="xchan_photo_s" COLSPAN="3" ALIGN="LEFT">xchan_photo_s</TD></TR>
+      <TR><TD PORT="xchan_addr" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">xchan_addr</TD></TR>
+      <TR><TD PORT="xchan_url" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">xchan_url</TD></TR>
+      <TR><TD PORT="xchan_connurl" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">xchan_connurl</TD></TR>
+      <TR><TD PORT="xchan_follow" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">xchan_follow</TD></TR>
+      <TR><TD PORT="xchan_connpage" COLSPAN="3" ALIGN="LEFT">xchan_connpage</TD></TR>
+      <TR><TD PORT="xchan_name" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">xchan_name</TD></TR>
+      <TR><TD PORT="xchan_network" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">xchan_network</TD></TR>
+      <TR><TD PORT="xchan_instance_url" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">xchan_instance_url</TD></TR>
+      <TR><TD PORT="xchan_flags" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">xchan_flags</TD></TR>
+      <TR><TD PORT="xchan_photo_date" COLSPAN="3" ALIGN="LEFT">xchan_photo_date</TD></TR>
+      <TR><TD PORT="xchan_name_date" COLSPAN="3" ALIGN="LEFT">xchan_name_date</TD></TR>
+      <TR><TD PORT="xchan_hidden" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">xchan_hidden</TD></TR>
+      <TR><TD PORT="xchan_orphan" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">xchan_orphan</TD></TR>
+      <TR><TD PORT="xchan_censored" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">xchan_censored</TD></TR>
+      <TR><TD PORT="xchan_selfcensored" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">xchan_selfcensored</TD></TR>
+      <TR><TD PORT="xchan_system" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">xchan_system</TD></TR>
+      <TR><TD PORT="xchan_pubforum" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">xchan_pubforum</TD></TR>
+      <TR><TD PORT="xchan_deleted" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">xchan_deleted</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">  </TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">1 168 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">  </TD></TR>
+    </TABLE>>
+    URL="tables/xchan.html"
+    tooltip="xchan"
+  ];
+}

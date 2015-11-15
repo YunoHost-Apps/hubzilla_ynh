@@ -69,11 +69,6 @@
 						<span class="tag">{{$item.folders}}</span>
 					</div>
 					{{/if}}
-					{{if $item.attachments}}
-					<div class="body-tags" id="item-attachments">
-						<span class='tag'>{{$item.attachments}}</span>
-					</div>
-					{{/if}}
 					<div class="clear"></div>
 				</div>
 				{{/if}}
@@ -157,9 +152,15 @@
 					</div>
 					<div id="like-rotator-{{$item.id}}" class="like-rotator"></div>
 
-					{{if $item.responses }}
-					<div class="wall-item-tools-left{{if $item.responses.count > 1}} btn-group{{/if}}">
-					{{foreach $item.responses as $verb=>$response}}
+					{{if $item.responses || $item.attachments}}
+					<div class="wall-item-tools-left{{if ($item.responses.count > 1) || ($item.responses.count &&  $item.attachments)}} btn-group{{/if}}">
+						{{if $item.attachments}}
+						<div class="btn-group">
+							<button type="button" class="btn btn-default btn-sm wall-item-like dropdown-toggle" data-toggle="dropdown" id="attachment-menu-{{$item.id}}"><i class="icon-paperclip"></i></button>
+							<ul class="dropdown-menu" role="menu" aria-labelledby="attachment-menu-{{$item.id}}">{{$item.attachments}}</ul>
+						</div>
+						{{/if}}
+						{{foreach $item.responses as $verb=>$response}}
 						{{if $response.count}}
 						<div class="btn-group">
 							<button type="button" class="btn btn-default btn-sm wall-item-like dropdown-toggle" data-toggle="dropdown" id="wall-item-{{$verb}}-{{$item.id}}">{{$response.count}} {{$response.button}}</button>
@@ -176,7 +177,7 @@
 											<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 											<h4 class="modal-title">{{$response.title}}</h4>
 										</div>
-										<div class="modal-body">
+										<div class="modal-body response-list">
 										<ul>{{foreach $response.list as $liker}}<li role="presentation">{{$liker}}</li>{{/foreach}}</ul>
 										</div>
 										<div class="modal-footer clear">
@@ -188,7 +189,7 @@
 							{{/if}}
 						</div>
 						{{/if}}
-					{{/foreach}}
+						{{/foreach}}
 					</div>
 					{{/if}}
 					<div class="clear"></div>

@@ -218,7 +218,8 @@ function settings_post(&$a) {
 
 		check_form_security_token_redirectOnErr('/settings/account', 'settings_account');
 	
-		call_hooks('settings_account', $_POST);
+		call_hooks('account_settings_post', $_POST);
+//		call_hooks('settings_account', $_POST);
 
 		$errs = array();
 
@@ -1102,12 +1103,13 @@ function settings_content(&$a) {
 			'$expert' => feature_enabled(local_channel(),'expert'),
 			'$hint' => t('Please enable expert mode (in <a href="settings/features">Settings > Additional features</a>) to adjust!'),
 			'$lbl_misc' => t('Miscellaneous Settings'),
-			'$photo_path' => array('photo_path', t('Default photo upload folder'), get_pconfig(local_channel(),'system','photo_path'), '%Y - current year, %m -  current month'),
-			'$attach_path' => array('attach_path', t('Default file upload folder'), get_pconfig(local_channel(),'system','attach_path'), '%Y - current year, %m -  current month'),
+			'$photo_path' => array('photo_path', t('Default photo upload folder'), get_pconfig(local_channel(),'system','photo_path'), t('%Y - current year, %m -  current month')),
+			'$attach_path' => array('attach_path', t('Default file upload folder'), get_pconfig(local_channel(),'system','attach_path'), t('%Y - current year, %m -  current month')),
 			'$menus' => $menu,			
 			'$menu_desc' => t('Personal menu to display in your channel pages'),
 			'$removeme' => t('Remove Channel'),
 			'$removechannel' => t('Remove this channel.'),
+			'$firefoxshare' => t('Firefox Share $Projectname provider'),
 		));
 
 		call_hooks('settings_form',$o);

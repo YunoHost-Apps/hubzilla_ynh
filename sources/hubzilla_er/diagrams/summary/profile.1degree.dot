@@ -1,0 +1,73 @@
+// dot 2.26.3 on Linux 3.2.0-4-686-pae
+// SchemaSpy rev 590
+digraph "profile" {
+  graph [
+    rankdir="RL"
+    bgcolor="#f7f7f7"
+    nodesep="0.18"
+    ranksep="0.46"
+    fontname="Helvetica"
+    fontsize="11"
+  ];
+  node [
+    fontname="Helvetica"
+    fontsize="11"
+    shape="plaintext"
+  ];
+  edge [
+    arrowsize="0.8"
+  ];
+  "profile" [
+    label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">profile</TD></TR>
+      <TR><TD PORT="id" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">id</TD></TR>
+      <TR><TD PORT="profile_guid" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">profile_guid</TD></TR>
+      <TR><TD PORT="aid" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">aid</TD></TR>
+      <TR><TD PORT="uid" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">uid</TD></TR>
+      <TR><TD PORT="profile_name" COLSPAN="3" ALIGN="LEFT">profile_name</TD></TR>
+      <TR><TD PORT="is_default" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">is_default</TD></TR>
+      <TR><TD PORT="hide_friends" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">hide_friends</TD></TR>
+      <TR><TD PORT="name" COLSPAN="3" ALIGN="LEFT">name</TD></TR>
+      <TR><TD PORT="pdesc" COLSPAN="3" ALIGN="LEFT">pdesc</TD></TR>
+      <TR><TD PORT="chandesc" COLSPAN="3" ALIGN="LEFT">chandesc</TD></TR>
+      <TR><TD PORT="dob" COLSPAN="3" ALIGN="LEFT">dob</TD></TR>
+      <TR><TD PORT="dob_tz" COLSPAN="3" ALIGN="LEFT">dob_tz</TD></TR>
+      <TR><TD PORT="address" COLSPAN="3" ALIGN="LEFT">address</TD></TR>
+      <TR><TD PORT="locality" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">locality</TD></TR>
+      <TR><TD PORT="region" COLSPAN="3" ALIGN="LEFT">region</TD></TR>
+      <TR><TD PORT="postal_code" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">postal_code</TD></TR>
+      <TR><TD PORT="country_name" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">country_name</TD></TR>
+      <TR><TD PORT="hometown" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">hometown</TD></TR>
+      <TR><TD PORT="gender" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">gender</TD></TR>
+      <TR><TD PORT="marital" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">marital</TD></TR>
+      <TR><TD PORT="with" COLSPAN="3" ALIGN="LEFT">with</TD></TR>
+      <TR><TD PORT="howlong" COLSPAN="3" ALIGN="LEFT">howlong</TD></TR>
+      <TR><TD PORT="sexual" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">sexual</TD></TR>
+      <TR><TD PORT="politic" COLSPAN="3" ALIGN="LEFT">politic</TD></TR>
+      <TR><TD PORT="religion" COLSPAN="3" ALIGN="LEFT">religion</TD></TR>
+      <TR><TD PORT="keywords" COLSPAN="3" ALIGN="LEFT">keywords</TD></TR>
+      <TR><TD PORT="likes" COLSPAN="3" ALIGN="LEFT">likes</TD></TR>
+      <TR><TD PORT="dislikes" COLSPAN="3" ALIGN="LEFT">dislikes</TD></TR>
+      <TR><TD PORT="about" COLSPAN="3" ALIGN="LEFT">about</TD></TR>
+      <TR><TD PORT="summary" COLSPAN="3" ALIGN="LEFT">summary</TD></TR>
+      <TR><TD PORT="music" COLSPAN="3" ALIGN="LEFT">music</TD></TR>
+      <TR><TD PORT="book" COLSPAN="3" ALIGN="LEFT">book</TD></TR>
+      <TR><TD PORT="tv" COLSPAN="3" ALIGN="LEFT">tv</TD></TR>
+      <TR><TD PORT="film" COLSPAN="3" ALIGN="LEFT">film</TD></TR>
+      <TR><TD PORT="interest" COLSPAN="3" ALIGN="LEFT">interest</TD></TR>
+      <TR><TD PORT="romance" COLSPAN="3" ALIGN="LEFT">romance</TD></TR>
+      <TR><TD PORT="work" COLSPAN="3" ALIGN="LEFT">work</TD></TR>
+      <TR><TD PORT="education" COLSPAN="3" ALIGN="LEFT">education</TD></TR>
+      <TR><TD PORT="contact" COLSPAN="3" ALIGN="LEFT">contact</TD></TR>
+      <TR><TD PORT="channels" COLSPAN="3" ALIGN="LEFT">channels</TD></TR>
+      <TR><TD PORT="homepage" COLSPAN="3" ALIGN="LEFT">homepage</TD></TR>
+      <TR><TD PORT="photo" COLSPAN="3" ALIGN="LEFT">photo</TD></TR>
+      <TR><TD PORT="thumb" COLSPAN="3" ALIGN="LEFT">thumb</TD></TR>
+      <TR><TD PORT="publish" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">publish</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">  </TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">4 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">  </TD></TR>
+    </TABLE>>
+    URL="tables/profile.html"
+    tooltip="profile"
+  ];
+}

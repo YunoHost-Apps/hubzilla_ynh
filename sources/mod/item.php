@@ -96,7 +96,7 @@ function item_post(&$a) {
 	$owner_hash = null;
 
 	$message_id  = ((x($_REQUEST,'message_id') && $api_source)  ? strip_tags($_REQUEST['message_id'])       : '');
-	$created     = ((x($_REQUEST,'created'))     ? datetime_convert('UTC','UTC',$_REQUEST['created']) : datetime_convert());
+	$created     = ((x($_REQUEST,'created'))     ? datetime_convert(date_default_timezone_get(),'UTC',$_REQUEST['created']) : datetime_convert());
 	$post_id     = ((x($_REQUEST,'post_id'))     ? intval($_REQUEST['post_id'])        : 0);
 	$app         = ((x($_REQUEST,'source'))      ? strip_tags($_REQUEST['source'])     : '');
 	$return_path = ((x($_REQUEST,'return'))      ? $_REQUEST['return']                 : '');
@@ -473,7 +473,9 @@ function item_post(&$a) {
 		require_once('include/text.php');			
 		if($uid && $uid == $profile_uid && feature_enabled($uid,'markdown')) {
 			require_once('include/bb2diaspora.php');
-			$body = escape_tags($body);
+			$body = str_replace("\n",'<br />', $body);
+			$body = purify_html($body);
+
 			$body = preg_replace_callback('/\[share(.*?)\]/ism','share_shield',$body);			
 			$body = diaspora2bb($body,true);
 			$body = preg_replace_callback('/\[share(.*?)\]/ism','share_unshield',$body);
@@ -607,6 +609,7 @@ function item_post(&$a) {
 
 		if(preg_match_all('/(\[attachment\](.*?)\[\/attachment\])/',$body,$match)) {
 			$attachments = array();
+			$i = 0;
 			foreach($match[2] as $mtch) {
 				$attach_link = '';
 				$hash = substr($mtch,0,strpos($mtch,','));
@@ -626,7 +629,8 @@ function item_post(&$a) {
 					$attach_link =  '[audio]' . z_root() . '/attach/' . $r['data']['hash'] . '/' . $r['data']['revision'] . (($ext) ? $ext : '') . '[/audio]';
 				elseif(strpos($r['data']['filetype'],'video/') !== false)
 					$attach_link =  '[video]' . z_root() . '/attach/' . $r['data']['hash'] . '/' . $r['data']['revision'] . (($ext) ? $ext : '') . '[/video]';
-				$body = str_replace($match[1],$attach_link,$body);
+				$body = str_replace($match[1][$i],$attach_link,$body);
+				$i++;
 			}
 		}
 

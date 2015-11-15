@@ -1,11 +1,5 @@
-<h1>{{$room_name}}</h1>
-<div id="chatContainer">
+<div class="generic-content-wrapper-styled">
 
-    <div id="chatTopBar">
-    	<div id="chatLineHolder"></div>
-	</div>
-
-	<div id="chatSide">
 	{{if $is_owner}} 
 	<div id="chatDrop">
 	<form id="chat-destroy" method="post" action="chat">
@@ -13,8 +7,19 @@
 		<input type="hidden" name="action" value="drop" />
         <input type="submit" name="submit" value="{{$drop}}" onclick="return confirmDelete();"/>
 	</form>
-	</div><br />		
+	</div>		
 	{{/if}}
+
+<h1>{{$room_name}}</h1>
+
+
+<div id="chatContainer">
+
+    <div id="chatTopBar">
+    	<div id="chatLineHolder"></div>
+	</div>
+
+	<div id="chatSide">
 
     <div id="chatUsers"></div><br />
 	</div>
@@ -24,14 +29,15 @@
 
         <form id="chat-form" method="post" action="#">
 			<input type="hidden" name="room_id" value="{{$room_id}}" />
-            <textarea id="chatText" name="chat_text" rows=3 cols=80></textarea><br />
+            <textarea id="chatText" name="chat_text" rows=3></textarea><br />
             <input type="submit" name="submit" value="{{$submit}}" />
         </form>
 
-		<a href="{{$baseurl}}/chat/{{$nickname}}/{{$room_id}}/leave">{{$leave}}</a> | <a href="{{$baseurl}}/chatsvc?f=&room_id={{$room_id}}&status=away">{{$away}}</a> | <a href="{{$baseurl}}/chatsvc?f=&room_id={{$room_id}}&status=online">{{$online}}</a>{{if $bookmark_link}} | <a href="{{$bookmark_link}}" target="_blank" >{{$bookmark}}</a>{{/if}}
-
     </div>
-
+	<div id="chatOptionsBar">
+		<a href="{{$baseurl}}/chat/{{$nickname}}/{{$room_id}}/leave">{{$leave}}</a> | <a href="{{$baseurl}}/chatsvc?f=&room_id={{$room_id}}&status=away">{{$away}}</a> | <a href="{{$baseurl}}/chatsvc?f=&room_id={{$room_id}}&status=online">{{$online}}</a>{{if $bookmark_link}} | <a href="{{$bookmark_link}}" target="_blank" >{{$bookmark}}</a>{{/if}}
+	</div>
+</div>
 </div>
 
 <script>

@@ -136,7 +136,7 @@
 					</div>
 				</div>
 			</div>
-			{{if $menus}}
+			
 			<div class="panel">
 				<div class="section-subtitle-wrapper" role="tab" id="miscellaneous-settings">
 					<h3>
@@ -146,8 +146,12 @@
 					</h3>
 				</div>
 				<div id="miscellaneous-settings-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="miscellaneous-settings">
-					<div class="section-content-wrapper">
-						<div class="form-group">
+					<div class="section-content-tools-wrapper">
+						<div class="ffsapilink">
+							<a type="button" class="btn btn-default" href="/ffsapi">{{$firefoxshare}}</a>
+						</div>
+						{{if $menus}}
+						<div class="form-group channel-menu">
 							<label for="channel_menu">{{$menu_desc}}</label>
 							<select name="channel_menu" class="form-control">
 							{{foreach $menus as $menu }}
@@ -156,12 +160,12 @@
 							</select>
 						</div>
 						<div class="settings-submit-wrapper" >
-							<input type="submit" name="submit" class="settings-submit" value="{{$submit}}"{{if !$expert}} onclick="$('select').prop('disabled', false);"{{/if}} />
+							<button type="submit" name="submit" class="btn btn-primary">{{$submit}}</button>
 						</div>
 					</div>
+					{{/if}}
 				</div>
 			</div>
-			{{/if}}
 		</div>
 	</form>
 </div>

@@ -183,14 +183,14 @@ function photos_post(&$a) {
 		);
 
 		if($r) {
-
+/*
 			q("DELETE FROM `photo` WHERE `uid` = %d AND `resource_id` = '%s'",
 				intval($page_owner_uid),
 				dbesc($r[0]['resource_id'])
 			);
-
+*/
 			attach_delete($page_owner_uid, $r[0]['resource_id'], 1 );
-
+/*
 			$i = q("SELECT * FROM `item` WHERE `resource_id` = '%s' AND resource_type = 'photo' and `uid` = %d LIMIT 1",
 				dbesc($r[0]['resource_id']),
 				intval($page_owner_uid)
@@ -199,6 +199,7 @@ function photos_post(&$a) {
 				drop_item($i[0]['id'],true,DROPITEM_PHASE1);
 				$url = $a->get_baseurl();
 			}
+*/
 		}
 
 		goaway($a->get_baseurl() . '/photos/' . $a->data['channel']['channel_address'] . '/album/' . $_SESSION['album_return']);
@@ -622,7 +623,9 @@ function photos_content(&$a) {
 			'$nickname' => $a->data['channel']['channel_address'],
 			'$newalbum_label' => t('Enter an album name'),
 			'$newalbum_placeholder' => t('or select an existing album (doubleclick)'),
-			'$visible' => array('visible', t('Create a status post for this upload'), 0, '', array(t('No'), t('Yes'))),
+			'$visible' => array('visible', t('Create a status post for this upload'), 0,'', array(t('No'), t('Yes')), 'onclick="showHideBodyTextarea();"'),
+			'$caption' => array('description', t('Caption (optional):')),
+			'$body' => array('body', t('Description (optional):'),'', 'Description will only appear in the status post'),
 			'$albums' => $albums['albums'],
 			'$selname' => $selname,
 			'$permissions' => t('Permissions'),

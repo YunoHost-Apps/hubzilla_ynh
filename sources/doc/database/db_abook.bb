@@ -27,29 +27,21 @@
 [/td][/tr]
 [tr][td]abook_dob[/td][td]Datetime of connection's birthday converted from *their* timezone to UTC[/td][td]datetime[/td][td]NO[/td][td]MUL[/td][td]0000-00-00 00:00:00[/td][td]
 [/td][/tr]
-[tr][td]abook_flags[/td][td]Bitfield containing blocked(0x1), ignored(0x2), hidden(0x4), archived(0x8), pending(0x10), unconnected(0x20), self(0x80), feed(0x100)[/td][td]int(11)[/td][td]NO[/td][td]MUL[/td][td]0[/td][td]
+[tr][td]abook_flags[/td][td]No longer used[/td][td]int(11)[/td][td]NO[/td][td]MUL[/td][td]0[/td][td]
 [/td][/tr]
 [tr][td]abook_profile[/td][td]profile.guid of profile to display to this connection if authenticated[/td][td]char(64)[/td][td]NO[/td][td]MUL[/td][td][/td][td]
 [/td][/tr]
+[tr][td]abook_blocked[/td][td]Bi-directional communications with this channel are blocked, regardless of other permissions. [/td][td]int(11)[/td][td]NO[/td][td]MUL[/td][td]0[/td][td]
+[tr][td]abook_ignored[/td][td]Incoming communications from this channel are blocked, regardless of other permissions.  [/td][td]int(11)[/td][td]NO[/td][td]MUL[/td][td]0[/td][td]
+[tr][td]abook_hidden[/td][td]This connection will not be shown as a connection to anybody but the channel owner[/td][td]int(11)[/td][td]NO[/td][td]MUL[/td][td]0[/td][td]
+[tr][td]abook_archived[/td][td]This connection is likely non-functioning and the entry and conversations are preserved, but further polled communications will not be attempted. [/td][td]int(11)[/td][td]NO[/td][td]MUL[/td][td]0[/td][td]
+[tr][td]abook_pending[/td][td]A connection request was received from this channel but has not been approved by the channel owner, public communications may still be visible but no additional permissions have been granted. [/td][td]int(11)[/td][td]NO[/td][td]MUL[/td][td]0[/td][td]
+[tr][td]abook_unconnected[/td][td]currently unused. Projected usage is to indicate "one-way" connections which were insitgated on this end but are still pending on the remote end. [/td][td]int(11)[/td][td]NO[/td][td]MUL[/td][td]0[/td][td]
+[tr][td]abook_self[/td][td]is a special case where the owner is the target. Every channel has one abook entry with abook_self and with a target abook_xchan set to channel.channel_hash . When this flag is present, abook_my_perms is the default permissions granted to all new connections and several other fields are unused.[/td][td]int(11)[/td][td]NO[/td][td]MUL[/td][td]0[/td][td]
+[tr][td]abook_feed[/td][td]indicates this connection is an RSS/Atom feed and may trigger special handling.[/td][td]int(11)[/td][td]NO[/td][td]MUL[/td][td]0[/td][td]
+[tr][td]abook_incl[/td][td]connection filter allow rules separated by LF[/td][td]int(11)[/td][td]NO[/td][td]MUL[/td][td]0[/td][td]
+[tr][td]abook_excl[/td][td]connection filter deny rules separated by LF[/td][td]int(11)[/td][td]NO[/td][td]MUL[/td][td]0[/td][td]
 [/table]
 
-
-Notes: 
-
-ABOOK_FLAGS_BLOCKED - Bi-directional communications with this channel are blocked, regardless of other permissions. 
-
-ABOOK_FLAGS_IGNORED - Incoming communications from this channel are blocked, regardless of other permissions.  
-
-ABOOK_FLAGS_HIDDEN - This connection will not be shown as a connection to anybody but the channel owner
-
-ABOOK_FLAGS_ARCHIVED - This connection is likely non-functioning and the entry and conversations are preserved, but further polled communications will not be attempted. 
-
-ABOOK_FLAGS_PENDING - A connection request was received from this channel but has not been approved by the channel owner, public communications may still be visible but no additional permissions have been granted. 
-
-ABOOK_FLAGS_UNCONNECTED - currently unused. Projected usage is to indicate "one-way" connections which were insitgated on this end but are still pending on the remote end. 
-
-ABOOK_FLAGS_SELF is a special case where the owner is the target. Every channel has one abook entry with ABOOK_FLAGS_SELF with a target abook_xchan set to channel.channel_hash . When this flag is present, abook_my_perms is the default permissions granted to all new connections and several other fields are unused.
-
-ABOOK_FLAGS_FEED - indicates this connection is an RSS/Atom feed and may trigger special handling.
 
 Return to [zrl=[baseurl]/help/database]database documentation[/zrl]

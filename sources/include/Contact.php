@@ -292,7 +292,8 @@ function channel_remove($channel_id, $local = true, $unset_session=true) {
 			intval($channel_id)
 		);
 
-			
+		logger('deleting hublocs',LOGGER_DEBUG);
+	
 		$r = q("update hubloc set hubloc_deleted = 1 where hubloc_hash = '%s'",
 			dbesc($channel['channel_hash'])
 		);
@@ -348,6 +349,8 @@ function channel_remove($channel_id, $local = true, $unset_session=true) {
 		}
 	}
 
+
+	logger('deleting hublocs',LOGGER_DEBUG);
 
 	$r = q("update hubloc set hubloc_deleted = 1 where hubloc_hash = '%s' and hubloc_url = '%s' ",
 		dbesc($channel['channel_hash']),

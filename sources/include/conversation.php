@@ -681,7 +681,6 @@ function conversation(&$a, $items, $mode, $update, $page_mode = 'traditional', $
 
 				$body = prepare_body($item,true);
 
-				$is_photo = ((($item['resource_type'] == 'photo') && (feature_enabled($profile_owner,'large_photos'))) ? true : false);
 				$has_tags = (($body['tags'] || $body['categories'] || $body['mentions'] || $body['attachments'] || $body['folders']) ? true : false);
 
 				$tmp_item = array(
@@ -698,6 +697,7 @@ function conversation(&$a, $items, $mode, $update, $page_mode = 'traditional', $
 					'thumb' => $profile_avatar,
 					'title' => $item['title'],
 					'body' => $body['html'],
+					'photo' => $body['photo'],
 					'tags' => $body['tags'],
 					'categories' => $body['categories'],
 					'mentions' => $body['mentions'],
@@ -738,7 +738,6 @@ function conversation(&$a, $items, $mode, $update, $page_mode = 'traditional', $
 					'previewing' => $previewing,
 					'wait' => t('Please wait'),
 					'thread_level' => 1,
-					'is_photo' => $is_photo,
 					'has_tags' => $has_tags,
 				);
 
@@ -918,6 +917,9 @@ function item_photo_menu($item){
 		if($item['parent'] == $item['id'] && $channel && ($channel_hash != $item['author_xchan'])) {
 			$sub_link = 'javascript:dosubthread(' . $item['id'] . '); return false;';
 		}
+		if($channel) {
+			$unsub_link = 'javascript:dounsubthread(' . $item['id'] . '); return false;';
+		}
 	}
 
 	$profile_link = chanlink_hash($item['author_xchan']);
@@ -942,6 +944,7 @@ function item_photo_menu($item){
 	$menu = Array(
 		t("View Source") => $vsrc_link,
 		t("Follow Thread") => $sub_link,
+		t("Stop Following") => $unsub_link,
 		t("View Status") => $status_link,
 		t("View Profile") => $profile_link,
 		t("View Photos") => $photos_link,
@@ -1021,8 +1024,8 @@ function builtin_activity_puller($item, &$conv_responses) {
 
 		if((activity_match($item['verb'], $verb)) && ($item['id'] != $item['parent'])) {
 			$name = (($item['author']['xchan_name']) ? $item['author']['xchan_name'] : t('Unknown'));
-			$url = (($item['author']['xchan_url']) 
-				? '<a href="' . chanlink_url($item['author']['xchan_url']) . '">' . $name . '</a>' 
+			$url = (($item['author']['xchan_url'] && $item['author']['xchan_photo_s']) 
+				? '<a href="' . chanlink_url($item['author']['xchan_url']) . '">' . '<img class="response-photo" src="' . zid($item['author']['xchan_photo_s'])  . ' alt="' . urlencode($name) . '" /> ' . $name . '</a>' 
 				: '<a href="#" class="disabled">' . $name . '</a>'
 			);
 
@@ -1086,6 +1089,11 @@ function format_like($cnt, $arr, $type, $id) {
 	return $o;
 }
 
+/**
+ * This is our general purpose content editor. 
+ * It was once nicknamed "jot" and you may see references to "jot" littered throughout the code.
+ * They are referring to the content editor or components thereof. 
+ */
 
 function status_editor($a, $x, $popup = false) {
 
@@ -1166,6 +1174,10 @@ function status_editor($a, $x, $popup = false) {
 	if($defexpire)
 		$defexpire = datetime_convert('UTC',date_default_timezone_get(),$defexpire,'Y-m-d H:i');
 
+	$defpublish = ((($z = get_pconfig($x['profile_uid'], 'system', 'default_post_publish')) && (! $webpage)) ? $z : '');
+	if($defpublish)
+		$defpublish = datetime_convert('UTC',date_default_timezone_get(),$defpublish,'Y-m-d H:i');
+
 	$cipher = get_pconfig($x['profile_uid'], 'system', 'default_cipher');
 	if(! $cipher)
 		$cipher = 'aes256';
@@ -1237,6 +1249,9 @@ function status_editor($a, $x, $popup = false) {
 		'$defexpire' => $defexpire,
 		'$feature_expire' => ((feature_enabled($x['profile_uid'], 'content_expire') && (! $webpage)) ? true : false),
 		'$expires' => t('Set expiration date'),
+		'$defpublish' => $defpublish,
+		'$feature_future' => ((feature_enabled($x['profile_uid'], 'delayed_posting') && (! $webpage)) ? true : false),
+		'$future_txt' => t('Set publish date'),
 		'$feature_encrypt' => ((feature_enabled($x['profile_uid'], 'content_encrypt') && (! $webpage)) ? true : false),
 		'$encrypt' => t('Encrypt text'),
 		'$cipher' => $cipher,

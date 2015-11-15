@@ -504,18 +504,21 @@ function script_path() {
 		$scheme = 'https';
 	else
 		$scheme = 'http';
+	
+	// Some proxy setups may require using http_host
 
-	if(x($_SERVER,'SERVER_NAME')) {
-		$hostname = $_SERVER['SERVER_NAME'];
+	if(intval(get_app()->config['system']['script_path_use_http_host']))
+		$server_var = 'HTTP_HOST';
+	else
+		$server_var = 'SERVER_NAME';
+
+
+	if(x($_SERVER,$server_var)) {
+		$hostname = $_SERVER[$server_var];
 	}
 	else {
 		return z_root();
 	}
-
-	if(x($_SERVER,'SERVER_PORT') && $_SERVER['SERVER_PORT'] != 80 && $_SERVER['SERVER_PORT'] != 443) {
-		$hostname .= ':' . $_SERVER['SERVER_PORT'];
-	}
-
 	return $scheme . '://' . $hostname;
 }
 

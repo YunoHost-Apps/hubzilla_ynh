@@ -13,6 +13,8 @@ function pubsites_content(&$a) {
 	}
 	$url .= '/sites';
 
+	$o .= '<div class="generic-content-wrapper-styled">';
+
 	$o .= '<h1>' . t('Public Sites') . '</h1>';
 
 	$o .= '<div class="descriptive-text">' . 
@@ -33,6 +35,9 @@ function pubsites_content(&$a) {
 			}
 	
 			$o .= '</table>';
+
+			$o .= '</div>';
+
 		}
 	}
 	return $o;

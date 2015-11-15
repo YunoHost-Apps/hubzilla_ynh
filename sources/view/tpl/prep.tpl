@@ -1,3 +1,4 @@
+<div class="generic-content-wrapper-styled">
 <h1>{{$header}}</h1>
 
 {{if $site}}
@@ -27,8 +28,4 @@
 </div>
 {{/foreach}}
 {{/if}}
-
-
-
-
-
+</div>

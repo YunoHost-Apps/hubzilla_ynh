@@ -37,7 +37,10 @@ function attach_init(&$a) {
 	header('Content-disposition: attachment; filename="' . $r['data']['filename'] . '"');
 	if(intval($r['data']['os_storage'])) {
 		$fname = dbunescbin($r['data']['data']);
-		$istream = fopen('store/' . $c[0]['channel_address'] . '/' . $fname,'rb');
+		if(strpos($fname,'store') !== false)
+			$istream = fopen($fname,'rb');
+		else
+			$istream = fopen('store/' . $c[0]['channel_address'] . '/' . $fname,'rb');
 		$ostream = fopen('php://output','wb');
 		if($istream && $ostream) {
 			pipe_streams($istream,$ostream);

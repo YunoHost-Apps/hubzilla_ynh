@@ -1,3 +1,4 @@
+<div class="generic-content-wrapper-styled">
 <h3>{{$header}}</h3>
 
 <div class="rating-target-name">{{if $site}}{{$website}} {{$site}}{{else}}{{$tgt_name}}{{/if}}</div>
@@ -12,6 +13,7 @@
 <input type="hidden" name="target" value="{{$target}}" />
 
 <input id="contact-rating-mirror" type="hidden" name="rating" value="{{$rating_val}}" />
+<br />
 <h3 class="abook-rating-text-desc">{{$lbl_rating_txt}}</h3>
 <textarea name="rating_text" id="rating-text" >{{$rating_txt}}</textarea>
 
@@ -20,3 +22,4 @@
 <input class="contact-edit-submit" type="submit" name="done" value="{{$submit}}" />
 
 </form>
+</div>

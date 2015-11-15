@@ -85,11 +85,9 @@ Share and save/manage bookmarks from links provided in conversations.
  
 [b]Private Message Encryption and Privacy Concerns[/b]
 
-Messages marked [b]private[/b] are encrypted with AES-CBC 256-bit symmetric cipher, which is then protected (encrypted in turn) by public key cryptography, based on 4096-bit RSA keys, associated with the channel that is sending the message.  
+Private mail is stored in an obscured format. While this is not bullet-proof it typically prevents casual snooping by the site administrator or ISP.  
 
-These private messages are also stored in an encrypted form on remote systems. 
-
-Each$Projectname channel has it's own unique set of private and associated public RSA 4096-bit keys, generated when the channels is first created.
+Each $Projectname channel has it's own unique set of private and associated public RSA 4096-bit keys, generated when the channels is first created. This is used to protect private messages and posts in transit.
 
 Additionally, messages may be created utilising "end-to-end encryption" which cannot be read by $Projectname operators or ISPs or anybody who does not know the passcode. 
 

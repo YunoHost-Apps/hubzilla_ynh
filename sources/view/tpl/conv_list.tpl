@@ -66,11 +66,6 @@
 						<span class="tag">{{$item.folders}}</span>
 					</div>
 					{{/if}}
-					{{if $item.attachments}}
-					<div class="body-tags" id="item-attachments">
-						<span class='tag'>{{$item.attachments}}</span>
-					</div>
-					{{/if}}
 					<div class="clear"></div>
 				</div>
 				{{/if}}
@@ -151,7 +146,13 @@
 						</ul>
 					</div>
 					<div id="like-rotator-{{$item.id}}" class="like-rotator"></div>
-					<div class="wall-item-tools-left{{if $item.unseen_comments || $item.like_count || $item.dislike_count}} btn-group{{/if}}">
+					<div class="wall-item-tools-left{{if $item.unseen_comments || $item.like_count || $item.dislike_count || $item.attachments}} btn-group{{/if}}">
+						{{if $item.attachments}}
+						<div class="btn-group">
+							<button type="button" class="btn btn-default btn-sm wall-item-like dropdown-toggle" data-toggle="dropdown" id="attachment-menu-{{$item.id}}"><i class="icon-paperclip"></i></button>
+							<ul class="dropdown-menu" role="menu" aria-labelledby="attachment-menu-{{$item.id}}">{{$item.attachments}}</ul>
+						</div>
+						{{/if}}
 						<div class="wall-item-list-comments btn-group">
 							<button class="btn btn-default btn-sm" onclick="window.location.href='{{$item.viewthread}}'; return false;">
 								{{$item.comment_count_txt}}{{if $item.unseen_comments}}<span class="unseen-wall-indicator-{{$item.id}}">, {{$item.list_unseen_txt}}</span>{{/if}}
@@ -164,7 +165,6 @@
 							</button>
 						</div>
 						{{/if}}
-
 						{{if $item.responses }}
 						{{foreach $item.responses as $verb=>$response}}
 						{{if $response.count}}

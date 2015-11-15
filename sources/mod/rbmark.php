@@ -77,7 +77,9 @@ function rbmark_content(&$a) {
 
 	$channel = $a->get_channel();
 
-	$m = menu_list($channel,'',MENU_BOOKMARK);
+
+	$m = menu_list($channel['channel_id'],'',MENU_BOOKMARK);
+
 	$menus = array();
 	if($m) {
 		$menus = array(0 => '');

@@ -1,4 +1,4 @@
-<div id="files-mkdir-tools" class="section-content-tools-wrapper form-group">
+<div id="files-mkdir-tools" class="section-content-tools-wrapper">
 	<label for="files-mkdir">{{$folder_header}}</label>
 	<form method="post" action="">
 		<input type="hidden" name="sabreAction" value="mkcol">
@@ -7,7 +7,7 @@
 	</form>
 	<div class="clear"></div>
 </div>
-<div id="files-upload-tools" class="section-content-tools-wrapper form-group">
+<div id="files-upload-tools" class="section-content-tools-wrapper">
 	{{if $quota.limit || $quota.used}}<div class="{{if $quota.warning}}section-content-danger-wrapper{{else}}section-content-info-wrapper{{/if}}">{{if $quota.warning}}<strong>{{$quota.warning}} </strong>{{/if}}{{$quota.desc}}</div>{{/if}}
 	<label for="files-upload">{{$upload_header}}</label>
 	<form method="post" action="" enctype="multipart/form-data">

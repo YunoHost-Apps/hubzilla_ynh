@@ -177,16 +177,21 @@ function connedit_post(&$a) {
 
 	if(($_REQUEST['pending']) && intval($orig_record[0]['abook_pending'])) {
 		$new_friend = true;
-		if(! $abook_my_perms) {
 
-			$abook_my_perms = get_channel_default_perms(local_channel());
+		// @fixme it won't be common, but when you accept a new connection request
+		// the permissions will now be that of your permissions role and ignore
+		// any you may have set manually on the form. We'll probably see a bug if somebody
+		// tries to set the permissions *and* approve the connection in the same 
+		// request. The workaround is to approve the connection, then go back and
+		// adjust permissions as desired.
 
-			$role = get_pconfig(local_channel(),'system','permissions_role');
-			if($role) {
-				$x = get_role_perms($role);
-				if($x['perms_accept'])
-					$abook_my_perms = $x['perms_accept'];
-			}
+		$abook_my_perms = get_channel_default_perms(local_channel());
+
+		$role = get_pconfig(local_channel(),'system','permissions_role');
+		if($role) {
+			$x = get_role_perms($role);
+			if($x['perms_accept'])
+				$abook_my_perms = $x['perms_accept'];
 		}
 	}
 
@@ -652,12 +657,35 @@ function connedit_content(&$a) {
 			$perms[] = array('perms_' . $k, $v[3], (($contact['abook_their_perms'] & $v[1]) ? "1" : ""),$thisperm, $v[1], (($channel[$v[0]] == PERMS_SPECIFIC) ? '' : '1'), $v[4], $checkinherited);
 		}
 
+		$locstr = '';
+
+		$locs = q("select hubloc_addr as location from hubloc left join site on hubloc_url = site_url where hubloc_hash = '%s' 
+			and hubloc_deleted = 0 and site_dead = 0",
+			dbesc($contact['xchan_hash'])
+		);
+
+		if($locs) {
+			foreach($locs as $l) {
+				if(!($l['location']))
+					continue;
+				if(strpos($locstr,$l['location']) !== false)
+					continue;
+				if(strlen($locstr))
+					$locstr .= ', ';
+				$locstr .= $l['location'];
+			}
+		}
+		else
+			$locstr = t('none');
+
 		$o .= replace_macros($tpl,array(
 
 			'$header'         => (($self) ? t('Connection Default Permissions') : sprintf( t('Connection: %s'),$contact['xchan_name'])),
 			'$autoperms'      => array('autoperms',t('Apply these permissions automatically'), ((get_pconfig(local_channel(),'system','autoperms')) ? 1 : 0), 'Connection requests will be approved without your interaction', array(t('No'),('Yes'))),
 			'$addr'           => $contact['xchan_addr'],
-			'$addr_text'      => t('This connection\'s address is'),
+			'$addr_text'      => t('This connection\'s primary address is'),
+			'$loc_text'       => t('Available locations:'),
+			'$locstr'         => $locstr,
 			'$notself'        => (($self) ? '' : '1'),
 			'$self'           => (($self) ? '1' : ''),
 			'$autolbl'        => t('The permissions indicated on this page will be applied to all new connections.'),
@@ -668,8 +696,8 @@ function connedit_content(&$a) {
 			'$lbl_rating_txt' => t('Optionally explain your rating'),
 			'$connfilter'     => feature_enabled(local_channel(),'connfilter'),
 			'$connfilter_label' => t('Custom Filter'),
-			'$incl'           => array('abook_incl',t('Only import posts with this text'), $contact['abook_incl'],t('words one per line or #tags or /patterns/, leave blank to import all posts')), 
-			'$excl'           => array('abook_excl',t('Do not import posts with this text'), $contact['abook_excl'],t('words one per line or #tags or /patterns/, leave blank to import all posts')), 
+			'$incl'           => array('abook_incl',t('Only import posts with this text'), $contact['abook_incl'],t('words one per line or #tags or /patterns/ or lang=xx, leave blank to import all posts')), 
+			'$excl'           => array('abook_excl',t('Do not import posts with this text'), $contact['abook_excl'],t('words one per line or #tags or /patterns/ or lang=xx, leave blank to import all posts')), 
 			'$rating_text'    => array('rating_text', t('Optionally explain your rating'),$rating_text,''),
 			'$rating_info'    => t('This information is public!'),
 			'$rating'         => $rating,

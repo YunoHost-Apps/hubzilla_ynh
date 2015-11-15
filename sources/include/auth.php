@@ -9,6 +9,7 @@
  * Also provides a function for OpenID identiy matching.
  */
 
+require_once('include/api_auth.php');
 require_once('include/security.php');
 
 /**

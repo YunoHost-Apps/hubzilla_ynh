@@ -6,10 +6,9 @@
 var ispublic = aStr.everybody;
 
 $(document).ready(function() {
-	$(document).ready(function() {
-		$("#photo-edit-newtag").contact_autocomplete(baseurl + '/acl', 'p', false, function(data) {
-			$("#photo-edit-newtag").val('@' + data.name);
-		});
+
+	$("#photo-edit-newtag").contact_autocomplete(baseurl + '/acl', 'p', false, function(data) {
+		$("#photo-edit-newtag").val('@' + data.name);
 	});
 
 	$('#contact_allow, #contact_deny, #group_allow, #group_deny').change(function() {
@@ -24,4 +23,14 @@ $(document).ready(function() {
 			$('#jot-public').show();
 		}
 	}).trigger('change');
+
+	showHideBodyTextarea();
+
 });
+
+function showHideBodyTextarea() {
+	if( $('#id_visible').is(':checked'))
+		$('#body-textarea').slideDown();
+	else
+		$('#body-textarea').slideUp();
+}

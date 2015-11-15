@@ -64,7 +64,10 @@ function z_mime_content_type($filename) {
 	'wav' => 'audio/wav',
 	'qt' => 'video/quicktime',
 	'mov' => 'video/quicktime',
-	'ogg' => 'application/ogg',
+	'ogg' => 'audio/ogg',
+	'ogv' => 'video/ogg',
+	'ogx' => 'application/ogg',
+	'flac' => 'audio/flac',
 	'opus' => 'audio/ogg',
 	'webm' => 'video/webm',
 //	'webm' => 'audio/webm',
@@ -105,9 +108,9 @@ function z_mime_content_type($filename) {
 	'oth' => 'application/vnd.oasis.opendocument.text-web'
 	);
 
-	$dot = strpos($filename, '.');
-	if ($dot !== false) {
-		$ext = strtolower(substr($filename, $dot + 1));
+	$last_dot = strrpos($filename, '.');
+	if ($last_dot !== false) {
+		$ext = strtolower(substr($filename, $last_dot + 1));
 		if (array_key_exists($ext, $mime_types)) {
 			return $mime_types[$ext];
 		}
@@ -719,7 +722,7 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 			intval($filesize),
 			intval(1),
 			intval($is_photo),
-			dbesc($os_relpath),
+			dbesc($os_basepath . $os_relpath),
 			dbesc($created),
 			intval($existing_id),
 			intval($channel_id)
@@ -739,7 +742,7 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 			intval($x[0]['revision'] + 1),
 			intval(1),
 			intval($is_photo),
-			dbesc($os_relpath),
+			dbesc($os_basepath . $os_relpath),
 			dbesc($created),
 			dbesc($created),
 			dbesc($x[0]['allow_cid']),
@@ -780,7 +783,7 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 			intval(0),
 			intval(1),
 			intval($is_photo),
-			dbesc($os_relpath),
+			dbesc($os_basepath . $os_relpath),
 			dbesc($created),
 			dbesc($created),
 			dbesc(($arr && array_key_exists('allow_cid',$arr)) ? $arr['allow_cid'] : $str_contact_allow),
@@ -814,6 +817,12 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 		$args['edited'] = $edited;
 		if($arr['item'])
 			$args['item'] = $arr['item'];
+
+		if($arr['body'])
+			$args['body'] = $arr['body'];
+
+		if($arr['description'])
+			$args['description'] = $arr['description'];
 
 		$p = photo_upload($channel,$observer,$args);
 		if($p['success']) {
@@ -1261,9 +1270,13 @@ function attach_delete($channel_id, $resource, $is_photo = 0) {
 		);
 
 		if($y) {
-			$f = 'store/' . $channel_address . '/' . $y[0]['data'];
-			if(is_dir($y[0]['data']))
-				@rmdir($y[0]['data']);
+			if(strpos($y[0]['data'],'store') === false)
+				$f = 'store/' . $channel_address . '/' . $y[0]['data'];
+			else
+				$f = $y[0]['data'];
+
+			if(is_dir($f))
+				@rmdir($f);
 			elseif(file_exists($f))
 				unlink($f);
 		}
@@ -1282,12 +1295,11 @@ function attach_delete($channel_id, $resource, $is_photo = 0) {
 		);
 		if($x) {
 			drop_item($x[0]['id'],false,(($x[0]['item_hidden']) ? DROPITEM_NORMAL : DROPITEM_PHASE1),true);
-
-			q("DELETE FROM photo WHERE uid = %d AND resource_id = '%s'",
-				intval($channel_id),
-				dbesc($resource)
-			);
 		}
+		q("DELETE FROM photo WHERE uid = %d AND resource_id = '%s'",
+			intval($channel_id),
+			dbesc($resource)
+		);
 	}
 			
 	// update the parent folder's lastmodified timestamp

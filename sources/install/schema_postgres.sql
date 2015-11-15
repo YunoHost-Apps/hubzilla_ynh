@@ -44,7 +44,6 @@ CREATE TABLE "abook" (
   create index  "abook_profile" on abook  ("abook_profile");
   create index  "abook_dob" on abook  ("abook_dob");
   create index  "abook_connected" on abook  ("abook_connected");
-  create index  "abook_rating" on abook  ("abook_rating");
   create index  "abook_channel_closeness" on abook ("abook_channel", "abook_closeness");
 
 CREATE TABLE "account" (
@@ -342,8 +341,8 @@ create index "conv_created_idx" on conv ("created");
 create index "conv_updated_idx" on conv ("updated");
 
 CREATE TABLE IF NOT EXISTS "dreport" (
-  "dreport_id" int(11) NOT NULL,
-  "dreport_channel" int(11) NOT NULL DEFAULT '0',
+  "dreport_id" int NOT NULL,
+  "dreport_channel" int NOT NULL DEFAULT '0',
   "dreport_mid" char(255) NOT NULL DEFAULT '',
   "dreport_site" char(255) NOT NULL DEFAULT '',
   "dreport_recip" char(255) NOT NULL DEFAULT '',
@@ -388,7 +387,7 @@ CREATE TABLE "event" (
   "deny_gid" text NOT NULL,
   "event_status" char(255) NOT NULL DEFAULT '',
   "event_status_date" timestamp NOT NULL DEFAULT '0001-01-01 00:00:00',
-  "event_percent" smallint(6) NOT NULL DEFAULT '0',
+  "event_percent" smallint NOT NULL DEFAULT '0',
   "event_repeat" text NOT NULL,
   "event_sequence" smallint NOT NULL DEFAULT '0',
   "event_priority" smallint NOT NULL DEFAULT '0',
@@ -623,7 +622,7 @@ CREATE TABLE "item" (
   "item_retained" smallint NOT NULL DEFAULT '0',
   "item_rss" smallint NOT NULL DEFAULT '0',
   "item_deleted" smallint NOT NULL DEFAULT '0',
-  "item_type" int(11) NOT NULL DEFAULT '0',
+  "item_type" int NOT NULL DEFAULT '0',
   "item_hidden" smallint NOT NULL DEFAULT '0',
   "item_unpublished" smallint NOT NULL DEFAULT '0',
   "item_delayed" smallint NOT NULL DEFAULT '0',
@@ -918,11 +917,11 @@ CREATE TABLE "photo" (
   "data" bytea NOT NULL,
   "scale" numeric(3) NOT NULL,
   "profile" numeric(1) NOT NULL DEFAULT '0',
-  "photo_usage" smallint(6) NOT NULL DEFAULT '0',
+  "photo_usage" smallint NOT NULL DEFAULT '0',
   "is_nsfw" smallint NOT NULL DEFAULT '0',
   "os_storage" smallint NOT NULL DEFAULT '0',
-  "os_path" mediumtext NOT NULL,
-  "display_path" mediumtext NOT NULL,
+  "os_path" text NOT NULL,
+  "display_path" text NOT NULL,
   "photo_flags" bigint  NOT NULL DEFAULT '0',
   "allow_cid" text NOT NULL,
   "allow_gid" text NOT NULL,

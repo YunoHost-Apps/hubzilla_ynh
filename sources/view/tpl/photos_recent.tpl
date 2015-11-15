@@ -7,11 +7,13 @@
 		<div class="clear"></div>
 	</div>
 	{{$upload_form}}
-	<div id="photo-album-contents">
-		{{foreach $photos as $photo}}
-			{{include file="photo_top.tpl"}}
-		{{/foreach}}
-		<div id="page-end"></div>
+	<div class="section-content-wrapper-np">
+		<div id="photo-album-contents">
+			{{foreach $photos as $photo}}
+				{{include file="photo_top.tpl"}}
+			{{/foreach}}
+			<div id="page-end"></div>
+		</div>
 	</div>
 </div>
 <div class="photos-end"></div>

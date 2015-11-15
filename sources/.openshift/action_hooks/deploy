@@ -179,7 +179,27 @@ echo "chmod done, permissions set to 777 on poller script."
 
 # Hubzilla configuration - changes to default settings
 # to make Hubzilla on OpenShift a more pleasant experience 
+echo "Changing default configuration to conserve space"
 cd ${OPENSHIFT_REPO_DIR}
 util/config system expire_delivery_reports 3
 util/config system feed_contacts 0
+util/config system diaspora_enabled 0
 util/config system disable_discover_tab 1
+util/config directory safemode 0
+util/config directory globaldir 1
+util/config directory pubforums 0
+
+# Hubzill addons
+echo "Try to add or update Hubzilla addons"
+cd ${OPENSHIFT_REPO_DIR}
+util/add_addon_repo https://github.com/redmatrix/hubzilla-addons.git HubzillaAddons 
+
+# Hubzilla themes
+echo "Try to add or update Hubzilla themes"
+cd ${OPENSHIFT_REPO_DIR}
+util/add_theme_repo https://github.com/DeadSuperHero/redmatrix-themes.git DeadSuperHeroThemes 
+
+# Hubzilla ownMapp
+echo "Try to add or update Hubzilla ownMapp"
+cd ${OPENSHIFT_REPO_DIR}
+util/add_addon_repo https://gitlab.com/zot/ownmapp.git ownMapp

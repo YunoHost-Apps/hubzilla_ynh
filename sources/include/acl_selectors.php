@@ -231,6 +231,7 @@ function populate_acl($defaults = null,$show_jotnets = true) {
 	
 	$jotnets = '';
 	if($show_jotnets) {
+logger('jot_networks');
 		call_hooks('jot_networks', $jotnets);
 	}
 
@@ -243,6 +244,7 @@ function populate_acl($defaults = null,$show_jotnets = true) {
 		'$allowgid' => json_encode($allow_gid),
 		'$denycid' => json_encode($deny_cid),
 		'$denygid' => json_encode($deny_gid),
+		'$jnetModalTitle' => t('Other networks and post services'),
 		'$jotnets' => $jotnets,
 		'$aclModalTitle' => t('Permissions'),
 		'$aclModalDismiss' => t('Close')

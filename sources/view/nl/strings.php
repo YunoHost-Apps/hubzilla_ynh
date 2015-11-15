@@ -1067,6 +1067,7 @@ $a->strings["Site URL"] = "URL hub";
 $a->strings["Access Type"] = "Toegangstype";
 $a->strings["Registration Policy"] = "Registratiebeleid";
 $a->strings["Location"] = "Locatie";
+$a->strings["Project"] = "Project";
 $a->strings["View hub ratings"] = "Bekijk hubbeoordelingen";
 $a->strings["Rate"] = "Beoordeel";
 $a->strings["View ratings"] = "Bekijk beoordelingen";

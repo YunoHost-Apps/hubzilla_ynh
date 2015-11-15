@@ -836,9 +836,19 @@ function dropItem(url, object) {
 function dosubthread(ident) {
 	unpause();
 	$('#like-rotator-' + ident.toString()).spin('tiny');
-	$.get('subthread/' + ident.toString(), NavUpdate );
+	$.get('subthread/sub/' + ident.toString(), NavUpdate );
 	liking = 1;
 }
+
+
+function dounsubthread(ident) {
+	unpause();
+	$('#like-rotator-' + ident.toString()).spin('tiny');
+	$.get('subthread/unsub/' + ident.toString(), NavUpdate );
+	liking = 1;
+}
+
+
 
 function dostar(ident) {
 	ident = ident.toString();
@@ -1156,7 +1166,6 @@ $(document).ready(function() {
 		numbers       : aStr['t17'],
 	};
 
-	$(".autotime").timeago();
 	$("#toc").toc();
 });
 

@@ -1,3 +1,4 @@
+<div class="generic-content-wrapper-styled">
 <h3>{{$title}}</h3>
 <p></p>
 <p>{{$description}}</p>
@@ -22,3 +23,4 @@
    <div style="margin-left: 25px; margin-right: 25px;">{{$plugins_list}}</div>
 {{/if}}
 <p>{{$donate}}</p>
+</div>

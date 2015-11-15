@@ -904,19 +904,6 @@ function profile_load(&$a, $nickname, $profile = '') {
 }
 
 /**
- * @brief
- *
- * @param App &$a
- * @param boolean $connect
- */
-function profile_create_sidebar(&$a, $connect = true) {
-
-	$block = (((get_config('system', 'block_public')) && (! local_channel()) && (! remote_channel())) ? true : false);
-
-	$a->set_widget('profile', profile_sidebar($a->profile, $block, $connect));
-}
-
-/**
  * @brief Formats a profile for display in the sidebar.
  *
  * It is very difficult to templatise the HTML completely

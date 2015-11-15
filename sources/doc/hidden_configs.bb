@@ -112,7 +112,7 @@ This document assumes you're an administrator.
     [b]system > cron_hour[/b]
         Specify an hour in which to run cron_daily.  By default with no config, this will run at midnight UTC.
     [b]system > minimum_feedcheck_minutes[/b]
-        The minimum interval between polling RSS feeds.  If this is lower than the cron interval, feeds will be polled with each cronjob
+        The minimum interval between polling RSS feeds.  If this is lower than the cron interval, feeds will be polled with each cronjob. Defaults to 60 if not set. The site setting can also be over-ridden on a channel by channel basis by a service class setting aptly named 'minimum_feedcheck_minutes'.
     [b]system > blacklisted_sites[/b]
         An array of specific hubs to block from this hub completely.
     [b]system > ignore_imagick[/b]
@@ -133,7 +133,45 @@ This document assumes you're an administrator.
         How long to cache photos, in seconds. Default is 86400 (1 day).
         Longer time increases performance, but it also means it takes longer for changed permissions to apply.
 	[b]system > poco_rating_enable[/b]
-		Distributed reputation reporting and data collection may be disabled. If your site does not participate in distributed reputation you will also not be able to make use of the data from your connections on other sites. By default and in the absence of any setting it is enabled. Individual members can opt out by restricting who can see their connections or by not providing any reputation information for their connections. 
+		Distributed reputation reporting and data collection may be disabled. If your site does not participate in distributed reputation you will also not be able to make use of the data from your connections on other sites. By default and in the absence of any setting it is enabled. Individual members can opt out by restricting who can see their connections or by not providing any reputation information for their connections.
+	[b]system > register_link[/b]
+		path to direct to from the "register" link on the login form. On closed sites this will direct to 'pubsites'. For open sites it will normally redirect to 'register' but you may change this to a custom site page offering subscriptions or whatever. 
+	[b]system > max_import_size[/b]
+		If configured, the maximum length of an imported text message. This is normally left at 200Kbytes or more to accomodate Friendica private photos, which are embedded.
+	[b]system > tempdir[/b]
+		Place to store temporary files, default is defined in the PHP configuration  
+	[b]system > uploaddir[/b]
+		Location to upload files (default is system.tempdir)
+	[b]system > disable_discover_tab[/b]
+		This allows you to completely disable the ability to discover public content from external sites.
+	[b]system > sys_expire_days[/b]
+		How many days to keep discovered public content from other sites
+	[b]system > openssl_encrypt[/b]
+		Use openssl encryption engine, default is false (uses mcrypt for AES encryption)
+	[b]system > max_tagged_forums[/b]
+		Spam prevention. Limits the number of tagged forums which are recognised in any post. Default is 2. Only the first 'n' tags will be delivered as forums, the others will not cause any delivery. 
+	[b]system > openssl_conf_file[/b]
+		Needed in some Windows installations to locate the openssl configuration file on the system.
+ 
+
+[b]Directory config[/b]
+[b]Directory search defaults[/b]
+	[b]directory > safemode[/b]
+		0 or 1. 	
+    [b]directory > globaldir[/b]
+	    0 or 1. Default 0.  If you visit the directory on a site you'll just see the members of that site by default. You have to go through an extra step to see the people in the rest of the network; and by doing so there's a clear delineation that these people *aren't* members of that site but of a larger network.
+    [b]directory > pubforums[/b]
+	    0 or 1. Public forums *should* be default 0.
+[b]Directory server configuration (see [zrl=[baseurl]/help/directories]help/directories[/zrl])[/b]
+	[b]system > directory_server[/b]
+	[b]system > directory_primary[/b]
+	[b]system > directory_realm[/b]
+	[b]system > realm_token[/b]
+	[b]system > directory_mode[/b]
+
+
+
+
 		
 #include doc/macros/main_footer.bb;
 

@@ -1,0 +1,2477 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<database name="zot" type="MySQL - 5.5.45">
+   <tables>
+      <table name="abook" numRows="12" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="abook_id" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="1" name="abook_account" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="2" name="abook_channel" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="3" name="abook_xchan" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="4" name="abook_my_perms" nullable="false" remarks="" size="10" type="INT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="5" name="abook_their_perms" nullable="false" remarks="" size="10" type="INT"/>
+         <column autoUpdated="false" defaultValue="99" digits="0" id="6" name="abook_closeness" nullable="false" remarks="" size="3" type="TINYINT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="7" name="abook_created" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="8" name="abook_updated" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="9" name="abook_connected" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="10" name="abook_dob" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="11" name="abook_flags" nullable="false" remarks="" size="10" type="INT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="12" name="abook_blocked" nullable="false" remarks="" size="3" type="TINYINT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="13" name="abook_ignored" nullable="false" remarks="" size="3" type="TINYINT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="14" name="abook_hidden" nullable="false" remarks="" size="3" type="TINYINT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="15" name="abook_archived" nullable="false" remarks="" size="3" type="TINYINT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="16" name="abook_pending" nullable="false" remarks="" size="3" type="TINYINT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="17" name="abook_unconnected" nullable="false" remarks="" size="3" type="TINYINT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="18" name="abook_self" nullable="false" remarks="" size="3" type="TINYINT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="19" name="abook_feed" nullable="false" remarks="" size="3" type="TINYINT"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="20" name="abook_profile" nullable="false" remarks="" size="64" type="CHAR"/>
+         <column autoUpdated="false" digits="0" id="21" name="abook_incl" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" digits="0" id="22" name="abook_excl" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <primaryKey column="abook_id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="abook_id"/>
+         </index>
+         <index name="abook_account" unique="false">
+            <column ascending="true" name="abook_account"/>
+         </index>
+         <index name="abook_archived" unique="false">
+            <column ascending="true" name="abook_archived"/>
+         </index>
+         <index name="abook_blocked" unique="false">
+            <column ascending="true" name="abook_blocked"/>
+         </index>
+         <index name="abook_channel" unique="false">
+            <column ascending="true" name="abook_channel"/>
+         </index>
+         <index name="abook_closeness" unique="false">
+            <column ascending="true" name="abook_closeness"/>
+         </index>
+         <index name="abook_connected" unique="false">
+            <column ascending="true" name="abook_connected"/>
+         </index>
+         <index name="abook_created" unique="false">
+            <column ascending="true" name="abook_created"/>
+         </index>
+         <index name="abook_dob" unique="false">
+            <column ascending="true" name="abook_dob"/>
+         </index>
+         <index name="abook_feed" unique="false">
+            <column ascending="true" name="abook_feed"/>
+         </index>
+         <index name="abook_flags" unique="false">
+            <column ascending="true" name="abook_flags"/>
+         </index>
+         <index name="abook_hidden" unique="false">
+            <column ascending="true" name="abook_hidden"/>
+         </index>
+         <index name="abook_ignored" unique="false">
+            <column ascending="true" name="abook_ignored"/>
+         </index>
+         <index name="abook_my_perms" unique="false">
+            <column ascending="true" name="abook_my_perms"/>
+         </index>
+         <index name="abook_pending" unique="false">
+            <column ascending="true" name="abook_pending"/>
+         </index>
+         <index name="abook_profile" unique="false">
+            <column ascending="true" name="abook_profile"/>
+         </index>
+         <index name="abook_self" unique="false">
+            <column ascending="true" name="abook_self"/>
+         </index>
+         <index name="abook_their_perms" unique="false">
+            <column ascending="true" name="abook_their_perms"/>
+         </index>
+         <index name="abook_unconnected" unique="false">
+            <column ascending="true" name="abook_unconnected"/>
+         </index>
+         <index name="abook_updated" unique="false">
+            <column ascending="true" name="abook_updated"/>
+         </index>
+         <index name="abook_xchan" unique="false">
+            <column ascending="true" name="abook_xchan"/>
+         </index>
+      </table>
+      <table name="account" numRows="1" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="account_id" nullable="false" remarks="" size="10" type="INT UNSIGNED">
+            <child column="account_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="mail"/>
+         </column>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="1" name="account_parent" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="2" name="account_default_channel" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="3" name="account_salt" nullable="false" remarks="" size="32" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="4" name="account_password" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="5" name="account_email" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="6" name="account_external" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="en" digits="0" id="7" name="account_language" nullable="false" remarks="" size="16" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="8" name="account_created" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="9" name="account_lastlog" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="10" name="account_flags" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="11" name="account_roles" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="12" name="account_reset" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="13" name="account_expires" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="14" name="account_expire_notified" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="15" name="account_service_class" nullable="false" remarks="" size="32" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="16" name="account_level" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="17" name="account_password_changed" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <primaryKey column="account_id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="account_id"/>
+         </index>
+         <index name="account_default_channel" unique="false">
+            <column ascending="true" name="account_default_channel"/>
+         </index>
+         <index name="account_email" unique="false">
+            <column ascending="true" name="account_email"/>
+         </index>
+         <index name="account_expires" unique="false">
+            <column ascending="true" name="account_expires"/>
+         </index>
+         <index name="account_external" unique="false">
+            <column ascending="true" name="account_external"/>
+         </index>
+         <index name="account_flags" unique="false">
+            <column ascending="true" name="account_flags"/>
+         </index>
+         <index name="account_lastlog" unique="false">
+            <column ascending="true" name="account_lastlog"/>
+         </index>
+         <index name="account_level" unique="false">
+            <column ascending="true" name="account_level"/>
+         </index>
+         <index name="account_parent" unique="false">
+            <column ascending="true" name="account_parent"/>
+         </index>
+         <index name="account_password_changed" unique="false">
+            <column ascending="true" name="account_password_changed"/>
+         </index>
+         <index name="account_roles" unique="false">
+            <column ascending="true" name="account_roles"/>
+         </index>
+         <index name="account_service_class" unique="false">
+            <column ascending="true" name="account_service_class"/>
+         </index>
+      </table>
+      <table name="addon" numRows="0" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="INT">
+            <parent column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="notify"/>
+         </column>
+         <column autoUpdated="false" defaultValue="" digits="0" id="1" name="name" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="2" name="version" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="3" name="installed" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="4" name="hidden" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="5" name="timestamp" nullable="false" remarks="" size="19" type="BIGINT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="6" name="plugin_admin" nullable="false" remarks="" size="0" type="BIT"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="hidden" unique="false">
+            <column ascending="true" name="hidden"/>
+         </index>
+         <index name="installed" unique="false">
+            <column ascending="true" name="installed"/>
+         </index>
+         <index name="name" unique="false">
+            <column ascending="true" name="name"/>
+         </index>
+      </table>
+      <table name="app" numRows="0" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="INT">
+            <parent column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="notify"/>
+         </column>
+         <column autoUpdated="false" defaultValue="" digits="0" id="1" name="app_id" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="2" name="app_sig" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="3" name="app_author" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="4" name="app_name" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" digits="0" id="5" name="app_desc" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="6" name="app_url" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="7" name="app_photo" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="8" name="app_version" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="9" name="app_channel" nullable="false" remarks="" size="10" type="INT"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="10" name="app_addr" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="11" name="app_price" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="12" name="app_page" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="13" name="app_requires" nullable="false" remarks="" size="255" type="CHAR"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="app_channel" unique="false">
+            <column ascending="true" name="app_channel"/>
+         </index>
+         <index name="app_id" unique="false">
+            <column ascending="true" name="app_id"/>
+         </index>
+         <index name="app_name" unique="false">
+            <column ascending="true" name="app_name"/>
+         </index>
+         <index name="app_photo" unique="false">
+            <column ascending="true" name="app_photo"/>
+         </index>
+         <index name="app_price" unique="false">
+            <column ascending="true" name="app_price"/>
+         </index>
+         <index name="app_url" unique="false">
+            <column ascending="true" name="app_url"/>
+         </index>
+         <index name="app_version" unique="false">
+            <column ascending="true" name="app_version"/>
+         </index>
+      </table>
+      <table name="attach" numRows="0" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="INT UNSIGNED">
+            <parent column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="verify"/>
+         </column>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="1" name="aid" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="2" name="uid" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="3" name="hash" nullable="false" remarks="" size="64" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="4" name="creator" nullable="false" remarks="" size="128" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="5" name="filename" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="6" name="filetype" nullable="false" remarks="" size="64" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="7" name="filesize" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="8" name="revision" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="9" name="folder" nullable="false" remarks="" size="64" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="10" name="flags" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="11" name="is_dir" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="12" name="is_photo" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="13" name="os_storage" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" digits="0" id="14" name="os_path" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <column autoUpdated="false" digits="0" id="15" name="display_path" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <column autoUpdated="false" digits="0" id="16" name="data" nullable="false" remarks="" size="2147483647" type="LONGBLOB"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="17" name="created" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="18" name="edited" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <column autoUpdated="false" digits="0" id="19" name="allow_cid" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <column autoUpdated="false" digits="0" id="20" name="allow_gid" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <column autoUpdated="false" digits="0" id="21" name="deny_cid" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <column autoUpdated="false" digits="0" id="22" name="deny_gid" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="aid" unique="false">
+            <column ascending="true" name="aid"/>
+         </index>
+         <index name="created" unique="false">
+            <column ascending="true" name="created"/>
+         </index>
+         <index name="creator" unique="false">
+            <column ascending="true" name="creator"/>
+         </index>
+         <index name="edited" unique="false">
+            <column ascending="true" name="edited"/>
+         </index>
+         <index name="filename" unique="false">
+            <column ascending="true" name="filename"/>
+         </index>
+         <index name="filesize" unique="false">
+            <column ascending="true" name="filesize"/>
+         </index>
+         <index name="filetype" unique="false">
+            <column ascending="true" name="filetype"/>
+         </index>
+         <index name="flags" unique="false">
+            <column ascending="true" name="flags"/>
+         </index>
+         <index name="folder" unique="false">
+            <column ascending="true" name="folder"/>
+         </index>
+         <index name="hash" unique="false">
+            <column ascending="true" name="hash"/>
+         </index>
+         <index name="is_dir" unique="false">
+            <column ascending="true" name="is_dir"/>
+         </index>
+         <index name="is_photo" unique="false">
+            <column ascending="true" name="is_photo"/>
+         </index>
+         <index name="os_storage" unique="false">
+            <column ascending="true" name="os_storage"/>
+         </index>
+         <index name="revision" unique="false">
+            <column ascending="true" name="revision"/>
+         </index>
+         <index name="uid" unique="false">
+            <column ascending="true" name="uid"/>
+         </index>
+      </table>
+      <table name="auth_codes" numRows="0" remarks="" type="TABLE">
+         <column autoUpdated="false" defaultValue="" digits="0" id="0" name="id" nullable="false" remarks="" size="40" type="VARCHAR">
+            <parent column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="tokens"/>
+         </column>
+         <column autoUpdated="false" defaultValue="" digits="0" id="1" name="client_id" nullable="false" remarks="" size="20" type="VARCHAR">
+            <parent column="client_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="clients"/>
+         </column>
+         <column autoUpdated="false" defaultValue="" digits="0" id="2" name="redirect_uri" nullable="false" remarks="" size="200" type="VARCHAR"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="3" name="expires" nullable="false" remarks="" size="10" type="INT"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="4" name="scope" nullable="false" remarks="" size="250" type="VARCHAR"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+      </table>
+      <table name="cache" numRows="21" remarks="" type="TABLE">
+         <column autoUpdated="false" defaultValue="" digits="0" id="0" name="k" nullable="false" remarks="" size="255" type="CHAR">
+            <child column="k" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="config"/>
+            <child column="k" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="pconfig"/>
+            <child column="k" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="profext"/>
+            <child column="k" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="sys_perms"/>
+            <child column="k" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="xconfig"/>
+         </column>
+         <column autoUpdated="false" digits="0" id="1" name="v" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="2" name="updated" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <primaryKey column="k" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="k"/>
+         </index>
+      </table>
+      <table name="channel" numRows="5" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="channel_id" nullable="false" remarks="" size="10" type="INT UNSIGNED">
+            <child column="channel_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="likes"/>
+            <child column="channel_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="mail"/>
+            <child column="channel_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="profext"/>
+         </column>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="1" name="channel_account_id" nullable="false" remarks="" size="10" type="INT UNSIGNED">
+		       <foreignKey table="account" column="account_id"/>
+		 </column>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="2" name="channel_primary" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="3" name="channel_name" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="4" name="channel_address" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="5" name="channel_guid" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" digits="0" id="6" name="channel_guid_sig" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="7" name="channel_hash" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="UTC" digits="0" id="8" name="channel_timezone" nullable="false" remarks="" size="128" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="9" name="channel_location" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="10" name="channel_theme" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="11" name="channel_startpage" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" digits="0" id="12" name="channel_pubkey" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" digits="0" id="13" name="channel_prvkey" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" defaultValue="65535" digits="0" id="14" name="channel_notifyflags" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="15" name="channel_pageflags" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="16" name="channel_dirdate" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="17" name="channel_lastpost" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="18" name="channel_deleted" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <column autoUpdated="false" defaultValue="10" digits="0" id="19" name="channel_max_anon_mail" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="10" digits="0" id="20" name="channel_max_friend_req" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="21" name="channel_expire_days" nullable="false" remarks="" size="10" type="INT"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="22" name="channel_passwd_reset" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="23" name="channel_default_group" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" digits="0" id="24" name="channel_allow_cid" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <column autoUpdated="false" digits="0" id="25" name="channel_allow_gid" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <column autoUpdated="false" digits="0" id="26" name="channel_deny_cid" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <column autoUpdated="false" digits="0" id="27" name="channel_deny_gid" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="28" name="channel_r_stream" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="29" name="channel_r_profile" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="30" name="channel_r_photos" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="31" name="channel_r_abook" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="32" name="channel_w_stream" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="33" name="channel_w_wall" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="34" name="channel_w_tagwall" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="35" name="channel_w_comment" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="36" name="channel_w_mail" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="37" name="channel_w_photos" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="38" name="channel_w_chat" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="39" name="channel_a_delegate" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="40" name="channel_r_storage" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="41" name="channel_w_storage" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="42" name="channel_r_pages" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="43" name="channel_w_pages" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="44" name="channel_a_republish" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="45" name="channel_w_like" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="46" name="channel_removed" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="47" name="channel_system" nullable="false" remarks="" size="0" type="BIT"/>
+         <primaryKey column="channel_id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="channel_id"/>
+         </index>
+         <index name="channel_a_delegate" unique="false">
+            <column ascending="true" name="channel_a_delegate"/>
+         </index>
+         <index name="channel_a_republish" unique="false">
+            <column ascending="true" name="channel_a_republish"/>
+         </index>
+         <index name="channel_account_id" unique="false">
+            <column ascending="true" name="channel_account_id"/>
+         </index>
+         <index name="channel_address_unique" unique="true">
+            <column ascending="true" name="channel_address"/>
+         </index>
+         <index name="channel_default_gid" unique="false">
+            <column ascending="true" name="channel_default_group"/>
+         </index>
+         <index name="channel_deleted" unique="false">
+            <column ascending="true" name="channel_deleted"/>
+         </index>
+         <index name="channel_dirdate" unique="false">
+            <column ascending="true" name="channel_dirdate"/>
+         </index>
+         <index name="channel_expire_days" unique="false">
+            <column ascending="true" name="channel_expire_days"/>
+         </index>
+         <index name="channel_guid" unique="false">
+            <column ascending="true" name="channel_guid"/>
+         </index>
+         <index name="channel_hash" unique="false">
+            <column ascending="true" name="channel_hash"/>
+         </index>
+         <index name="channel_lastpost" unique="false">
+            <column ascending="true" name="channel_lastpost"/>
+         </index>
+         <index name="channel_location" unique="false">
+            <column ascending="true" name="channel_location"/>
+         </index>
+         <index name="channel_max_anon_mail" unique="false">
+            <column ascending="true" name="channel_max_anon_mail"/>
+         </index>
+         <index name="channel_max_friend_req" unique="false">
+            <column ascending="true" name="channel_max_friend_req"/>
+         </index>
+         <index name="channel_name" unique="false">
+            <column ascending="true" name="channel_name"/>
+         </index>
+         <index name="channel_notifyflags" unique="false">
+            <column ascending="true" name="channel_notifyflags"/>
+         </index>
+         <index name="channel_pageflags" unique="false">
+            <column ascending="true" name="channel_pageflags"/>
+         </index>
+         <index name="channel_primary" unique="false">
+            <column ascending="true" name="channel_primary"/>
+         </index>
+         <index name="channel_r_abook" unique="false">
+            <column ascending="true" name="channel_r_abook"/>
+         </index>
+         <index name="channel_r_pages" unique="false">
+            <column ascending="true" name="channel_r_pages"/>
+         </index>
+         <index name="channel_r_photos" unique="false">
+            <column ascending="true" name="channel_r_photos"/>
+         </index>
+         <index name="channel_r_profile" unique="false">
+            <column ascending="true" name="channel_r_profile"/>
+         </index>
+         <index name="channel_r_storage" unique="false">
+            <column ascending="true" name="channel_r_storage"/>
+         </index>
+         <index name="channel_r_stream" unique="false">
+            <column ascending="true" name="channel_r_stream"/>
+         </index>
+         <index name="channel_removed" unique="false">
+            <column ascending="true" name="channel_removed"/>
+         </index>
+         <index name="channel_system" unique="false">
+            <column ascending="true" name="channel_system"/>
+         </index>
+         <index name="channel_theme" unique="false">
+            <column ascending="true" name="channel_theme"/>
+         </index>
+         <index name="channel_timezone" unique="false">
+            <column ascending="true" name="channel_timezone"/>
+         </index>
+         <index name="channel_w_chat" unique="false">
+            <column ascending="true" name="channel_w_chat"/>
+         </index>
+         <index name="channel_w_comment" unique="false">
+            <column ascending="true" name="channel_w_comment"/>
+         </index>
+         <index name="channel_w_like" unique="false">
+            <column ascending="true" name="channel_w_like"/>
+         </index>
+         <index name="channel_w_mail" unique="false">
+            <column ascending="true" name="channel_w_mail"/>
+         </index>
+         <index name="channel_w_pages" unique="false">
+            <column ascending="true" name="channel_w_pages"/>
+         </index>
+         <index name="channel_w_photos" unique="false">
+            <column ascending="true" name="channel_w_photos"/>
+         </index>
+         <index name="channel_w_storage" unique="false">
+            <column ascending="true" name="channel_w_storage"/>
+         </index>
+         <index name="channel_w_stream" unique="false">
+            <column ascending="true" name="channel_w_stream"/>
+         </index>
+         <index name="channel_w_tagwall" unique="false">
+            <column ascending="true" name="channel_w_tagwall"/>
+         </index>
+         <index name="channel_w_wall" unique="false">
+            <column ascending="true" name="channel_w_wall"/>
+         </index>
+      </table>
+      <table name="chat" numRows="0" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="chat_id" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="1" name="chat_room" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="2" name="chat_xchan" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" digits="0" id="3" name="chat_text" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="4" name="created" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <primaryKey column="chat_id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="chat_id"/>
+         </index>
+         <index name="chat_room" unique="false">
+            <column ascending="true" name="chat_room"/>
+         </index>
+         <index name="chat_xchan" unique="false">
+            <column ascending="true" name="chat_xchan"/>
+         </index>
+         <index name="created" unique="false">
+            <column ascending="true" name="created"/>
+         </index>
+      </table>
+      <table name="chatpresence" numRows="1" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="cp_id" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="1" name="cp_room" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="2" name="cp_xchan" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="3" name="cp_last" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="4" name="cp_status" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="5" name="cp_client" nullable="false" remarks="" size="128" type="CHAR"/>
+         <primaryKey column="cp_id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="cp_id"/>
+         </index>
+         <index name="cp_last" unique="false">
+            <column ascending="true" name="cp_last"/>
+         </index>
+         <index name="cp_room" unique="false">
+            <column ascending="true" name="cp_room"/>
+         </index>
+         <index name="cp_status" unique="false">
+            <column ascending="true" name="cp_status"/>
+         </index>
+         <index name="cp_xchan" unique="false">
+            <column ascending="true" name="cp_xchan"/>
+         </index>
+      </table>
+      <table name="chatroom" numRows="0" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="cr_id" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="1" name="cr_aid" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="2" name="cr_uid" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="3" name="cr_name" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="4" name="cr_created" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="5" name="cr_edited" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="6" name="cr_expire" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" digits="0" id="7" name="allow_cid" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <column autoUpdated="false" digits="0" id="8" name="allow_gid" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <column autoUpdated="false" digits="0" id="9" name="deny_cid" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <column autoUpdated="false" digits="0" id="10" name="deny_gid" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <primaryKey column="cr_id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="cr_id"/>
+         </index>
+         <index name="cr_aid" unique="false">
+            <column ascending="true" name="cr_aid"/>
+         </index>
+         <index name="cr_created" unique="false">
+            <column ascending="true" name="cr_created"/>
+         </index>
+         <index name="cr_edited" unique="false">
+            <column ascending="true" name="cr_edited"/>
+         </index>
+         <index name="cr_expire" unique="false">
+            <column ascending="true" name="cr_expire"/>
+         </index>
+         <index name="cr_name" unique="false">
+            <column ascending="true" name="cr_name"/>
+         </index>
+         <index name="cr_uid" unique="false">
+            <column ascending="true" name="cr_uid"/>
+         </index>
+      </table>
+      <table name="clients" numRows="0" remarks="" type="TABLE">
+         <column autoUpdated="false" defaultValue="" digits="0" id="0" name="client_id" nullable="false" remarks="" size="20" type="VARCHAR">
+            <child column="client_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="auth_codes"/>
+            <child column="client_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="tokens"/>
+         </column>
+         <column autoUpdated="false" defaultValue="" digits="0" id="1" name="pw" nullable="false" remarks="" size="20" type="VARCHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="2" name="redirect_uri" nullable="false" remarks="" size="200" type="VARCHAR"/>
+         <column autoUpdated="false" digits="0" id="3" name="name" nullable="true" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" digits="0" id="4" name="icon" nullable="true" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="5" name="uid" nullable="false" remarks="" size="10" type="INT"/>
+         <primaryKey column="client_id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="client_id"/>
+         </index>
+      </table>
+      <table name="config" numRows="52" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="INT UNSIGNED">
+            <parent column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="verify"/>
+         </column>
+         <column autoUpdated="false" defaultValue="" digits="0" id="1" name="cat" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="2" name="k" nullable="false" remarks="" size="255" type="CHAR">
+            <parent column="k" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="cache"/>
+         </column>
+         <column autoUpdated="false" digits="0" id="3" name="v" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="access" unique="true">
+            <column ascending="true" name="cat"/>
+            <column ascending="true" name="k"/>
+         </index>
+      </table>
+      <table name="conv" numRows="0" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="INT UNSIGNED">
+            <parent column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="verify"/>
+         </column>
+         <column autoUpdated="false" defaultValue="" digits="0" id="1" name="guid" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" digits="0" id="2" name="recips" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="3" name="uid" nullable="false" remarks="" size="10" type="INT"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="4" name="creator" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="5" name="created" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="6" name="updated" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <column autoUpdated="false" digits="0" id="7" name="subject" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="created" unique="false">
+            <column ascending="true" name="created"/>
+         </index>
+         <index name="updated" unique="false">
+            <column ascending="true" name="updated"/>
+         </index>
+      </table>
+      <table name="event" numRows="0" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="INT">
+            <parent column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="notify"/>
+         </column>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="1" name="aid" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="2" name="uid" nullable="false" remarks="" size="10" type="INT"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="3" name="event_xchan" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="4" name="event_hash" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="5" name="created" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="6" name="edited" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="7" name="start" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="8" name="finish" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <column autoUpdated="false" digits="0" id="9" name="summary" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" digits="0" id="10" name="description" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" digits="0" id="11" name="location" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="12" name="type" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="13" name="nofinish" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" defaultValue="1" digits="0" id="14" name="adjust" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="15" name="ignore" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" digits="0" id="16" name="allow_cid" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <column autoUpdated="false" digits="0" id="17" name="allow_gid" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <column autoUpdated="false" digits="0" id="18" name="deny_cid" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <column autoUpdated="false" digits="0" id="19" name="deny_gid" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="20" name="event_status" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="21" name="event_status_date" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="22" name="event_percent" nullable="false" remarks="" size="5" type="SMALLINT"/>
+         <column autoUpdated="false" digits="0" id="23" name="event_repeat" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="24" name="event_sequence" nullable="false" remarks="" size="5" type="SMALLINT"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="adjust" unique="false">
+            <column ascending="true" name="adjust"/>
+         </index>
+         <index name="aid" unique="false">
+            <column ascending="true" name="aid"/>
+         </index>
+         <index name="event_hash" unique="false">
+            <column ascending="true" name="event_hash"/>
+         </index>
+         <index name="event_sequence" unique="false">
+            <column ascending="true" name="event_sequence"/>
+         </index>
+         <index name="event_status" unique="false">
+            <column ascending="true" name="event_status"/>
+         </index>
+         <index name="event_xchan" unique="false">
+            <column ascending="true" name="event_xchan"/>
+         </index>
+         <index name="finish" unique="false">
+            <column ascending="true" name="finish"/>
+         </index>
+         <index name="ignore" unique="false">
+            <column ascending="true" name="ignore"/>
+         </index>
+         <index name="nofinish" unique="false">
+            <column ascending="true" name="nofinish"/>
+         </index>
+         <index name="start" unique="false">
+            <column ascending="true" name="start"/>
+         </index>
+         <index name="type" unique="false">
+            <column ascending="true" name="type"/>
+         </index>
+         <index name="uid" unique="false">
+            <column ascending="true" name="uid"/>
+         </index>
+      </table>
+      <table name="fcontact" numRows="0" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="INT UNSIGNED">
+            <parent column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="verify"/>
+         </column>
+         <column autoUpdated="false" digits="0" id="1" name="url" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" digits="0" id="2" name="name" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" digits="0" id="3" name="photo" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" digits="0" id="4" name="request" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" digits="0" id="5" name="nick" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" digits="0" id="6" name="addr" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" digits="0" id="7" name="batch" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" digits="0" id="8" name="notify" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" digits="0" id="9" name="poll" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" digits="0" id="10" name="confirm" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" digits="0" id="11" name="priority" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" digits="0" id="12" name="network" nullable="false" remarks="" size="32" type="CHAR"/>
+         <column autoUpdated="false" digits="0" id="13" name="alias" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" digits="0" id="14" name="pubkey" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="15" name="updated" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="addr" unique="false">
+            <column ascending="true" name="addr"/>
+         </index>
+         <index name="network" unique="false">
+            <column ascending="true" name="network"/>
+         </index>
+      </table>
+      <table name="ffinder" numRows="0" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="INT UNSIGNED">
+            <parent column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="verify"/>
+         </column>
+         <column autoUpdated="false" digits="0" id="1" name="uid" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" digits="0" id="2" name="cid" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" digits="0" id="3" name="fid" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="cid" unique="false">
+            <column ascending="true" name="cid"/>
+         </index>
+         <index name="fid" unique="false">
+            <column ascending="true" name="fid"/>
+         </index>
+         <index name="uid" unique="false">
+            <column ascending="true" name="uid"/>
+         </index>
+      </table>
+      <table name="fserver" numRows="0" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="INT">
+            <parent column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="notify"/>
+         </column>
+         <column autoUpdated="false" defaultValue="" digits="0" id="1" name="server" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="2" name="posturl" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" digits="0" id="3" name="key" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="posturl" unique="false">
+            <column ascending="true" name="posturl"/>
+         </index>
+         <index name="server" unique="false">
+            <column ascending="true" name="server"/>
+         </index>
+      </table>
+      <table name="fsuggest" numRows="0" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="INT">
+            <parent column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="notify"/>
+         </column>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="1" name="uid" nullable="false" remarks="" size="10" type="INT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="2" name="cid" nullable="false" remarks="" size="10" type="INT"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="3" name="name" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="4" name="url" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="5" name="request" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="6" name="photo" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" digits="0" id="7" name="note" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="8" name="created" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+      </table>
+      <table name="group_member" numRows="2" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="INT UNSIGNED">
+            <parent column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="verify"/>
+         </column>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="1" name="uid" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="2" name="gid" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="3" name="xchan" nullable="false" remarks="" size="255" type="CHAR"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="gid" unique="false">
+            <column ascending="true" name="gid"/>
+         </index>
+         <index name="uid" unique="false">
+            <column ascending="true" name="uid"/>
+         </index>
+         <index name="xchan" unique="false">
+            <column ascending="true" name="xchan"/>
+         </index>
+      </table>
+      <table name="groups" numRows="5" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="INT UNSIGNED">
+            <parent column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="verify"/>
+         </column>
+         <column autoUpdated="false" defaultValue="" digits="0" id="1" name="hash" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="2" name="uid" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="3" name="visible" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="4" name="deleted" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="5" name="name" nullable="false" remarks="" size="255" type="CHAR"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="deleted" unique="false">
+            <column ascending="true" name="deleted"/>
+         </index>
+         <index name="hash" unique="false">
+            <column ascending="true" name="hash"/>
+         </index>
+         <index name="uid" unique="false">
+            <column ascending="true" name="uid"/>
+         </index>
+         <index name="visible" unique="false">
+            <column ascending="true" name="visible"/>
+         </index>
+      </table>
+      <table name="hook" numRows="0" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="INT">
+            <parent column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="notify"/>
+         </column>
+         <column autoUpdated="false" defaultValue="" digits="0" id="1" name="hook" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="2" name="file" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="3" name="function" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="4" name="priority" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="hook" unique="false">
+            <column ascending="true" name="hook"/>
+         </index>
+      </table>
+      <table name="hubloc" numRows="1513" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="hubloc_id" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="1" name="hubloc_guid" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" digits="0" id="2" name="hubloc_guid_sig" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="3" name="hubloc_hash" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="4" name="hubloc_addr" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="5" name="hubloc_network" nullable="false" remarks="" size="32" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="6" name="hubloc_flags" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="7" name="hubloc_status" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="8" name="hubloc_url" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" digits="0" id="9" name="hubloc_url_sig" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="10" name="hubloc_host" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="11" name="hubloc_callback" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="12" name="hubloc_connect" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" digits="0" id="13" name="hubloc_sitekey" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="14" name="hubloc_updated" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="15" name="hubloc_connected" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="16" name="hubloc_primary" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="17" name="hubloc_orphancheck" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="18" name="hubloc_error" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="19" name="hubloc_deleted" nullable="false" remarks="" size="0" type="BIT"/>
+         <primaryKey column="hubloc_id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="hubloc_id"/>
+         </index>
+         <index name="hubloc_addr" unique="false">
+            <column ascending="true" name="hubloc_addr"/>
+         </index>
+         <index name="hubloc_connect" unique="false">
+            <column ascending="true" name="hubloc_connect"/>
+         </index>
+         <index name="hubloc_connected" unique="false">
+            <column ascending="true" name="hubloc_connected"/>
+         </index>
+         <index name="hubloc_deleted" unique="false">
+            <column ascending="true" name="hubloc_deleted"/>
+         </index>
+         <index name="hubloc_error" unique="false">
+            <column ascending="true" name="hubloc_error"/>
+         </index>
+         <index name="hubloc_flags" unique="false">
+            <column ascending="true" name="hubloc_flags"/>
+         </index>
+         <index name="hubloc_guid" unique="false">
+            <column ascending="true" name="hubloc_guid"/>
+         </index>
+         <index name="hubloc_host" unique="false">
+            <column ascending="true" name="hubloc_host"/>
+         </index>
+         <index name="hubloc_network" unique="false">
+            <column ascending="true" name="hubloc_network"/>
+         </index>
+         <index name="hubloc_orphancheck" unique="false">
+            <column ascending="true" name="hubloc_orphancheck"/>
+         </index>
+         <index name="hubloc_primary" unique="false">
+            <column ascending="true" name="hubloc_primary"/>
+         </index>
+         <index name="hubloc_status" unique="false">
+            <column ascending="true" name="hubloc_status"/>
+         </index>
+         <index name="hubloc_updated" unique="false">
+            <column ascending="true" name="hubloc_updated"/>
+         </index>
+         <index name="hubloc_url" unique="false">
+            <column ascending="true" name="hubloc_url"/>
+         </index>
+      </table>
+      <table name="issue" numRows="0" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="issue_id" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="1" name="issue_created" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="2" name="issue_updated" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="3" name="issue_assigned" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="4" name="issue_priority" nullable="false" remarks="" size="10" type="INT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="5" name="issue_status" nullable="false" remarks="" size="10" type="INT"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="6" name="issue_component" nullable="false" remarks="" size="255" type="CHAR"/>
+         <primaryKey column="issue_id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="issue_id"/>
+         </index>
+         <index name="issue_assigned" unique="false">
+            <column ascending="true" name="issue_assigned"/>
+         </index>
+         <index name="issue_component" unique="false">
+            <column ascending="true" name="issue_component"/>
+         </index>
+         <index name="issue_created" unique="false">
+            <column ascending="true" name="issue_created"/>
+         </index>
+         <index name="issue_priority" unique="false">
+            <column ascending="true" name="issue_priority"/>
+         </index>
+         <index name="issue_status" unique="false">
+            <column ascending="true" name="issue_status"/>
+         </index>
+         <index name="issue_updated" unique="false">
+            <column ascending="true" name="issue_updated"/>
+         </index>
+      </table>
+      <table name="item" numRows="9613" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="INT UNSIGNED">
+            <parent column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="verify"/>
+         </column>
+         <column autoUpdated="false" defaultValue="" digits="0" id="1" name="mid" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="2" name="aid" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="3" name="uid" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="4" name="parent" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="5" name="parent_mid" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="6" name="thr_parent" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="7" name="created" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="8" name="edited" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="9" name="expires" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="10" name="commented" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="11" name="received" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="12" name="changed" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="13" name="comments_closed" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="14" name="owner_xchan" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="15" name="author_xchan" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="16" name="source_xchan" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="17" name="mimetype" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" digits="0" id="18" name="title" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" digits="0" id="19" name="body" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <column autoUpdated="false" digits="0" id="20" name="html" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="21" name="app" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="22" name="lang" nullable="false" remarks="" size="64" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="23" name="revision" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="24" name="verb" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="25" name="obj_type" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" digits="0" id="26" name="object" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="27" name="tgt_type" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" digits="0" id="28" name="target" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="29" name="layout_mid" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" digits="0" id="30" name="postopts" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" digits="0" id="31" name="route" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="32" name="llink" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="33" name="plink" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="34" name="resource_id" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="35" name="resource_type" nullable="false" remarks="" size="16" type="CHAR"/>
+         <column autoUpdated="false" digits="0" id="36" name="attach" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <column autoUpdated="false" digits="0" id="37" name="sig" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" digits="0" id="38" name="diaspora_meta" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="39" name="location" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="40" name="coord" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="41" name="public_policy" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="42" name="comment_policy" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" digits="0" id="43" name="allow_cid" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <column autoUpdated="false" digits="0" id="44" name="allow_gid" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <column autoUpdated="false" digits="0" id="45" name="deny_cid" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <column autoUpdated="false" digits="0" id="46" name="deny_gid" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="47" name="item_restrict" nullable="false" remarks="" size="10" type="INT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="48" name="item_flags" nullable="false" remarks="" size="10" type="INT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="49" name="item_private" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="50" name="item_origin" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="51" name="item_unseen" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="52" name="item_starred" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="53" name="item_uplink" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="54" name="item_consensus" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="55" name="item_wall" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="56" name="item_thread_top" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="57" name="item_notshown" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="58" name="item_nsfw" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="59" name="item_relay" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="60" name="item_mentionsme" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="61" name="item_nocomment" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="62" name="item_obscured" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="63" name="item_verified" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="64" name="item_retained" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="65" name="item_rss" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="66" name="item_deleted" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="67" name="item_type" nullable="false" remarks="" size="10" type="INT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="68" name="item_hidden" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="69" name="item_unpublished" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="70" name="item_delayed" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="71" name="item_pending_remove" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="72" name="item_blocked" nullable="false" remarks="" size="0" type="BIT"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="aid" unique="false">
+            <column ascending="true" name="aid"/>
+         </index>
+         <index name="allow_cid" unique="false">
+            <column ascending="true" name="allow_cid"/>
+         </index>
+         <index name="allow_gid" unique="false">
+            <column ascending="true" name="allow_gid"/>
+         </index>
+         <index name="author_xchan" unique="false">
+            <column ascending="true" name="author_xchan"/>
+         </index>
+         <index name="body" unique="false">
+            <column ascending="true" name="body"/>
+         </index>
+         <index name="changed" unique="false">
+            <column ascending="true" name="changed"/>
+         </index>
+         <index name="comment_policy" unique="false">
+            <column ascending="true" name="comment_policy"/>
+         </index>
+         <index name="commented" unique="false">
+            <column ascending="true" name="commented"/>
+         </index>
+         <index name="comments_closed" unique="false">
+            <column ascending="true" name="comments_closed"/>
+         </index>
+         <index name="created" unique="false">
+            <column ascending="true" name="created"/>
+         </index>
+         <index name="deny_cid" unique="false">
+            <column ascending="true" name="deny_cid"/>
+         </index>
+         <index name="deny_gid" unique="false">
+            <column ascending="true" name="deny_gid"/>
+         </index>
+         <index name="edited" unique="false">
+            <column ascending="true" name="edited"/>
+         </index>
+         <index name="expires" unique="false">
+            <column ascending="true" name="expires"/>
+         </index>
+         <index name="item_blocked" unique="false">
+            <column ascending="true" name="item_blocked"/>
+         </index>
+         <index name="item_consensus" unique="false">
+            <column ascending="true" name="item_consensus"/>
+         </index>
+         <index name="item_delayed" unique="false">
+            <column ascending="true" name="item_delayed"/>
+         </index>
+         <index name="item_deleted" unique="false">
+            <column ascending="true" name="item_deleted"/>
+         </index>
+         <index name="item_flags" unique="false">
+            <column ascending="true" name="item_flags"/>
+         </index>
+         <index name="item_hidden" unique="false">
+            <column ascending="true" name="item_hidden"/>
+         </index>
+         <index name="item_mentionsme" unique="false">
+            <column ascending="true" name="item_mentionsme"/>
+         </index>
+         <index name="item_nocomment" unique="false">
+            <column ascending="true" name="item_nocomment"/>
+         </index>
+         <index name="item_notshown" unique="false">
+            <column ascending="true" name="item_notshown"/>
+         </index>
+         <index name="item_nsfw" unique="false">
+            <column ascending="true" name="item_nsfw"/>
+         </index>
+         <index name="item_obscured" unique="false">
+            <column ascending="true" name="item_obscured"/>
+         </index>
+         <index name="item_origin" unique="false">
+            <column ascending="true" name="item_origin"/>
+         </index>
+         <index name="item_pending_remove" unique="false">
+            <column ascending="true" name="item_pending_remove"/>
+         </index>
+         <index name="item_private" unique="false">
+            <column ascending="true" name="item_private"/>
+         </index>
+         <index name="item_relay" unique="false">
+            <column ascending="true" name="item_relay"/>
+         </index>
+         <index name="item_restrict" unique="false">
+            <column ascending="true" name="item_restrict"/>
+         </index>
+         <index name="item_retained" unique="false">
+            <column ascending="true" name="item_retained"/>
+         </index>
+         <index name="item_rss" unique="false">
+            <column ascending="true" name="item_rss"/>
+         </index>
+         <index name="item_starred" unique="false">
+            <column ascending="true" name="item_starred"/>
+         </index>
+         <index name="item_thread_top" unique="false">
+            <column ascending="true" name="item_thread_top"/>
+         </index>
+         <index name="item_type" unique="false">
+            <column ascending="true" name="item_type"/>
+         </index>
+         <index name="item_unpublished" unique="false">
+            <column ascending="true" name="item_unpublished"/>
+         </index>
+         <index name="item_unseen" unique="false">
+            <column ascending="true" name="item_unseen"/>
+         </index>
+         <index name="item_uplink" unique="false">
+            <column ascending="true" name="item_uplink"/>
+         </index>
+         <index name="item_verified" unique="false">
+            <column ascending="true" name="item_verified"/>
+         </index>
+         <index name="item_wall" unique="false">
+            <column ascending="true" name="item_wall"/>
+         </index>
+         <index name="layout_mid" unique="false">
+            <column ascending="true" name="layout_mid"/>
+         </index>
+         <index name="llink" unique="false">
+            <column ascending="true" name="llink"/>
+         </index>
+         <index name="mid" unique="false">
+            <column ascending="true" name="mid"/>
+         </index>
+         <index name="mimetype" unique="false">
+            <column ascending="true" name="mimetype"/>
+         </index>
+         <index name="owner_xchan" unique="false">
+            <column ascending="true" name="owner_xchan"/>
+         </index>
+         <index name="parent" unique="false">
+            <column ascending="true" name="parent"/>
+         </index>
+         <index name="parent_mid" unique="false">
+            <column ascending="true" name="parent_mid"/>
+         </index>
+         <index name="public_policy" unique="false">
+            <column ascending="true" name="public_policy"/>
+         </index>
+         <index name="received" unique="false">
+            <column ascending="true" name="received"/>
+         </index>
+         <index name="resource_type" unique="false">
+            <column ascending="true" name="resource_type"/>
+         </index>
+         <index name="revision" unique="false">
+            <column ascending="true" name="revision"/>
+         </index>
+         <index name="title" unique="false">
+            <column ascending="true" name="title"/>
+         </index>
+         <index name="uid" unique="false">
+            <column ascending="true" name="uid"/>
+         </index>
+         <index name="uid_commented" unique="false">
+            <column ascending="true" name="uid"/>
+            <column ascending="true" name="commented"/>
+         </index>
+         <index name="uid_created" unique="false">
+            <column ascending="true" name="uid"/>
+            <column ascending="true" name="created"/>
+         </index>
+         <index name="uid_mid" unique="false">
+            <column ascending="true" name="mid"/>
+            <column ascending="true" name="uid"/>
+         </index>
+         <index name="verb" unique="false">
+            <column ascending="true" name="verb"/>
+         </index>
+      </table>
+      <table name="item_id" numRows="1" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="INT UNSIGNED">
+            <parent column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="verify"/>
+         </column>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="1" name="iid" nullable="false" remarks="" size="10" type="INT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="2" name="uid" nullable="false" remarks="" size="10" type="INT"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="3" name="sid" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="4" name="service" nullable="false" remarks="" size="255" type="CHAR"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="iid" unique="false">
+            <column ascending="true" name="iid"/>
+         </index>
+         <index name="service" unique="false">
+            <column ascending="true" name="service"/>
+         </index>
+         <index name="sid" unique="false">
+            <column ascending="true" name="sid"/>
+         </index>
+         <index name="uid" unique="false">
+            <column ascending="true" name="uid"/>
+         </index>
+      </table>
+      <table name="likes" numRows="0" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="INT UNSIGNED">
+            <parent column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="verify"/>
+         </column>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="1" name="channel_id" nullable="false" remarks="" size="10" type="INT UNSIGNED">
+            <parent column="channel_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="channel"/>
+         </column>
+         <column autoUpdated="false" defaultValue="" digits="0" id="2" name="liker" nullable="false" remarks="" size="128" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="3" name="likee" nullable="false" remarks="" size="128" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="4" name="iid" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="5" name="verb" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="6" name="target_type" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="7" name="target_id" nullable="false" remarks="" size="128" type="CHAR"/>
+         <column autoUpdated="false" digits="0" id="8" name="target" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="channel_id" unique="false">
+            <column ascending="true" name="channel_id"/>
+         </index>
+         <index name="iid" unique="false">
+            <column ascending="true" name="iid"/>
+         </index>
+         <index name="likee" unique="false">
+            <column ascending="true" name="likee"/>
+         </index>
+         <index name="liker" unique="false">
+            <column ascending="true" name="liker"/>
+         </index>
+         <index name="target_id" unique="false">
+            <column ascending="true" name="target_id"/>
+         </index>
+         <index name="target_type" unique="false">
+            <column ascending="true" name="target_type"/>
+         </index>
+         <index name="verb" unique="false">
+            <column ascending="true" name="verb"/>
+         </index>
+      </table>
+      <table name="mail" numRows="7" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="INT UNSIGNED">
+            <parent column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="verify"/>
+         </column>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="1" name="convid" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="2" name="mail_flags" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="3" name="from_xchan" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="4" name="to_xchan" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="5" name="account_id" nullable="false" remarks="" size="10" type="INT UNSIGNED">
+            <parent column="account_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="account"/>
+         </column>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="6" name="channel_id" nullable="false" remarks="" size="10" type="INT UNSIGNED">
+            <parent column="channel_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="channel"/>
+         </column>
+         <column autoUpdated="false" digits="0" id="7" name="title" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" digits="0" id="8" name="body" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <column autoUpdated="false" digits="0" id="9" name="sig" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" digits="0" id="10" name="attach" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="11" name="mid" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="12" name="parent_mid" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="13" name="mail_deleted" nullable="false" remarks="" size="3" type="TINYINT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="14" name="mail_replied" nullable="false" remarks="" size="3" type="TINYINT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="15" name="mail_isreply" nullable="false" remarks="" size="3" type="TINYINT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="16" name="mail_seen" nullable="false" remarks="" size="3" type="TINYINT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="17" name="mail_recalled" nullable="false" remarks="" size="3" type="TINYINT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="18" name="mail_obscured" nullable="false" remarks="" size="5" type="SMALLINT"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="19" name="created" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="20" name="expires" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="account_id" unique="false">
+            <column ascending="true" name="account_id"/>
+         </index>
+         <index name="channel_id" unique="false">
+            <column ascending="true" name="channel_id"/>
+         </index>
+         <index name="convid" unique="false">
+            <column ascending="true" name="convid"/>
+         </index>
+         <index name="created" unique="false">
+            <column ascending="true" name="created"/>
+         </index>
+         <index name="expires" unique="false">
+            <column ascending="true" name="expires"/>
+         </index>
+         <index name="from_xchan" unique="false">
+            <column ascending="true" name="from_xchan"/>
+         </index>
+         <index name="mail_deleted" unique="false">
+            <column ascending="true" name="mail_deleted"/>
+         </index>
+         <index name="mail_flags" unique="false">
+            <column ascending="true" name="mail_flags"/>
+         </index>
+         <index name="mail_isreply" unique="false">
+            <column ascending="true" name="mail_isreply"/>
+         </index>
+         <index name="mail_obscured" unique="false">
+            <column ascending="true" name="mail_obscured"/>
+         </index>
+         <index name="mail_recalled" unique="false">
+            <column ascending="true" name="mail_recalled"/>
+         </index>
+         <index name="mail_replied" unique="false">
+            <column ascending="true" name="mail_replied"/>
+         </index>
+         <index name="mail_seen" unique="false">
+            <column ascending="true" name="mail_seen"/>
+         </index>
+         <index name="mid" unique="false">
+            <column ascending="true" name="mid"/>
+         </index>
+         <index name="parent_mid" unique="false">
+            <column ascending="true" name="parent_mid"/>
+         </index>
+         <index name="to_xchan" unique="false">
+            <column ascending="true" name="to_xchan"/>
+         </index>
+      </table>
+      <table name="manage" numRows="0" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="INT">
+            <parent column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="notify"/>
+         </column>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="1" name="uid" nullable="false" remarks="" size="10" type="INT"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="2" name="xchan" nullable="false" remarks="" size="255" type="CHAR"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="uid" unique="false">
+            <column ascending="true" name="uid"/>
+         </index>
+         <index name="xchan" unique="false">
+            <column ascending="true" name="xchan"/>
+         </index>
+      </table>
+      <table name="menu" numRows="1" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="menu_id" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="1" name="menu_channel_id" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="2" name="menu_name" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="3" name="menu_desc" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="4" name="menu_flags" nullable="false" remarks="" size="10" type="INT"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="5" name="menu_created" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="6" name="menu_edited" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <primaryKey column="menu_id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="menu_id"/>
+         </index>
+         <index name="menu_channel_id" unique="false">
+            <column ascending="true" name="menu_channel_id"/>
+         </index>
+         <index name="menu_created" unique="false">
+            <column ascending="true" name="menu_created"/>
+         </index>
+         <index name="menu_edited" unique="false">
+            <column ascending="true" name="menu_edited"/>
+         </index>
+         <index name="menu_flags" unique="false">
+            <column ascending="true" name="menu_flags"/>
+         </index>
+         <index name="menu_name" unique="false">
+            <column ascending="true" name="menu_name"/>
+         </index>
+      </table>
+      <table name="menu_item" numRows="1" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="mitem_id" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="1" name="mitem_link" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="2" name="mitem_desc" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="3" name="mitem_flags" nullable="false" remarks="" size="10" type="INT"/>
+         <column autoUpdated="false" digits="0" id="4" name="allow_cid" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <column autoUpdated="false" digits="0" id="5" name="allow_gid" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <column autoUpdated="false" digits="0" id="6" name="deny_cid" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <column autoUpdated="false" digits="0" id="7" name="deny_gid" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="8" name="mitem_channel_id" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="9" name="mitem_menu_id" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="10" name="mitem_order" nullable="false" remarks="" size="10" type="INT"/>
+         <primaryKey column="mitem_id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="mitem_id"/>
+         </index>
+         <index name="mitem_channel_id" unique="false">
+            <column ascending="true" name="mitem_channel_id"/>
+         </index>
+         <index name="mitem_flags" unique="false">
+            <column ascending="true" name="mitem_flags"/>
+         </index>
+         <index name="mitem_menu_id" unique="false">
+            <column ascending="true" name="mitem_menu_id"/>
+         </index>
+      </table>
+      <table name="notify" numRows="59" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="INT">
+            <child column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="addon"/>
+            <child column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="app"/>
+            <child column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="event"/>
+            <child column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="fserver"/>
+            <child column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="fsuggest"/>
+            <child column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="hook"/>
+            <child column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="manage"/>
+            <child column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="pconfig"/>
+            <child column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="profile"/>
+            <child column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="spam"/>
+         </column>
+         <column autoUpdated="false" defaultValue="" digits="0" id="1" name="hash" nullable="false" remarks="" size="64" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="2" name="name" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="3" name="url" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="4" name="photo" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="5" name="date" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <column autoUpdated="false" digits="0" id="6" name="msg" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="7" name="aid" nullable="false" remarks="" size="10" type="INT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="8" name="uid" nullable="false" remarks="" size="10" type="INT"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="9" name="link" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="10" name="parent" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="11" name="seen" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="12" name="type" nullable="false" remarks="" size="10" type="INT"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="13" name="verb" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="14" name="otype" nullable="false" remarks="" size="16" type="CHAR"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="aid" unique="false">
+            <column ascending="true" name="aid"/>
+         </index>
+         <index name="date" unique="false">
+            <column ascending="true" name="date"/>
+         </index>
+         <index name="hash" unique="false">
+            <column ascending="true" name="hash"/>
+         </index>
+         <index name="link" unique="false">
+            <column ascending="true" name="link"/>
+         </index>
+         <index name="otype" unique="false">
+            <column ascending="true" name="otype"/>
+         </index>
+         <index name="parent" unique="false">
+            <column ascending="true" name="parent"/>
+         </index>
+         <index name="seen" unique="false">
+            <column ascending="true" name="seen"/>
+         </index>
+         <index name="type" unique="false">
+            <column ascending="true" name="type"/>
+         </index>
+         <index name="uid" unique="false">
+            <column ascending="true" name="uid"/>
+         </index>
+      </table>
+      <table name="obj" numRows="0" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="obj_id" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="1" name="obj_page" nullable="false" remarks="" size="64" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="2" name="obj_verb" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="3" name="obj_type" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="4" name="obj_obj" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="5" name="obj_channel" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" digits="0" id="6" name="allow_cid" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <column autoUpdated="false" digits="0" id="7" name="allow_gid" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <column autoUpdated="false" digits="0" id="8" name="deny_cid" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <column autoUpdated="false" digits="0" id="9" name="deny_gid" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <primaryKey column="obj_id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="obj_id"/>
+         </index>
+         <index name="obj_channel" unique="false">
+            <column ascending="true" name="obj_channel"/>
+         </index>
+         <index name="obj_obj" unique="false">
+            <column ascending="true" name="obj_obj"/>
+         </index>
+         <index name="obj_page" unique="false">
+            <column ascending="true" name="obj_page"/>
+         </index>
+         <index name="obj_type" unique="false">
+            <column ascending="true" name="obj_type"/>
+         </index>
+         <index name="obj_verb" unique="false">
+            <column ascending="true" name="obj_verb"/>
+         </index>
+      </table>
+      <table name="outq" numRows="2" remarks="" type="TABLE">
+         <column autoUpdated="false" digits="0" id="0" name="outq_hash" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="1" name="outq_account" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="2" name="outq_channel" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="3" name="outq_driver" nullable="false" remarks="" size="32" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="4" name="outq_posturl" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="5" name="outq_async" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="6" name="outq_delivered" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="7" name="outq_created" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="8" name="outq_updated" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <column autoUpdated="false" digits="0" id="9" name="outq_notify" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <column autoUpdated="false" digits="0" id="10" name="outq_msg" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="11" name="outq_priority" nullable="false" remarks="" size="5" type="SMALLINT"/>
+         <primaryKey column="outq_hash" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="outq_hash"/>
+         </index>
+         <index name="outq_account" unique="false">
+            <column ascending="true" name="outq_account"/>
+         </index>
+         <index name="outq_async" unique="false">
+            <column ascending="true" name="outq_async"/>
+         </index>
+         <index name="outq_channel" unique="false">
+            <column ascending="true" name="outq_channel"/>
+         </index>
+         <index name="outq_created" unique="false">
+            <column ascending="true" name="outq_created"/>
+         </index>
+         <index name="outq_delivered" unique="false">
+            <column ascending="true" name="outq_delivered"/>
+         </index>
+         <index name="outq_hub" unique="false">
+            <column ascending="true" name="outq_posturl"/>
+         </index>
+         <index name="outq_priority" unique="false">
+            <column ascending="true" name="outq_priority"/>
+         </index>
+         <index name="outq_updated" unique="false">
+            <column ascending="true" name="outq_updated"/>
+         </index>
+      </table>
+      <table name="pconfig" numRows="232" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="INT">
+            <parent column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="notify"/>
+         </column>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="1" name="uid" nullable="false" remarks="" size="10" type="INT"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="2" name="cat" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="3" name="k" nullable="false" remarks="" size="255" type="CHAR">
+            <parent column="k" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="cache"/>
+         </column>
+         <column autoUpdated="false" digits="0" id="4" name="v" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="access" unique="true">
+            <column ascending="true" name="uid"/>
+            <column ascending="true" name="cat"/>
+            <column ascending="true" name="k"/>
+         </index>
+      </table>
+      <table name="photo" numRows="3495" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="INT UNSIGNED">
+            <parent column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="verify"/>
+         </column>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="1" name="aid" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="2" name="uid" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="3" name="xchan" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="4" name="resource_id" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="5" name="created" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="6" name="edited" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="7" name="title" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" digits="0" id="8" name="description" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="9" name="album" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="10" name="filename" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="image/jpeg" digits="0" id="11" name="type" nullable="false" remarks="" size="128" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="12" name="height" nullable="false" remarks="" size="5" type="SMALLINT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="13" name="width" nullable="false" remarks="" size="5" type="SMALLINT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="14" name="size" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" digits="0" id="15" name="data" nullable="false" remarks="" size="16777215" type="MEDIUMBLOB"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="16" name="scale" nullable="false" remarks="" size="3" type="TINYINT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="17" name="photo_usage" nullable="false" remarks="" size="5" type="SMALLINT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="18" name="profile" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="19" name="is_nsfw" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="20" name="os_storage" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" digits="0" id="21" name="os_path" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <column autoUpdated="false" digits="0" id="22" name="display_path" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="23" name="photo_flags" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" digits="0" id="24" name="allow_cid" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <column autoUpdated="false" digits="0" id="25" name="allow_gid" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <column autoUpdated="false" digits="0" id="26" name="deny_cid" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <column autoUpdated="false" digits="0" id="27" name="deny_gid" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="aid" unique="false">
+            <column ascending="true" name="aid"/>
+         </index>
+         <index name="album" unique="false">
+            <column ascending="true" name="album"/>
+         </index>
+         <index name="is_nsfw" unique="false">
+            <column ascending="true" name="is_nsfw"/>
+         </index>
+         <index name="os_storage" unique="false">
+            <column ascending="true" name="os_storage"/>
+         </index>
+         <index name="photo_flags" unique="false">
+            <column ascending="true" name="photo_flags"/>
+         </index>
+         <index name="photo_usage" unique="false">
+            <column ascending="true" name="photo_usage"/>
+         </index>
+         <index name="profile" unique="false">
+            <column ascending="true" name="profile"/>
+         </index>
+         <index name="resource_id" unique="false">
+            <column ascending="true" name="resource_id"/>
+         </index>
+         <index name="scale" unique="false">
+            <column ascending="true" name="scale"/>
+         </index>
+         <index name="size" unique="false">
+            <column ascending="true" name="size"/>
+         </index>
+         <index name="type" unique="false">
+            <column ascending="true" name="type"/>
+         </index>
+         <index name="uid" unique="false">
+            <column ascending="true" name="uid"/>
+         </index>
+         <index name="xchan" unique="false">
+            <column ascending="true" name="xchan"/>
+         </index>
+      </table>
+      <table name="poll" numRows="0" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="poll_id" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="1" name="poll_channel" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" digits="0" id="2" name="poll_desc" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="3" name="poll_flags" nullable="false" remarks="" size="10" type="INT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="4" name="poll_votes" nullable="false" remarks="" size="10" type="INT"/>
+         <primaryKey column="poll_id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="poll_id"/>
+         </index>
+         <index name="poll_channel" unique="false">
+            <column ascending="true" name="poll_channel"/>
+         </index>
+         <index name="poll_flags" unique="false">
+            <column ascending="true" name="poll_flags"/>
+         </index>
+         <index name="poll_votes" unique="false">
+            <column ascending="true" name="poll_votes"/>
+         </index>
+      </table>
+      <table name="poll_elm" numRows="0" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="pelm_id" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="1" name="pelm_poll" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" digits="0" id="2" name="pelm_desc" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="3" name="pelm_flags" nullable="false" remarks="" size="10" type="INT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="4" name="pelm_result" nullable="false" remarks="" size="12" type="FLOAT"/>
+         <primaryKey column="pelm_id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="pelm_id"/>
+         </index>
+         <index name="pelm_poll" unique="false">
+            <column ascending="true" name="pelm_poll"/>
+         </index>
+         <index name="pelm_result" unique="false">
+            <column ascending="true" name="pelm_result"/>
+         </index>
+      </table>
+      <table name="profdef" numRows="0" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="INT UNSIGNED">
+            <parent column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="verify"/>
+         </column>
+         <column autoUpdated="false" defaultValue="" digits="0" id="1" name="field_name" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="2" name="field_type" nullable="false" remarks="" size="16" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="3" name="field_desc" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="4" name="field_help" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" digits="0" id="5" name="field_inputs" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="field_name" unique="false">
+            <column ascending="true" name="field_name"/>
+         </index>
+      </table>
+      <table name="profext" numRows="0" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="INT UNSIGNED">
+            <parent column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="verify"/>
+         </column>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="1" name="channel_id" nullable="false" remarks="" size="10" type="INT UNSIGNED">
+            <parent column="channel_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="channel"/>
+         </column>
+         <column autoUpdated="false" defaultValue="" digits="0" id="2" name="hash" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="3" name="k" nullable="false" remarks="" size="255" type="CHAR">
+            <parent column="k" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="cache"/>
+         </column>
+         <column autoUpdated="false" digits="0" id="4" name="v" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="channel_id" unique="false">
+            <column ascending="true" name="channel_id"/>
+         </index>
+         <index name="hash" unique="false">
+            <column ascending="true" name="hash"/>
+         </index>
+         <index name="k" unique="false">
+            <column ascending="true" name="k"/>
+         </index>
+      </table>
+      <table name="profile" numRows="4" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="INT">
+            <parent column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="notify"/>
+         </column>
+         <column autoUpdated="false" defaultValue="" digits="0" id="1" name="profile_guid" nullable="false" remarks="" size="64" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="2" name="aid" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="3" name="uid" nullable="false" remarks="" size="10" type="INT"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="4" name="profile_name" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="5" name="is_default" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="6" name="hide_friends" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="7" name="name" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="8" name="pdesc" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" digits="0" id="9" name="chandesc" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" defaultValue="0000-00-00" digits="0" id="10" name="dob" nullable="false" remarks="" size="32" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="UTC" digits="0" id="11" name="dob_tz" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="12" name="address" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="13" name="locality" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="14" name="region" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="15" name="postal_code" nullable="false" remarks="" size="32" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="16" name="country_name" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="17" name="hometown" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="18" name="gender" nullable="false" remarks="" size="32" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="19" name="marital" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" digits="0" id="20" name="with" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="21" name="howlong" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="22" name="sexual" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="23" name="politic" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="24" name="religion" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" digits="0" id="25" name="keywords" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" digits="0" id="26" name="likes" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" digits="0" id="27" name="dislikes" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" digits="0" id="28" name="about" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="29" name="summary" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" digits="0" id="30" name="music" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" digits="0" id="31" name="book" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" digits="0" id="32" name="tv" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" digits="0" id="33" name="film" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" digits="0" id="34" name="interest" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" digits="0" id="35" name="romance" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" digits="0" id="36" name="work" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" digits="0" id="37" name="education" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" digits="0" id="38" name="contact" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" digits="0" id="39" name="channels" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="40" name="homepage" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="41" name="photo" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="42" name="thumb" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="43" name="publish" nullable="false" remarks="" size="0" type="BIT"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="aid" unique="false">
+            <column ascending="true" name="aid"/>
+         </index>
+         <index name="country_name" unique="false">
+            <column ascending="true" name="country_name"/>
+         </index>
+         <index name="gender" unique="false">
+            <column ascending="true" name="gender"/>
+         </index>
+         <index name="guid" unique="true">
+            <column ascending="true" name="profile_guid"/>
+            <column ascending="true" name="uid"/>
+         </index>
+         <index name="hide_friends" unique="false">
+            <column ascending="true" name="hide_friends"/>
+         </index>
+         <index name="hometown" unique="false">
+            <column ascending="true" name="hometown"/>
+         </index>
+         <index name="is_default" unique="false">
+            <column ascending="true" name="is_default"/>
+         </index>
+         <index name="locality" unique="false">
+            <column ascending="true" name="locality"/>
+         </index>
+         <index name="marital" unique="false">
+            <column ascending="true" name="marital"/>
+         </index>
+         <index name="postal_code" unique="false">
+            <column ascending="true" name="postal_code"/>
+         </index>
+         <index name="profile_guid" unique="false">
+            <column ascending="true" name="profile_guid"/>
+         </index>
+         <index name="publish" unique="false">
+            <column ascending="true" name="publish"/>
+         </index>
+         <index name="sexual" unique="false">
+            <column ascending="true" name="sexual"/>
+         </index>
+         <index name="uid" unique="false">
+            <column ascending="true" name="uid"/>
+         </index>
+      </table>
+      <table name="profile_check" numRows="0" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="INT UNSIGNED">
+            <parent column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="verify"/>
+         </column>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="1" name="uid" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="2" name="cid" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="3" name="dfrn_id" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="4" name="sec" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="5" name="expire" nullable="false" remarks="" size="10" type="INT"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="cid" unique="false">
+            <column ascending="true" name="cid"/>
+         </index>
+         <index name="dfrn_id" unique="false">
+            <column ascending="true" name="dfrn_id"/>
+         </index>
+         <index name="expire" unique="false">
+            <column ascending="true" name="expire"/>
+         </index>
+         <index name="sec" unique="false">
+            <column ascending="true" name="sec"/>
+         </index>
+         <index name="uid" unique="false">
+            <column ascending="true" name="uid"/>
+         </index>
+      </table>
+      <table name="register" numRows="0" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="INT UNSIGNED">
+            <parent column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="verify"/>
+         </column>
+         <column autoUpdated="false" defaultValue="" digits="0" id="1" name="hash" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="2" name="created" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="3" name="uid" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="4" name="password" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="5" name="language" nullable="false" remarks="" size="16" type="CHAR"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="created" unique="false">
+            <column ascending="true" name="created"/>
+         </index>
+         <index name="hash" unique="false">
+            <column ascending="true" name="hash"/>
+         </index>
+         <index name="uid" unique="false">
+            <column ascending="true" name="uid"/>
+         </index>
+      </table>
+      <table name="session" numRows="23" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="id" nullable="false" remarks="" size="20" type="BIGINT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="1" name="sid" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" digits="0" id="2" name="data" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="3" name="expire" nullable="false" remarks="" size="20" type="BIGINT UNSIGNED"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="expire" unique="false">
+            <column ascending="true" name="expire"/>
+         </index>
+         <index name="sid" unique="false">
+            <column ascending="true" name="sid"/>
+         </index>
+      </table>
+      <table name="shares" numRows="0" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="share_id" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="1" name="share_type" nullable="false" remarks="" size="10" type="INT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="2" name="share_target" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="3" name="share_xchan" nullable="false" remarks="" size="255" type="CHAR"/>
+         <primaryKey column="share_id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="share_id"/>
+         </index>
+         <index name="share_target" unique="false">
+            <column ascending="true" name="share_target"/>
+         </index>
+         <index name="share_type" unique="false">
+            <column ascending="true" name="share_type"/>
+         </index>
+         <index name="share_xchan" unique="false">
+            <column ascending="true" name="share_xchan"/>
+         </index>
+      </table>
+      <table name="sign" numRows="0" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="INT UNSIGNED">
+            <parent column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="verify"/>
+         </column>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="1" name="iid" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="2" name="retract_iid" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" digits="0" id="3" name="signed_text" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <column autoUpdated="false" digits="0" id="4" name="signature" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="5" name="signer" nullable="false" remarks="" size="255" type="CHAR"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="iid" unique="false">
+            <column ascending="true" name="iid"/>
+         </index>
+         <index name="retract_iid" unique="false">
+            <column ascending="true" name="retract_iid"/>
+         </index>
+      </table>
+      <table name="site" numRows="117" remarks="" type="TABLE">
+         <column autoUpdated="false" digits="0" id="0" name="site_url" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="1" name="site_access" nullable="false" remarks="" size="10" type="INT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="2" name="site_flags" nullable="false" remarks="" size="10" type="INT"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="3" name="site_update" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="4" name="site_pull" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="5" name="site_sync" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="6" name="site_directory" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="7" name="site_register" nullable="false" remarks="" size="10" type="INT"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="8" name="site_sellpage" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="9" name="site_location" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="10" name="site_realm" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="11" name="site_valid" nullable="false" remarks="" size="5" type="SMALLINT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="12" name="site_dead" nullable="false" remarks="" size="5" type="SMALLINT"/>
+         <primaryKey column="site_url" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="site_url"/>
+         </index>
+         <index name="site_access" unique="false">
+            <column ascending="true" name="site_access"/>
+         </index>
+         <index name="site_dead" unique="false">
+            <column ascending="true" name="site_dead"/>
+         </index>
+         <index name="site_directory" unique="false">
+            <column ascending="true" name="site_directory"/>
+         </index>
+         <index name="site_flags" unique="false">
+            <column ascending="true" name="site_flags"/>
+         </index>
+         <index name="site_pull" unique="false">
+            <column ascending="true" name="site_pull"/>
+         </index>
+         <index name="site_realm" unique="false">
+            <column ascending="true" name="site_realm"/>
+         </index>
+         <index name="site_register" unique="false">
+            <column ascending="true" name="site_register"/>
+         </index>
+         <index name="site_sellpage" unique="false">
+            <column ascending="true" name="site_sellpage"/>
+         </index>
+         <index name="site_update" unique="false">
+            <column ascending="true" name="site_update"/>
+         </index>
+         <index name="site_valid" unique="false">
+            <column ascending="true" name="site_valid"/>
+         </index>
+      </table>
+      <table name="source" numRows="0" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="src_id" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="1" name="src_channel_id" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="2" name="src_channel_xchan" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="3" name="src_xchan" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" digits="0" id="4" name="src_patt" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <primaryKey column="src_id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="src_id"/>
+         </index>
+         <index name="src_channel_id" unique="false">
+            <column ascending="true" name="src_channel_id"/>
+         </index>
+         <index name="src_channel_xchan" unique="false">
+            <column ascending="true" name="src_channel_xchan"/>
+         </index>
+         <index name="src_xchan" unique="false">
+            <column ascending="true" name="src_xchan"/>
+         </index>
+      </table>
+      <table name="spam" numRows="0" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="INT">
+            <parent column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="notify"/>
+         </column>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="1" name="uid" nullable="false" remarks="" size="10" type="INT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="2" name="spam" nullable="false" remarks="" size="10" type="INT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="3" name="ham" nullable="false" remarks="" size="10" type="INT"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="4" name="term" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="5" name="date" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="ham" unique="false">
+            <column ascending="true" name="ham"/>
+         </index>
+         <index name="spam" unique="false">
+            <column ascending="true" name="spam"/>
+         </index>
+         <index name="term" unique="false">
+            <column ascending="true" name="term"/>
+         </index>
+         <index name="uid" unique="false">
+            <column ascending="true" name="uid"/>
+         </index>
+      </table>
+      <table name="sys_perms" numRows="0" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="INT UNSIGNED">
+            <parent column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="verify"/>
+         </column>
+         <column autoUpdated="false" defaultValue="" digits="0" id="1" name="cat" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="2" name="k" nullable="false" remarks="" size="255" type="CHAR">
+            <parent column="k" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="cache"/>
+         </column>
+         <column autoUpdated="false" digits="0" id="3" name="v" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="4" name="public_perm" nullable="false" remarks="" size="0" type="BIT"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+      </table>
+      <table name="term" numRows="7585" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="tid" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="1" name="aid" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="2" name="uid" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="3" name="oid" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="4" name="otype" nullable="false" remarks="" size="3" type="TINYINT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="5" name="type" nullable="false" remarks="" size="3" type="TINYINT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="6" name="term" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="7" name="url" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="8" name="imgurl" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="9" name="term_hash" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="10" name="parent_hash" nullable="false" remarks="" size="255" type="CHAR"/>
+         <primaryKey column="tid" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="tid"/>
+         </index>
+         <index name="aid" unique="false">
+            <column ascending="true" name="aid"/>
+         </index>
+         <index name="imgurl" unique="false">
+            <column ascending="true" name="imgurl"/>
+         </index>
+         <index name="oid" unique="false">
+            <column ascending="true" name="oid"/>
+         </index>
+         <index name="otype" unique="false">
+            <column ascending="true" name="otype"/>
+         </index>
+         <index name="parent_hash" unique="false">
+            <column ascending="true" name="parent_hash"/>
+         </index>
+         <index name="term" unique="false">
+            <column ascending="true" name="term"/>
+         </index>
+         <index name="term_hash" unique="false">
+            <column ascending="true" name="term_hash"/>
+         </index>
+         <index name="type" unique="false">
+            <column ascending="true" name="type"/>
+         </index>
+         <index name="uid" unique="false">
+            <column ascending="true" name="uid"/>
+         </index>
+      </table>
+      <table name="tokens" numRows="0" remarks="" type="TABLE">
+         <column autoUpdated="false" defaultValue="" digits="0" id="0" name="id" nullable="false" remarks="" size="40" type="VARCHAR">
+            <child column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="auth_codes"/>
+         </column>
+         <column autoUpdated="false" digits="0" id="1" name="secret" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="2" name="client_id" nullable="false" remarks="" size="20" type="VARCHAR">
+            <parent column="client_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="clients"/>
+         </column>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="3" name="expires" nullable="false" remarks="" size="20" type="BIGINT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="4" name="scope" nullable="false" remarks="" size="200" type="VARCHAR"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="5" name="uid" nullable="false" remarks="" size="10" type="INT"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="client_id" unique="false">
+            <column ascending="true" name="client_id"/>
+         </index>
+         <index name="expires" unique="false">
+            <column ascending="true" name="expires"/>
+         </index>
+         <index name="uid" unique="false">
+            <column ascending="true" name="uid"/>
+         </index>
+      </table>
+      <table name="updates" numRows="0" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="ud_id" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="1" name="ud_hash" nullable="false" remarks="" size="128" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="2" name="ud_guid" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="3" name="ud_date" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="4" name="ud_last" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="5" name="ud_flags" nullable="false" remarks="" size="10" type="INT"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="6" name="ud_addr" nullable="false" remarks="" size="255" type="CHAR"/>
+         <primaryKey column="ud_id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="ud_id"/>
+         </index>
+         <index name="ud_addr" unique="false">
+            <column ascending="true" name="ud_addr"/>
+         </index>
+         <index name="ud_date" unique="false">
+            <column ascending="true" name="ud_date"/>
+         </index>
+         <index name="ud_flags" unique="false">
+            <column ascending="true" name="ud_flags"/>
+         </index>
+         <index name="ud_guid" unique="false">
+            <column ascending="true" name="ud_guid"/>
+         </index>
+         <index name="ud_hash" unique="false">
+            <column ascending="true" name="ud_hash"/>
+         </index>
+         <index name="ud_last" unique="false">
+            <column ascending="true" name="ud_last"/>
+         </index>
+      </table>
+      <table name="verify" numRows="1" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="INT UNSIGNED">
+            <child column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="attach"/>
+            <child column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="config"/>
+            <child column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="conv"/>
+            <child column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="fcontact"/>
+            <child column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="ffinder"/>
+            <child column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="group_member"/>
+            <child column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="groups"/>
+            <child column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="item"/>
+            <child column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="item_id"/>
+            <child column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="likes"/>
+            <child column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="mail"/>
+            <child column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="photo"/>
+            <child column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="profdef"/>
+            <child column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="profext"/>
+            <child column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="profile_check"/>
+            <child column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="register"/>
+            <child column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="sign"/>
+            <child column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="sys_perms"/>
+            <child column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="xconfig"/>
+            <child column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="xign"/>
+         </column>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="1" name="channel" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="2" name="type" nullable="false" remarks="" size="32" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="3" name="token" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="4" name="meta" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="5" name="created" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="channel" unique="false">
+            <column ascending="true" name="channel"/>
+         </index>
+         <index name="created" unique="false">
+            <column ascending="true" name="created"/>
+         </index>
+         <index name="meta" unique="false">
+            <column ascending="true" name="meta"/>
+         </index>
+         <index name="token" unique="false">
+            <column ascending="true" name="token"/>
+         </index>
+         <index name="type" unique="false">
+            <column ascending="true" name="type"/>
+         </index>
+      </table>
+      <table name="vote" numRows="0" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="vote_id" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="1" name="vote_poll" nullable="false" remarks="" size="10" type="INT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="2" name="vote_element" nullable="false" remarks="" size="10" type="INT"/>
+         <column autoUpdated="false" digits="0" id="3" name="vote_result" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="4" name="vote_xchan" nullable="false" remarks="" size="255" type="CHAR"/>
+         <primaryKey column="vote_id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="vote_id"/>
+         </index>
+         <index name="vote_element" unique="false">
+            <column ascending="true" name="vote_element"/>
+         </index>
+         <index name="vote_poll" unique="false">
+            <column ascending="true" name="vote_poll"/>
+         </index>
+         <index name="vote_vote" unique="true">
+            <column ascending="true" name="vote_poll"/>
+            <column ascending="true" name="vote_element"/>
+            <column ascending="true" name="vote_xchan"/>
+         </index>
+      </table>
+      <table name="xchan" numRows="1168" remarks="" type="TABLE">
+         <column autoUpdated="false" digits="0" id="0" name="xchan_hash" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="1" name="xchan_guid" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" digits="0" id="2" name="xchan_guid_sig" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" digits="0" id="3" name="xchan_pubkey" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" defaultValue="image/jpeg" digits="0" id="4" name="xchan_photo_mimetype" nullable="false" remarks="" size="32" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="5" name="xchan_photo_l" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="6" name="xchan_photo_m" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="7" name="xchan_photo_s" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="8" name="xchan_addr" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="9" name="xchan_url" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="10" name="xchan_connurl" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="11" name="xchan_follow" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="12" name="xchan_connpage" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="13" name="xchan_name" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="14" name="xchan_network" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="15" name="xchan_instance_url" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="16" name="xchan_flags" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="17" name="xchan_photo_date" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="18" name="xchan_name_date" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="19" name="xchan_hidden" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="20" name="xchan_orphan" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="21" name="xchan_censored" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="22" name="xchan_selfcensored" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="23" name="xchan_system" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="24" name="xchan_pubforum" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="25" name="xchan_deleted" nullable="false" remarks="" size="0" type="BIT"/>
+         <primaryKey column="xchan_hash" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="xchan_hash"/>
+         </index>
+         <index name="xchan_addr" unique="false">
+            <column ascending="true" name="xchan_addr"/>
+         </index>
+         <index name="xchan_censored" unique="false">
+            <column ascending="true" name="xchan_censored"/>
+         </index>
+         <index name="xchan_connurl" unique="false">
+            <column ascending="true" name="xchan_connurl"/>
+         </index>
+         <index name="xchan_deleted" unique="false">
+            <column ascending="true" name="xchan_deleted"/>
+         </index>
+         <index name="xchan_flags" unique="false">
+            <column ascending="true" name="xchan_flags"/>
+         </index>
+         <index name="xchan_follow" unique="false">
+            <column ascending="true" name="xchan_follow"/>
+         </index>
+         <index name="xchan_guid" unique="false">
+            <column ascending="true" name="xchan_guid"/>
+         </index>
+         <index name="xchan_hidden" unique="false">
+            <column ascending="true" name="xchan_hidden"/>
+         </index>
+         <index name="xchan_instance_url" unique="false">
+            <column ascending="true" name="xchan_instance_url"/>
+         </index>
+         <index name="xchan_name" unique="false">
+            <column ascending="true" name="xchan_name"/>
+         </index>
+         <index name="xchan_network" unique="false">
+            <column ascending="true" name="xchan_network"/>
+         </index>
+         <index name="xchan_orphan" unique="false">
+            <column ascending="true" name="xchan_orphan"/>
+         </index>
+         <index name="xchan_pubforum" unique="false">
+            <column ascending="true" name="xchan_pubforum"/>
+         </index>
+         <index name="xchan_selfcensored" unique="false">
+            <column ascending="true" name="xchan_selfcensored"/>
+         </index>
+         <index name="xchan_system" unique="false">
+            <column ascending="true" name="xchan_system"/>
+         </index>
+         <index name="xchan_url" unique="false">
+            <column ascending="true" name="xchan_url"/>
+         </index>
+      </table>
+      <table name="xchat" numRows="0" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="xchat_id" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="1" name="xchat_url" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="2" name="xchat_desc" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="3" name="xchat_xchan" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="4" name="xchat_edited" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <primaryKey column="xchat_id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="xchat_id"/>
+         </index>
+         <index name="xchat_desc" unique="false">
+            <column ascending="true" name="xchat_desc"/>
+         </index>
+         <index name="xchat_edited" unique="false">
+            <column ascending="true" name="xchat_edited"/>
+         </index>
+         <index name="xchat_url" unique="false">
+            <column ascending="true" name="xchat_url"/>
+         </index>
+         <index name="xchat_xchan" unique="false">
+            <column ascending="true" name="xchat_xchan"/>
+         </index>
+      </table>
+      <table name="xconfig" numRows="4" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="INT UNSIGNED">
+            <parent column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="verify"/>
+         </column>
+         <column autoUpdated="false" defaultValue="" digits="0" id="1" name="xchan" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="2" name="cat" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="3" name="k" nullable="false" remarks="" size="255" type="CHAR">
+            <parent column="k" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="cache"/>
+         </column>
+         <column autoUpdated="false" digits="0" id="4" name="v" nullable="false" remarks="" size="16777215" type="MEDIUMTEXT"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="cat" unique="false">
+            <column ascending="true" name="cat"/>
+         </index>
+         <index name="k" unique="false">
+            <column ascending="true" name="k"/>
+         </index>
+         <index name="xchan" unique="false">
+            <column ascending="true" name="xchan"/>
+         </index>
+      </table>
+      <table name="xign" numRows="0" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="INT UNSIGNED">
+            <parent column="id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" table="verify"/>
+         </column>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="1" name="uid" nullable="false" remarks="" size="10" type="INT"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="2" name="xchan" nullable="false" remarks="" size="255" type="CHAR"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="uid" unique="false">
+            <column ascending="true" name="uid"/>
+         </index>
+         <index name="xchan" unique="false">
+            <column ascending="true" name="xchan"/>
+         </index>
+      </table>
+      <table name="xlink" numRows="244" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="xlink_id" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="1" name="xlink_xchan" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="2" name="xlink_link" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="3" name="xlink_rating" nullable="false" remarks="" size="10" type="INT"/>
+         <column autoUpdated="false" digits="0" id="4" name="xlink_rating_text" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" defaultValue="0000-00-00 00:00:00" digits="0" id="5" name="xlink_updated" nullable="false" remarks="" size="19" type="DATETIME"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="6" name="xlink_static" nullable="false" remarks="" size="0" type="BIT"/>
+         <column autoUpdated="false" digits="0" id="7" name="xlink_sig" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <primaryKey column="xlink_id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="xlink_id"/>
+         </index>
+         <index name="xlink_link" unique="false">
+            <column ascending="true" name="xlink_link"/>
+         </index>
+         <index name="xlink_rating" unique="false">
+            <column ascending="true" name="xlink_rating"/>
+         </index>
+         <index name="xlink_static" unique="false">
+            <column ascending="true" name="xlink_static"/>
+         </index>
+         <index name="xlink_updated" unique="false">
+            <column ascending="true" name="xlink_updated"/>
+         </index>
+         <index name="xlink_xchan" unique="false">
+            <column ascending="true" name="xlink_xchan"/>
+         </index>
+      </table>
+      <table name="xperm" numRows="0" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="xp_id" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="1" name="xp_client" nullable="false" remarks="" size="20" type="VARCHAR"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="2" name="xp_channel" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="3" name="xp_perm" nullable="false" remarks="" size="64" type="VARCHAR"/>
+         <primaryKey column="xp_id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="xp_id"/>
+         </index>
+         <index name="xp_channel" unique="false">
+            <column ascending="true" name="xp_channel"/>
+         </index>
+         <index name="xp_client" unique="false">
+            <column ascending="true" name="xp_client"/>
+         </index>
+         <index name="xp_perm" unique="false">
+            <column ascending="true" name="xp_perm"/>
+         </index>
+      </table>
+      <table name="xprof" numRows="0" remarks="" type="TABLE">
+         <column autoUpdated="false" digits="0" id="0" name="xprof_hash" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="1" name="xprof_age" nullable="false" remarks="" size="3" type="TINYINT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="2" name="xprof_desc" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="3" name="xprof_dob" nullable="false" remarks="" size="12" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="4" name="xprof_gender" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="5" name="xprof_marital" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="6" name="xprof_sexual" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="7" name="xprof_locale" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="8" name="xprof_region" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="9" name="xprof_postcode" nullable="false" remarks="" size="32" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="10" name="xprof_country" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" digits="0" id="11" name="xprof_keywords" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" digits="0" id="12" name="xprof_about" nullable="false" remarks="" size="65535" type="TEXT"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="13" name="xprof_homepage" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="14" name="xprof_hometown" nullable="false" remarks="" size="255" type="CHAR"/>
+         <primaryKey column="xprof_hash" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="xprof_hash"/>
+         </index>
+         <index name="xprof_age" unique="false">
+            <column ascending="true" name="xprof_age"/>
+         </index>
+         <index name="xprof_country" unique="false">
+            <column ascending="true" name="xprof_country"/>
+         </index>
+         <index name="xprof_desc" unique="false">
+            <column ascending="true" name="xprof_desc"/>
+         </index>
+         <index name="xprof_dob" unique="false">
+            <column ascending="true" name="xprof_dob"/>
+         </index>
+         <index name="xprof_gender" unique="false">
+            <column ascending="true" name="xprof_gender"/>
+         </index>
+         <index name="xprof_hometown" unique="false">
+            <column ascending="true" name="xprof_hometown"/>
+         </index>
+         <index name="xprof_locale" unique="false">
+            <column ascending="true" name="xprof_locale"/>
+         </index>
+         <index name="xprof_marital" unique="false">
+            <column ascending="true" name="xprof_marital"/>
+         </index>
+         <index name="xprof_postcode" unique="false">
+            <column ascending="true" name="xprof_postcode"/>
+         </index>
+         <index name="xprof_region" unique="false">
+            <column ascending="true" name="xprof_region"/>
+         </index>
+         <index name="xprof_sexual" unique="false">
+            <column ascending="true" name="xprof_sexual"/>
+         </index>
+      </table>
+      <table name="xtag" numRows="0" remarks="" type="TABLE">
+         <column autoUpdated="true" digits="0" id="0" name="xtag_id" nullable="false" remarks="" size="10" type="INT UNSIGNED"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="1" name="xtag_hash" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="2" name="xtag_term" nullable="false" remarks="" size="255" type="CHAR"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="3" name="xtag_flags" nullable="false" remarks="" size="10" type="INT"/>
+         <primaryKey column="xtag_id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="xtag_id"/>
+         </index>
+         <index name="xtag_flags" unique="false">
+            <column ascending="true" name="xtag_flags"/>
+         </index>
+         <index name="xtag_hash" unique="false">
+            <column ascending="true" name="xtag_hash"/>
+         </index>
+         <index name="xtag_term" unique="false">
+            <column ascending="true" name="xtag_term"/>
+         </index>
+      </table>
+   </tables>
+</database>

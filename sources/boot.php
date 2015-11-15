@@ -50,7 +50,8 @@ define ( 'PLATFORM_NAME',           'hubzilla' );
 define ( 'RED_VERSION',             trim(file_get_contents('version.inc')) . 'H');
 define ( 'ZOT_REVISION',            1     );
 
-define ( 'DB_UPDATE_VERSION',       1158  );
+define ( 'DB_UPDATE_VERSION',       1160  );
+
 
 /**
  * @brief Constant with a HTML line break.
@@ -79,7 +80,7 @@ define ( 'DIRECTORY_FALLBACK_MASTER',  'https://zothub.com');
 
 $DIRECTORY_FALLBACK_SERVERS = array( 
 	'https://zothub.com', 
-	'https://zotid.net', 
+	'https://hubzilla.site',
 	'https://red.zottel.red',
 	'https://gravizot.de',
 	'https://my.federated.social'
@@ -934,26 +935,6 @@ class App {
 
 	function get_groups() {
 		return $this->groups;
-	}
-
-	function set_widget($title,$html, $location = 'aside') {
-		$this->widgets[] = array('title' => $title, 'html' => $html, 'location' => $location);
-	}
-
-	function get_widgets($location = '') {
-		if($location && count($this->widgets)) {
-			$ret = array();
-			foreach($this->widgets as $w) {
-				if ($w['location'] == $location)
-					$ret[] = $w;
-			}
-			$arr = array('location' => $location, 'widgets' => $ret);
-			call_hooks('get_widgets', $arr);
-			return $arr['widgets'];
-		}
-		$arr = array('location' => $location, 'widgets' => $this->widgets);
-		call_hooks('get_widgets', $arr);
-		return $arr['widgets'];
 	}
 
 	function set_pager_total($n) {
@@ -2075,15 +2056,8 @@ function construct_page(&$a) {
 
 	$a->build_pagehead();
 
-	$arr = $a->get_widgets();
-	ksort($arr, SORT_NUMERIC);
-	if(count($arr)) {
-		foreach($arr as $x) {
-			if(! array_key_exists($x['location'], $a->page))
-				$a->page[$x['location']] = '';
-
-			$a->page[$x['location']] .= $x['html'];
-		}
+	if($a->page['pdl_content']) {
+		$a->page['content'] = comanche_region($a,$a->page['content']);
 	}
 
 	// Let's say we have a comanche declaration '[region=nav][/region][region=content]$nav $content[/region]'.
@@ -2099,6 +2073,7 @@ function construct_page(&$a) {
 		$arr = array('module' => $a->module, 'layout' => $a->layout);
 		call_hooks('construct_page', $arr);
 		$a->layout = $arr['layout'];
+
 
 		foreach($a->layout as $k => $v) {
 			if((strpos($k, 'region_') === 0) && strlen($v)) {

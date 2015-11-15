@@ -90,11 +90,15 @@ if($argc == 2) {
 
 if($argc == 1) {
 	load_config('service_class');
-	foreach($a->config['service_class'] as $class=>$props) {
-		echo "$class:\n";
-		$d = unserialize($props);
-		foreach($d as $k => $v) {
-			echo "\t$k = $v\n";
+	if(is_array($a->config['service_class']) && $a->config['service_class']) {
+		foreach($a->config['service_class'] as $class=>$props) {
+			echo "$class:\n";
+			$d = unserialize($props);
+			if(is_array($d) && $d) {
+				foreach($d as $k => $v) {
+					echo "\t$k = $v\n";
+				}
+			}
 		}
 	}
 }

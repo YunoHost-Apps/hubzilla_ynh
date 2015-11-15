@@ -1,0 +1,43 @@
+// dot 2.26.3 on Linux 3.2.0-4-686-pae
+// SchemaSpy rev 590
+digraph "app" {
+  graph [
+    rankdir="RL"
+    bgcolor="#f7f7f7"
+    nodesep="0.18"
+    ranksep="0.46"
+    fontname="Helvetica"
+    fontsize="11"
+  ];
+  node [
+    fontname="Helvetica"
+    fontsize="11"
+    shape="plaintext"
+  ];
+  edge [
+    arrowsize="0.8"
+  ];
+  "app" [
+    label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">app</TD></TR>
+      <TR><TD PORT="id" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">id</TD></TR>
+      <TR><TD PORT="app_id" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">app_id</TD></TR>
+      <TR><TD PORT="app_sig" COLSPAN="3" ALIGN="LEFT">app_sig</TD></TR>
+      <TR><TD PORT="app_author" COLSPAN="3" ALIGN="LEFT">app_author</TD></TR>
+      <TR><TD PORT="app_name" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">app_name</TD></TR>
+      <TR><TD PORT="app_desc" COLSPAN="3" ALIGN="LEFT">app_desc</TD></TR>
+      <TR><TD PORT="app_url" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">app_url</TD></TR>
+      <TR><TD PORT="app_photo" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">app_photo</TD></TR>
+      <TR><TD PORT="app_version" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">app_version</TD></TR>
+      <TR><TD PORT="app_channel" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">app_channel</TD></TR>
+      <TR><TD PORT="app_addr" COLSPAN="3" ALIGN="LEFT">app_addr</TD></TR>
+      <TR><TD PORT="app_price" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">app_price</TD></TR>
+      <TR><TD PORT="app_page" COLSPAN="3" ALIGN="LEFT">app_page</TD></TR>
+      <TR><TD PORT="app_requires" COLSPAN="3" ALIGN="LEFT">app_requires</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">  </TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">0 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">  </TD></TR>
+    </TABLE>>
+    URL="tables/app.html"
+    tooltip="app"
+  ];
+}

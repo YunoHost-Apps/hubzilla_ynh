@@ -31,7 +31,7 @@
 
 				<div class="form-group">
 					<label for="prvmail-text">{{$yourmessage}}</label>
-					<textarea class="form-control" id="prvmail-text" name="body"">{{$text}}</textarea>
+					<textarea class="form-control" id="prvmail-text" name="body">{{$text}}</textarea>
 				</div>
 
 				<div id="prvmail-submit-wrapper" class="form-group">

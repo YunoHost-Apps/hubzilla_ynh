@@ -1,3 +1,4 @@
+<div class="generic-content-wrapper-styled">
 <h2>{{$title}}</h2>
 
 <form action="register" method="post" id="register-form">
@@ -49,3 +50,4 @@
 	<div id="register-submit-end" class="register-field-end"></div>
 
 </form>
+</div>

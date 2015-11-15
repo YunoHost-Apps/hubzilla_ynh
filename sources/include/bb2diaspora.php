@@ -162,10 +162,10 @@ function diaspora2bb($s, $use_zrl = false) {
 	}
 
 	//$s = preg_replace("/([^\]\=]|^)(https?\:\/\/)(vimeo|youtu|www\.youtube|soundcloud)([a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,]+)/ism", '$1[url=$2$3$4]$2$3$4[/url]',$s);
-	$s = bb_tag_preg_replace("/\[url\=?(.*?)\]https?:\/\/www.youtube.com\/watch\?v\=(.*?)\[\/url\]/ism",'[youtube]$2[/youtube]','url',$s);
-	$s = bb_tag_preg_replace("/\[url\=https?:\/\/www.youtube.com\/watch\?v\=(.*?)\].*?\[\/url\]/ism",'[youtube]$1[/youtube]','url',$s);
-	$s = bb_tag_preg_replace("/\[url\=?(.*?)\]https?:\/	\/vimeo.com\/([0-9]+)(.*?)\[\/url\]/ism",'[vimeo]$2[/vimeo]','url',$s);
-	$s = bb_tag_preg_replace("/\[url\=https?:\/\/vimeo.com\/([0-9]+)\](.*?)\[\/url\]/ism",'[vimeo]$1[/vimeo]','url',$s);
+	$s = bb_tag_preg_replace("/\[url\=?(.*?)\]https?:\/\/www.youtube.com\/watch\?v\=(.*?)\[\/url\]/ism",'[embed]https://www.youtube.com/watch?v=$2[/embed]','url',$s);
+	$s = bb_tag_preg_replace("/\[url\=https?:\/\/www.youtube.com\/watch\?v\=(.*?)\].*?\[\/url\]/ism",'[embed]https://www.youtube.com/watch?v=$1[/embed]','url',$s);
+	$s = bb_tag_preg_replace("/\[url\=?(.*?)\]https?:\/	\/vimeo.com\/([0-9]+)(.*?)\[\/url\]/ism",'[embed]https://vimeo.com/$2[/embed]','url',$s);
+	$s = bb_tag_preg_replace("/\[url\=https?:\/\/vimeo.com\/([0-9]+)\](.*?)\[\/url\]/ism",'[embed]https://vimeo.com/$1[/embed]','url',$s);
 	// remove duplicate adjacent code tags
 	$s = preg_replace("/(\[code\])+(.*?)(\[\/code\])+/ism","[code]$2[/code]", $s);
 
@@ -309,15 +309,9 @@ function bb2diaspora_itembody($item, $force_update = false) {
 	$is_photo = (($item['obj_type'] == ACTIVITY_OBJ_PHOTO) ? true : false);
 	if($is_photo) {
 		$object = json_decode($item['object'],true);
-			$photo = array(
-				'url' => rawurldecode($object['id']),
-				'link' => rawurldecode(get_rel_link($object['link'],'alternate')),
-				'width' => $object['width'],
-				'height' => $object['height']
-			);
-
-		$photo_bb = '[zrl=' . $photo['link'] . ']' . '[zmg=' . $photo['width'] . 'x' . $photo['height'] . ']' . $photo['url'] . '[/zmg]' . '[/zrl]';
-		$item['body'] = (($item['body']) ? $photo_bb . $item['body'] : $photo_bb);
+		if($object['bbcode']) {
+			$item['body'] = (($item['body']) ? $object['bbcode'] . "\r\n" . $item['body'] : $object['bbcode']);
+		}
 	}
 
 	if(($item['diaspora_meta']) && (! $force_update)) {
@@ -445,6 +439,9 @@ function bb2diaspora($Text,$preserve_nl = false, $fordiaspora = true) {
 	// looking like: <http://url.com>, which gets removed by strip_tags().
 	// So take off the angle brackets of any such URL
 	$Text = preg_replace("/<http(.*?)>/is", "http$1", $Text);
+
+	// Remove empty zrl links 
+	$Text = preg_replace("/\[zrl\=\].*?\[\/zrl\]/is", "", $Text);
 
 	// Remove all unconverted tags
 	$Text = strip_tags($Text);

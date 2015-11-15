@@ -64,6 +64,8 @@ In the interests of consistency we adopt the following code styling. We may acce
 
 [li] Generally speaking, opening braces go on the same line as the thing which opens the brace. They are the last character on the line. Closing braces are on a line by themselves. [/li]
 
+[li] Some functions take arguments in argc/argv style like main() in C or function args in bash or Perl. Urls are broken up within a module. e.g, given "http://example.com/module/arg1/arg2", then $this->argc will be 3 (integer) and $this->argv will contain:   [0] => 'module', [1] => 'arg1',  [2] => 'arg2'. There will always be one argument. If provided a naked domain  URL, $this->argv[0] is set to "home".[/li]
+
 [b]See Also[/b]
 [zrl=[baseurl]/help/sql_conventions]SQL Conventions[/zrl]
 

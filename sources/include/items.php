@@ -2837,6 +2837,8 @@ function store_diaspora_comment_sig($datarray, $channel, $parent_item, $post_id,
 function send_status_notifications($post_id,$item) {
 
 	$notify = false;
+	$unfollowed = false;
+
 	$parent = 0;
 
 	$r = q("select channel_hash from channel where channel_id = %d limit 1",
@@ -2864,12 +2866,23 @@ function send_status_notifications($post_id,$item) {
 		foreach($x as $xx) {
 			if($xx['author_xchan'] === $r[0]['channel_hash']) {
 				$notify = true;
+
+				// check for an unfollow thread activity - we should probably decode the obj and check the id
+				// but it will be extremely rare for this to be wrong.
+
+				if(($xx['verb'] === ACTIVITY_UNFOLLOW) 
+					&& ($xx['obj_type'] === ACTIVITY_OBJ_NOTE || $xx['obj_type'] === ACTIVITY_OBJ_PHOTO) 
+					&& ($xx['parent'] != $xx['id']))
+					$unfollowed = true;				
 			}
 			if($xx['id'] == $xx['parent']) {
 				$parent = $xx['parent'];
 			}
 		}
 	}
+
+	if($unfollowed)
+		return;
 
 	$link =  get_app()->get_baseurl() . '/display/' . $item['mid'];
 
@@ -3454,6 +3467,7 @@ function post_is_importable($item,$abook) {
 
 	$text = prepare_text($item['body'],$item['mimetype']);
 	$text = html2plain($text);
+
 
 	$lang = null;
 
@@ -4792,7 +4806,7 @@ function items_fetch($arr,$channel = null,$observer_hash = null,$client_mode = C
 	if($arr['mid'])
 		$sql_options .= " and parent_mid = '" . dbesc($arr['mid']) . "' ";
 									
-	$sql_extra = " AND item.parent IN ( SELECT parent FROM item WHERE item_thread_top = 1 $sql_options ) ";
+	$sql_extra = " AND item.parent IN ( SELECT parent FROM item WHERE item_thread_top = 1 $sql_options $item_normal ) ";
 	
 	if($arr['since_id'])
 		$sql_extra .= " and item.id > " . $since_id . " ";

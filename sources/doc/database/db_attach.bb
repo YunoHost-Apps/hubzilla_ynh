@@ -21,7 +21,15 @@
 [/td][/tr]
 [tr][td]folder[/td][td]attach.hash of parent folder[/td][td]char(64)[/td][td]NO[/td][td]MUL[/td][td][/td][td]
 [/td][/tr]
-[tr][td]flags[/td][td]see notes[/td][td]int(10) unsigned[/td][td]NO[/td][td]MUL[/td][td]0[/td][td]
+[tr][td]flags[/td][td]no longer used[/td][td]int(10) unsigned[/td][td]NO[/td][td]MUL[/td][td]0[/td][td]
+[/td][/tr]
+[tr][td]is_dir[/td][td]0 (file) or 1 to indicate a directory[/td][td]tinyint[/td][td]NO[/td][td]MUL[/td][td]0[/td][td]
+[/td][/tr]
+[tr][td]is_photo[/td][td]if 1, a photo is linked to this resource[/td][td]tinyint[/td][td]NO[/td][td]MUL[/td][td]0[/td][td]
+[/td][/tr]
+[tr][td]os_storage[/td][td]if 0, data contains content; if 1 data contains path to content (always 1 in hubzilla)[/td][td]tinyint[/td][td]NO[/td][td]MUL[/td][td]0[/td][td]
+[/td][/tr]
+[tr][td]display_path[/td][td]under construction, store the human readable path[/td][td]mediumtext[/td][td]NO[/td][td]MUL[/td][td]0[/td][td]
 [/td][/tr]
 [tr][td]data[/td][td]file data or pathname to stored data if ATTACH_FLAG_OS[/td][td]longblob[/td][td]NO[/td][td][/td][td]NULL[/td][td]
 [/td][/tr]
@@ -38,12 +46,6 @@
 [tr][td]deny_gid[/td][td]permissions[/td][td]mediumtext[/td][td]NO[/td][td][/td][td]NULL[/td][td]
 [/td][/tr]
 [/table]
-
-
-Bitmasks
-
-define ( 'ATTACH_FLAG_DIR',    0x0001);  This is a directory
-define ( 'ATTACH_FLAG_OS',     0x0002);  Data content is link to OS file containing data, if unset the data filed contains the file data
 
 permissions are xchan_hash or group_hash surrounded by angle chars. e.g. '<abc123><xyz789>'
 

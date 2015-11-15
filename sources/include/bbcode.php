@@ -28,7 +28,7 @@ function tryzrlaudio($match) {
 	if($zrl)
 		$link = zid($link);
 
-	return '<audio src="' . str_replace(' ','%20',$link) . '" controls="controls"><a href="' . str_replace(' ','%20',$link) . '">' . $link . '</a></audio>';
+	return '<audio src="' . str_replace(' ','%20',$link) . '" controls="controls" preload="none"><a href="' . str_replace(' ','%20',$link) . '">' . $link . '</a></audio>';
 }
 
 function tryzrlvideo($match) {
@@ -37,7 +37,7 @@ function tryzrlvideo($match) {
 	if($zrl)
 		$link = zid($link);
 
-	return '<video controls="controls" src="' . str_replace(' ','%20',$link) . '" style="width:100%; max-width:' . get_app()->videowidth . 'px"><a href="' . str_replace(' ','%20',$link) . '">' . $link . '</a></video>';
+	return '<video controls="controls" preload="none" src="' . str_replace(' ','%20',$link) . '" style="width:100%; max-width:' . get_app()->videowidth . 'px"><a href="' . str_replace(' ','%20',$link) . '">' . $link . '</a></video>';
 }
 
 // [noparse][i]italic[/i][/noparse] turns into
@@ -599,6 +599,7 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $cache = false) 
 		$Text = preg_replace("/\[mail\=([$MAILSearchString]*)\](.*?)\[\/mail\]/", '<a href="mailto:$1" target="_newwin" >$2</a>', $Text);
 	}
 
+
 	// leave open the posibility of [map=something]
 	// this is replaced in prepare_body() which has knowledge of the item location
 
@@ -983,7 +984,12 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $cache = false) 
 	$Text = preg_replace('/\[\&amp\;([#a-z0-9]+)\;\]/', '&$1;', $Text);
 
 	// fix any escaped ampersands that may have been converted into links
-	$Text = preg_replace("/\<(.*?)(src|href)=(.*?)\&amp\;(.*?)\>/ism", '<$1$2=$3&$4>', $Text);
+
+	if(strpos($Text,'&amp;') !== false)
+		$Text = preg_replace("/\<(.*?)(src|href)=(.*?)\&amp\;(.*?)\>/ism", '<$1$2=$3&$4>', $Text);
+
+	// This is subtle - it's an XSS filter. It only accepts links with a protocol scheme and where
+	// the scheme begins with z (zhttp), h (http(s)), f (ftp), m (mailto), and named anchors.
 
 	$Text = preg_replace("/\<(.*?)(src|href)=\"[^zhfm#](.*?)\>/ism", '<$1$2="">', $Text);
 

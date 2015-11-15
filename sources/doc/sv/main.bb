@@ -1,4 +1,4 @@
-[img][baseurl]/assets/hashlogo.png[/img]
+[img][baseurl]/images/hubzilla-banner.png[/img]
 
 [zrl=[baseurl]/help/about][b]Vad är $Projectname?[/b][/zrl]
 $Projectname är en decentraliserad publicerings- och kommunikationsplattform som möjliggör att du behåller kontrollen över dina kommunikationer med hjälp av automatisk kryptering och fininställbar behörighetskontroll. Det är du, och bara du, som beslutar vem som är behörig att ta del av ditt innehåll.

@@ -366,7 +366,7 @@ function notifier_run($argv, $argc){
 			logger('notifier: target item not forwardable: type ' . $target_item['item_type'], LOGGER_DEBUG);
 			return;
 		}
-		if(intval($target_item['item_unpublished']) || intval($target_item['item_delayed_publish'])) {
+		if(intval($target_item['item_unpublished']) || intval($target_item['item_delayed'])) {
 			logger('notifier: target item not published, so not forwardable', LOGGER_DEBUG);
 			return;
 		}
@@ -675,7 +675,7 @@ function notifier_run($argv, $argc){
 				dbesc(json_encode($encoded_item))
 			);
 			// only create delivery reports for normal undeleted items
-			if(array_key_exists('postopts',$target_item) && (! $target_item['item_deleted'])) {
+			if(is_array($target_item) && array_key_exists('postopts',$target_item) && (! $target_item['item_deleted'])) {
 				q("insert into dreport ( dreport_mid, dreport_site, dreport_recip, dreport_result, dreport_time, dreport_xchan, dreport_queue ) values ( '%s','%s','%s','%s','%s','%s','%s' ) ",
 					dbesc($target_item['mid']),
 					dbesc($hub['hubloc_host']),

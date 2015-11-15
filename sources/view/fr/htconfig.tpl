@@ -31,7 +31,7 @@ $default_timezone = '{{$timezone}}';
 // Quel sera le nom de votre site?
 
 $a->config['system']['baseurl'] = '{{$siteurl}}';
-$a->config['system']['sitename'] = "Matrice Rouge";
+$a->config['system']['sitename'] = "Hubzilla";
 $a->config['system']['location_hash'] = '{{$site_id}}';
 
 // Vos choix sont REGISTER_OPEN, REGISTER_APPROVE, ou REGISTER_CLOSED.

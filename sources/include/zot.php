@@ -117,7 +117,8 @@ function zot_build_packet($channel, $type = 'notify', $recipients = null, $remot
 			'guid' => $channel['channel_guid'],
 			'guid_sig' => base64url_encode(rsa_sign($channel['channel_guid'],$channel['channel_prvkey'])),
 			'url' => z_root(),
-			'url_sig' => base64url_encode(rsa_sign(z_root(),$channel['channel_prvkey']))
+			'url_sig' => base64url_encode(rsa_sign(z_root(),$channel['channel_prvkey'])),
+			'sitekey' => get_config('system','pubkey')
 		),
 		'callback' => '/post',
 		'version' => ZOT_REVISION
@@ -569,11 +570,12 @@ function zot_gethub($arr,$multiple = false) {
 		}
 
 		$limit = (($multiple) ? '' : ' limit 1 ');
-
+		$sitekey = ((array_key_exists('sitekey',$arr) && $arr['sitekey']) ? " and hubloc_sitekey = '" . protect_sprintf($arr['sitekey']) . "' " : '');
+ 
 		$r = q("select * from hubloc
 				where hubloc_guid = '%s' and hubloc_guid_sig = '%s'
 				and hubloc_url = '%s' and hubloc_url_sig = '%s'
-				$limit",
+				$sitekey $limit",
 			dbesc($arr['guid']),
 			dbesc($arr['guid_sig']),
 			dbesc($arr['url']),
@@ -814,7 +816,34 @@ function import_xchan($arr,$ud_flags = UPDATE_FLAGS_UPDATED, $ud_arr = null) {
 		if ($local) {
 			$ph = z_fetch_url($arr['photo'], true);
 			if ($ph['success']) {
-				import_channel_photo($ph['body'], $arr['photo_mimetype'], $local[0]['channel_account_id'],$local[0]['channel_id']);
+
+				$hash = import_channel_photo($ph['body'], $arr['photo_mimetype'], $local[0]['channel_account_id'], $local[0]['channel_id']);
+
+				if($hash) {
+					// unless proven otherwise
+					$is_default_profile = 1;
+
+					$profile = q("select is_default from profile where aid = %d and uid = %d limit 1",
+						intval($local[0]['channel_account_id']),
+						intval($local[0]['channel_id'])
+					);
+					if($profile) {
+						if(! intval($profile[0]['is_default']))
+							$is_default_profile = 0;
+					}
+
+					// If setting for the default profile, unset the profile photo flag from any other photos I own
+					if($is_default_profile) {
+						q("UPDATE photo SET photo_usage = %d WHERE photo_usage = %d AND resource_id != '%s' AND aid = %d AND uid = %d",
+							intval(PHOTO_NORMAL),
+							intval(PHOTO_PROFILE),
+							dbesc($hash),
+							intval($local[0]['channel_account_id']),
+							intval($local[0]['channel_id'])
+						);
+					}
+				}
+
 				// reset the names in case they got messed up when we had a bug in this function
 				$photos = array(
 					z_root() . '/photo/profile/l/' . $local[0]['channel_id'],
@@ -2337,16 +2366,16 @@ function sync_locations($sender, $arr, $absolute = false) {
 						$changed = true;
 					}
 				}
-				if((intval($r[0]['hubloc_deleted']) && (! $location['deleted']))
-					|| ((! (intval($r[0]['hubloc_deleted']))) && ($location['deleted']))) {
+				if(intval($r[0]['hubloc_deleted']) && (! intval($location['deleted']))) {
 					$n = q("update hubloc set hubloc_deleted = 0, hubloc_updated = '%s' where hubloc_id = %d",
 						dbesc(datetime_convert()),
 						intval($r[0]['hubloc_id'])
 					);
-					$what .= 'delete_hub ';
+					$what .= 'undelete_hub ';
 					$changed = true;
 				}
-				elseif((! intval($r[0]['hubloc_deleted'])) && ($location['deleted'])) {
+				elseif((! intval($r[0]['hubloc_deleted'])) && (intval($location['deleted']))) {
+					logger('deleting hubloc: ' . $r[0]['hubloc_addr']);
 					$n = q("update hubloc set hubloc_deleted = 1, hubloc_updated = '%s' where hubloc_id = %d",
 						dbesc(datetime_convert()),
 						intval($r[0]['hubloc_id'])
@@ -2401,7 +2430,7 @@ function sync_locations($sender, $arr, $absolute = false) {
 		if($absolute && $xisting) {
 			foreach($xisting as $x) {
 				if(! array_key_exists('updated',$x)) {
-					logger('sync_locations: deleting unreferenced hub location ' . $x['hubloc_url']);
+					logger('sync_locations: deleting unreferenced hub location ' . $x['hubloc_addr']);
 					$r = q("update hubloc set hubloc_deleted = 1, hubloc_updated = '%s' where hubloc_id = %d",
 						dbesc(datetime_convert()),
 						intval($x['hubloc_id'])
@@ -2437,6 +2466,13 @@ function zot_encode_locations($channel) {
 
 	if($x && count($x)) {
 		foreach($x as $hub) {
+
+			// if this is a local channel that has been deleted, the hubloc is no good - make sure it is marked deleted
+			// so that nobody tries to use it. 
+
+			if(intval($channel['channel_removed']) && $hub['hubloc_url'] === z_root())
+				$hub['hubloc_deleted'] = 1;
+
 			$ret[] = array(
 				'host'     => $hub['hubloc_host'],
 				'address'  => $hub['hubloc_addr'],
@@ -3709,6 +3745,8 @@ function zotinfo($arr) {
 	$ret['public_forum']   = $public_forum;
 	if($deleted)
 		$ret['deleted']        = $deleted;	
+	if(intval($e['channel_removed']))
+		$ret['deleted_locally'] = true;
 
 	// premium or other channel desiring some contact with potential followers before connecting.
 	// This is a template - %s will be replaced with the follow_url we discover for the return channel.

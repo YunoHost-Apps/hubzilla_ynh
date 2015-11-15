@@ -58,7 +58,8 @@ function get_features() {
 			array('large_photos',   t('Large Photos'),              t('Include large (1024px) photo thumbnails in posts. If not enabled, use small (640px) photo thumbnails'),false),
 			array('channel_sources', t('Channel Sources'),          t('Automatically import channel content from other channels or feeds'),false),
 			array('content_encrypt', t('Even More Encryption'),          t('Allow optional encryption of content end-to-end with a shared secret key'),false),
-			array('consensus_tools', t('Enable voting tools'),      t('Provide a class of post which others can vote on'),false),
+			array('consensus_tools', t('Enable Voting Tools'),      t('Provide a class of post which others can vote on'),false),
+			array('delayed_posting', t('Delayed Posting'),      t('Allow posts to be published at a later date'),false),
 
 		),
 

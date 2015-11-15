@@ -108,6 +108,13 @@ Some/many of these widgets have restrictions which may restrict the type of page
 <br />&nbsp;<br />
 
 
+* album - provides a widget containing a complete photo album from albums belonging to the page owner; this may be too large to present in a sidebar region as is best implemented as a content region widget. 
+	* args:
+	* album - album name
+	* title - optional title, album name is used if not present
+<br />&nbsp;<br />
+ 
+
 Creating New Widgets
 ====================
 

@@ -526,28 +526,6 @@ function allowed_email($email) {
 
 
 
-function avatar_img($email) {
-
-	$avatar = array();
-	$a = get_app();
-
-	$avatar['size'] = 300;
-	$avatar['email'] = $email;
-	$avatar['url'] = '';
-	$avatar['success'] = false;
-
-	call_hooks('avatar_lookup', $avatar);
-
-	if (! $avatar['success'])
-		$avatar['url'] = $a->get_baseurl() . '/' . get_default_profile_photo();
-
-	logger('Avatar: ' . $avatar['email'] . ' ' . $avatar['url'], LOGGER_DEBUG);
-
-	return $avatar['url'];
-}
-
-
-
 function parse_xml_string($s,$strict = true) {
 	if($strict) {
 		if(! strstr($s,'<?xml'))

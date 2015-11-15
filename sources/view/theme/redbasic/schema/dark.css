@@ -5,11 +5,24 @@
 
 .vcard, #contact-block, .widget {
 	background-color: transparent;
-	border-bottom: 1px solid #fff;
+	border-bottom: 1px solid #333;
+	border-radius: 0px
+}
+
+#profile-photo-wrapper {
+	border:none;
+}
+
+.photo {
+	box-shadow: none;
 }
 
 .abook-pending-contact, .abook-permschange {
 	background: #402900;
+}
+
+.contact-entry-wrapper {
+	border: 1px solid #333;
 }
 
 #cboxContent a {
@@ -75,7 +88,11 @@
     background-color: #111;
 }
 
-.btn-default {
+.jotnets-wrapper > a.btn {
+	font-weight: 400 !important;
+}
+
+.btn {
 	background-color: #1e1e1e;
 	border-color: #222;
 	color: #ccc;
@@ -83,7 +100,7 @@
 	box-shadow: none;
 }
 
-.btn-default:hover, .btn-default:focus, .btn-default:active .btn-default.active {
+.btn:hover, .btn:focus, .btn:active {
 	background-color: #222;
 	border-color: #222;
 	color: #fff;
@@ -92,6 +109,52 @@
 
 .btn-default.btn-sm:hover, .btn-default.btn-sm:focus, .btn-default.btn-sm:active .btn-default.btn-sm.active {
 	text-decoration: none;
+}
+
+.btn-primary, input#event-submit, input#rmagic-submit-button, input#lostpass-submit-button {
+    background-color: #337AB7;
+    color: #FFF;
+}
+
+.btn-primary:hover, .btn-primary:focus, input#event-submit:hover, input#event-submit:focus, input#rmagic-submit-button:hover, input#rmagic-submit-button:focus, input#lostpass-submit-button:hover, input#lostpass-submit-button:focus {
+    border-color: #204D74;
+    background-color: #286090;
+    color: #FFF;
+}
+
+.btn-success {
+    color: #FFF !important;
+    background-color: #5CB85C !important;
+    border-color: #4CAE4C !important;
+}
+
+.btn-success:hover, .btn-success:focus {
+    color: #FFF !important;
+    background-color: #449D44 !important;
+    border-color: #398439 !important;
+}
+
+.btn-warning {
+    color: #FFF !important;
+    background-color: #F0AD4E !important;
+    border-color: #EEA236 !important;
+}
+
+.btn-warning:hover, .btn-warning:focus {
+	color: #FFF !important;
+	background-color: #EC971F !important;
+	border-color: #D58512 !important;
+}
+
+.btn-danger, form#chat-destroy > input {
+    background-color: #D9534F !important;
+    border-color: #D43F3A !important;
+	color: #FFF !important;
+}
+.btn-danger:hover, .btn-danger:focus, form#chat-destroy > input:hover, form#chat-destroy > input:focus {
+	color: #FFF !important;
+    background-color: #C9302C !important;		
+    border-color: #AC2925 !important;
 }
 
 .pager_first,
@@ -177,6 +240,7 @@ nav .dropdown-menu {
     text-decoration: underline;
     background-color: #222;
 	color: #ccc;
+	border-color: #333;
 }
 
 aside .nav > li > a:hover, aside .nav > li > a:focus {
@@ -247,9 +311,26 @@ pre {
     border-color: #222; 
 }
 
+.pmenu-item:hover a {
+	background-color: #333 !important;
+	color: #ddd;
+}
+
 .preview {
 	background: url('../img/gray_and_black_diagonal_stripes_background_seamless.gif');
 }
+
+.xdsoft_datepicker.active {
+	color: #222 !important;
+	text-decoration: none !important;
+}
+
+.xdsoft_datepicker.active:hover, .xdsoft_datepicker.active:focus {
+	color: #222 !important;
+	text-decoration: underline;
+}
+
+
 
 @media (min-width: 768px) {
   .nav-tabs.nav-justified > li > a {

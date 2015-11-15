@@ -42,6 +42,12 @@ function share_init(&$a) {
 
 	xchan_query($r);
 
+	$is_photo = (($r[0]['obj_type'] === ACTIVITY_OBJ_PHOTO) ? true : false);
+	if($is_photo) {
+		$object = json_decode($r[0]['object'],true);
+		$photo_bb = $object['bbcode'];
+	}
+
 	if (strpos($r[0]['body'], "[/share]") !== false) {
 		$pos = strpos($r[0]['body'], "[share");
 		$o = substr($r[0]['body'], $pos);
@@ -53,9 +59,9 @@ function share_init(&$a) {
 			"' posted='".$r[0]['created'].
 			"' message_id='".$r[0]['mid']."']";
 		if($r[0]['title'])
-			$o .= '[b]'.$r[0]['title'].'[/b]'."\n";
-		$o .= $r[0]['body'];
-		$o.= "[/share]";
+			$o .= '[b]'.$r[0]['title'].'[/b]'."\r\n";
+		$o .= (($is_photo) ? $photo_bb . "\r\n" . $r[0]['body'] : $r[0]['body']);
+		$o .= "[/share]";
 	}
 
 	if(local_channel()) {

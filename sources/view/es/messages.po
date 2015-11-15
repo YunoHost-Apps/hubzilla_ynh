@@ -13,8 +13,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Redmatrix\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-10-17 16:47-0700\n"
-"PO-Revision-Date: 2015-10-18 15:17+0000\n"
+"POT-Creation-Date: 2015-10-23 00:04-0700\n"
+"PO-Revision-Date: 2015-10-31 19:26+0000\n"
 "Last-Translator: Manuel Jiménez Friaza <mjfriaza@openmailbox.org>\n"
 "Language-Team: Spanish (http://www.transifex.com/Friendica/red-matrix/language/es/)\n"
 "MIME-Version: 1.0\n"
@@ -4529,6 +4529,10 @@ msgstr "Normas de Registro"
 #: ../../mod/pubsites.php:26 ../../mod/profiles.php:454
 msgid "Location"
 msgstr "Localización"
+
+#: ../../mod/pubsites.php:26
+msgid "Project"
+msgstr "Proyecto"
 
 #: ../../mod/pubsites.php:26
 msgid "View hub ratings"

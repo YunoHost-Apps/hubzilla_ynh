@@ -126,7 +126,11 @@ class RedFile extends DAV\Node implements DAV\IFile {
 						}
 					}	
 					$fname = dbunescbin($d[0]['data']);
-					$f = 'store/' . $this->auth->owner_nick . '/' . (($fname) ? $fname : '');
+					if(strpos($fname,'store') === false)
+						$f = 'store/' . $this->auth->owner_nick . '/' . $fname ;
+					else
+						$f = $fname;
+
 					// @todo check return value and set $size directly
 					@file_put_contents($f, $data);
 					$size = @filesize($f);
@@ -226,7 +230,11 @@ class RedFile extends DAV\Node implements DAV\IFile {
 			}
 
 			if (intval($r[0]['os_storage'])) {
-				$f = 'store/' . $this->auth->owner_nick . '/' . (($this->os_path) ? $this->os_path . '/' : '') . dbunescbin($r[0]['data']);
+				$x = dbunescbin($r[0]['data']);
+				if(strpos($x,'store') === false)
+					$f = 'store/' . $this->auth->owner_nick . '/' . (($this->os_path) ? $this->os_path . '/' : '') . $x;
+				else
+					$f = $x;
 				return fopen($f, 'rb');
 			}
 			return dbunescbin($r[0]['data']);

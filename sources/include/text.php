@@ -94,6 +94,8 @@ function z_input_filter($channel_id,$s,$type = 'text/bbcode') {
 		return escape_tags($s);
 	if($type == 'text/plain')
 		return escape_tags($s);
+	if($type == 'application/x-pdl')
+		return escape_tags($s);
 
 	$a = get_app();
 	if($a->is_sys) {
@@ -872,15 +874,17 @@ function searchbox($s,$id='search-box',$url='/search',$save = false) {
 	));
 }
 
+function valid_email_regex($x){
+	if(preg_match('/^[_a-zA-Z0-9\-\+]+(\.[_a-zA-Z0-9\-\+]+)*@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+$/',$x))
+		return true;
+	return false;
+}
 
 function valid_email($x){
 	if(get_config('system','disable_email_validation'))
 		return true;
 
-	if(preg_match('/^[_a-zA-Z0-9\-\+]+(\.[_a-zA-Z0-9\-\+]+)*@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+$/',$x))
-		return true;
-
-	return false;
+	return valid_email_regex($x);
 }
 
 /**
@@ -912,8 +916,17 @@ function sslify($s) {
 	if (strpos(z_root(),'https:') === false)
 		return $s;
 
+	// By default we'll only sslify img tags because media files will probably choke.
+	// You can set sslify_everything if you want - but it will likely white-screen if it hits your php memory limit.
+	// The downside is that http: media files will likely be blocked by your browser
+	// Complain to your browser maker
+
+	$allow = get_config('system','sslify_everything');
+	
+	$pattern = (($allow) ? "/\<(.*?)src=\"(http\:.*?)\"(.*?)\>/" : "/\<img(.*?)src=\"(http\:.*?)\"(.*?)\>/" ); 
+
 	$matches = null;
-	$cnt = preg_match_all("/\<(.*?)src=\"(http\:.*?)\"(.*?)\>/",$s,$matches,PREG_SET_ORDER);
+	$cnt = preg_match_all($pattern,$s,$matches,PREG_SET_ORDER);
 	if ($cnt) {
 		foreach ($matches as $match) {
 			$filename = basename( parse_url($match[2], PHP_URL_PATH) );
@@ -1224,7 +1237,7 @@ function theme_attachments(&$item) {
 			if($label  == ' ')
 				$label = t('Unknown Attachment');
  			
-			$title = t('Attachment') . ' - ' . (($r['length']) ? userReadableSize($r['length']) : t('Size Unknown'));
+			$title = t('Size') . ' ' . (($r['length']) ? userReadableSize($r['length']) : t('unknown'));
 
 			require_once('include/identity.php');
 			if(is_foreigner($item['author_xchan']))
@@ -1374,12 +1387,23 @@ function prepare_body(&$item,$attach = false) {
 		$s = prepare_text($item['body'],$item['mimetype'], false);
 //	}
 
-	$is_photo = (($item['obj_type'] === ACTIVITY_OBJ_PHOTO) ? true : false);
+
 	$photo = '';
+	$is_photo = (($item['obj_type'] === ACTIVITY_OBJ_PHOTO) ? true : false);
 
 	if($is_photo) {
 		$object = json_decode($item['object'],true);
-		$photo = '<a href="' . zid(rawurldecode(get_rel_link($object['link'],'alternate'))) . '" target="_newwin"><img style="max-width:' . $object['width'] . 'px; width:100%; height:auto;" src="'. zid(rawurldecode($object['id'])) . '"></a>';
+
+		// if original photo width is <= 640px prepend it to item body
+		if($object['link'][0]['width'] && $object['link'][0]['width'] <= 640) {
+			$s = '<div class="inline-photo-item-wrapper"><a href="' . zid(rawurldecode($object['id'])) . '" target="_newwin"><img class="inline-photo-item" style="max-width:' . $object['link'][0]['width'] . 'px; width:100%; height:auto;" src="' . zid(rawurldecode($object['link'][0]['href'])) . '"></a></div>' . $s;
+		}
+
+		// if original photo width is > 640px make it a cover photo
+		if($object['link'][0]['width'] && $object['link'][0]['width'] > 640) {
+			$scale = ((($object['link'][1]['width'] == 1024) || ($object['link'][1]['height'] == 1024)) ? 1 : 0);
+			$photo = '<a href="' . zid(rawurldecode($object['id'])) . '" target="_newwin"><img style="max-width:' . $object['link'][$scale]['width'] . 'px; width:100%; height:auto;" src="' . zid(rawurldecode($object['link'][$scale]['href'])) . '"></a>';
+		}
 	}
 
 	$prep_arr = array(
@@ -1495,6 +1519,11 @@ function prepare_text($text, $content_type = 'text/bbcode', $cache = false) {
 			$s = Markdown($text);
 			break;
 
+
+		case 'application/x-pdl';
+			$s = escape_tags($text);
+			break;
+		
 		// No security checking is done here at display time - so we need to verify 
 		// that the author is allowed to use PHP before storing. We also cannot allow 
 		// importation of PHP text bodies from other sites. Therefore this content 
@@ -1659,7 +1688,8 @@ function mimetype_select($channel_id, $current = 'text/bbcode') {
 		'text/bbcode',
 		'text/html',
 		'text/markdown',
-		'text/plain'
+		'text/plain',
+		'application/x-pdl'
 	);
 
 	$a = get_app();

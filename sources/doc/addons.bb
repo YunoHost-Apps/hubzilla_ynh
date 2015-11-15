@@ -42,7 +42,7 @@
 [*] qrator - generate QR code images
 [*] rainbowtag - display your tag and category clouds in colours
 [*] randpost - post/reply bot based on and requires fortunate
-[*] redred - Crosspost to another Redmatrix or Hubzilla channel
+[*] redred - Crosspost to another Red Matrix or Hubzilla channel
 [*] rtof - Crosspost to Friendica
 [*] smiley_pack - extend the built-in smilie (emoticon) support
 [*] smileybutton - provides a smiley selector on the post window

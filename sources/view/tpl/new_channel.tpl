@@ -1,3 +1,4 @@
+<div class="generic-content-wrapper-styled">
 <h2>{{$title}}</h2>
 
 <form action="new_channel" method="post" id="newchannel-form" class="stylish-select">
@@ -34,3 +35,4 @@
 	<div id="newchannel-submit-end" class="newchannel-field-end"></div>
 
 </form>
+</div>

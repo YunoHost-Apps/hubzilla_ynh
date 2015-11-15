@@ -6,6 +6,7 @@ Hubzilla - Community Server
 Help us redefine the web - using integrated and united community websites. 
 --------------------------------------------------------------------------
 
+[![Build Status](https://travis-ci.org/redmatrix/hubzilla.svg)](https://travis-ci.org/redmatrix/hubzilla)
 
 **What are Hubs?**
 

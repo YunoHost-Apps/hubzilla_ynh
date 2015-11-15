@@ -1,0 +1,36 @@
+// dot 2.26.3 on Linux 3.2.0-4-686-pae
+// SchemaSpy rev 590
+digraph "menu" {
+  graph [
+    rankdir="RL"
+    bgcolor="#f7f7f7"
+    nodesep="0.18"
+    ranksep="0.46"
+    fontname="Helvetica"
+    fontsize="11"
+  ];
+  node [
+    fontname="Helvetica"
+    fontsize="11"
+    shape="plaintext"
+  ];
+  edge [
+    arrowsize="0.8"
+  ];
+  "menu" [
+    label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">menu</TD></TR>
+      <TR><TD PORT="menu_id" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">menu_id</TD></TR>
+      <TR><TD PORT="menu_channel_id" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">menu_channel_id</TD></TR>
+      <TR><TD PORT="menu_name" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">menu_name</TD></TR>
+      <TR><TD PORT="menu_desc" COLSPAN="3" ALIGN="LEFT">menu_desc</TD></TR>
+      <TR><TD PORT="menu_flags" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">menu_flags</TD></TR>
+      <TR><TD PORT="menu_created" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">menu_created</TD></TR>
+      <TR><TD PORT="menu_edited" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">menu_edited</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">  </TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">1 row</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">  </TD></TR>
+    </TABLE>>
+    URL="tables/menu.html"
+    tooltip="menu"
+  ];
+}

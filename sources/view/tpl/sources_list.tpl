@@ -1,3 +1,4 @@
+<div class="generic-content-wrapper-styled">
 <h1>{{$title}}</h1>
 
 <div class="descriptive-text">{{$desc}}</div>
@@ -13,3 +14,4 @@
 {{/foreach}}
 </ul>
 {{/if}}
+</div>

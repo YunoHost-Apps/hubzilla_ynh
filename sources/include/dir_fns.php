@@ -15,6 +15,19 @@ function find_upstream_directory($dirmode) {
 	global $DIRECTORY_FALLBACK_SERVERS;
 
 	$preferred = get_config('system','directory_server');
+
+	// Thwart attempts to use a private directory
+
+	if(($preferred) && ($preferred != z_root())) {
+		$r = q("select * from site where site_url = '%s' limit 1",
+			dbesc($preferred)
+		);
+		if(($r) && ($r[0]['site_flags'] & DIRECTORY_MODE_STADALONE)) {
+			$preferred = '';
+		}		
+	}
+
+
 	if (! $preferred) {
 
 		/*
@@ -190,8 +203,9 @@ function sync_directories($dirmode) {
 			intval($r[0]['site_valid'])
 		);
 
-		$r = q("select * from site where (site_flags & %d) > 0 and site_url != '%s' and site_type = %d ",
-			intval(DIRECTORY_MODE_PRIMARY|DIRECTORY_MODE_SECONDARY),
+		$r = q("select * from site where site_flags in (%d, %d) and site_url != '%s' and site_type = %d ",
+			intval(DIRECTORY_MODE_PRIMARY),
+			intval(DIRECTORY_MODE_SECONDARY),
 			dbesc(z_root()),
 			intval(SITE_TYPE_ZOT)
 		);

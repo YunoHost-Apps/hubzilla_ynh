@@ -1,3 +1,4 @@
+<div class="generic-content-wrapper-styled">
 <h3>{{$title}}</h3>
 
 <form action="rmagic" method="post" >
@@ -9,3 +10,4 @@
 	<div id="rmagic-submit-end" class="rmagic-field-end"></div>
 
 </form>
+</div>

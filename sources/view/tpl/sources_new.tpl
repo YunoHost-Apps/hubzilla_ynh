@@ -1,3 +1,4 @@
+<div class="generic-content-wrapper-styled">
 <h1>{{$title}}</h1>
 
 <div class="descriptive-text">{{$desc}}</div>
@@ -11,5 +12,5 @@
 <input type="submit" name="submit" class="sources-submit" value="{{$submit}}" />
 </div>
 </form>
-
+</div>
 

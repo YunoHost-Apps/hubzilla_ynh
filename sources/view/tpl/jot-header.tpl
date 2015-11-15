@@ -234,6 +234,19 @@ function enableOnUser(){
 		})
 	}
 
+	function jotGetPubDate() {
+		//reply = prompt("{{$expirewhen}}", $('#jot-expire').val());
+		$('#createdModal').modal();
+		$('#created-modal-OKButton').on('click', function() {
+			reply=$('#created-date').val();
+			if(reply && reply.length) {
+				$('#jot-created').val(reply);
+				$('#createdModal').modal('hide');
+			}
+		})
+	}
+
+
 	function jotShare(id) {
 		if ($('#jot-popup').length != 0) $('#jot-popup').show();
 

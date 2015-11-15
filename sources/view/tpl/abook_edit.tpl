@@ -33,8 +33,13 @@
 		{{/foreach}}
 		<div class="section-content-info-wrapper">
 			<div>
-				{{$addr_text}} <strong>'{{$addr}}'</strong>
+				{{$addr_text}} <strong>'{{$addr}}'</strong>			
 			</div>
+			{{if $locstr}}
+			<div>
+				{{$loc_text}} {{$locstr}}
+			</div>
+			{{/if}}
 			{{if $last_update}}
 			<div>
 				{{$lastupdtext}} {{$last_update}}

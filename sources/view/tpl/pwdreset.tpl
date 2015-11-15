@@ -1,3 +1,4 @@
+<div class="generic-content-wrapper-styled">
 <h3>{{$lbl1}}</h3>
 
 <p>
@@ -13,3 +14,4 @@
 <p>
 {{$lbl6}}
 </p>
+</div>

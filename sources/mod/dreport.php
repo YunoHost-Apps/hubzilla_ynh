@@ -56,7 +56,7 @@ function dreport_content(&$a) {
 		return;
 	}
 
-
+	$o .= '<div class="generic-content-wrapper-styled">';
 	$o .= '<h2>' . sprintf( t('Delivery report for %1$s'),substr($mid,0,32)) . '...' . '</h2>';
 	$o .= '<table>';
 
@@ -121,6 +121,7 @@ function dreport_content(&$a) {
 		$o .= '<tr><td width="40%">' . $rr['name'] . '</td><td width="20%">' . escape_tags($rr['dreport_result']) . '</td><td width="20%">' . escape_tags($rr['dreport_time']) . '</td></tr>';
 	}
 	$o .= '</table>';
+	$o .= '</div>';
 
 	return $o;
 

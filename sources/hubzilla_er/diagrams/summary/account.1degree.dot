@@ -1,0 +1,47 @@
+// dot 2.26.3 on Linux 3.2.0-4-686-pae
+// SchemaSpy rev 590
+digraph "account" {
+  graph [
+    rankdir="RL"
+    bgcolor="#f7f7f7"
+    nodesep="0.18"
+    ranksep="0.46"
+    fontname="Helvetica"
+    fontsize="11"
+  ];
+  node [
+    fontname="Helvetica"
+    fontsize="11"
+    shape="plaintext"
+  ];
+  edge [
+    arrowsize="0.8"
+  ];
+  "account" [
+    label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">account</TD></TR>
+      <TR><TD PORT="account_id" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">account_id</TD></TR>
+      <TR><TD PORT="account_parent" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">account_parent</TD></TR>
+      <TR><TD PORT="account_default_channel" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">account_default_channel</TD></TR>
+      <TR><TD PORT="account_salt" COLSPAN="3" ALIGN="LEFT">account_salt</TD></TR>
+      <TR><TD PORT="account_password" COLSPAN="3" ALIGN="LEFT">account_password</TD></TR>
+      <TR><TD PORT="account_email" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">account_email</TD></TR>
+      <TR><TD PORT="account_external" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">account_external</TD></TR>
+      <TR><TD PORT="account_language" COLSPAN="3" ALIGN="LEFT">account_language</TD></TR>
+      <TR><TD PORT="account_created" COLSPAN="3" ALIGN="LEFT">account_created</TD></TR>
+      <TR><TD PORT="account_lastlog" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">account_lastlog</TD></TR>
+      <TR><TD PORT="account_flags" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">account_flags</TD></TR>
+      <TR><TD PORT="account_roles" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">account_roles</TD></TR>
+      <TR><TD PORT="account_reset" COLSPAN="3" ALIGN="LEFT">account_reset</TD></TR>
+      <TR><TD PORT="account_expires" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">account_expires</TD></TR>
+      <TR><TD PORT="account_expire_notified" COLSPAN="3" ALIGN="LEFT">account_expire_notified</TD></TR>
+      <TR><TD PORT="account_service_class" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">account_service_class</TD></TR>
+      <TR><TD PORT="account_level" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">account_level</TD></TR>
+      <TR><TD PORT="account_password_changed" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">account_password_changed</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">  </TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">1 row</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">  </TD></TR>
+    </TABLE>>
+    URL="tables/account.html"
+    tooltip="account"
+  ];
+}

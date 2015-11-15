@@ -35,6 +35,7 @@ function locs_post(&$a) {
 		}			
 	}
 
+
 	if($_REQUEST['drop']) {
 		$hubloc_id = intval($_REQUEST['drop']);
 
@@ -85,6 +86,13 @@ function locs_content(&$a) {
 
 	$channel = $a->get_channel();
 
+	if($_REQUEST['sync']) {
+		proc_run('php','include/notifier.php','location',$channel['channel_id']);
+		info( t('Syncing locations') . EOL);
+		goaway(z_root() . '/locs');
+	}
+
+
 	$r = q("select * from hubloc where hubloc_hash = '%s'",
 		dbesc($channel['channel_hash'])
 	);
@@ -106,6 +114,10 @@ function locs_content(&$a) {
 		'$mkprm' => t('Primary Location'),
 		'$drop' => t('Drop location'),
 		'$submit' => t('Submit'),
+		'$sync' => t('Sync now'),
+		'$sync_text' => t('Please wait several minutes between consecutive operations.'),
+		'$drop_text' => t('When possible, drop a location by logging into that website/hub and removing your channel.'),
+		'$last_resort' => t('Use this form to drop the location if the hub is no longer operating.'),
 		'$hubs' => $r
 	));
 

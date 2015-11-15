@@ -131,6 +131,10 @@ function page_content(&$a) {
 
 	xchan_query($r);
 	$r = fetch_post_tags($r,true);
+
+	if($r[0]['mimetype'] === 'application/x-pdl')
+		$a->page['pdl_content'] = true;
+
 	$o .= prepare_page($r[0]);
 	return $o;
 
