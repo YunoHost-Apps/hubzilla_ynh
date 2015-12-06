@@ -247,6 +247,7 @@ var pageHasMoreContent = true;
 var updateCountsOnly = false;
 var divmore_height = 400;
 var last_filestorage_id = null;
+var mediaPlaying = false;
 
 $(function() {
 	$.ajaxSetup({cache: false});
@@ -359,7 +360,7 @@ function NavUpdate() {
 	if(liking)
 		$('.like-rotator').spin(false);
 
-	if(! stopped) {
+	if((! stopped) && (! mediaPlaying)) {
 		var pingCmd = 'ping' + ((localUser != 0) ? '?f=&uid=' + localUser : '');
 
 		$.get(pingCmd,function(data) {
@@ -594,6 +595,24 @@ function updateConvItems(mode,data) {
 		commentBusy = false;
 		$('body').css('cursor', 'auto');
 	}
+
+	$('video').off('playing');
+	$('video').off('pause');
+	$('audio').off('playing');
+	$('audio').off('pause');
+
+	$('video').on('playing', function() {
+		mediaPlaying = true;
+	});
+	$('video').on('pause', function() {
+		mediaPlaying = false;
+	});
+	$('audio').on('playing', function() {
+		mediaPlaying = true;
+	});
+	$('audio').on('pause', function() {
+		mediaPlaying = false;
+	});
 
 	/* autocomplete @nicknames */
 	$(".comment-edit-form  textarea").editor_autocomplete(baseurl+"/acl?f=&n=1");

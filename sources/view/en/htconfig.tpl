@@ -81,7 +81,7 @@ $a->config['system']['php_path'] = '{{$phpath}}';
 // Configure how we communicate with directory servers.
 // DIRECTORY_MODE_NORMAL     = directory client, we will find a directory
 // DIRECTORY_MODE_SECONDARY  = caching directory or mirror
-// DIRECTORY_MODE_PRIMARY    = main directory server
+// DIRECTORY_MODE_PRIMARY    = master directory server - one per realm
 // DIRECTORY_MODE_STANDALONE = "off the grid" or private directory services
 
 $a->config['system']['directory_mode']  = DIRECTORY_MODE_NORMAL;

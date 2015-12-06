@@ -142,14 +142,14 @@
 				<div id="profile-rotator"></div>
 			</div>
 			<div id="profile-jot-submit-right" class="btn-group pull-right">
-				{{if $showacl}}
-				<button id="dbtn-acl" class="btn btn-default btn-sm" data-toggle="modal" data-target="#aclModal" title="{{$permset}}" onclick="return false;">
-					<i id="jot-perms-icon" class="icon-{{$lockstate}} jot-icons"></i>{{if $bang}}&nbsp;<i class="icon-exclamation jot-icons"></i>{{/if}}
-				</button>
-				{{/if}}
 				{{if $preview}}
 				<button class="btn btn-default btn-sm hidden-xs" onclick="preview_post();return false;" title="{{$preview}}">
 					<i class="icon-eye-open jot-icons" ></i>
+				</button>
+				{{/if}}
+				{{if $showacl}}
+				<button id="dbtn-acl" class="btn btn-default btn-sm" data-toggle="modal" data-target="#aclModal" title="{{$permset}}" onclick="return false;">
+					<i id="jot-perms-icon" class="icon-{{$lockstate}} jot-icons"></i>{{if $bang}}&nbsp;<i class="icon-exclamation jot-icons"></i>{{/if}}
 				</button>
 				{{/if}}
 				<button id="dbtn-submit" class="btn btn-primary btn-sm" type="submit" tabindex=3 name="button-submit" >{{$share}}</button>

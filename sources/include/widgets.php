@@ -7,6 +7,7 @@
 
 require_once('include/dir_fns.php');
 require_once('include/contact_widgets.php');
+require_once('include/attach.php');
 
 
 function widget_profile($args) {
@@ -661,6 +662,32 @@ function widget_conversations($arr) {
 	return $o;
 }
 
+function widget_eventsmenu($arr) {
+	if (! local_channel())
+		return;
+
+	return replace_macros(get_markup_template('events_menu_side.tpl'), array(
+		'$title' => t('Events Menu'),
+		'$day' => t('Day View'),
+		'$week' => t('Week View'),
+		'$month' => t('Month View'),
+		'$export' => t('Export'),
+		'$upload' => t('Import'),
+		'$submit' => t('Submit')
+	));
+}
+
+function widget_eventstools($arr) {
+	if (! local_channel())
+		return;
+
+	return replace_macros(get_markup_template('events_tools_side.tpl'), array(
+		'$title' => t('Events Tools'),
+		'$export' => t('Export Calendar'),
+		'$import' => t('Import Calendar'),
+		'$submit' => t('Submit')
+	));
+}
 
 function widget_design_tools($arr) {
 	$a = get_app();
@@ -1132,6 +1159,8 @@ function widget_forums($arr) {
 
 function widget_tasklist($arr) {
 
+	if (! local_channel())
+		return;
 
 	require_once('include/event.php');
 	$o .= '<script>var tasksShowAll = 0; $(document).ready(function() { tasksFetch(); $("#tasklist-new-form").submit(function(event) { event.preventDefault(); $.post( "tasks/new", $("#tasklist-new-form").serialize(), function(data) { tasksFetch();  $("#tasklist-new-summary").val(""); } ); return false; } )});</script>';
@@ -1229,10 +1258,31 @@ function widget_album($args) {
 	$owner_uid = get_app()->profile_uid;
 	$sql_extra = permissions_sql($owner_uid);
 
+
+	if(! perm_is_allowed($owner_uid,get_observer_hash(),'view_storage'))
+		return '';
+
 	if($args['album'])
 		$album = $args['album'];
 	if($args['title'])
 		$title = $args['title'];
+
+	/** 
+	 * This may return incorrect permissions if you have multiple directories of the same name.
+	 * It is a limitation of the photo table using a name for a photo album instead of a folder hash
+	 */
+
+	if($album) {
+		$x = q("select hash from attach where filename = '%s' and uid = %d limit 1",
+			dbesc($album),
+			intval($owner_uid)
+		);
+		if($x) {
+			$y = attach_can_view_folder($owner_uid,get_observer_hash(),$x[0]['hash']);
+			if(! $y)
+				return '';
+		}
+	}
 
 	$order = 'DESC';
 

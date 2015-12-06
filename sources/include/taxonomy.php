@@ -26,12 +26,21 @@ function file_tag_file_query($table,$s,$type = 'file') {
 	);
 }
 
-function term_query($table,$s,$type = TERM_UNKNOWN) {
+function term_query($table,$s,$type = TERM_UNKNOWN, $type2 = '') {
 
-	return sprintf(" AND " . (($table) ? dbesc($table) . '.' : '') . "id in (select term.oid from term where term.type = %d and term.term = '%s' and term.uid = " . (($table) ? dbesc($table) . '.' : '') . "uid ) ",
-		intval($type),
-		protect_sprintf(dbesc($s))
-	);
+	if($type2) {
+		return sprintf(" AND " . (($table) ? dbesc($table) . '.' : '') . "id in (select term.oid from term where term.type in (%d, %d) and term.term = '%s' and term.uid = " . (($table) ? dbesc($table) . '.' : '') . "uid ) ",
+			intval($type),
+			intval($type2),
+			protect_sprintf(dbesc($s))
+		);
+	}
+	else {
+		return sprintf(" AND " . (($table) ? dbesc($table) . '.' : '') . "id in (select term.oid from term where term.type = %d and term.term = '%s' and term.uid = " . (($table) ? dbesc($table) . '.' : '') . "uid ) ",
+			intval($type),
+			protect_sprintf(dbesc($s))
+		);
+	}
 }
 
 
@@ -84,7 +93,7 @@ function get_terms_oftype($arr,$type) {
 
 function format_term_for_display($term) {
 	$s = '';
-	if($term['type'] == TERM_HASHTAG)
+	if(($term['type'] == TERM_HASHTAG) || ($term['type'] == TERM_COMMUNITYTAG))
 		$s .= '#';
 	elseif($term['type'] == TERM_MENTION)
 		$s .= '@';
@@ -108,6 +117,8 @@ function tagadelic($uid, $count = 0, $authors = '', $owner = '', $flags = 0, $re
 	if(! perm_is_allowed($uid,get_observer_hash(),'view_stream'))
 		return array();
 
+
+	$item_normal = item_normal();
 	$sql_options = item_permissions_sql($uid);
 	$count = intval($count);
 
@@ -133,7 +144,7 @@ function tagadelic($uid, $count = 0, $authors = '', $owner = '', $flags = 0, $re
 	$r = q("select term, count(term) as total from term left join item on term.oid = item.id
 		where term.uid = %d and term.type = %d 
 		and otype = %d and item_type = %d and item_private = 0
-		$sql_options
+		$sql_options $item_normal
 		group by term order by total desc %s",
 		intval($uid),
 		intval($type),

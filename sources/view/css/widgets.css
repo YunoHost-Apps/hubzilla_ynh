@@ -124,3 +124,12 @@ li:hover .group-edit-icon {
 	width: 250px;
 }
 
+/* events tools */
+
+#event-upload-form {
+	margin-top: 10px;
+}
+
+#event-upload-choose {
+	width: 100%;
+}

@@ -36,6 +36,10 @@ require_once('include/dba/dba_driver.php');
 
 if(! $a->install) {
 	$db = dba_factory($db_host, $db_port, $db_user, $db_pass, $db_data, $db_type, $a->install);
+	if(! $db->connected) {
+		system_unavailable();
+	}
+
 	unset($db_host, $db_port, $db_user, $db_pass, $db_data, $db_type);
 
 	/**

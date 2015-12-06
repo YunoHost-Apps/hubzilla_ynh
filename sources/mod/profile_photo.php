@@ -6,6 +6,7 @@
 */
 
 require_once('include/photo/photo_driver.php');
+require_once('include/identity.php');
 
 /* @brief Function for sync'ing  permissions of profile-photos and their profile
 *
@@ -194,6 +195,8 @@ function profile_photo_post(&$a) {
 						intval(local_channel())
 					);
 				}
+
+				profiles_build_sync(local_channel());
 
 				// We'll set the updated profile-photo timestamp even if it isn't the default profile,
 				// so that browsers will do a cache update unconditionally

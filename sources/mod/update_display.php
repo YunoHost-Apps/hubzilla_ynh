@@ -20,7 +20,7 @@ function update_display_content(&$a) {
 	$pattern = "/<img([^>]*) src=\"([^\"]*)\"/";
 	$replace = "<img\${1} dst=\"\${2}\"";
 //	$text = preg_replace($pattern, $replace, $text);
-
+/*
 	if(! $load) {
 		$replace = '<br />' . t('[Embedded content - reload page to view]') . '<br />';
         $pattern = "/<\s*audio[^>]*>(.*?)<\s*\/\s*audio>/i";
@@ -32,7 +32,7 @@ function update_display_content(&$a) {
         $pattern = "/<\s*iframe[^>]*>(.*?)<\s*\/\s*iframe>/i";
         $text = preg_replace($pattern, $replace, $text);
 	}
-
+*/
 	echo str_replace("\t",'       ',$text);
 	echo (($_GET['msie'] == 1) ? '</div>' : '</section>');
 	echo "</body></html>\r\n";

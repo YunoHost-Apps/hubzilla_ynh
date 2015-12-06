@@ -152,7 +152,10 @@ This document assumes you're an administrator.
 		Spam prevention. Limits the number of tagged forums which are recognised in any post. Default is 2. Only the first 'n' tags will be delivered as forums, the others will not cause any delivery. 
 	[b]system > openssl_conf_file[/b]
 		Needed in some Windows installations to locate the openssl configuration file on the system.
- 
+ 	[b]system > hide_help[/b]
+		Don't display help documentation link in nav bar
+ 	[b]system > expire_delivery_reports[/b]
+		Expiration in days for delivery reports - default 30
 
 [b]Directory config[/b]
 [b]Directory search defaults[/b]

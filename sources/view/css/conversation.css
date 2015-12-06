@@ -178,7 +178,6 @@ a.wall-item-name-link {
 /* comment_item */
 
 .comment-edit-text-empty, .comment-edit-text-full {
-	float: left;
 	width: 100%;
 }
 
@@ -247,8 +246,37 @@ a.wall-item-name-link {
 	font-size: 1em !important;
 }
 
-.response-photo {
-	height: 18px !important;
-	width: 18px !important;
+/* event item */
+
+.event-item-title h3 {
+	margin: 0px 0px 10px 0px;
+	font-weight: bold;
 }
 
+.event-item-description {
+	padding-bottom: 10px;
+}
+
+.event-item-label {
+	font-weight: bold;
+}
+
+/* vevent */
+
+.event-title h3 {
+	margin: 0px 0px 10px 0px;
+	font-weight: bold;
+}
+
+.vevent {
+	padding-top: 10px;
+}
+
+.event-description {
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+
+.event-label {
+	font-weight: bold;
+}

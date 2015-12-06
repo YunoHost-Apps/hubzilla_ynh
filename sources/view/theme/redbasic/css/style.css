@@ -241,7 +241,8 @@ footer {
 	padding-right: 3em; 
 }
 
-.birthday-today, .event-today {
+.birthday-today,
+.event-today {
 	font-weight: bold;
 }
 
@@ -785,6 +786,7 @@ a.rateme, div.rateme {
 
 #nav-search-text {
 	font-size: 12px;
+	width: 200px;
 	height: 20px;
 	margin: 15px;
 	padding: 0px 5px 0px 5px;
@@ -845,121 +847,6 @@ nav .acpopup {
 
 .tool-link {
   cursor: pointer;
-}
-
-.eventcal {
-	float: left;
-	font-size: 20px;
-}
-
-#event-summary-text {
-	margin-top: 15px;
-}
-
-#event-share-checkbox {
-	float: left;
-	margin-top: 10px;
-}
-
-#event-share-text {
-	float: left;
-	margin-top: 10px;
-	margin-left: 5px;
-}
-
-#event-share-break {
-	clear: both;
-	margin-bottom: 10px;
-}
-
-.event-wrapper {
-	width: 400px;
-	height: auto;
-	padding: 10px;
-}
-
-.vevent {
-	max-width: 100%; 
-	margin: 10px;
-	padding: 10px;
-	border: 1px solid #CCCCCC;
-}
-
-.vevent .event-summary {
-	margin: 10px;
-	font-weight: bold;
-}
-
-.vevent .event-description, .vevent .event-location {
-	margin-left: 10px;
-	margin-right: 10px;
-}
-.vevent .event-start {
-	margin-left: 10px;
-	margin-right: 10px;
-}
-
-#new-event-link {
-	margin-bottom: 10px;
-}
-
-.edit-event-link, .plink-event-link, .drop-event-link {
-	float: left;
-	margin-top: 4px;
-	margin-right: 4px;
-	margin-bottom: 15px;
-}
-
-.event-description:before {
-	content: url('../../../../images/calendar.png');
-	margin-right: 15px;
-}
-
-.event-start, .event-end {
-	margin-left: 10px;
-	width: 300px;
-	clear: both;
-}
-
-.event-owner img {
-	padding: 10px;
-}
-
-.event-buttons {
-	margin-top: 10px;
-	margin-left: 10px;
-}
-
-.event-start .dtstart, .event-end .dtend {
-	float: right;
-	margin-right: 10px;
-}
-
-.event-list-date {
-	margin-bottom: 10px;
-}
-
-.prevcal, .nextcal {
-	float: left;
-	margin-left: 32px;
-	margin-right: 32px;
-	margin-top: 64px;
-}
-.event-calendar-end {
-	clear: both;
-}
-
- 
-.calendar {
-	font-family: Courier, monospace;
-}
-.today {
-	font-weight: bold;
-	color: #FF0000;
-}
-
-.fc-state-highlight {
-	background: none repeat scroll 0% 0% #FCF8E3 !important;
 }
 
 #cboxOverlay {
@@ -1115,31 +1002,6 @@ nav .acpopup {
 
 .required {
 	color: #ff0000;
-}
-
-
-#event-start-text, #event-finish-text {
-	margin-top: 10px;
-	margin-bottom: 5px;
-}
-
-#event-nofinish-checkbox, #event-nofinish-text, #event-adjust-checkbox, #event-adjust-text {
-	float: left;
-}
-#event-datetime-break {
-	margin-bottom: 10px;
-}
-
-#event-nofinish-break, #event-adjust-break {
-	clear: both;
-}
-
-#event-desc-text, #event-location-text {
-	margin-top: 15px;
-	margin-bottom: 5px;
-}
-#event-submit {
-	margin-top: 10px;
 }
 
 #item-delete-selected {
@@ -1328,6 +1190,7 @@ a.rconnect:hover, a.rateme:hover, div.rateme:hover {
 .contactname {
 	padding-top: 2px;
 	font-weight: bold;
+	line-height: 1em;
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -1335,7 +1198,7 @@ a.rconnect:hover, a.rateme:hover, div.rateme:hover {
 }
 
 .dropdown-sub-text {
-	font-size: 0.833em;
+	line-height: 1em;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	display: block;
@@ -1639,8 +1502,12 @@ img.mail-conv-sender-photo {
 	padding: 0.5em 10px;
 }
 
-.wall-photo-item {
-	/*padding: 0.5em 10px;*/
+.wall-event-item {
+	padding: 10px;
+	color: #fff;
+	background-color: #3A87AD; /* should reflect calendar color */
+	border-top-left-radius: $radiuspx;
+	border-top-right-radius: $radiuspx;
 }
 
 .wall-photo-item img {
@@ -1720,7 +1587,8 @@ img.mail-conv-sender-photo {
     box-shadow: $shadowpx $shadowpx $shadowpx 0 #444444;
 }
 
-.wall-item-ago {
+.wall-item-ago,
+.dropdown-sub-text {
 	color: #777;
 	font-size: 0.833em;
 }
@@ -1852,6 +1720,26 @@ nav .dropdown-menu {
 	border-top-left-radius: 0px;
 	border-bottom-right-radius: $radiuspx;
 	border-bottom-left-radius: $radiuspx;
+}
+
+.dropdown-menu > .active > a,
+.dropdown-menu > .active > a:focus,
+.dropdown-menu > .active > a:hover {
+	color: #333;
+	background-color: #f5f5f5;
+}
+
+.dropdown-menu-img-sm {
+	float: left;
+	width: 36px;
+	height: 36px;
+	margin-right: 5px;
+}
+
+.dropdown-menu-img-xs {
+	height: 18px;
+	width: 18px;
+	margin-right: 5px;
 }
 
 #usermenu-caret {
@@ -2111,8 +1999,6 @@ nav .badge.mail-update:hover {
 #tabs-collapse-1 {
 	padding: 0px;
 	margin-bottom: 25px;
-	border-top: none;
-	box-shadow: none;
 }
 
 .btn {
@@ -2314,8 +2200,4 @@ nav .badge.mail-update:hover {
 
 .help-searchlist a {
 	font-size: 130%;
-}
-
-.response-list ul {
-	list-style-type: none;
 }

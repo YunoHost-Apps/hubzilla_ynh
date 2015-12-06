@@ -101,7 +101,7 @@ function notifier_run($argv, $argc){
 	$dead_hubs = array();
 
 	$dh = q("select site_url from site where site_dead = 1");
-	if(dh) {
+	if($dh) {
 		foreach($dh as $dead) {
 			$dead_hubs[] = $dead['site_url'];
 		}

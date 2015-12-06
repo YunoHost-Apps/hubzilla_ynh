@@ -75,9 +75,10 @@ function search_content(&$a,$update = 0, $load = false) {
 		return $o;
 
 	if($tag) {
-		$sql_extra = sprintf(" AND `item`.`id` IN (select `oid` from term where otype = %d and type = %d and term = '%s') ",
+		$sql_extra = sprintf(" AND `item`.`id` IN (select `oid` from term where otype = %d and type in ( %d , %d) and term = '%s') ",
 			intval(TERM_OBJ_POST),
 			intval(TERM_HASHTAG),
+			intval(TERM_COMMUNITYTAG),
 			dbesc(protect_sprintf($search))
 		);
 	}

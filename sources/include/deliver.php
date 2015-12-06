@@ -107,15 +107,10 @@ function deliver_run($argv, $argc) {
 
 			$notify = json_decode($r[0]['outq_notify'],true);
 
-			// Check if this is a conversation request packet. It won't have outq_msg
-			// but will be an encrypted packet - so will need to be handed off to
-			// web delivery rather than processed inline. 
+			// Messages without an outq_msg will need to go via the web, even if it's a
+			// local delivery. This includes conversation requests and refresh packets.
 
-			$sendtoweb = false;
-			if(array_key_exists('iv',$notify) && (! $r[0]['outq_msg']))
-				$sendtoweb = true;
-
-			if(($r[0]['outq_posturl'] === z_root() . '/post') && (! $sendtoweb)) {
+			if(($r[0]['outq_posturl'] === z_root() . '/post') && ($r[0]['outq_msg'])) {
 				logger('deliver: local delivery', LOGGER_DEBUG);
 				// local delivery
 				// we should probably batch these and save a few delivery processes
@@ -166,6 +161,7 @@ function deliver_run($argv, $argc) {
 				}
 				else {
 					logger('deliver: remote zot delivery failed to ' . $r[0]['outq_posturl']);
+					logger('deliver: remote zot delivery fail data: ' . print_r($result,true), LOGGER_DATA);
 					$y = q("update outq set outq_updated = '%s' where outq_hash = '%s'",
 						dbesc(datetime_convert()),
 						dbesc($argv[$x])

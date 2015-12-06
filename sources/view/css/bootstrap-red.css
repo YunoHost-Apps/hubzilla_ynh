@@ -29,7 +29,7 @@ nav ul li {
 	max-height: 50px;
 }
 
-nav img {
+nav .navbar-header img {
 	height: 49px;
 	width: 49px;
 	margin-top: 1px;
@@ -57,22 +57,14 @@ nav .navbar-toggle {
 /* nav overrides end */
 
 
-aside .nav-pills > li > a {
+aside .nav-pills > li > a,
+.response-list .nav-pills > li > a {
 	padding: 6px 10px;
-}
-
-.dropdown-menu img {
-	float: left;
-	width: 32px;
-	height: 32px;
-	margin-right: 5px;
 }
 
 .dropdown-menu li a {
 	overflow: hidden;
 	text-overflow: ellipsis;
-	line-height: 1em;
-	padding: 5px 10px;
 }
 
 .nav-tabs.nav-justified > li {

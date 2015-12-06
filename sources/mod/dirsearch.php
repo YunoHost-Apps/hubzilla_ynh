@@ -26,8 +26,8 @@ function dirsearch_content(&$a) {
 
 	$token = get_config('system','realm_token');
 	if($token && $access_token != $token) {
-		$result['message'] = t('This directory server requires an access token');
-		return;
+		$ret['message'] = t('This directory server requires an access token');
+		json_return_and_die($ret);
 	}
 
 
@@ -124,8 +124,6 @@ function dirsearch_content(&$a) {
 	if($keywords)
 		$sql_extra .= dir_query_build($joiner,'xprof_keywords',$keywords);
 
-	if($forums)
-		$safesql .= dir_flag_build(' AND ','xchan_flags',XCHAN_FLAGS_PUBFORUM, $forums);
 
 	// we only support an age range currently. You must set both agege 
 	// (greater than or equal) and agele (less than or equal) 
@@ -173,6 +171,9 @@ function dirsearch_content(&$a) {
 	if($safe < 0)
 		$safesql = " and ( xchan_censored = 1 OR xchan_selfcensored = 1 ) ";
 
+	if($forums)
+		$safesql .= " and xchan_pubforum = " . ((intval($forums)) ? '1 ' : '0 ');
+
 	if($limit) 
 		$qlimit = " LIMIT $limit ";
 	else {
@@ -184,7 +185,6 @@ function dirsearch_content(&$a) {
 			}
 		}
 	}
-
 
 	if($sort_order == 'normal') {
 		$order = " order by xchan_name asc ";
@@ -201,6 +201,7 @@ function dirsearch_content(&$a) {
 		$order = " order by xchan_name_date asc ";
 	else	
 		$order = " order by xchan_name_date desc ";
+
 
 	if($sync) {
 		$spkt = array('transactions' => array());
@@ -245,13 +246,18 @@ function dirsearch_content(&$a) {
 		json_return_and_die($spkt);
 	}
 	else {
+
 		$r = q("SELECT xchan.*, xprof.* from xchan left join xprof on xchan_hash = xprof_hash 
 			where ( $logic $sql_extra ) $hub_query and xchan_network = 'zot' and xchan_hidden = 0 and xchan_orphan = 0 and xchan_deleted = 0 
 			$safesql $order $qlimit "
 		);
+
+
+
 		$ret['page'] = $page + 1;
 		$ret['records'] = count($r);		
 	}
+
 
 
 	if($r) {

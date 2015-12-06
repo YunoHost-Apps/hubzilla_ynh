@@ -15,6 +15,7 @@ function feed_init(&$a) {
 	$params['start']     = ((x($params,'start'))        ? intval($params['start'])     : 0);
 	$params['records']   = ((x($params,'records'))      ? intval($params['records'])   : 40);
 	$params['direction'] = ((x($params,'direction'))    ? dbesc($params['direction'])  : 'desc');
+	$params['cat']       = ((x($_REQUEST,'cat'))        ? escape_tags($_REQUEST['cat'])  : '');
 
 	$channel = '';
 	if(argc() > 1) {

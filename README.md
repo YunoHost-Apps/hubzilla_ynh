@@ -1,7 +1,9 @@
 # YunoHost App for Hubzilla Hub #
 
-Notes
---------------
+## Hubzilla
+[Hubzilla](http://hubzilla.org) is a powerful platform for creating interconnected websites featuring a decentralized identity, communications, and permissions framework built using common webserver technology. 
+
+## Notes
 
 Before installing, read the [Hubzilla installation instructions](https://github.com/redmatrix/hubzilla/blob/master/install/INSTALL.txt) for important information about 
 
@@ -12,5 +14,5 @@ Before installing, read the [Hubzilla installation instructions](https://github.
 
 Current snapshot in *sources*: 
 
-* https://github.com/redmatrix/hubzilla: def5edf93ced1527155053b64d666bf1812cbbca
-* https://github.com/redmatrix/hubzilla-addons: 7a842e95e538e45041ac5599f693cfd757888b6f
+* https://github.com/redmatrix/hubzilla: 1.0
+* https://github.com/redmatrix/hubzilla-addons: 1.0

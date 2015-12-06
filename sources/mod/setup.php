@@ -14,7 +14,7 @@ $install_wizard_pass = 1;
  *
  * @param[in,out] App &$a
  */
-function setup_init(&$a){
+function setup_init(&$a) {
 
 	// Ensure that if somebody hasn't read the install documentation and doesn't have all
 	// the required modules or has a totally borked shared hosting provider and they can't

@@ -2,33 +2,15 @@
  * JavaScript for mod/events
  */
 
-$(document).ready( function() { showHideFinishDate(); });
+$(document).ready( function() {
 
-function showHideFinishDate() {
+	enableDisableFinishDate();
+
+});
+
+function enableDisableFinishDate() {
 	if( $('#id_nofinish').is(':checked'))
-		$('#event-finish-wrapper').hide();
+		$('#id_finish_text').prop("disabled", true);
 	else
-		$('#event-finish-wrapper').show();
-}
-function eventGetStart() {
-	//reply = prompt("{{$expirewhen}}", $('#jot-expire').val());
-	$('#startModal').modal();
-	$('#start-modal-OKButton').on('click', function() {
-		reply=$('#start-date').val();
-		if(reply && reply.length) {
-			$('#start-text').val(reply);
-			$('#startModal').modal('hide');
-		}
-	});
-}
-function eventGetFinish() {
-	//reply = prompt("{{$expirewhen}}", $('#jot-expire').val());
-	$('#finishModal').modal();
-	$('#finish-modal-OKButton').on('click', function() {
-		reply=$('#finish-date').val();
-		if(reply && reply.length) {
-			$('#finish-text').val(reply);
-			$('#finishModal').modal('hide');
-		}
-	});
+		$('#id_finish_text').prop("disabled", false);
 }

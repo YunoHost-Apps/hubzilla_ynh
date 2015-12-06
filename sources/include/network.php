@@ -320,6 +320,29 @@ function xml_status($st, $message = '') {
 	killme();
 }
 
+
+
+/**
+ * @brief Send HTTP status header 
+ *
+ * @param int $val
+ *    integer HTTP status result value
+ * @param string $msg
+ *    optional message
+ * @returns nil
+ */
+function http_status($val, $msg = '') {
+	if ($val >= 400)
+		$msg = (($msg) ? $msg : 'Error');
+	if ($val >= 200 && $val < 300)
+		$msg = (($msg) ? $msg : 'OK');
+
+	logger('http_status_exit ' . $val . ' ' . $msg);	
+	header($_SERVER['SERVER_PROTOCOL'] . ' ' . $val . ' ' . $msg);
+}
+
+
+
 /**
  * @brief Send HTTP status header and exit.
  *
@@ -330,16 +353,10 @@ function xml_status($st, $message = '') {
  * @returns (does not return, process is terminated)
  */
 function http_status_exit($val, $msg = '') {
-
-	if ($val >= 400)
-		$msg = (($msg) ? $msg : 'Error');
-	if ($val >= 200 && $val < 300)
-		$msg = (($msg) ? $msg : 'OK');
-
-	logger('http_status_exit ' . $val . ' ' . $msg);	
-	header($_SERVER['SERVER_PROTOCOL'] . ' ' . $val . ' ' . $msg);
+	http_status($val, $msg);
 	killme();
 }
+
 
 
 // convert an XML document to a normalised, case-corrected array
@@ -1692,3 +1709,162 @@ function do_delivery($deliveries) {
 	
 
 }
+
+
+function get_site_info() {
+
+	global $db;
+	global $a;
+
+	$register_policy = Array('REGISTER_CLOSED', 'REGISTER_APPROVE', 'REGISTER_OPEN');
+	$directory_mode = Array('DIRECTORY_MODE_NORMAL', 'DIRECTORY_MODE_SECONDARY','DIRECTORY_MODE_PRIMARY', 256 => 'DIRECTORY_MODE_STANDALONE');
+		
+	$sql_extra = '';
+
+	$r = q("select * from channel left join account on account_id = channel_account_id where ( account_roles & 4096 )>0 and account_default_channel = channel_id");
+
+
+	if($r) {
+		$admin = array();
+		foreach($r as $rr) {
+			if($rr['channel_pageflags'] & PAGE_HUBADMIN)
+				$admin[] = array( 'name' => $rr['channel_name'], 'address' => $rr['channel_address'] . '@' . get_app()->get_hostname(), 'channel' => z_root() . '/channel/' . $rr['channel_address']);
+		}
+		if(! $admin) {
+			foreach($r as $rr) {
+				$admin[] = array( 'name' => $rr['channel_name'], 'address' => $rr['channel_address'] . '@' . get_app()->get_hostname(), 'channel' => z_root() . '/channel/' . $rr['channel_address']);
+			}
+		}
+	}
+	else {
+		$admin = false;
+	}
+
+	$def_service_class = get_config('system','default_service_class');
+	if($def_service_class)
+		$service_class = get_config('service_class',$def_service_class);
+	else
+		$service_class = false;
+
+	$visible_plugins = array();
+	if(is_array($a->plugins) && count($a->plugins)) {
+		$r = q("select * from addon where hidden = 0");
+		if(count($r))
+			foreach($r as $rr)
+				$visible_plugins[] = $rr['name'];
+	}
+	sort($visible_plugins);
+
+	if(@is_dir('.git') && function_exists('shell_exec'))
+		$commit = trim(@shell_exec('git log -1 --format="%h"'));
+	if(! isset($commit) || strlen($commit) > 16)
+		$commit = '';
+
+	$site_info = get_config('system','info');
+	$site_name = get_config('system','sitename');
+	if(! get_config('system','hidden_version_siteinfo')) {
+		$version = RED_VERSION;
+		if(@is_dir('.git') && function_exists('shell_exec')) {
+			$commit = trim( @shell_exec('git log -1 --format="%h"'));
+			if(! get_config('system','hidden_tag_siteinfo'))
+				$tag = trim( @shell_exec('git describe --tags --abbrev=0'));
+			else 
+				$tag = '';
+		}
+		if(! isset($commit) || strlen($commit) > 16)
+			$commit = '';
+	}
+	else {
+			$version = $commit = '';
+	}
+		
+	//Statistics
+	$channels_total_stat = intval(get_config('system','channels_total_stat'));
+	$channels_active_halfyear_stat = intval(get_config('system','channels_active_halfyear_stat'));
+	$channels_active_monthly_stat = intval(get_config('system','channels_active_monthly_stat'));
+	$local_posts_stat = intval(get_config('system','local_posts_stat'));
+	$hide_in_statistics = intval(get_config('system','hide_in_statistics'));
+	$site_expire = intval(get_config('system', 'default_expire_days'));
+
+		
+	$data = Array(
+		'version' => $version,
+		'version_tag' => $tag,
+		'commit' => $commit,
+		'url' => z_root(),
+		'plugins' => $visible_plugins,
+		'register_policy' =>  $register_policy[get_config('system','register_policy')],
+		'directory_mode' =>  $directory_mode[get_config('system','directory_mode')],
+		'language' => get_config('system','language'),
+		'rss_connections' => get_config('system','feed_contacts'),
+		'expiration' => $site_expire,
+		'default_service_restrictions' => $service_class,
+		'admin' => $admin,
+		'site_name' => (($site_name) ? $site_name : ''),
+		'platform' => PLATFORM_NAME,
+		'dbdriver' => $db->getdriver(),
+		'lastpoll' => get_config('system','lastpoll'),
+		'info' => (($site_info) ? $site_info : ''),
+		'channels_total' => $channels_total_stat,
+		'channels_active_halfyear' => $channels_active_halfyear_stat,
+		'channels_active_monthly' => $channels_active_monthly_stat,
+		'local_posts' => $local_posts_stat,
+		'hide_in_statistics' => $hide_in_statistics
+	);
+	return $data;
+}
+
+
+
+function check_siteallowed($url) {
+
+	$retvalue = true;
+
+	$bl1 = get_config('system','whitelisted_sites');
+	if(is_array($bl1) && $bl1) {
+		foreach($bl1 as $bl) {
+			if($bl1 === '*')
+				$retvalue = true;
+			if($bl && strpos($url,$bl) !== false)
+				return true;
+		}
+	}
+	$bl1 = get_config('system','blacklisted_sites');
+	if(is_array($bl1) && $bl1) {
+		foreach($bl1 as $bl) {
+			if($bl1 === '*')
+				$retvalue = false;
+			if($bl && strpos($url,$bl) !== false) {
+				return false;
+			}
+		}
+	}
+	return $retvalue;
+}
+
+function check_channelallowed($hash) {
+
+	$retvalue = true;
+
+	$bl1 = get_config('system','whitelisted_channels');
+	if(is_array($bl1) && $bl1) {
+		foreach($bl1 as $bl) {
+			if($bl1 === '*')
+				$retvalue = true;
+			if($bl && strpos($hash,$bl) !== false)
+				return true;
+		}
+	}
+	$bl1 = get_config('system','blacklisted_channels');
+	if(is_array($bl1) && $bl1) {
+		foreach($bl1 as $bl) {
+			if($bl1 === '*')
+				$retvalue = false;
+			if($bl && strpos($hash,$bl) !== false) {
+				return false;
+			}
+		}
+	}
+	return $retvalue;
+}
+

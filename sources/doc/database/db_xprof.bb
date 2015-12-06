@@ -1,9 +1,10 @@
+xprof - stores searchable public profile information on directory servers
 [table]
 [tr][th]Field[/th][th]Description[/th][th]Type[/th][th]Null[/th][th]Key[/th][th]Default[/th][th]Extra
 [/th][/tr]
-[tr][td]xprof_hash[/td][td][/td][td]char(255)[/td][td]NO[/td][td]PRI[/td][td]NULL[/td][td]
+[tr][td]xprof_hash[/td][td]xchan.xchan_hash of this channel[/td][td]char(255)[/td][td]NO[/td][td]PRI[/td][td]NULL[/td][td]
 [/td][/tr]
-[tr][td]xprof_age[/td][td][/td][td]tinyint(3) unsigned[/td][td]NO[/td][td]MUL[/td][td]0[/td][td]
+[tr][td]xprof_age[/td][td]current age (updated monthly)[/td][td]tinyint(3) unsigned[/td][td]NO[/td][td]MUL[/td][td]0[/td][td]
 [/td][/tr]
 [tr][td]xprof_desc[/td][td][/td][td]char(255)[/td][td]NO[/td][td]MUL[/td][td][/td][td]
 [/td][/tr]

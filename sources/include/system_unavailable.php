@@ -1,6 +1,9 @@
 <?php /** @file */
 
+require_once("include/network.php");
+
 function system_down() {
+http_status(503, 'Service Unavailable');
 echo <<< EOT
 <html>
 <head><title>System Unavailable</title></head>

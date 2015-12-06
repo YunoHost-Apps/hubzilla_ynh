@@ -405,7 +405,6 @@ function settings_post(&$a) {
 
 	$allow_location   = (((x($_POST,'allow_location')) && (intval($_POST['allow_location']) == 1)) ? 1: 0);
 
-
 	$blocktags        = (((x($_POST,'blocktags')) && (intval($_POST['blocktags']) == 1)) ? 0: 1); // this setting is inverted!
 	$unkmail          = (((x($_POST,'unkmail')) && (intval($_POST['unkmail']) == 1)) ? 1: 0);
 	$cntunkmail       = ((x($_POST,'cntunkmail')) ? intval($_POST['cntunkmail']) : 0);
@@ -415,6 +414,8 @@ function settings_post(&$a) {
 	$post_joingroup   = (($_POST['post_joingroup'] == 1) ? 1: 0);
 	$post_profilechange   = (($_POST['post_profilechange'] == 1) ? 1: 0);
 	$adult            = (($_POST['adult'] == 1) ? 1 : 0);
+
+	$cal_first_day   = (((x($_POST,'first_day')) && (intval($_POST['first_day']) == 1)) ? 1: 0);
 
 	$channel = $a->get_channel();
 	$pageflags = $channel['channel_pageflags'];
@@ -503,6 +504,7 @@ function settings_post(&$a) {
 	set_pconfig(local_channel(),'system','evdays',$evdays);
 	set_pconfig(local_channel(),'system','photo_path',$photo_path);
 	set_pconfig(local_channel(),'system','attach_path',$attach_path);
+	set_pconfig(local_channel(),'system','cal_first_day',$cal_first_day);
 
 	$r = q("update channel set channel_name = '%s', channel_pageflags = %d, channel_timezone = '%s', channel_location = '%s', channel_notifyflags = %d, channel_max_anon_mail = %d, channel_max_friend_req = %d, channel_expire_days = %d $set_perms where channel_id = %d",
 		dbesc($username),
@@ -1110,6 +1112,7 @@ function settings_content(&$a) {
 			'$removeme' => t('Remove Channel'),
 			'$removechannel' => t('Remove this channel.'),
 			'$firefoxshare' => t('Firefox Share $Projectname provider'),
+			'$cal_first_day' => array('first_day', t('Start calendar week on monday'), ((get_pconfig(local_channel(),'system','cal_first_day')) ? 1 : ''), '', $yes_no),
 		));
 
 		call_hooks('settings_form',$o);

@@ -263,6 +263,9 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 [zrl=[baseurl]/help/hook/logged_in]logged_in[/zrl]
 	Called when authentication by any means has succeeeded
 
+[zrl=[baseurl]/help/hook/logger]logger[/zrl]
+	Called when making an entry to the application logfile
+
 [zrl=[baseurl]/help/hook/logging_out]logging_out[/zrl]
 	Called when logging out
 

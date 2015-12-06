@@ -90,8 +90,12 @@ function events_post(&$a) {
 	linkify_tags($a, $desc, local_channel());
 	linkify_tags($a, $location, local_channel());
 
-	$action = ($event_hash == '') ? 'new' : "event/" . $event_hash;
-	$onerror_url = $a->get_baseurl() . "/events/" . $action . "?summary=$summary&description=$desc&location=$location&start=$start_text&finish=$finish_text&adjust=$adjust&nofinish=$nofinish&type=$type";
+	//$action = ($event_hash == '') ? 'new' : "event/" . $event_hash;
+
+	//fixme: this url gives a wsod if there is a linebreak detected in one of the variables ($desc or $location)
+	//$onerror_url = $a->get_baseurl() . "/events/" . $action . "?summary=$summary&description=$desc&location=$location&start=$start_text&finish=$finish_text&adjust=$adjust&nofinish=$nofinish&type=$type";
+	$onerror_url = $a->get_baseurl() . "/events";
+
 	if(strcmp($finish,$start) < 0 && !$nofinish) {
 		notice( t('Event can not end before it has started.') . EOL);
 		if(intval($_REQUEST['preview'])) {
@@ -166,7 +170,7 @@ function events_post(&$a) {
 				'otype' => TERM_OBJ_POST,
 				'term'  => trim($cat),
 				'url'   => $channel['xchan_url'] . '?f=&cat=' . urlencode(trim($cat))
-			); 				
+			);
 		}
 	}
 
@@ -273,28 +277,19 @@ function events_content(&$a) {
 		);
 	}
 
-
-	$plaintext = true;
-
-//	if(feature_enabled(local_channel(),'richtext'))
-//		$plaintext = false;
-
-
+	$first_day = get_pconfig(local_channel(),'system','cal_first_day');
+	$first_day = (($first_day) ? $first_day : 0);
 
 	$htpl = get_markup_template('event_head.tpl');
 	$a->page['htmlhead'] .= replace_macros($htpl,array(
 		'$baseurl' => $a->get_baseurl(),
-		'$editselect' => (($plaintext) ? 'none' : 'textareas')
+		'$lang' => $a->language,
+		'$first_day' => $first_day
 	));
 
-	$o ="";
-	// tabs
+	$o = '';
 
 	$channel = $a->get_channel();
-
-	$tabs = profile_tabs($a, True, $channel['channel_address']);	
-
-
 
 	$mode = 'view';
 	$y = 0;
@@ -302,10 +297,6 @@ function events_content(&$a) {
 	$ignored = ((x($_REQUEST,'ignored')) ? " and ignored = " . intval($_REQUEST['ignored']) . " "  : '');
 
 	if(argc() > 1) {
-		if(argc() > 2 && argv(1) == 'event') {
-			$mode = 'edit';
-			$event_id = argv(2);
-		}
 		if(argc() > 2 && argv(1) === 'add') {
 			$mode = 'add';
 			$item_id = intval(argv(2));
@@ -314,14 +305,14 @@ function events_content(&$a) {
 			$mode = 'drop';
 			$event_id = argv(2);
 		}
-		if(argv(1) === 'new') {
-			$mode = 'new';
-			$event_id = '';
-		}
 		if(argc() > 2 && intval(argv(1)) && intval(argv(2))) {
 			$mode = 'view';
 			$y = intval(argv(1));
 			$m = intval(argv(2));
+		}
+		if(argc() <= 2) {
+			$mode = 'view';
+			$event_id = argv(1);
 		}
 	}
 
@@ -330,13 +321,149 @@ function events_content(&$a) {
 		killme();
 	}
 
-
-
-
-
 	if($mode == 'view') {
-		
-		
+
+		/* edit/create form */
+		if($event_id) {
+			$r = q("SELECT * FROM `event` WHERE event_hash = '%s' AND `uid` = %d LIMIT 1",
+				dbesc($event_id),
+				intval(local_channel())
+			);
+			if(count($r))
+				$orig_event = $r[0];
+		}
+
+		$channel = $a->get_channel();
+
+		// Passed parameters overrides anything found in the DB
+		if(!x($orig_event))
+			$orig_event = array();
+
+		// In case of an error the browser is redirected back here, with these parameters filled in with the previous values
+		/*
+		if(x($_REQUEST,'nofinish')) $orig_event['nofinish'] = $_REQUEST['nofinish'];
+		if(x($_REQUEST,'adjust')) $orig_event['adjust'] = $_REQUEST['adjust'];
+		if(x($_REQUEST,'summary')) $orig_event['summary'] = $_REQUEST['summary'];
+		if(x($_REQUEST,'description')) $orig_event['description'] = $_REQUEST['description'];
+		if(x($_REQUEST,'location')) $orig_event['location'] = $_REQUEST['location'];
+		if(x($_REQUEST,'start')) $orig_event['start'] = $_REQUEST['start'];
+		if(x($_REQUEST,'finish')) $orig_event['finish'] = $_REQUEST['finish'];
+		if(x($_REQUEST,'type')) $orig_event['type'] = $_REQUEST['type'];
+		*/
+
+		$n_checked = ((x($orig_event) && $orig_event['nofinish']) ? ' checked="checked" ' : '');
+		$a_checked = ((x($orig_event) && $orig_event['adjust']) ? ' checked="checked" ' : '');
+		$t_orig = ((x($orig_event)) ? $orig_event['summary'] : '');
+		$d_orig = ((x($orig_event)) ? $orig_event['description'] : '');
+		$l_orig = ((x($orig_event)) ? $orig_event['location'] : '');
+		$eid = ((x($orig_event)) ? $orig_event['id'] : 0);
+		$event_xchan = ((x($orig_event)) ? $orig_event['event_xchan'] : $channel['channel_hash']);
+		$mid = ((x($orig_event)) ? $orig_event['mid'] : '');
+
+		if(! x($orig_event))
+			$sh_checked = '';
+		else
+			$sh_checked = ((($orig_event['allow_cid'] === '<' . $channel['channel_hash'] . '>' || (! $orig_event['allow_cid'])) && (! $orig_event['allow_gid']) && (! $orig_event['deny_cid']) && (! $orig_event['deny_gid'])) ? '' : ' checked="checked" ' );
+
+		if($orig_event['event_xchan'])
+			$sh_checked .= ' disabled="disabled" ';
+
+		$sdt = ((x($orig_event)) ? $orig_event['start'] : 'now');
+
+		$fdt = ((x($orig_event)) ? $orig_event['finish'] : '+1 hour');
+
+		$tz = date_default_timezone_get();
+		if(x($orig_event))
+			$tz = (($orig_event['adjust']) ? date_default_timezone_get() : 'UTC');
+
+		$syear = datetime_convert('UTC', $tz, $sdt, 'Y');
+		$smonth = datetime_convert('UTC', $tz, $sdt, 'm');
+		$sday = datetime_convert('UTC', $tz, $sdt, 'd');
+		$shour = datetime_convert('UTC', $tz, $sdt, 'H');
+		$sminute = datetime_convert('UTC', $tz, $sdt, 'i');
+
+		$stext = datetime_convert('UTC',$tz,$sdt);
+		$stext = substr($stext,0,14) . "00:00";
+
+		$fyear = datetime_convert('UTC', $tz, $fdt, 'Y');
+		$fmonth = datetime_convert('UTC', $tz, $fdt, 'm');
+		$fday = datetime_convert('UTC', $tz, $fdt, 'd');
+		$fhour = datetime_convert('UTC', $tz, $fdt, 'H');
+		$fminute = datetime_convert('UTC', $tz, $fdt, 'i');
+
+		$ftext = datetime_convert('UTC',$tz,$fdt);
+		$ftext = substr($ftext,0,14) . "00:00";
+
+		$type = ((x($orig_event)) ? $orig_event['type'] : 'event');
+
+		$f = get_config('system','event_input_format');
+		if(! $f)
+			$f = 'ymd';
+
+		$catsenabled = feature_enabled(local_channel(),'categories');
+
+		$category = '';
+
+		if($catsenabled && x($orig_event)){
+			$itm = q("select * from item where resource_type = 'event' and resource_id = '%s' and uid = %d limit 1",
+				dbesc($orig_event['event_hash']),
+				intval(local_channel())
+			);
+			$itm = fetch_post_tags($itm);
+			if($itm) {
+				$cats = get_terms_oftype($itm[0]['term'], TERM_CATEGORY);
+				foreach ($cats as $cat) {
+					if(strlen($category))
+						$category .= ', ';
+					$category .= $cat['term'];
+            			}
+			}
+		}
+
+		require_once('include/acl_selectors.php');
+
+		$acl = new AccessList($channel);
+		$perm_defaults = $acl->get();
+
+		$tpl = get_markup_template('event_form.tpl');
+
+		$form = replace_macros($tpl,array(
+			'$post' => $a->get_baseurl() . '/events',
+			'$eid' => $eid,
+			'$type' => $type,
+			'$xchan' => $event_xchan,
+			'$mid' => $mid,
+			'$event_hash' => $event_id,
+			'$summary' => array('summary', (($event_id) ? t('Edit event titel') : t('Event titel')), $t_orig, t('Required'), '*'),
+			'$catsenabled' => $catsenabled,
+			'$placeholdercategory' => t('Categories (comma-separated list)'),
+			'$c_text' => (($event_id) ? t('Edit Category') : t('Category')),
+			'$category' => $category,
+			'$required' => '<span class="required" title="' . t('Required') . '">*</span>',
+			'$s_dsel' => datetimesel($f,new DateTime(),DateTime::createFromFormat('Y',$syear+5),DateTime::createFromFormat('Y-m-d H:i',"$syear-$smonth-$sday $shour:$sminute"), (($event_id) ? t('Edit start date and time') : t('Start date and time')), 'start_text',true,true,'','',true,$first_day),
+			'$n_text' => t('Finish date and time are not known or not relevant'),
+			'$n_checked' => $n_checked,
+			'$f_dsel' => datetimesel($f,new DateTime(),DateTime::createFromFormat('Y',$fyear+5),DateTime::createFromFormat('Y-m-d H:i',"$fyear-$fmonth-$fday $fhour:$fminute"), (($event_id) ? t('Edit finish date and time') : t('Finish date and time')),'finish_text',true,true,'start_text','',false,$first_day),
+			'$nofinish' => array('nofinish', t('Finish date and time are not known or not relevant'), $n_checked, '', array(t('No'),t('Yes')), 'onclick="enableDisableFinishDate();"'),
+			'$adjust' => array('adjust', t('Adjust for viewer timezone'), $a_checked, t('Important for events that happen in a particular place. Not practical for global holidays.'), array(t('No'),t('Yes'))),
+			'$a_text' => t('Adjust for viewer timezone'),
+			'$d_text' => (($event_id) ? t('Edit Description') : t('Description')),
+			'$d_orig' => $d_orig,
+			'$l_text' => (($event_id) ? t('Edit Location') : t('Location')),
+			'$l_orig' => $l_orig,
+			'$t_orig' => $t_orig,
+			'$sh_text' => t('Share this event'),
+			'$sh_checked' => $sh_checked,
+			'$share' => array('share', t('Share this event'), $sh_checked, '', array(t('No'),t('Yes'))),
+			'$preview' => t('Preview'),
+			'$permissions' => t('Permission settings'),
+			'$acl' => (($orig_event['event_xchan']) ? '' : populate_acl(((x($orig_event)) ? $orig_event : $perm_defaults),false)),
+			'$submit' => t('Submit'),
+			'$advanced' => t('Advanced Options')
+
+		));
+		/* end edit/create form */
+
 		$thisyear = datetime_convert('UTC',date_default_timezone_get(),'now','Y');
 		$thismonth = datetime_convert('UTC',date_default_timezone_get(),'now','m');
 		if(! $y)
@@ -347,7 +474,6 @@ function events_content(&$a) {
 		$export = false;
 		if(argc() === 4 && argv(3) === 'export')
 			$export = true;
-
 
 		// Put some limits on dates. The PHP date functions don't seem to do so well before 1900.
 		// An upper limit was chosen to keep search engines from exploring links millions of years in the future. 
@@ -378,10 +504,10 @@ function events_content(&$a) {
 
 
 		if (argv(1) === 'json'){
-			if (x($_GET,'start'))	$start = date("Y-m-d h:i:s", $_GET['start']);
-			if (x($_GET,'end'))	$finish = date("Y-m-d h:i:s", $_GET['end']);
+			if (x($_GET,'start'))	$start = $_GET['start'];
+			if (x($_GET,'end'))	$finish = $_GET['end'];
 		}
-	
+
 		$start  = datetime_convert('UTC','UTC',$start);
 		$finish = datetime_convert('UTC','UTC',$finish);
 
@@ -413,17 +539,17 @@ function events_content(&$a) {
 
 			$r = q("SELECT event.*, item.plink, item.item_flags, item.author_xchan, item.owner_xchan
                               from event left join item on event_hash = resource_id 
-				where resource_type = 'event' and event.uid = %d $ignored
-				AND (( `adjust` = 0 AND ( `finish` >= '%s' or nofinish = 1 ) AND `start` <= '%s' ) 
-				OR  (  `adjust` = 1 AND ( `finish` >= '%s' or nofinish = 1 ) AND `start` <= '%s' )) ",
+				where resource_type = 'event' and event.uid = %d $ignored 
+				AND (( adjust = 0 AND ( finish >= '%s' or nofinish = 1 ) AND start <= '%s' ) 
+				OR  (  adjust = 1 AND ( finish >= '%s' or nofinish = 1 ) AND start <= '%s' )) ",
 				intval(local_channel()),
 				dbesc($start),
 				dbesc($finish),
 				dbesc($adjust_start),
 				dbesc($adjust_finish)
 			);
-		}
 
+		}
 
 		$links = array();
 
@@ -467,7 +593,7 @@ function events_content(&$a) {
 					
 				$last_date = $d;
 
-				$edit = (intval($rr['item_wall']) ? array($a->get_baseurl().'/events/event/'.$rr['event_hash'],t('Edit event'),'','') : null);
+				$edit = ((local_channel() && $rr['author_xchan'] == get_observer_hash()) ? array($a->get_baseurl().'/events/'.$rr['event_hash'].'?expandform=1',t('Edit event'),'','') : false);
 
 				$drop = array($a->get_baseurl().'/events/drop/'.$rr['event_hash'],t('Delete event'),'','');
 
@@ -500,7 +626,7 @@ function events_content(&$a) {
 
 			}
 		}
-		 
+		
 		if($export) {
 			header('Content-type: text/calendar');
 			header('content-disposition: attachment; filename="' . t('calendar') . '-' . $channel['channel_address'] . '.ics"' );
@@ -522,22 +648,24 @@ function events_content(&$a) {
 
 		$o = replace_macros($tpl, array(
 			'$baseurl'	=> $a->get_baseurl(),
-			'$tabs'		=> $tabs,
-			'$title'	=> t('Events'),
-			'$new_event'=> array($a->get_baseurl().'/events/new',t('Create New Event'),'',''),
+			'$new_event'	=> array($a->get_baseurl().'/events',(($event_id) ? t('Edit Event') : t('Create Event')),'',''),
 			'$previus'	=> array($a->get_baseurl()."/events/$prevyear/$prevmonth",t('Previous'),'',''),
 			'$next'		=> array($a->get_baseurl()."/events/$nextyear/$nextmonth",t('Next'),'',''),
-			'$export'   => array($a->get_baseurl()."/events/$y/$m/export",t('Export'),'',''),
-			'$calendar' => cal($y,$m,$links, ' eventcal'),			
+			'$export'	=> array($a->get_baseurl()."/events/$y/$m/export",t('Export'),'',''),
+			'$calendar'	=> cal($y,$m,$links, ' eventcal'),
 			'$events'	=> $events,
-			'$upload'   => t('Import'),
-			'$submit'   => t('Submit')			
+			'$upload'	=> t('Import'),
+			'$submit'	=> t('Submit'),
+			'$prev'		=> t('Previous'),
+			'$next'		=> t('Next'),
+			'$today'	=> t('Today'),
+			'$form'		=> $form,
+			'$expandform'	=> ((x($_GET,'expandform')) ? true : false),
 		));
 		
 		if (x($_GET,'id')){ echo $o; killme(); }
 		
 		return $o;
-		
 	}
 
 	if($mode === 'drop' && $event_id) {
@@ -570,147 +698,4 @@ function events_content(&$a) {
 		}
 	}
 
-	if($mode === 'edit' && $event_id) {
-		$r = q("SELECT * FROM `event` WHERE event_hash = '%s' AND `uid` = %d LIMIT 1",
-			dbesc($event_id),
-			intval(local_channel())
-		);
-		if(count($r))
-			$orig_event = $r[0];
-	}
-
-	$channel = $a->get_channel();
-
-	// Passed parameters overrides anything found in the DB
-	if($mode === 'edit' || $mode === 'new') {
-		if(!x($orig_event)) $orig_event = array();
-		// In case of an error the browser is redirected back here, with these parameters filled in with the previous values
-		if(x($_REQUEST,'nofinish')) $orig_event['nofinish'] = $_REQUEST['nofinish'];
-		if(x($_REQUEST,'adjust')) $orig_event['adjust'] = $_REQUEST['adjust'];
-		if(x($_REQUEST,'summary')) $orig_event['summary'] = $_REQUEST['summary'];
-		if(x($_REQUEST,'description')) $orig_event['description'] = $_REQUEST['description'];
-		if(x($_REQUEST,'location')) $orig_event['location'] = $_REQUEST['location'];
-		if(x($_REQUEST,'start')) $orig_event['start'] = $_REQUEST['start'];
-		if(x($_REQUEST,'finish')) $orig_event['finish'] = $_REQUEST['finish'];
-		if(x($_REQUEST,'type')) $orig_event['type'] = $_REQUEST['type'];
-
-		$n_checked = ((x($orig_event) && $orig_event['nofinish']) ? ' checked="checked" ' : '');
-		$a_checked = ((x($orig_event) && $orig_event['adjust']) ? ' checked="checked" ' : '');
-		$t_orig = ((x($orig_event)) ? $orig_event['summary'] : '');
-		$d_orig = ((x($orig_event)) ? $orig_event['description'] : '');
-		$l_orig = ((x($orig_event)) ? $orig_event['location'] : '');
-		$eid = ((x($orig_event)) ? $orig_event['id'] : 0);
-		$event_xchan = ((x($orig_event)) ? $orig_event['event_xchan'] : $channel['channel_hash']);
-		$mid = ((x($orig_event)) ? $orig_event['mid'] : '');
-
-		if(! x($orig_event))
-			$sh_checked = '';
-		else
-			$sh_checked = ((($orig_event['allow_cid'] === '<' . $channel['channel_hash'] . '>' || (! $orig_event['allow_cid'])) && (! $orig_event['allow_gid']) && (! $orig_event['deny_cid']) && (! $orig_event['deny_gid'])) ? '' : ' checked="checked" ' );
-
-		if($orig_event['event_xchan'])
-			$sh_checked .= ' disabled="disabled" ';
-
-		$sdt = ((x($orig_event)) ? $orig_event['start'] : 'now');
-		$fdt = ((x($orig_event)) ? $orig_event['finish'] : 'now');
-
-		$tz = date_default_timezone_get();
-		if(x($orig_event))
-			$tz = (($orig_event['adjust']) ? date_default_timezone_get() : 'UTC');
-
-		$syear = datetime_convert('UTC', $tz, $sdt, 'Y');
-		$smonth = datetime_convert('UTC', $tz, $sdt, 'm');
-		$sday = datetime_convert('UTC', $tz, $sdt, 'd');
-
-
-		$shour = ((x($orig_event)) ? datetime_convert('UTC', $tz, $sdt, 'H') : 0);
-		$sminute = ((x($orig_event)) ? datetime_convert('UTC', $tz, $sdt, 'i') : 0);
-		$stext = datetime_convert('UTC',$tz,$sdt);
-		$stext = substr($stext,0,14) . "00:00";
-
-		$fyear = datetime_convert('UTC', $tz, $fdt, 'Y');
-		$fmonth = datetime_convert('UTC', $tz, $fdt, 'm');
-		$fday = datetime_convert('UTC', $tz, $fdt, 'd');
-
-		$fhour = ((x($orig_event)) ? datetime_convert('UTC', $tz, $fdt, 'H') : 0);
-		$fminute = ((x($orig_event)) ? datetime_convert('UTC', $tz, $fdt, 'i') : 0);
-		$ftext = datetime_convert('UTC',$tz,$fdt);
-		$ftext = substr($ftext,0,14) . "00:00";
-		$type = ((x($orig_event)) ? $orig_event['type'] : 'event');
-
-		$f = get_config('system','event_input_format');
-		if(! $f)
-			$f = 'ymd';
-
-		$catsenabled = feature_enabled(local_channel(),'categories');
-
-		$category = '';
-
-		if($catsenabled && x($orig_event)){
-			$itm = q("select * from item where resource_type = 'event' and resource_id = '%s' and uid = %d limit 1",
-				dbesc($orig_event['event_hash']),
-				intval(local_channel())
-			);
-			$itm = fetch_post_tags($itm);
-			if($itm) {
-				$cats = get_terms_oftype($itm[0]['term'], TERM_CATEGORY);
-				foreach ($cats as $cat) {
-					if(strlen($category))
-						$category .= ', ';
-					$category .= $cat['term'];
-            	}
-			}
-		}
-
-		require_once('include/acl_selectors.php');
-
-		$acl = new AccessList($channel);
-		$perm_defaults = $acl->get();
-
-
-		$tpl = get_markup_template('event_form.tpl');
-
-		$o .= replace_macros($tpl,array(
-			'$post' => $a->get_baseurl() . '/events',
-			'$eid' => $eid, 
-			'$type' => $type,
-			'$xchan' => $event_xchan,
-			'$mid' => $mid,
-			'$event_hash' => $event_id,
-	
-			'$title' => t('Event details'),
-			'$desc' => t('Starting date and Title are required.'),
-			'$catsenabled' => $catsenabled,
-			'$placeholdercategory' => t('Categories (comma-separated list)'),
-			'$category' => $category,
-			'$s_text' => t('Event Starts:'),
-			'$stext' => $stext,
-			'$ftext' => $ftext,
-			'$required' => '<span class="required" title="' . t('Required') . '">*</span>',
-			'$ModalCANCEL' => t('Cancel'),
-			'$ModalOK' => t('OK'),
-			'$s_dsel' => datetimesel($f,new DateTime(),DateTime::createFromFormat('Y',$syear+5),DateTime::createFromFormat('Y-m-d H:i',"$syear-$smonth-$sday $shour:$sminute"),'start_text',true,true,'','',true),
-			'$n_text' => t('Finish date/time is not known or not relevant'),
-			'$n_checked' => $n_checked,
-			'$f_text' => t('Event Finishes:'),
-			'$f_dsel' => datetimesel($f,new DateTime(),DateTime::createFromFormat('Y',$fyear+5),DateTime::createFromFormat('Y-m-d H:i',"$fyear-$fmonth-$fday $fhour:$fminute"),'finish_text',true,true,'start_text'),
-			'$adjust' => array('adjust', t('Adjust for viewer timezone'), $a_checked, t('Important for events that happen in a particular place. Not practical for global holidays.'),),
-			'$a_text' => t('Adjust for viewer timezone'),
-			'$d_text' => t('Description:'), 
-			'$d_orig' => $d_orig,
-			'$l_text' => t('Location:'),
-			'$l_orig' => $l_orig,
-			'$t_text' => t('Title:'),
-			'$t_orig' => $t_orig,
-			'$sh_text' => t('Share this event'),
-			'$sh_checked' => $sh_checked,
-			'$preview' => t('Preview'),
-			'$permissions' => t('Permissions'),
-			'$acl' => (($orig_event['event_xchan']) ? '' : populate_acl(((x($orig_event)) ? $orig_event : $perm_defaults),false)),
-			'$submit' => t('Submit')
-
-		));
-
-		return $o;
-	}
 }

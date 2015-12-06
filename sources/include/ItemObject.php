@@ -258,6 +258,15 @@ class Item extends BaseObject {
 		if ($shareable)
 			$share = array( t('Share This'), t('share'));
 
+		$dreport = '';
+
+		$keep_reports = intval(get_config('system','expire_delivery_reports'));
+		if($keep_reports === 0)
+			$keep_reports = 30;
+
+		if(strcmp(datetime_convert('UTC','UTC',$item['created']),datetime_convert('UTC','UTC',"now - $keep_reports days")) > 0)
+			$dreport = t('Delivery Report');
+
 		if(strcmp(datetime_convert('UTC','UTC',$item['created']),datetime_convert('UTC','UTC','now - 12 hours')) > 0)
 			$indent .= ' shiny';
 
@@ -277,6 +286,10 @@ class Item extends BaseObject {
 		$comment_count_txt = sprintf( tt('%d comment','%d comments',$total_children),$total_children );
 		$list_unseen_txt = (($unseen_comments) ? sprintf('%d unseen',$unseen_comments) : '');
 		
+
+
+		
+
 		$children = $this->get_children();
 
 		$has_tags = (($body['tags'] || $body['categories'] || $body['mentions'] || $body['attachments'] || $body['folders']) ? true : false);
@@ -309,7 +322,7 @@ class Item extends BaseObject {
 			'vwall' => t('via Wall-To-Wall:'),
 			'profile_url' => $profile_link,
 			'item_photo_menu' => item_photo_menu($item),
-			'dreport' => t('Delivery Report'),
+			'dreport' => $dreport,
 			'name' => $profile_name,
 			'thumb' => $profile_avatar,
 			'osparkle' => $osparkle,
@@ -333,6 +346,7 @@ class Item extends BaseObject {
 			'owner_photo' => $this->get_owner_photo(),
 			'owner_name' => $this->get_owner_name(),
 			'photo' => $body['photo'],
+			'event' => $body['event'],
 			'has_tags' => $has_tags,
 
 // Item toolbar buttons

@@ -48,6 +48,7 @@ require_once('include/AccessList.php');
 
 define ( 'PLATFORM_NAME',           'hubzilla' );
 define ( 'RED_VERSION',             trim(file_get_contents('version.inc')) . 'H');
+define ( 'STD_VERSION',             '1.0' );
 define ( 'ZOT_REVISION',            1     );
 
 define ( 'DB_UPDATE_VERSION',       1160  );
@@ -65,10 +66,10 @@ define ( 'ATOM_TIME',              'Y-m-d\TH:i:s\Z'       );
 //define ( 'NULL_DATE',              '0000-00-00 00:00:00'  );
 define ( 'TEMPLATE_BUILD_PATH',    'store/[data]/smarty3' );
 
-define ( 'DIRECTORY_MODE_NORMAL',      0x0000); // This is technically DIRECTORY_MODE_TERTIARY, but it's the default, hence 0x0000
-define ( 'DIRECTORY_MODE_PRIMARY',     0x0001);
-define ( 'DIRECTORY_MODE_SECONDARY',   0x0002);
-define ( 'DIRECTORY_MODE_STANDALONE',  0x0100);
+define ( 'DIRECTORY_MODE_NORMAL',      0x0000); // A directory client
+define ( 'DIRECTORY_MODE_PRIMARY',     0x0001); // There can only be *one* primary directory server in a directory_realm.
+define ( 'DIRECTORY_MODE_SECONDARY',   0x0002); // All other mirror directory servers
+define ( 'DIRECTORY_MODE_STANDALONE',  0x0100); // A detached (off the grid) hub with itself as directory server.
 
 // We will look for upstream directories whenever me make contact
 // with other sites, but if this is a new installation and isn't
@@ -83,6 +84,7 @@ $DIRECTORY_FALLBACK_SERVERS = array(
 	'https://hubzilla.site',
 	'https://red.zottel.red',
 	'https://gravizot.de',
+	'https://blablanet.com',
 	'https://my.federated.social'
 );
 
@@ -422,6 +424,7 @@ define ( 'TERM_SAVEDSEARCH',  6 );
 define ( 'TERM_THING',        7 );
 define ( 'TERM_BOOKMARK',     8 );
 define ( 'TERM_HIERARCHY',    9 );
+define ( 'TERM_COMMUNITYTAG', 10 );
 
 define ( 'TERM_OBJ_POST',    1 );
 define ( 'TERM_OBJ_PHOTO',   2 );
@@ -619,10 +622,10 @@ class App {
 	public  $poi        = null;            // "person of interest", generally a referenced connection
 	private $oauth_key  = null;            // consumer_id of oauth request, if used
 	public  $layout     = array();         // Comanche parsed template
-	public  $pdl        = null;
+	public  $pdl        = null;            // Comanche page description
 	private $perms      = null;            // observer permissions
 	private $widgets    = array();         // widgets for this page
-	//private $widgetlist = null;            // widget ordering and inclusion directives
+
 
 	public  $groups;
 	public  $language;
@@ -1155,7 +1158,7 @@ function z_root() {
 }
 
 /**
- * @brief Return absolut URL for given $path.
+ * @brief Return absolute URL for given $path.
  *
  * @param string $path
  *
@@ -1467,12 +1470,6 @@ function login($register = false, $form_id = 'main-login', $hiddens=false) {
 		$tpl = get_markup_template("logout.tpl");
 	}
 	else {
-//	There's no such thing as login_head.tpl, has never been in Red, removed from Friendica 1 Jun 2013...
-
-//		$a->page['htmlhead'] .= replace_macros(get_markup_template("login_head.tpl"), array(
-//			'$baseurl' => $a->get_baseurl(true)
-//		));
-
 		$tpl = get_markup_template("login.tpl");
 		if(strlen($a->query_string))
 			$_SESSION['login_return_url'] = $a->query_string;

@@ -21,35 +21,37 @@ function format_event_html($ev) {
 
 	$bd_format = t('l F d, Y \@ g:i A') ; // Friday January 18, 2011 @ 8:01 AM
 
+	//todo: move this to template
+
 	$o = '<div class="vevent">' . "\r\n";
 
-	$o .= '<p class="summary event-summary">' . bbcode($ev['summary']) .  '</p>' . "\r\n";
+	$o .= '<div class="event-title"><h3><i class="icon-calendar"></i>&nbsp;' . bbcode($ev['summary']) .  '</h3></div>' . "\r\n";
 
-	$o .= '<p class="description event-description">' . bbcode($ev['description']) .  '</p>' . "\r\n";
-
-	$o .= '<p class="event-start">' . t('Starts:') . ' <abbr class="dtstart" title="'
+	$o .= '<div class="event-start"><span class="event-label">' . t('Starts:') . '</span>&nbsp;<span class="dtstart" title="'
 		. datetime_convert('UTC', 'UTC', $ev['start'], (($ev['adjust']) ? ATOM_TIME : 'Y-m-d\TH:i:s' ))
 		. '" >' 
 		. (($ev['adjust']) ? day_translate(datetime_convert('UTC', date_default_timezone_get(), 
 			$ev['start'] , $bd_format ))
 			:  day_translate(datetime_convert('UTC', 'UTC', 
 			$ev['start'] , $bd_format)))
-		. '</abbr></p>' . "\r\n";
+		. '</span></div>' . "\r\n";
 
 	if(! $ev['nofinish'])
-		$o .= '<p class="event-end" >' . t('Finishes:') . ' <abbr class="dtend" title="'
+		$o .= '<div class="event-end" ><span class="event-label">' . t('Finishes:') . '</span>&nbsp;<span class="dtend" title="'
 			. datetime_convert('UTC','UTC',$ev['finish'], (($ev['adjust']) ? ATOM_TIME : 'Y-m-d\TH:i:s' ))
 			. '" >' 
 			. (($ev['adjust']) ? day_translate(datetime_convert('UTC', date_default_timezone_get(), 
 				$ev['finish'] , $bd_format ))
 				:  day_translate(datetime_convert('UTC', 'UTC', 
 				$ev['finish'] , $bd_format )))
-			. '</abbr></p>'  . "\r\n";
+			. '</span></div>'  . "\r\n";
+
+	$o .= '<div class="event-description">' . bbcode($ev['description']) .  '</div>' . "\r\n";
 
 	if(strlen($ev['location']))
-		$o .= '<p class="event-location"> ' . t('Location:') . ' <span class="location">' 
+		$o .= '<div class="event-location"><span class="event-label"> ' . t('Location:') . '</span>&nbsp;<span class="location">' 
 			. bbcode($ev['location'])
-			. '</span></p>' . "\r\n";
+			. '</span></div>' . "\r\n";
 
 	$o .= '</div>' . "\r\n";
 
@@ -785,6 +787,12 @@ function event_store_item($arr, $event) {
 			'type'    => ACTIVITY_OBJ_EVENT,
 			'id'      => z_root() . '/event/' . $r[0]['resource_id'],
 			'title'   => $arr['summary'],
+			'start'   => $arr['start'],
+			'finish'  => $arr['finish'],
+			'nofinish'  => $arr['nofinish'],
+			'description' => $arr['description'],
+			'location'   => $arr['location'],
+			'adjust'   => $arr['adjust'],
 			'content' => format_event_bbcode($arr),
 			'author'  => array(
 			'name'     => $r[0]['xchan_name'],
@@ -887,7 +895,7 @@ function event_store_item($arr, $event) {
 		$item_arr['verb']            = ACTIVITY_POST;
 		$item_arr['item_wall']       = $item_wall;
 		$item_arr['item_origin']     = $item_origin;
-		$item_arr['item_thread_top'] = $item_thread_top;;
+		$item_arr['item_thread_top'] = $item_thread_top;
 
 		$attach = array(array(
 			'href' => z_root() . '/events/ical/' .  urlencode($event['event_hash']),
@@ -924,6 +932,12 @@ function event_store_item($arr, $event) {
 				'type'    => ACTIVITY_OBJ_EVENT,
 				'id'      => z_root() . '/event/' . $event['event_hash'],
 				'title'   => $arr['summary'],
+				'start'   => $arr['start'],
+				'finish'  => $arr['finish'],
+				'nofinish'  => $arr['nofinish'],
+				'description' => $arr['description'],
+				'location'   => $arr['location'],
+				'adjust'   => $arr['adjust'],
 				'content' => format_event_bbcode($arr),
 				'author'  => array(
 					'name'     => $x[0]['xchan_name'],

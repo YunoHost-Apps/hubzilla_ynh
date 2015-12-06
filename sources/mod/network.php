@@ -248,7 +248,7 @@ function network_content(&$a, $update = 0, $load = false) {
 		$sql_extra .= protect_sprintf(term_query('item', $category, TERM_CATEGORY));
 	}
 	if(x($hashtags)) {
-		$sql_extra .= protect_sprintf(term_query('item', $hashtags, TERM_HASHTAG));
+		$sql_extra .= protect_sprintf(term_query('item', $hashtags, TERM_HASHTAG, TERM_COMMUNITYTAG));
 	}
 
 	if(! $update) {
@@ -313,7 +313,7 @@ function network_content(&$a, $update = 0, $load = false) {
 	if(x($_GET,'search')) {
 		$search = escape_tags($_GET['search']);
 		if(strpos($search,'#') === 0) {
-			$sql_extra .= term_query('item',substr($search,1),TERM_HASHTAG);
+			$sql_extra .= term_query('item',substr($search,1),TERM_HASHTAG,TERM_COMMUNITYTAG);
 		}
 		else {
 			$sql_extra .= sprintf(" AND item.body like '%s' ",

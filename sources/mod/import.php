@@ -123,12 +123,12 @@ function import_account(&$a, $account_id) {
 	if(array_key_exists('channel',$data)) {
 
 		if($completed < 1) {
-			$channel = import_channel($data['channel']);
+			$channel = import_channel($data['channel'], $account_id);
 
 		}
 		else {
 			$r = q("select * from channel where channel_account_id = %d and channel_guid = '%s' limit 1",
-				intval(get_account_id()),
+				intval($account_id),
 				dbesc($channel['channel_guid'])
 			);
 			if($r)
@@ -166,7 +166,7 @@ function import_account(&$a, $account_id) {
 
 		if($data['photo']) {
 			require_once('include/photo/photo_driver.php');
-			import_channel_photo(base64url_decode($data['photo']['data']),$data['photo']['type'],get_account_id(),$channel['channel_id']);
+			import_channel_photo(base64url_decode($data['photo']['data']),$data['photo']['type'],$account_id,$channel['channel_id']);
 		}
 
 		if(is_array($data['profile']))
@@ -335,7 +335,7 @@ function import_account(&$a, $account_id) {
 				unset($abook['abook_id']);
 				unset($abook['abook_rating']);
 				unset($abook['abook_rating_text']);
-				$abook['abook_account'] = get_account_id();
+				$abook['abook_account'] = $account_id;
 				$abook['abook_channel'] = $channel['channel_id'];
 				if(! array_key_exists('abook_blocked',$abook)) {
 					$abook['abook_blocked']     = (($abook['abook_flags'] & 0x0001 ) ? 1 : 0);

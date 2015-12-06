@@ -22,6 +22,7 @@
 		'submit'      : "{{$submit}}",
 		'linkurl'     : "{{$linkurl}}",
 		'leavethispage' : "{{$leavethispage}}",
+		'location'    : "{{$location}}",
 
 		't01' : "{{$t01}}",
 		't02' : "{{$t02}}",

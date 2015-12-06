@@ -25,20 +25,18 @@ function ACL(backend_url, preset) {
 	/*events*/
 
 	$(document).ready(function() {
-//		setTimeout( function() {
 			that.showall.click(that.on_showall);
 			$(document).on('click','.acl-button-show',that.on_button_show);
 			$(document).on('click','.acl-button-hide',that.on_button_hide);
 			$("#acl-search").keypress(that.on_search);
 
 			/* startup! */
-			that.get(0,100);
+			that.get(0,15000);
 			that.on_submit();
-//		}, 5000 );
 	});
 }
 
-// no longer called on submit - call to update whenever a change occurs to the acl list. 
+// no longer called only on submit - call to update whenever a change occurs to the acl list. 
 
 ACL.prototype.on_submit = function() {
 	aclfileds = $("#acl-fields").html("");
@@ -62,11 +60,13 @@ ACL.prototype.on_submit = function() {
 ACL.prototype.search = function() {
 	var srcstr = $("#acl-search").val();
 	that.list_content.html("");
-	that.get(0, 100, srcstr);
+	that.get(0, 15000, srcstr);
 };
 
 ACL.prototype.on_search = function(event) {
-	if (that.kp_timer) clearTimeout(that.kp_timer);
+	if (that.kp_timer) {
+		clearTimeout(that.kp_timer);
+	}
 	that.kp_timer = setTimeout( that.search, 1000);
 };
 
@@ -90,14 +90,36 @@ ACL.prototype.on_showall = function(event) {
 	return false;
 };
 
+ACL.prototype.on_selectall = function(event) {
+	event.preventDefault();
+	event.stopPropagation();
+
+	/* This function has not yet been completed. */
+	/* The goal is to select all ACL "show" entries with one action. */
+ 
+	$('.acl-button-show').each(function(){});
+
+	if (that.showall.hasClass("btn-warning")) {
+		return false;
+	}
+	that.showall.removeClass("btn-default").addClass("btn-warning");
+
+	that.allow_cid = [];
+	that.allow_gid = [];
+	that.deny_cid  = [];
+	that.deny_gid  = [];
+
+	that.update_view();
+	that.on_submit();
+
+	return false;
+};
+
+
 ACL.prototype.on_button_show = function(event) {
 	event.preventDefault();
 	event.stopImmediatePropagation();
 	event.stopPropagation();
-
-	/*that.showall.removeClass("selected");
-	$(this).siblings(".acl-button-hide").removeClass("selected");
-	$(this).toggleClass("selected");*/
 
 	that.set_allow($(this).parent().attr('id'));
 	that.on_submit();
@@ -109,10 +131,6 @@ ACL.prototype.on_button_hide = function(event) {
 	event.preventDefault();
 	event.stopImmediatePropagation();
 	event.stopPropagation();
-
-	/*that.showall.removeClass("selected");
-	$(this).siblings(".acl-button-show").removeClass("selected");
-	$(this).toggleClass("selected");*/
 
 	that.set_deny($(this).parent().attr('id'));
 	that.on_submit();

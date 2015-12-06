@@ -41,7 +41,7 @@ function update_search_content(&$a) {
 	$pattern = "/<img([^>]*) src=\"([^\"]*)\"/";
 	$replace = "<img\${1} dst=\"\${2}\"";
 //	$text = preg_replace($pattern, $replace, $text);
-
+/*
 	if(! $load) {
 		$replace = '<br />' . t('[Embedded content - reload page to view]') . '<br />';
 		$pattern = "/<\s*audio[^>]*>(.*?)<\s*\/\s*audio>/i";
@@ -53,7 +53,7 @@ function update_search_content(&$a) {
     	$pattern = "/<\s*iframe[^>]*>(.*?)<\s*\/\s*iframe>/i";
     	$text = preg_replace($pattern, $replace, $text);
 	}
-
+*/
 	/**
 	 * reportedly some versions of MSIE don't handle tabs in XMLHttpRequest documents very well
 	 */

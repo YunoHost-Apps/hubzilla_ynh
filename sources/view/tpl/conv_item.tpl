@@ -13,6 +13,11 @@
 					{{$item.photo}}
 				</div>
 				{{/if}}
+				{{if $item.event}}
+				<div class="wall-event-item" id="wall-event-item-{{$item.id}}">
+					{{$item.event}}
+				</div>
+				{{/if}}
 				<div class="wall-item-head">
 					<div class="wall-item-info" id="wall-item-info-{{$item.id}}" >
 						<div class="wall-item-photo-wrapper{{if $item.owner_url}} wwfrom{{/if}}" id="wall-item-photo-wrapper-{{$item.id}}">
@@ -143,7 +148,7 @@
 							<li role="presentation" class="divider"></li>
 							{{$item.item_photo_menu}}
 
-							{{if $item.edpost}}
+							{{if $item.edpost && $item.dreport}}
 							<li role="presentation"><a role="menuitem" href="dreport/{{$item.mid}}">{{$item.dreport}}</a></li>
 							{{/if}}
 
@@ -178,7 +183,7 @@
 											<h4 class="modal-title">{{$response.title}}</h4>
 										</div>
 										<div class="modal-body response-list">
-										<ul>{{foreach $response.list as $liker}}<li role="presentation">{{$liker}}</li>{{/foreach}}</ul>
+										<ul class="nav nav-pills nav-stacked">{{foreach $response.list as $liker}}<li role="presentation">{{$liker}}</li>{{/foreach}}</ul>
 										</div>
 										<div class="modal-footer clear">
 											<button type="button" class="btn btn-default" data-dismiss="modal">{{$item.modal_dismiss}}</button>

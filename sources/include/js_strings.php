@@ -22,6 +22,7 @@ function js_strings() {
 		'$submit'      => t('Submit'),
 		'$linkurl'     => t('Please enter a link URL'),
 		'$leavethispage' => t('Unsaved changes. Are you sure you wish to leave this page?'),
+		'$location'    => t('Location'),
 
 		'$t01' => ((t('timeago.prefixAgo') != 'timeago.prefixAgo') ? t('timeago.prefixAgo') : ''),
 		'$t02' => ((t('timeago.prefixFromNow') != 'timeago.prefixFromNow') ? t('timeago.prefixFromNow') : ''),

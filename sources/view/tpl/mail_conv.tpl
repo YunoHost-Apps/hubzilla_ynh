@@ -13,6 +13,12 @@
 			{{$mail.body}}
 			<div class="clear"></div>
 		</div>
+		{{if $mail.attachments}}
+		<div class="dropdown pull-left">
+			<button type="button" class="btn btn-default btn-sm wall-item-like dropdown-toggle" data-toggle="dropdown" id="attachment-menu-{{$item.id}}"><i class="icon-paperclip"></i></button>
+			<ul class="dropdown-menu" role="menu" aria-labelledby="attachment-menu-{{$item.id}}">{{$mail.attachments}}</ul>
+		</div>
+		{{/if}}
 		<div class="pull-right dropdown">
 			<button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" id="mail-item-menu-{{$mail.id}}">
 				<i class="icon-caret-down"></i>

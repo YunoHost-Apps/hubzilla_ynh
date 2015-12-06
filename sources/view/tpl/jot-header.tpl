@@ -190,15 +190,27 @@ function enableOnUser(){
 	}
 
 	function jotGetLink() {
-		reply = prompt("{{$linkurl}}");
-		if(reply && reply.length) {
-			reply = bin2hex(reply);
-			$('#profile-rotator').spin('tiny');
-			$.get('{{$baseurl}}/linkinfo?f=&binurl=' + reply, function(data) {
-				addeditortext(data);
-				$('#profile-rotator').spin(false);
-			});
-		}
+            textarea = document.getElementById('profile-jot-text');
+            if (textarea.selectionStart || textarea.selectionStart == "0") {
+                    var start = textarea.selectionStart;
+                    var end = textarea.selectionEnd;	
+                    if (end > start) {
+                        reply = prompt("{{$linkurl}}");
+                        if(reply && reply.length) {
+                            textarea.value = textarea.value.substring(0, start) + "[url=" + reply + "]" + textarea.value.substring(start, end) + "[/url]" + textarea.value.substring(end, textarea.value.length);
+                        }
+                    } else {
+                        reply = prompt("{{$linkurl}}");
+                        if(reply && reply.length) {
+                            reply = bin2hex(reply);
+                            $('#profile-rotator').spin('tiny');
+                            $.get('{{$baseurl}}/linkinfo?f=&binurl=' + reply, function(data) {
+                                    addeditortext(data);
+                                    $('#profile-rotator').spin(false);
+                            });
+                        }
+                    }
+            }
 	}
 
 	function jotVideoURL() {

@@ -11,17 +11,23 @@ function subthread_content(&$a) {
 		return;
 	}
 
+	$item_id = ((argc() > 2) ? notags(trim(argv(2))) : 0);
+
 	if(argv(1) === 'sub')
 		$activity = ACTIVITY_FOLLOW;
 	elseif(argv(1) === 'unsub')
 		$activity = ACTIVITY_UNFOLLOW;
 
-	$item_id = ((argc() > 2) ? notags(trim(argv(2))) : 0);
 
-	$r = q("SELECT * FROM `item` WHERE `parent` = '%s' OR `parent_mid` = '%s' and parent = id LIMIT 1",
-		dbesc($item_id),
+	$r = q("SELECT parent FROM item WHERE id = '%s'",
 		dbesc($item_id)
 	);
+
+	if($r) {
+		$r = q("select * from item where id = parent and id = %d limit 1",
+			dbesc($r[0]['parent'])
+		);
+	}
 
 	if((! $item_id) || (! $r)) {
 		logger('subthread: no item ' . $item_id);

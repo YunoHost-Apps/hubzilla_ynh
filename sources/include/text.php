@@ -5,6 +5,7 @@
 
 require_once("include/template_processor.php");
 require_once("include/smarty.php");
+require_once("include/bbcode.php");
 
 // random string, there are 86 characters max in text mode, 128 for hex
 // output is urlsafe
@@ -531,11 +532,12 @@ function attribute_contains($attr, $s) {
  * LOGGER_DATA and LOGGER_ALL.
  *
  * Since PHP5.4 we get the file, function and line automatically where the logger
- * was caleld, so no need to add it to the message anymore.
+ * was called, so no need to add it to the message anymore.
  *
  * @param string $msg Message to log
  * @param int $level A log level.
  */
+
 function logger($msg, $level = 0) {
 	// turn off logger in install mode
 	global $a;
@@ -557,7 +559,13 @@ function logger($msg, $level = 0) {
 		$where = basename($stack[0]['file']) . ':' . $stack[0]['line'] . ':' . $stack[1]['function'] . ': ';
 	}
 
-	@file_put_contents($logfile, datetime_convert() . ':' . session_id() . ' ' . $where . $msg . PHP_EOL, FILE_APPEND);
+	$s = datetime_convert() . ':' . session_id() . ' ' . $where . $msg . PHP_EOL;
+	$pluginfo = array('filename' => $logfile, 'loglevel' => $level, 'message' => $s,'logged' => false);
+
+	call_hooks('logger',$pluginfo);
+
+	if(! $pluginfo['logged'])
+		@file_put_contents($pluginfo['filename'], $pluginfo['message'], FILE_APPEND);
 }
 
 /**
@@ -1291,7 +1299,7 @@ function format_categories(&$item,$writeable) {
 function format_hashtags(&$item) {
 	$s = '';
 
-	$terms = get_terms_oftype($item['term'], TERM_HASHTAG);
+	$terms = get_terms_oftype($item['term'], array(TERM_HASHTAG,TERM_COMMUNITYTAG));
 	if($terms) {
 		foreach($terms as $t) {
 			$term = htmlspecialchars($t['term'], ENT_COMPAT, 'UTF-8', false) ;
@@ -1373,7 +1381,37 @@ function generate_named_map($location) {
 	return (($arr['html']) ? $arr['html'] : $location);
 }
 
+function format_event($jobject) {
+	$event = array();
 
+	$object = json_decode($jobject,true);
+
+	//ensure compatibility with older items - this check can be removed at a later point
+	if(array_key_exists('description', $object)) {
+
+		$bd_format = t('l F d, Y \@ g:i A'); // Friday January 18, 2011 @ 8:01 AM
+
+		$event['header'] = replace_macros(get_markup_template('event_item_header.tpl'),array(
+			'$title'	 => bbcode($object['title']),
+			'$dtstart_label' => t('Starts:'),
+			'$dtstart_title' => datetime_convert('UTC', 'UTC', $object['start'], (($object['adjust']) ? ATOM_TIME : 'Y-m-d\TH:i:s' )),
+			'$dtstart_dt'	 => (($object['adjust']) ? day_translate(datetime_convert('UTC', date_default_timezone_get(), $object['start'] , $bd_format )) : day_translate(datetime_convert('UTC', 'UTC', $object['start'] , $bd_format))),
+			'$finish'	 => (($object['nofinish']) ? false : true),
+			'$dtend_label'	 => t('Finishes:'),
+			'$dtend_title'	 => datetime_convert('UTC','UTC',$object['finish'], (($object['adjust']) ? ATOM_TIME : 'Y-m-d\TH:i:s' )),
+			'$dtend_dt'	 => (($object['adjust']) ? day_translate(datetime_convert('UTC', date_default_timezone_get(), $object['finish'] , $bd_format )) :  day_translate(datetime_convert('UTC', 'UTC', $object['finish'] , $bd_format )))
+		));
+
+		$event['content'] = replace_macros(get_markup_template('event_item_content.tpl'),array(
+			'$description'	  => bbcode($object['description']),
+			'$location_label' => t('Location:'),
+			'$location'	  => bbcode($object['location'])
+		));
+
+	}
+
+	return $event;
+}
 
 function prepare_body(&$item,$attach = false) {
 	require_once('include/identity.php');
@@ -1396,19 +1434,22 @@ function prepare_body(&$item,$attach = false) {
 
 		// if original photo width is <= 640px prepend it to item body
 		if($object['link'][0]['width'] && $object['link'][0]['width'] <= 640) {
-			$s = '<div class="inline-photo-item-wrapper"><a href="' . zid(rawurldecode($object['id'])) . '" target="_newwin"><img class="inline-photo-item" style="max-width:' . $object['link'][0]['width'] . 'px; width:100%; height:auto;" src="' . zid(rawurldecode($object['link'][0]['href'])) . '"></a></div>' . $s;
+			$s = '<div class="inline-photo-item-wrapper"><a href="' . zid(rawurldecode($object['id'])) . '" target="_blank"><img class="inline-photo-item" style="max-width:' . $object['link'][0]['width'] . 'px; width:100%; height:auto;" src="' . zid(rawurldecode($object['link'][0]['href'])) . '"></a></div>' . $s;
 		}
 
 		// if original photo width is > 640px make it a cover photo
 		if($object['link'][0]['width'] && $object['link'][0]['width'] > 640) {
 			$scale = ((($object['link'][1]['width'] == 1024) || ($object['link'][1]['height'] == 1024)) ? 1 : 0);
-			$photo = '<a href="' . zid(rawurldecode($object['id'])) . '" target="_newwin"><img style="max-width:' . $object['link'][$scale]['width'] . 'px; width:100%; height:auto;" src="' . zid(rawurldecode($object['link'][$scale]['href'])) . '"></a>';
+			$photo = '<a href="' . zid(rawurldecode($object['id'])) . '" target="_blank"><img style="max-width:' . $object['link'][$scale]['width'] . 'px; width:100%; height:auto;" src="' . zid(rawurldecode($object['link'][$scale]['href'])) . '"></a>';
 		}
 	}
 
+	$event = (($item['obj_type'] === ACTIVITY_OBJ_EVENT) ? format_event($item['object']) : false);
+
 	$prep_arr = array(
 		'item' => $item,
-		'html' => $s,
+		'html' => $event ? $event['content'] : $s,
+		'event' => $event['header'],
 		'photo' => $photo
 	);
 
@@ -1416,6 +1457,7 @@ function prepare_body(&$item,$attach = false) {
 
 	$s = $prep_arr['html'];
 	$photo = $prep_arr['photo'];
+	$event = $prep_arr['event'];
 
 //	q("update item set html = '%s' where id = %d",
 //		dbesc($s),
@@ -1482,6 +1524,7 @@ function prepare_body(&$item,$attach = false) {
 		'item' => $item,
 		'photo' => $photo,
 		'html' => $s,
+		'event' => $event,
 		'categories' => $categories,
 		'folders' => $filer,
 		'tags' => $tags,

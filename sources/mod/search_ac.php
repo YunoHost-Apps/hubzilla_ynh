@@ -42,8 +42,9 @@ function search_ac_init(&$a){
 		}
 	}
 
-	$r = q("select distinct term, tid, url from term where type = %d $tag_sql_extra group by term order by term asc",
-		intval(TERM_HASHTAG)
+	$r = q("select distinct term, tid, url from term where type in ( %d, %d ) $tag_sql_extra group by term order by term asc",
+		intval(TERM_HASHTAG),
+		intval(TERM_COMMUNITYTAG)
 	);
 
 	if(count($r)) {

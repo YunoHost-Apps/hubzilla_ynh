@@ -123,7 +123,7 @@ function tagger_content(&$a) {
 	$arr['object'] = $obj;
 	$arr['parent_mid'] = $item['mid'];
 	
-	store_item_tag($item['uid'],$item['id'],TERM_OBJ_POST,TERM_HASHTAG,$term,$tagid);
+	store_item_tag($item['uid'],$item['id'],TERM_OBJ_POST,TERM_COMMUNITYTAG,$term,$tagid);
 	$ret = post_activity_item($arr);
 
 	if($ret['success'])

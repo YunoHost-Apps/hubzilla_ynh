@@ -1,104 +1,10 @@
 <?php
 
 function siteinfo_init(&$a) {
-	global $db;
+
 	
-	if ($a->argv[1]=="json"){
-		$register_policy = Array('REGISTER_CLOSED', 'REGISTER_APPROVE', 'REGISTER_OPEN');
-		$directory_mode = Array('DIRECTORY_MODE_NORMAL', 'DIRECTORY_MODE_SECONDARY','DIRECTORY_MODE_PRIMARY', 'DIRECTORY_MODE_STANDALONE');
-		
-		$sql_extra = '';
-
-		$r = q("select * from channel left join account on account_id = channel_account_id where ( account_roles & 4096 )>0 and account_default_channel = channel_id");
-
-
-		if($r) {
-			$admin = array();
-			foreach($r as $rr) {
-				if($rr['channel_pageflags'] & PAGE_HUBADMIN)
-					$admin[] = array( 'name' => $rr['channel_name'], 'address' => $rr['channel_address'] . '@' . get_app()->get_hostname(), 'channel' => z_root() . '/channel/' . $rr['channel_address']);
-			}
-			if(! $admin) {
-				foreach($r as $rr) {
-					$admin[] = array( 'name' => $rr['channel_name'], 'address' => $rr['channel_address'] . '@' . get_app()->get_hostname(), 'channel' => z_root() . '/channel/' . $rr['channel_address']);
-				}
-			}
-		}
-		else {
-			$admin = false;
-		}
-
-		$def_service_class = get_config('system','default_service_class');
-		if($def_service_class)
-			$service_class = get_config('service_class',$def_service_class);
-		else
-			$service_class = false;
-
-		$visible_plugins = array();
-		if(is_array($a->plugins) && count($a->plugins)) {
-			$r = q("select * from addon where hidden = 0");
-			if(count($r))
-				foreach($r as $rr)
-					$visible_plugins[] = $rr['name'];
-		}
-		sort($visible_plugins);
-
-		if(@is_dir('.git') && function_exists('shell_exec'))
-			$commit = trim(@shell_exec('git log -1 --format="%h"'));
-		if(! isset($commit) || strlen($commit) > 16)
-			$commit = '';
-
-		$site_info = get_config('system','info');
-		$site_name = get_config('system','sitename');
-		if(! get_config('system','hidden_version_siteinfo')) {
-			$version = RED_VERSION;
-			if(@is_dir('.git') && function_exists('shell_exec')) {
-				$commit = trim( @shell_exec('git log -1 --format="%h"'));
-				if(! get_config('system','hidden_tag_siteinfo'))
-					$tag = trim( @shell_exec('git describe --tags --abbrev=0'));
-				else 
-					$tag = '';
-			}
-			if(! isset($commit) || strlen($commit) > 16)
-				$commit = '';
-		}
-		else {
-				$version = $commit = '';
-		}
-		
-		//Statistics
-		$channels_total_stat = intval(get_config('system','channels_total_stat'));
-		$channels_active_halfyear_stat = intval(get_config('system','channels_active_halfyear_stat'));
-		$channels_active_monthly_stat = intval(get_config('system','channels_active_monthly_stat'));
-		$local_posts_stat = intval(get_config('system','local_posts_stat'));
-		$hide_in_statistics = intval(get_config('system','hide_in_statistics'));
-		$site_expire = intval(get_config('system', 'default_expire_days'));
-
-		
-		$data = Array(
-			'version' => $version,
-			'version_tag' => $tag,
-			'commit' => $commit,
-			'url' => z_root(),
-			'plugins' => $visible_plugins,
-			'register_policy' =>  $register_policy[get_config('system','register_policy')],
-			'directory_mode' =>  $directory_mode[get_config('system','directory_mode')],
-			'language' => get_config('system','language'),
-			'rss_connections' => get_config('system','feed_contacts'),
-			'expiration' => $site_expire,
-			'default_service_restrictions' => $service_class,
-			'admin' => $admin,
-			'site_name' => (($site_name) ? $site_name : ''),
-			'platform' => PLATFORM_NAME,
-			'dbdriver' => $db->getdriver(),
-			'lastpoll' => get_config('system','lastpoll'),
-			'info' => (($site_info) ? $site_info : ''),
-			'channels_total' => $channels_total_stat,
-			'channels_active_halfyear' => $channels_active_halfyear_stat,
-			'channels_active_monthly' => $channels_active_monthly_stat,
-			'local_posts' => $local_posts_stat,
-			'hide_in_statistics' => $hide_in_statistics
-		);
+	if (argv(1) ===  'json') {
+		$data = get_site_info();
 		json_return_and_die($data);
 	}
 }

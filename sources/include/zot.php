@@ -554,18 +554,8 @@ function zot_gethub($arr,$multiple = false) {
 
 	if($arr['guid'] && $arr['guid_sig'] && $arr['url'] && $arr['url_sig']) {
 
-		$blacklisted = false;
-		$bl1 = get_config('system','blacklisted_sites');
-		if(is_array($bl1) && $bl1) {
-			foreach($bl1 as $bl) {
-				if($bl && strpos($arr['url'],$bl) !== false) {
-					$blacklisted = true;
-					break;
-				}
-			}
-		}
-		if($blacklisted) {
-			logger('zot_gethub: blacklisted site: ' . $arr['url']);
+		if(! check_siteallowed($arr['url'])) {
+			logger('blacklisted site: ' . $arr['url']);
 			return null;
 		}
 
@@ -745,8 +735,8 @@ function import_xchan($arr,$ud_flags = UPDATE_FLAGS_UPDATED, $ud_arr = null) {
 			|| ($r[0]['xchan_follow'] != $arr['follow_url'])
 			|| ($r[0]['xchan_connpage'] != $arr['connect_url']) 
 			|| ($r[0]['xchan_url'] != $arr['url'])
-			|| $hidden_changed || adult_changed || deleted_changed || $pubforum_changed ) {
-			$r = q("update xchan set xchan_name = '%s', xchan_name_date = '%s', xchan_connurl = '%s', xchan_follow = '%s', 
+			|| $hidden_changed || $adult_changed || $deleted_changed || $pubforum_changed ) {
+			$rup = q("update xchan set xchan_name = '%s', xchan_name_date = '%s', xchan_connurl = '%s', xchan_follow = '%s', 
 				xchan_connpage = '%s', xchan_hidden = %d, xchan_selfcensored = %d, xchan_deleted = %d, xchan_pubforum = %d, 
 				xchan_addr = '%s', xchan_url = '%s' where xchan_hash = '%s'",
 				dbesc(($arr['name']) ? $arr['name'] : '-'),
@@ -763,8 +753,8 @@ function import_xchan($arr,$ud_flags = UPDATE_FLAGS_UPDATED, $ud_arr = null) {
 				dbesc($xchan_hash)
 			);
 
-			logger('import_xchan: existing: ' . print_r($r[0],true), LOGGER_DATA);
-			logger('import_xchan: new: ' . print_r($arr,true), LOGGER_DATA);
+			logger('import_xchan: update: existing: ' . print_r($r[0],true), LOGGER_DATA);
+			logger('import_xchan: update: new: ' . print_r($arr,true), LOGGER_DATA);
 			$what .= 'xchan ';
 			$changed = true;
 		}
@@ -1246,6 +1236,10 @@ function zot_import($arr, $sender_url) {
 			$no_dups = array();
 			if($deliveries) {
 				foreach($deliveries as $d) {
+					if(! is_array($d)) {
+						logger('Delivery hash array is not an array: ' . print_r($d,true));
+						continue;
+					}
 					if(! in_array($d['hash'],$no_dups))
 						$no_dups[] = $d['hash'];
 				}
@@ -1933,11 +1927,12 @@ function remove_community_tag($sender, $arr, $uid) {
 		return;
 	}
 
-	q("delete from term where uid = %d and oid = %d and otype = %d and type = %d and term = '%s' and url = '%s'",
+	q("delete from term where uid = %d and oid = %d and otype = %d and type in  ( %d, %d ) and term = '%s' and url = '%s'",
 		intval($uid),
 		intval($r[0]['id']),
 		intval(TERM_OBJ_POST),
 		intval(TERM_HASHTAG),
+		intval(TERM_COMMUNITYTAG),
 		dbesc($i['object']['title']),
 		dbesc(get_rel_link($i['object']['link'],'alternate'))
 	);
@@ -3949,6 +3944,7 @@ function delivery_report_is_storable($dr) {
 	if(! $c)
 		return false;
 
+
 	// is the recipient one of our connections, or do we want to store every report? 
 
 	$r = explode(' ', $dr['recipient']);
@@ -3956,6 +3952,14 @@ function delivery_report_is_storable($dr) {
 	$pcf = get_pconfig($c[0]['channel_id'],'system','dreport_store_all');
 	if($pcf)
 		return true;
+
+	// We always add ourself as a recipient to private and relayed posts
+	// So if a remote site says they can't find us, that's no big surprise
+	// and just creates a lot of extra report noise
+ 
+	if(($dr['location'] !== z_root()) && ($dr['sender'] === $rxchan) && ($dr['status'] === 'recipient_not_found'))
+		return false;
+
 
 	$r = q("select abook_id from abook where abook_xchan = '%s' and abook_channel = %d limit 1",
 		dbesc($rxchan),

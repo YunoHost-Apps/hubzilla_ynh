@@ -7,7 +7,12 @@ if [ $# -ne 1 ]; then
 	exit 1
 fi
 
-cd extend/addon/$1
+if [ -d extend/addon/$1 ] ; then
+        cd extend/addon/$1
+else
+        echo "$1 not found. Aborting..."
+        exit 1
+fi
 
 if [ -d .git ] ; then
 	git pull

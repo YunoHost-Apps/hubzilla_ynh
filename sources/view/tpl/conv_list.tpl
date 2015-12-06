@@ -13,6 +13,11 @@
 					{{$item.photo}}
 				</div>
 				{{/if}}
+				{{if $item.event}}
+				<div class="wall-event-item" id="wall-event-item-{{$item.id}}">
+					{{$item.event}}
+				</div>
+				{{/if}}
 				<div class="wall-item-head">
 					<div class="wall-item-info" id="wall-item-info-{{$item.id}}" >
 						<div class="wall-item-photo-wrapper{{if $item.owner_url}} wwfrom{{/if}}" id="wall-item-photo-wrapper-{{$item.id}}">

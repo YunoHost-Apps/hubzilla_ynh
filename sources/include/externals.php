@@ -28,7 +28,10 @@ function externals_run($argv, $argc){
 		} 
 		else {
 			$randfunc = db_getfunc('RAND');
-			$r = q("select site_url, site_pull from site where site_url != '%s' and site_flags != %d and site_type = %d order by $randfunc limit 1",
+
+			// fixme this query does not deal with directory realms. 
+
+			$r = q("select site_url, site_pull from site where site_url != '%s' and site_flags != %d and site_type = %d and site_dead = 0 order by $randfunc limit 1",
 				dbesc(z_root()),
 				intval(DIRECTORY_MODE_STANDALONE),
 				intval(SITE_TYPE_ZOT)
@@ -37,19 +40,11 @@ function externals_run($argv, $argc){
 				$url = $r[0]['site_url'];
 		}
 
-		// Note: blacklisted sites must be stored in the config as an array. 
-		// No simple way to turn this into a personal config because we have no identity here.
-		// For that we probably need a variant of superblock.
-
 		$blacklisted = false;
-		$bl1 = get_config('system','blacklisted_sites');
-		if(is_array($bl1) && $bl1) {
-			foreach($bl1 as $bl) {
-				if($bl && strpos($url,$bl) !== false) {
-					$blacklisted = true;
-					break;
-				}
-			}
+
+		if(! check_siteallowed($url)) {
+			logger('blacklisted site: ' . $url);
+			$blacklisted = true;
 		}
 
 		$attempts ++;

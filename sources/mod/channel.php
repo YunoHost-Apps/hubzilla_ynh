@@ -189,7 +189,7 @@ function channel_content(&$a, $update = 0, $load = false) {
 		        $sql_extra .= protect_sprintf(term_query('item', $category, TERM_CATEGORY));
 		}
 		if(x($hashtags)) {
-		        $sql_extra .= protect_sprintf(term_query('item', $hashtags, TERM_HASHTAG));
+		        $sql_extra .= protect_sprintf(term_query('item', $hashtags, TERM_HASHTAG, TERM_COMMUNITYTAG));
 		}
 
 		if($datequery) {

@@ -341,3 +341,44 @@ This is obvious as soon as you notice that the cron uses proc_open to
 execute php-scripts that also use proc_open, but it took me quite some time to
 find that out. I hope this saves some time for other people using suhosin with
 function blacklists.
+
+#####################################################################
+- Apache processes hanging, using as much CPU as they can
+#####################################################################
+
+This seems to happen sometimes if you use mpm_prefork and the PHP process
+started by Apache cannot get database access.
+
+Consider the following settings:
+
+In /etc/apache2/mods-enabled/mpm_prefork.conf (Debian, path and file name
+may vary depending on your OS and distribution), set
+
+ GracefulShutdownTimeout 300
+
+This makes sure that Apache processes that are running wild will not do so
+forever, but will be killed if they didn't stop five minutes after a
+shutdown command was sent to the process.
+
+If you expect high load on your server (public servers, e.g.), also make
+sure that Apache will not spawn more processes than MySQL will accept
+connections.
+
+In the default Debian configuration, in
+/etc/apache2/mods-enabled/mpm_prefork.conf the maximum number of workers
+is set to 150:
+
+  MaxRequestWorkers 150
+
+However, in /etc/mysql/my.cnf the maximum number of connection is set to
+100:
+
+ max_connections = 100
+
+150 workers are a lot and probably too much for small servers. However you
+set those values, make sure that the number of Apache workers is smaller
+than the number of connections MySQL accepts, leaving some room for other
+stuff on your server that might access MySQL, and Hubzilla's poller which
+needs MySQL access, too. A good setting for a medium-sized hub might be to
+keep MySQL's max_connections at 100 and set mpm_prefork's
+MaxRequestWorkers to 70.

@@ -21,9 +21,9 @@ function editpost_content(&$a) {
 		return;
 	}
 
-	$itm = q("SELECT * FROM `item` WHERE `id` = %d AND `uid` = %d and author_xchan = '%s' LIMIT 1",
+	$itm = q("SELECT * FROM `item` WHERE `id` = %d AND ( owner_xchan = '%s' OR author_xchan = '%s' ) LIMIT 1",
 		intval($post_id),
-		intval(local_channel()),
+		dbesc(get_observer_hash()),
 		dbesc(get_observer_hash())
 	);
 
@@ -33,9 +33,11 @@ function editpost_content(&$a) {
 	}
 
 	if($itm[0]['resource_type'] === 'event' && $itm[0]['resource_id']) {
-		goaway(z_root() . '/events/event/' . $itm[0]['resource_id']);
+		goaway(z_root() . '/events/' . $itm[0]['resource_id'] . '?expandform=1');
 	}
 
+
+	$owner_uid = $itm[0]['uid'];
 
 
 	$plaintext = true;
@@ -71,14 +73,12 @@ function editpost_content(&$a) {
 	call_hooks('jot_tool', $jotplugins);
 	call_hooks('jot_networks', $jotnets);
 
-	$channel = $a->get_channel();
-
 	//$tpl = replace_macros($tpl,array('$jotplugins' => $jotplugins));	
 
-	$voting = feature_enabled(local_channel(),'consensus_tools');	
+	$voting = feature_enabled($owner_uid,'consensus_tools');	
 
 	$category = '';
-	$catsenabled = ((feature_enabled(local_channel(),'categories')) ? 'categories' : '');
+	$catsenabled = ((feature_enabled($owner_uid,'categories')) ? 'categories' : '');
 
 	if ($catsenabled){
 	        $itm = fetch_post_tags($itm);
@@ -145,7 +145,7 @@ function editpost_content(&$a) {
 		'$lockstate' => $lockstate,
 		'$acl' => '', 
 		'$bang' => '',
-		'$profile_uid' => local_channel(),
+		'$profile_uid' => $owner_uid,
 		'$preview' => t('Preview'),
 		'$jotplugins' => $jotplugins,
 		'$sourceapp' => t($a->sourcename),

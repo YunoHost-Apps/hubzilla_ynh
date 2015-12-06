@@ -13,6 +13,7 @@ function send_message($uid = 0, $recipient='', $body='', $subject='', $replyto='
 	$ret = array('success' => false);
 
 	$a = get_app();
+	$observer_hash = get_observer_hash();
 
 	if(! $recipient) {
 		$ret['message'] = t('No recipient provided.');
@@ -148,8 +149,8 @@ function send_message($uid = 0, $recipient='', $body='', $subject='', $replyto='
 
 	$match = null;
 	$images = null;
-	if(preg_match_all("/\[zmg\](.*?)\[\/zmg\]/",((strpos($body,'[/crypt]')) ? $_POST['media_str'] : $body),$match))
-		$images = $match[1];
+	if(preg_match_all("/\[zmg\=([0-9]*)x([0-9]*)\](.*?)\[\/zmg\]/",((strpos($body,'[/crypt]')) ? $_POST['media_str'] : $body),$match))
+		$images = $match[3];
 
 	$match = false;
 
@@ -173,7 +174,7 @@ function send_message($uid = 0, $recipient='', $body='', $subject='', $replyto='
 					'revision' => $r['data']['revision']
 				);
 			}
-			$body = str_replace($match[1],'',$body);
+			$body = trim(str_replace($match[1],'',$body));
 		}
 	}
 
@@ -230,7 +231,7 @@ function send_message($uid = 0, $recipient='', $body='', $subject='', $replyto='
 				dbesc($image_uri),
 				intval($channel['channel_id']),
 				dbesc('<' . $channel['channel_hash'] . '>')
-			); 
+			);
 			$r = q("UPDATE attach SET allow_cid = '%s' WHERE hash = '%s' AND is_photo = 1 and uid = %d and allow_cid = '%s'",
 				dbesc('<' . $recipient . '>'),
 				dbesc($image_uri),
@@ -239,7 +240,7 @@ function send_message($uid = 0, $recipient='', $body='', $subject='', $replyto='
 			); 
 		}
 	}
-	
+
 	if($attaches) {
 		foreach($attaches as $attach) {
 			$hash = substr($attach,0,strpos($attach,','));

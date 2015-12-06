@@ -2,7 +2,7 @@
 
 require_once('include/menu.php');
 
-function import_channel($channel) {
+function import_channel($channel, $account_id) {
 
 	if(! array_key_exists('channel_system',$channel)) {
 		$channel['channel_system']  = (($channel['channel_pageflags'] & 0x1000) ? 1 : 0);
@@ -48,7 +48,7 @@ function import_channel($channel) {
 	}
 
 	unset($channel['channel_id']);
-	$channel['channel_account_id'] = get_account_id();
+	$channel['channel_account_id'] = $account_id;
 	$channel['channel_primary'] = (($seize) ? 1 : 0);
 
 	if($channel['channel_pageflags'] & PAGE_ALLOWCODE) {
@@ -72,7 +72,7 @@ function import_channel($channel) {
 	}
 
 	$r = q("select * from channel where channel_account_id = %d and channel_guid = '%s' limit 1",
-		intval(get_account_id()),
+		intval($account_id),
 		$channel['channel_guid']   // Already dbesc'd
 	);
 	if(! $r) {
@@ -83,7 +83,7 @@ function import_channel($channel) {
 	// reset
 	$channel = $r[0];
 
-	set_default_login_identity(get_account_id(),$channel['channel_id'],false);
+	set_default_login_identity($account_id,$channel['channel_id'],false);
 	logger('import step 1');
 	$_SESSION['import_step'] = 1;
 	ref_session_write(session_id(), serialize($_SESSION));

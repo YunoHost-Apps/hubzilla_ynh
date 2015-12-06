@@ -710,7 +710,8 @@ function identity_export_year($channel_id,$year,$month = 0) {
 	else
 		$maxdate = datetime_convert('UTC','UTC',$year+1 . '-01-01 00:00:00');
 
-	$r = q("select * from item where item_wall = 1 and item_deleted = 0 and uid = %d and created >= '%s' and created < '%s'  and resource_type = '' order by created",
+	$r = q("select * from item where ( item_wall = 1 or item_type != %d ) and item_deleted = 0 and uid = %d and created >= '%s' and created < '%s'  and resource_type = '' order by created",
+		intval(ITEM_TYPE_POST),
 		intval($channel_id),
 		dbesc($mindate), 
 		dbesc($maxdate)
@@ -1688,4 +1689,15 @@ function get_channel_default_perms($uid) {
 		return $r[0]['abook_my_perms'];
 
 	return 0;
+}
+
+
+function profiles_build_sync($channel_id) {
+	
+	$r = q("select * from profile where uid = %d",
+		intval($channel_id)
+	);
+	if($r) {
+		build_sync_packet($channel_id,array('profile' => $r));
+	}
 }

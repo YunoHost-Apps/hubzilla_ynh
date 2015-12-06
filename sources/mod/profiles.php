@@ -1,5 +1,6 @@
 <?php
 
+require_once('include/identity.php');
 
 function profiles_init(&$a) {
 
@@ -36,6 +37,12 @@ function profiles_init(&$a) {
 		);
 		if($r)
 			info( t('Profile deleted.') . EOL);
+
+		// @fixme this is a much more complicated sync - add any changed abook entries and 
+		// also add deleted flag to profile structure
+		// profiles_build_sync is just here as a placeholder - it doesn't work at all here
+
+		// profiles_build_sync(local_channel());
 
 		goaway($a->get_baseurl(true) . '/profiles');
 		return; // NOTREACHED
@@ -118,7 +125,10 @@ function profiles_init(&$a) {
 			dbesc($name)
 		);
 		info( t('New profile created.') . EOL);
-		if(count($r3) == 1)
+
+		profiles_build_sync(local_channel());
+
+		if(($r3) && (count($r3) == 1))
 			goaway($a->get_baseurl(true) . '/profiles/' . $r3[0]['id']);
 		
 		goaway($a->get_baseurl(true) . '/profiles');
@@ -193,7 +203,6 @@ function profiles_post(&$a) {
 
 	$namechanged = false;
 
-	call_hooks('profile_post', $_POST);
 
 	// import from json export file.
  	// Only import fields that are allowed on this hub
@@ -220,6 +229,7 @@ function profiles_post(&$a) {
 		}
 	}
 	
+	call_hooks('profile_post', $_POST);
 
 
 	if((argc() > 1) && (argv(1) !== "new") && intval(argv(1))) {
@@ -562,8 +572,6 @@ function profiles_post(&$a) {
 		}
 	}
 }
-
-
 
 
 function profiles_content(&$a) {
