@@ -1,0 +1,19 @@
+
+
+#wppost-enable-label, #wppost-username-label, #wppost-password-label, 
+#wppost-blog-label, #wppost-bydefault-label, #wppost-forward-label {
+	float: left;
+	width: 350px;
+	margin-top: 10px;
+}
+
+#wppost-checkbox, #wppost-username, #wppost-password, 
+#wppost-blog, #wppost-bydefault, #wppost-forward {
+	float: left;
+	margin-top: 10px;
+}
+
+#wppost-submit, #settings-wordpress-wrapper {
+	margin-top: 15px;
+}
+
