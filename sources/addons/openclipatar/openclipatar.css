@@ -1,0 +1,24 @@
+.openclipatar-ent, .openclipatar-ndownloads, .openclipatar-nfaves {
+	float:left;
+}
+.openclipatar-ent {
+	height:20em;
+	overflow: hidden;
+	padding: 5px;
+}
+.openclipatar-img {
+	width:220px;
+}
+.openclipatar-header {
+	margin-top:1em;
+}
+.openclipatar-end {
+	clear:both;
+}
+.openclipatar-prefids {
+	background:rgba(50,10,10,0.1); // Alpha used to be 5, which is not a valid value
+}
+.openclipatar-prefclipmsg {
+	border-radius: 4px 4px 4px 0px;
+	font:larger bolder;
+}

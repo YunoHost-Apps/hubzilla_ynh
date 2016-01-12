@@ -1,0 +1,3 @@
+Adds a new tag, [tex] that can be used in bbcode. Note that you still also have to use $...$ to get equations correct, i.e. [tex] doesn't eneter math-mode by default.
+
+Requires images and tmp directory in your Red root directory (e.g. /var/www/red). Must be writable by server (e.g chown -R www-data tmp images). Also requires latex and imagemagick to be installed.
