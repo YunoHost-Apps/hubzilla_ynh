@@ -18,10 +18,7 @@ function queue_run($argv, $argc){
 	else
 		$queue_id = 0;
 
-	$deadguys = array();
-
 	logger('queue: start');
-
 
 	// delete all queue items more than 3 days old
 	// but first mark these sites dead if we haven't heard from them in a month
@@ -88,59 +85,7 @@ function queue_run($argv, $argc){
 		return;
 
 	foreach($r as $rr) {
-
-		$dresult = null;
-
-		if(in_array($rr['outq_posturl'],$deadguys))
-			continue;
-
-		$base = '';
-		$h = parse_url($rr['outq_posturl']);
-		if($h)
-			$base = $h['scheme'] . '://' . $h['host'] . (($h['port']) ? ':' . $h['port'] : '');
-
-		if($rr['outq_driver'] === 'post') {
-			$result = z_post_url($rr['outq_posturl'],$rr['outq_msg']); 
-			if($result['success'] && $result['return_code'] < 300) {
-				logger('queue: queue post success to ' . $rr['outq_posturl'], LOGGER_DEBUG);
-				if($base) {
-					q("update site set site_update = '%s', site_dead = 0 where site_url = '%s' ",
-						dbesc(datetime_convert()),
-						dbesc($base)
-					);
-				}
-				q("update dreport set dreport_result = '%s', dreport_time = '%s' where dreport_queue = '%s' limit 1",
-					dbesc('accepted for delivery'),
-					dbesc(datetime_convert()),
-					dbesc($rr['outq_hash'])
-				);
-				$y = q("delete from outq where outq_hash = '%s'",
-					dbesc($rr['outq_hash'])
-				);
-			}
-			else {
-				logger('queue: queue post returned ' . $result['return_code'] . ' from ' . $rr['outq_posturl'],LOGGER_DEBUG);
-				$y = q("update outq set outq_updated = '%s', outq_priority = outq_priority + 10 where outq_hash = '%s'",
-					dbesc(datetime_convert()),
-					dbesc($rr['outq_hash'])
-				);
-				$deadguys[] = $rr['outq_posturl'];
-			}
-			continue;
-		}
-		$result = zot_zot($rr['outq_posturl'],$rr['outq_notify']); 
-		if($result['success']) {
-			logger('queue: deliver zot success to ' . $rr['outq_posturl'], LOGGER_DEBUG);			
-			zot_process_response($rr['outq_posturl'],$result, $rr);				
-		}
-		else {
-			$deadguys[] = $rr['outq_posturl'];
-			logger('queue: deliver zot returned ' . $result['return_code'] . ' from ' . $rr['outq_posturl'],LOGGER_DEBUG);
-			$y = q("update outq set outq_updated = '%s', outq_priority = outq_priority + 10 where outq_hash = '%s'",
-				dbesc(datetime_convert()),
-				dbesc($rr['outq_hash'])
-			);
-		}
+		queue_deliver($rr);
 	}
 }
 

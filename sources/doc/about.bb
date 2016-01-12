@@ -4,7 +4,7 @@ $Projectname is a decentralized communication network, which aims to provide com
 
 $Projectname is free and open source.  It is designed to scale from a $35 Raspberry Pi, to top of the line AMD and Intel Xeon-powered multi-core enterprise servers.  It can be used to support communication between a few individuals, or scale to many thousands and more.
 
-Red aims to be skill and resource agnostic. It is easy to use by everyday computer users, as well as by systems administrators and developers. 
+$Projectname aims to be skill and resource agnostic. It is easy to use by everyday computer users, as well as by systems administrators and developers. 
 
 How you use it depends on how you want to use it. 
 

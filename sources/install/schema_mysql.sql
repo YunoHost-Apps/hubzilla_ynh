@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS `abook` (
   `abook_profile` char(64) NOT NULL DEFAULT '',
   `abook_incl` TEXT NOT NULL DEFAULT '',
   `abook_excl` TEXT NOT NULL DEFAULT '',
+  `abook_instance` TEXT NOT NULL DEFAULT '',
   PRIMARY KEY (`abook_id`),
   KEY `abook_account` (`abook_account`),
   KEY `abook_channel` (`abook_channel`),
@@ -770,15 +771,6 @@ CREATE TABLE IF NOT EXISTS `mail` (
   KEY `mail_recalled` (`mail_recalled`),
   KEY `mail_obscured` (`mail_obscured`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS `manage` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `uid` int(11) NOT NULL DEFAULT '0',
-  `xchan` char(255) NOT NULL DEFAULT '',
-  PRIMARY KEY (`id`),
-  KEY `uid` (`uid`),
-  KEY `xchan` (`xchan`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `menu` (
   `menu_id` int(10) unsigned NOT NULL AUTO_INCREMENT,

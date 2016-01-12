@@ -5,10 +5,13 @@
 
 	<div id="newchannel-desc" class="descriptive-paragraph">{{$desc}}</div>
 
-	<div id="newchannel-role-help" class="descriptive-paragraph">{{$help_role}}</div>
-	{{include file="field_select_grouped.tpl" field=$role}}
-	<div id="newchannel-role-end"  class="newchannel-field-end"></div>
-
+	{{if $default_role}}
+		<input type="hidden" name="permissions_role" value="{{$default_role}}" />
+	{{else}}
+		<div id="newchannel-role-help" class="descriptive-paragraph">{{$help_role}}</div>
+		{{include file="field_select_grouped.tpl" field=$role}}
+		<div id="newchannel-role-end"  class="newchannel-field-end"></div>
+	{{/if}}
 
 	<label for="newchannel-name" id="label-newchannel-name" class="newchannel-label" >{{$label_name}}</label>
 	<input type="text" name="name" id="newchannel-name" class="newchannel-input" value="{{$name}}" />

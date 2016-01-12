@@ -122,6 +122,7 @@ function new_contact($uid,$url,$channel,$interactive = false, $confirm = false) 
 		else
 			$permissions = $j['permissions'];
 
+
 		foreach($permissions as $k => $v) {
 			if($v) {
 				$their_perms = $their_perms | intval($global_perms[$k][1]);
@@ -161,10 +162,12 @@ function new_contact($uid,$url,$channel,$interactive = false, $confirm = false) 
 			}
 		}
 		if($r) {
+			$xchan = $r[0];
 			$xchan_hash = $r[0]['xchan_hash'];
 			$their_perms = 0;
 		}
 	}
+
 
 	if(! $xchan_hash) {
 		$result['message'] = t('Channel discovery failed.');
@@ -172,7 +175,7 @@ function new_contact($uid,$url,$channel,$interactive = false, $confirm = false) 
 		return $result;
 	}
 
-	$x = array('channel_id' => $uid, 'follow_address' => $url, 'xchan' => $r[0], 'allowed' => 1);
+	$x = array('channel_id' => $uid, 'follow_address' => $url, 'xchan' => $r[0], 'allowed' => 1, 'singleton' => 0);
 
 	call_hooks('follow_allow',$x);
 
@@ -180,7 +183,7 @@ function new_contact($uid,$url,$channel,$interactive = false, $confirm = false) 
 		$result['message'] = t('Protocol disabled.');
 		return $result;
 	}
-
+	$singleton = intval($x['singleton']);
 
 	if((local_channel()) && $uid == local_channel()) {
 		$aid = get_account_id();
@@ -200,6 +203,7 @@ function new_contact($uid,$url,$channel,$interactive = false, $confirm = false) 
 		$hash = $r[0]['channel_hash'];			
 		$default_group = $r[0]['channel_default_group'];
 	}
+
 
 	if($is_http) {
 
@@ -221,24 +225,34 @@ function new_contact($uid,$url,$channel,$interactive = false, $confirm = false) 
 		return $result;
 	}
 
-	$r = q("select abook_xchan from abook where abook_xchan = '%s' and abook_channel = %d limit 1",
+	$r = q("select abook_xchan, abook_instance from abook where abook_xchan = '%s' and abook_channel = %d limit 1",
 		dbesc($xchan_hash),
 		intval($uid)
 	);
+
+
 	if($r) {
-		$x = q("update abook set abook_their_perms = %d where abook_id = %d",
+		$abook_instance = $r[0]['abook_instance'];
+
+		if(($singleton) && strpos($abook_instance,z_root()) === false) {
+			if($abook_instance)
+				$abook_instance .= ',';
+			$abook_instance .= z_root();
+		}
+
+		$x = q("update abook set abook_their_perms = %d, abook_instance = '%s' where abook_id = %d",
 			intval($their_perms),
+			dbesc($abook_instance),
 			intval($r[0]['abook_id'])
 		);		
 	}
 	else {
-
 		$closeness = get_pconfig($uid,'system','new_abook_closeness');
 		if($closeness === false)
 			$closeness = 80;
 
-		$r = q("insert into abook ( abook_account, abook_channel, abook_closeness, abook_xchan, abook_feed, abook_their_perms, abook_my_perms, abook_created, abook_updated )
-			values( %d, %d, %d, '%s', %d, %d, %d, '%s', '%s' ) ",
+		$r = q("insert into abook ( abook_account, abook_channel, abook_closeness, abook_xchan, abook_feed, abook_their_perms, abook_my_perms, abook_created, abook_updated, abook_instance )
+			values( %d, %d, %d, '%s', %d, %d, %d, '%s', '%s', '%s' ) ",
 			intval($aid),
 			intval($uid),
 			intval($closeness),
@@ -247,7 +261,8 @@ function new_contact($uid,$url,$channel,$interactive = false, $confirm = false) 
 			intval(($is_http) ? $their_perms|PERMS_R_STREAM|PERMS_A_REPUBLISH : $their_perms),
 			intval($my_perms),
 			dbesc(datetime_convert()),
-			dbesc(datetime_convert())
+			dbesc(datetime_convert()),
+			dbesc(($singleton) ? z_root() : '')
 		);
 	}
 
@@ -259,6 +274,7 @@ function new_contact($uid,$url,$channel,$interactive = false, $confirm = false) 
 		dbesc($xchan_hash),
 		intval($uid)
 	);
+
 	if($r) {
 		$result['abook'] = $r[0];
 		proc_run('php', 'include/notifier.php', 'permission_create', $result['abook']['abook_id']);

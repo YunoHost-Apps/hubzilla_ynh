@@ -39,8 +39,9 @@
 [tr][td]abook_unconnected[/td][td]currently unused. Projected usage is to indicate "one-way" connections which were insitgated on this end but are still pending on the remote end. [/td][td]int(11)[/td][td]NO[/td][td]MUL[/td][td]0[/td][td]
 [tr][td]abook_self[/td][td]is a special case where the owner is the target. Every channel has one abook entry with abook_self and with a target abook_xchan set to channel.channel_hash . When this flag is present, abook_my_perms is the default permissions granted to all new connections and several other fields are unused.[/td][td]int(11)[/td][td]NO[/td][td]MUL[/td][td]0[/td][td]
 [tr][td]abook_feed[/td][td]indicates this connection is an RSS/Atom feed and may trigger special handling.[/td][td]int(11)[/td][td]NO[/td][td]MUL[/td][td]0[/td][td]
-[tr][td]abook_incl[/td][td]connection filter allow rules separated by LF[/td][td]int(11)[/td][td]NO[/td][td]MUL[/td][td]0[/td][td]
-[tr][td]abook_excl[/td][td]connection filter deny rules separated by LF[/td][td]int(11)[/td][td]NO[/td][td]MUL[/td][td]0[/td][td]
+[tr][td]abook_incl[/td][td]connection filter allow rules separated by LF[/td][td]text[/td][td]NO[/td][td]MUL[/td][td]0[/td][td]
+[tr][td]abook_excl[/td][td]connection filter deny rules separated by LF[/td][td]text[/td][td]NO[/td][td]MUL[/td][td]0[/td][td]
+[tr][td]abook_instance[/td][td]comma separated list of site urls of all channel clones that this connection is connected with (used only for singleton networks which don't support cloning)[/td][td]text[/td][td]NO[/td][td]MUL[/td][td]0[/td][td]
 [/table]
 
 

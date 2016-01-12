@@ -292,17 +292,35 @@ function photo_upload($channel, $observer, $args) {
 		$tag = (($r2) ? '[zmg=' . $width . 'x' . $height . ']' : '[zmg]');
 	}
 
-	$body = '[zrl=' . z_root() . '/photos/' . $channel['channel_address'] . '/image/' . $photo_hash . ']' 
+	$author_link = '[zrl=' . z_root() . '/channel/' . $channel['channel_address'] . ']' . $channel['channel_name'] . '[/zrl]';
+
+	$photo_link = '[zrl=' . z_root() . '/photos/' . $channel['channel_address'] . '/image/' . $photo_hash . ']' . t('a new photo') . '[/zrl]';
+
+	$album_link = '[zrl=' . z_root() . '/photos/album/' . bin2hex($album) . ']' . $album . '[/zrl]';
+
+	$activity_format = sprintf(t('%1$s posted %2$s to %3$s','photo_upload'), $author_link, $photo_link, $album_link);
+
+	$summary = $activity_format . "\n\n" . (($args['body']) ? $args['body'] . "\n\n" : ''); 	
+
+	$obj_body =  '[zrl=' . z_root() . '/photos/' . $channel['channel_address'] . '/image/' . $photo_hash . ']' 
 		. $tag . z_root() . "/photo/{$photo_hash}-{$scale}." . $ph->getExt() . '[/zmg]' 
 		. '[/zrl]';
 
 	// Create item object
 	$object = array(
-		'type'   => ACTIVITY_OBJ_PHOTO,
-		'title'  => $title,
-		'id'     => rawurlencode(z_root() . '/photos/' . $channel['channel_address'] . '/image/' . $photo_hash),
-		'link'   => $link,
-		'bbcode' => $body
+		'type'    => ACTIVITY_OBJ_PHOTO,
+		'title'   => $title,
+		'created' => $p['created'],
+		'edited'  => $p['edited'],
+		'id'      => rawurlencode(z_root() . '/photos/' . $channel['channel_address'] . '/image/' . $photo_hash),
+		'link'    => $link,
+		'body'    => $obj_body
+	);
+
+	$target = array(
+		'type'    => ACTIVITY_OBJ_ALBUM,
+		'title'   => (($album) ? $album : '/'),
+		'id'      => rawurlencode(z_root() . '/photos/' . $channel['channel_address'] . '/album/' . bin2hex($album))
 	);
 
 	// Create item container
@@ -314,9 +332,12 @@ function photo_upload($channel, $observer, $args) {
 
 			if($item['mid'] === $item['parent_mid']) {
 
-				$item['body'] = (($object) ? $args['body'] : $body . "\r\n" . $args['body']);
-				$item['obj_type'] = (($object) ? ACTIVITY_OBJ_PHOTO : '');
-				$item['object']	= (($object) ? json_encode($object) : '');
+				$item['body'] = $args['body'];
+				$item['obj_type'] = ACTIVITY_OBJ_PHOTO;
+				$item['object']	= json_encode($object);
+
+				$item['tgt_type'] = ACTIVITY_OBJ_ALBUM;
+				$item['target']	= json_encode($target);
 
 				if($item['author_xchan'] === $channel['channel_hash']) {
 					$item['sig'] = base64url_encode(rsa_sign($item['body'],$channel['channel_prvkey']));
@@ -370,14 +391,16 @@ function photo_upload($channel, $observer, $args) {
 		$arr['deny_cid']        = $ac['deny_cid'];
 		$arr['deny_gid']        = $ac['deny_gid'];
 		$arr['verb']            = ACTIVITY_POST;
-		$arr['obj_type']	= (($object) ? ACTIVITY_OBJ_PHOTO : '');
-		$arr['object']		= (($object) ? json_encode($object) : '');
+		$arr['obj_type']	    = ACTIVITY_OBJ_PHOTO;
+		$arr['object']		    = json_encode($object);
+		$arr['tgt_type']        = ACTIVITY_OBJ_ALBUM;
+		$arr['target']	        = json_encode($target);
 		$arr['item_wall']       = 1;
 		$arr['item_origin']     = 1;
 		$arr['item_thread_top'] = 1;
 		$arr['item_private']    = intval($acl->is_private());
 		$arr['plink']           = z_root() . '/channel/' . $channel['channel_address'] . '/?f=&mid=' . $arr['mid'];
-		$arr['body']		= (($object) ? $args['body'] : $body . "\r\n" . $args['body']);
+		$arr['body']		    = $summary; 
 
 
 		// this one is tricky because the item and the photo have the same permissions, those of the photo.
@@ -402,7 +425,7 @@ function photo_upload($channel, $observer, $args) {
 
 	$ret['success'] = true;
 	$ret['item'] = $arr;
-	$ret['body'] = $body;
+	$ret['body'] = $obj_body;
 	$ret['resource_id'] = $photo_hash;
 	$ret['photoitem_id'] = $item_id;
 

@@ -57,13 +57,8 @@ function fbrowser_content($a){
 				$types = $ph->supportedTypes();
 				$ext = $types[$rr['type']];
 
-				if($a->get_template_engine() === 'internal') {
-					$filename_e = template_escape($rr['filename']);
-				}
-				else {
-					$filename_e = $rr['filename'];
-				}
-
+				$filename_e = $rr['filename'];
+		
 				return array( 
 					$a->get_baseurl() . '/photo/' . $rr['resource_id'] . '-' . $rr['hiq'] . '.' .$ext, 
 					$filename_e, 

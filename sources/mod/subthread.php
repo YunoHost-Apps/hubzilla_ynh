@@ -147,7 +147,6 @@ function subthread_content(&$a) {
 	$arr['deny_cid']      = $item['deny_cid'];
 	$arr['deny_gid']      = $item['deny_gid'];
 
-
 	$post = item_store($arr);	
 	$post_id = $post['item_id'];
 

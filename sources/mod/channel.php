@@ -128,7 +128,7 @@ function channel_content(&$a, $update = 0, $load = false) {
 	            'default_location' => (($is_owner) ? $a->profile['channel_location'] : ''),
     	        'nickname' => $a->profile['channel_address'],
         	    'lockstate' => (((strlen($a->profile['channel_allow_cid'])) || (strlen($a->profile['channel_allow_gid'])) || (strlen($a->profile['channel_deny_cid'])) || (strlen($a->profile['channel_deny_gid']))) ? 'lock' : 'unlock'),
-            	'acl' => (($is_owner) ? populate_acl($channel_acl) : ''),
+            	'acl' => (($is_owner) ? populate_acl($channel_acl,true,(($a->profile['channel_r_stream'] & PERMS_PUBLIC) ? t('Public') : '')) : ''),
 				'showacl' => (($is_owner) ? 'yes' : ''),
 	            'bang' => '',
 				'visitor' => (($is_owner || $observer) ? true : false),

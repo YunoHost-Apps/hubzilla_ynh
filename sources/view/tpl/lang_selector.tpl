@@ -1,3 +1,4 @@
+<div class="generic-content-wrapper-styled">
 <h1>{{$title}}</h1>
 <br />
 <div id="language-selector" >
@@ -8,4 +9,5 @@
 			{{/foreach}}
 		</select>
 	</form>
+</div>
 </div>

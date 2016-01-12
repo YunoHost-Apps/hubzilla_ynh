@@ -22,6 +22,7 @@ CREATE TABLE "abook" (
   "abook_profile" char(64) NOT NULL DEFAULT '',
   "abook_incl" TEXT NOT NULL DEFAULT '',
   "abook_excl" TEXT NOT NULL DEFAULT '',
+  "abook_instance" TEXT NOT NULL DEFAULT '',
   PRIMARY KEY ("abook_id")
 );
   create index  "abook_account" on abook ("abook_account");
@@ -766,15 +767,6 @@ create index "mail_isreply" on mail ("mail_isreply");
 create index "mail_seen" on mail ("mail_seen");
 create index "mail_recalled" on mail ("mail_recalled");
 create index "mail_obscured" on mail ("mail_obscured");
-CREATE TABLE "manage" (
-  "id" serial NOT NULL,
-  "uid" bigint NOT NULL,
-  "xchan" text NOT NULL DEFAULT '',
-  PRIMARY KEY ("id")
-
-);
-create index "manage_uid" on manage ("uid");
-create index "manage_xchan" on manage ("xchan");
 CREATE TABLE "menu" (
   "menu_id" serial  NOT NULL,
   "menu_channel_id" bigint  NOT NULL DEFAULT '0',

@@ -8,6 +8,7 @@ require_once('boot.php');
 require_once('include/zot.php');
 require_once('include/cli_startup.php');
 require_once('include/dir_fns.php');
+require_once('include/queue_fn.php');
 
 /**
  * @brief
@@ -83,20 +84,17 @@ function directory_run($argv, $argc){
 		 */
 
 		$hash = random_string();
-		q("insert into outq ( outq_hash, outq_account, outq_channel, outq_driver, outq_posturl, outq_async, outq_created, outq_updated, outq_notify, outq_msg ) 
-			values ( '%s', %d, %d, '%s', '%s', %d, '%s', '%s', '%s', '%s' )",
-			dbesc($hash),
-			intval($channel['channel_account_id']),
-			intval($channel['channel_id']),
-			dbesc('zot'),
-			dbesc($url),
-			intval(1),
-			dbesc(datetime_convert()),
-			dbesc(datetime_convert()),
-			dbesc($packet),
-			dbesc('')
-		);
-	} else {
+
+		queue_insert(array(
+			'hash'       => $hash,
+			'account_id' => $channel['channel_account_id'],
+			'channel_id' => $channel['channel_id'],
+			'posturl'    => $url,
+			'notify'     => $packet,
+		));
+
+	}
+	else {
 		q("update channel set channel_dirdate = '%s' where channel_id = %d",
 			dbesc(datetime_convert()),
 			intval($channel['channel_id'])

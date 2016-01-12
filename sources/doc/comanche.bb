@@ -27,8 +27,8 @@ Currently there are five layout templates, unless your site provides additional 
 			edgesthree - three column layout with fixed side margins
 			full - three column layout with fixed side margins and adds a "header" region beneath the navigation bar
 
-	[b]redable[/b]
-	A template for reading longer texts. Three columns: aside, content and right_aside.
+	[b]redable[/b] (sic)
+	A template for reading longer texts full screen (so without navigation bar). Three columns: aside, content and right_aside.
 	For maximum readability it is advised to only use the middle content column.
 
 	[b]zen[/b]

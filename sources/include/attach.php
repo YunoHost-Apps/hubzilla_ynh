@@ -430,7 +430,7 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 			$observer = $x[0];
 	}
 
-	logger('arr: ' . print_r($arr,true));
+	logger('arr: ' . print_r($arr,true), LOGGER_DATA);
 
 	if(! perm_is_allowed($channel_id,$observer_hash, 'write_storage')) {
 		$ret['message'] = t('Permission denied.');
@@ -502,6 +502,10 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 			$filesize = intval($_FILES['userfile']['size']);
 		}
 	}
+
+	// AndStatus sends jpegs with a non-standard mimetype
+	if($type === 'image/jpg')
+		$type = 'image/jpeg';
 
 	$existing_size = 0;
 

@@ -4,17 +4,18 @@
 	<p><i class='toggleplugin {{if $status==on}}icon-check{{else}}icon-check-empty{{/if}} admin-icons'></i> {{$info.name}} - {{$info.version}} : <a href="{{$baseurl}}/admin/{{$function}}/{{$plugin}}/?a=t&amp;t={{$form_security_token}}">{{$action}}</a></p>
 	<p>{{$info.description}}</p>
 	
-	<p class="author">{{$str_author}}
 	{{foreach $info.author as $a}}
-		{{if $a.link}}<a href="{{$a.link}}">{{$a.name}}</a>{{else}}{{$a.name}}{{/if}},
-	{{/foreach}}
+	<p class="author">{{$str_author}}
+		{{$a.name}}{{if $a.link}} {{$a.link}}{{/if}}
 	</p>
+	{{/foreach}}
 
-	<p class="maintainer">{{$str_maintainer}}
+
 	{{foreach $info.maintainer as $a}}
-		{{if $a.link}}<a href="{{$a.link}}">{{$a.name}}</a>{{else}}{{$a.name}}{{/if}},
-	{{/foreach}}
+	<p class="maintainer">{{$str_maintainer}}
+		{{$a.name}}{{if $a.link}} {{$a.link}}{{/if}}
 	</p>
+	{{/foreach}}
 	
 	{{if $screenshot}}
 	<a href="{{$screenshot.0}}" class='screenshot'><img src="{{$screenshot.0}}" alt="{{$screenshot.1}}" /></a>

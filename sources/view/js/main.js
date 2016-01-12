@@ -758,9 +758,9 @@ function pageUpdate() {
 	});
 }
 
-function justifyPhotos() {
+function justifyPhotos(id) {
 	justifiedGalleryActive = true;
-	$('#photo-album-contents').justifiedGallery({
+	$('#' + id).justifiedGallery({
 		selector: '> a, > div:not(.spinner, #page-end)',
 		margins: 3,
 		border: 0,
@@ -775,9 +775,9 @@ function justifyPhotos() {
 	}).on('jg.complete', function(e){ justifiedGalleryActive = false; });
 }
 
-function justifyPhotosAjax() {
+function justifyPhotosAjax(id) {
 	justifiedGalleryActive = true;
-	$('#photo-album-contents').justifiedGallery('norewind').on('jg.complete', function(e){ justifiedGalleryActive = false; });
+	$('#' + id).justifiedGallery('norewind').on('jg.complete', function(e){ justifiedGalleryActive = false; });
 }
 
 function notify_popup_loader(notifyType) {

@@ -1,9 +1,5 @@
-header #banner {
-	position: fixed;
-	top: 0;
-	width: 250px;
-	margin-left: auto;
-	margin-right: auto;
+nav, header {
+	display: none;
 }
 
 main {
@@ -17,12 +13,22 @@ main {
 @media screen and (max-width: 801px) {
 	main {
 		left: -14rem !important;
-    		right: -14rem !important;    
-    		width: calc(100% + 14rem + 14rem) !important;
+    	right: -14rem !important;    
+    	width: calc(100% + 14rem) !important;
+}
+
+@media screen and (min-width: 802px) {
+section#region_2 * {
+	font-size: 1.05rem;
+}
 }
 
 #profile-photo-wrapper {
 	display:none;
+}
+
+section#region_2 * {
+	font-size: 1.15rem;
 }
 }
 
@@ -32,7 +38,7 @@ aside#region_1 {
 	max-width: 14rem;
 	display: table-cell;
 	vertical-align: top;
-	padding: 65px 7px 0px 7px;
+	padding: 7px 7px 0px 7px;
 	}
 	
 aside#region_1 * {
@@ -48,7 +54,7 @@ section#region_2wrap {
 	width: 100%;
 	display: table-cell;
 	vertical-align: top;
-	padding: 65px 10px 200px 10px;
+	padding: 17px 10px 200px 10px;
 }
 
 section#region_2 {
@@ -60,8 +66,11 @@ section#region_2 {
 
 section#region_2 * {
 	text-align: justify;
-	font-size: 1.15rem;
 	line-height: 1.55;
+}
+
+ul.nojustify li, .nojustify {
+	text-align: initial;
 }
 
 section#region_2 p + p {
@@ -74,7 +83,7 @@ aside#region_3 {
 	max-width: 14rem;
 	display: table-cell;
 	vertical-align: top;
-	padding: 65px 7px 0px 7px;
+	padding: 7px 7px 0px 7px;
 }
 
 aside#region_3 * {

@@ -39,18 +39,18 @@ function ACL(backend_url, preset) {
 // no longer called only on submit - call to update whenever a change occurs to the acl list. 
 
 ACL.prototype.on_submit = function() {
-	aclfileds = $("#acl-fields").html("");
+	aclfields = $("#acl-fields").html("");
 	$(that.allow_gid).each(function(i,v) {
-		aclfileds.append("<input type='hidden' name='group_allow[]' value='"+v+"'>");
+		aclfields.append("<input type='hidden' name='group_allow[]' value='"+v+"'>");
 	});
 	$(that.allow_cid).each(function(i,v) {
-		aclfileds.append("<input type='hidden' name='contact_allow[]' value='"+v+"'>");
+		aclfields.append("<input type='hidden' name='contact_allow[]' value='"+v+"'>");
 	});
 	$(that.deny_gid).each(function(i,v) {
-		aclfileds.append("<input type='hidden' name='group_deny[]' value='"+v+"'>");
+		aclfields.append("<input type='hidden' name='group_deny[]' value='"+v+"'>");
 	});
 	$(that.deny_cid).each(function(i,v) {
-		aclfileds.append("<input type='hidden' name='contact_deny[]' value='"+v+"'>");
+		aclfields.append("<input type='hidden' name='contact_deny[]' value='"+v+"'>");
 	});
 
 	//areYouSure jquery plugin: recheck the form here

@@ -367,7 +367,7 @@ function settings_post(&$a) {
 			}
 
 			$r = q("update abook set abook_my_perms  = %d where abook_channel = %d and abook_self = 1",
-				intval(($role_permissions['perms_auto']) ? intval($role_permissions['perms_accept']) : 0),
+				intval((array_key_exists('perms_accept',$role_permissions)) ? $role_permissions['perms_accept'] : 0),
 				intval(local_channel())
 			);
 			set_pconfig(local_channel(),'system','autoperms',(($role_permissions['perms_auto']) ? intval($role_permissions['perms_accept']) : 0));

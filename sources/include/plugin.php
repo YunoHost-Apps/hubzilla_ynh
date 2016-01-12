@@ -313,7 +313,6 @@ function call_hooks($name, &$data = null) {
  *   * Version: 1.2.3
  *   * Author: John <profile url>
  *   * Author: Jane <email>
- *   * Compat: Red [(version)], Friendica [(version)]
  *   *
  *\endcode
  * @param string $plugin the name of the plugin
@@ -325,8 +324,8 @@ function get_plugin_info($plugin){
 		'name' => $plugin,
 		'description' => '',
 		'author' => array(),
-		'version' => '',
-		'compat' => ''
+		'maintainer' => array(),
+		'version' => ''
 	);
 
 	if (!is_file("addon/$plugin/$plugin.php"))
@@ -342,21 +341,22 @@ function get_plugin_info($plugin){
 			if ($l != ""){
 				list($k, $v) = array_map("trim", explode(":", $l, 2));
 				$k = strtolower($k);
-				if ($k == 'author'){
+				if ($k == 'author' || $k == 'maintainer'){
 					$r = preg_match("|([^<]+)<([^>]+)>|", $v, $m);
 					if ($r) {
-						$info['author'][] = array('name' => $m[1], 'link' => $m[2]);
+						$info[$k][] = array('name' => $m[1], 'link' => $m[2]);
 					} else {
-						$info['author'][] = array('name' => $v);
+						$info[$k][] = array('name' => $v);
 					}
 				} else {
-					if (array_key_exists($k, $info)){
+//					if (array_key_exists($k, $info)){
 						$info[$k] = $v;
-					}
+//					}
 				}
 			}
 		}
 	}
+
 
 	return $info;
 }
@@ -495,6 +495,15 @@ function format_css_if_exists($source) {
 		return '<link rel="stylesheet" href="' . script_path() . '/' . $path . '" type="text/css" media="' . $source[1] . '">' . "\r\n";
 }
 
+/*
+ * This basically calculates the baseurl. We have other functions to do that, but
+ * there was an issue with script paths and mixed-content whose details are arcane 
+ * and perhaps lost in the message archives. The short answer is that we're ignoring 
+ * the URL which we are "supposed" to use, and generating script paths relative to 
+ * the URL which we are currently using; in order to ensure they are found and aren't
+ * blocked due to mixed content issues. 
+ */
+
 function script_path() {
 	if(x($_SERVER,'HTTPS') && $_SERVER['HTTPS'])
 		$scheme = 'https';
@@ -626,4 +635,14 @@ function get_std_version() {
 	if(defined('STD_VERSION'))
 		return STD_VERSION;
 	return '0.0.0';
+}
+
+
+function folder_exists($folder)
+{
+    // Get canonicalized absolute pathname
+    $path = realpath($folder);
+
+    // If it exist, check if it's a directory
+    return (($path !== false) && is_dir($path)) ? $path : false;
 }

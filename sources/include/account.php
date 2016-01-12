@@ -67,7 +67,7 @@ function check_account_invite($invite_code) {
 			$result['message'] .= t('An invitation is required.') . EOL;
 		}
 		$r = q("select * from register where `hash` = '%s' limit 1", dbesc($invite_code));
-		if(! results($r)) {
+		if(! $r) {
 			$result['message'] .= t('Invitation could not be verified.') . EOL;
 		}
 	}

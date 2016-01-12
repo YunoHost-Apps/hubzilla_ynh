@@ -17,6 +17,7 @@ function mail_post(&$a) {
 	$body      = ((x($_REQUEST,'body'))         ? escape_tags(trim($_REQUEST['body']))    : '');
 	$recipient = ((x($_REQUEST,'messageto'))    ? notags(trim($_REQUEST['messageto']))    : '');
 	$rstr      = ((x($_REQUEST,'messagerecip')) ? notags(trim($_REQUEST['messagerecip'])) : '');
+	$preview   = ((x($_REQUEST,'preview'))      ? intval($_REQUEST['preview'])            : 0);
 	$expires   = ((x($_REQUEST,'expires')) ? datetime_convert(date_default_timezone_get(),'UTC', $_REQUEST['expires']) : NULL_DATE);
 
 	// If we have a raw string for a recipient which hasn't been auto-filled,
@@ -85,6 +86,13 @@ function mail_post(&$a) {
 
 	require_once('include/text.php');
 	linkify_tags($a, $body, local_channel());
+
+	if($preview) {
+		
+
+
+
+	}
 
 	if(! $recipient) {
 		notice('No recipient found.');

@@ -434,7 +434,7 @@ function events_content(&$a) {
 			'$xchan' => $event_xchan,
 			'$mid' => $mid,
 			'$event_hash' => $event_id,
-			'$summary' => array('summary', (($event_id) ? t('Edit event titel') : t('Event titel')), $t_orig, t('Required'), '*'),
+			'$summary' => array('summary', (($event_id) ? t('Edit event title') : t('Event title')), $t_orig, t('Required'), '*'),
 			'$catsenabled' => $catsenabled,
 			'$placeholdercategory' => t('Categories (comma-separated list)'),
 			'$c_text' => (($event_id) ? t('Edit Category') : t('Category')),

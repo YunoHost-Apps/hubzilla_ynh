@@ -17,12 +17,12 @@
 [zrl=[baseurl]/help/intro_for_developers]Intro for Developers[/zrl]
 [zrl=[baseurl]/help/database]Database schema documentation[/zrl]
 [zrl=[baseurl]/help/api_functions]API functions[/zrl]
-[zrl=[baseurl]/help/api_posting]Posting to the red# using the API[/zrl]
+[zrl=[baseurl]/help/api_posting]Posting to $Projectname using the API[/zrl]
 [zrl=[baseurl]/help/developer_function_primer]Red Functions 101[/zrl]
 [zrl=[baseurl]/doc/html/]Code Reference (Doxygen generated - sets cookies)[/zrl]
-[zrl=[baseurl]/help/to_do_doco]To-Do list for the Red Documentation Project[/zrl]
+[zrl=[baseurl]/help/to_do_doco]To-Do list for the $Projectname Documentation Project[/zrl]
 [zrl=[baseurl]/help/to_do_code]To-Do list for Developers[/zrl]
-[zrl=[baseurl]/help/roadmap]Version 3 roadmap[/zrl]
+[zrl=[baseurl]/help/roadmap]Roadmap[/zrl]
 [zrl=[baseurl]/help/git_for_non_developers]Git for Non-Developers[/zrl]
 [zrl=[baseurl]/help/dev_beginner]Step-for-step manual for beginning developers[/zrl]
 
@@ -30,6 +30,5 @@
 [zrl=[baseurl]/help/faq_developers]FAQ For Developers[/zrl]
 
 [h3]External Resources[/h3]
-
 [url=https://zothub.com/channel/one]Development Channel[/url]
 [url=https://federated.social/channel/postgres]Postgres-specific $Projectname Admin Support Channel[/url]

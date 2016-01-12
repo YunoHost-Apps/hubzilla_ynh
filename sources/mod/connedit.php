@@ -397,7 +397,6 @@ function connedit_content(&$a) {
 		}
 		
 		if($cmd === 'update') {
-
 			// pull feed and consume it, which should subscribe to the hub.
 			proc_run('php',"include/poller.php","$contact_id");
 			goaway($a->get_baseurl(true) . '/connedit/' . $contact_id);
@@ -405,8 +404,15 @@ function connedit_content(&$a) {
 		}
 
 		if($cmd === 'refresh') {
-			if(! zot_refresh($orig_record[0],get_app()->get_channel())) 
-				notice( t('Refresh failed - channel is currently unavailable.') );
+			if($orig_record[0]['xchan_network'] === 'zot') {
+				if(! zot_refresh($orig_record[0],get_app()->get_channel())) 
+					notice( t('Refresh failed - channel is currently unavailable.') );
+			}
+			else {
+
+				// if you are on a different network we'll force a refresh of the connection basic info
+				proc_run('php','include/notifier.php','permission_update',$contact_id);
+			}
 			goaway($a->get_baseurl(true) . '/connedit/' . $contact_id);
 		}
 

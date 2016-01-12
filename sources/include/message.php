@@ -506,3 +506,4 @@ function private_messages_fetch_conversation($channel_id, $messageitem_id, $upda
 	return $messages;
 
 }
+

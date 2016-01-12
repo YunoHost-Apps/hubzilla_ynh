@@ -166,7 +166,7 @@ function network_content(&$a, $update = 0, $load = false) {
 			'default_location' => $channel['channel_location'],
 			'nickname'         => $channel['channel_address'],
 			'lockstate'        => (($private_editing || $channel['channel_allow_cid'] || $channel['channel_allow_gid'] || $channel['channel_deny_cid'] || $channel['channel_deny_gid']) ? 'lock' : 'unlock'),
-			'acl'              => populate_acl((($private_editing) ? $def_acl : $channel_acl)),
+			'acl'              => populate_acl((($private_editing) ? $def_acl : $channel_acl), true, (($channel['channel_r_stream'] & PERMS_PUBLIC) ? t('Public') : '')),
 			'bang'             => (($private_editing) ? '!' : ''),
 			'visitor'          => true,
 			'profile_uid'      => local_channel()

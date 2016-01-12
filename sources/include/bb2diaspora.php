@@ -305,15 +305,6 @@ function bb2diaspora_itembody($item, $force_update = false) {
 
 	$matches = array();
 
-	//if we have a photo item just prepend the photo bbcode to item['body']
-	$is_photo = (($item['obj_type'] == ACTIVITY_OBJ_PHOTO) ? true : false);
-	if($is_photo) {
-		$object = json_decode($item['object'],true);
-		if($object['bbcode']) {
-			$item['body'] = (($item['body']) ? $object['bbcode'] . "\r\n" . $item['body'] : $object['bbcode']);
-		}
-	}
-
 	if(($item['diaspora_meta']) && (! $force_update)) {
 		$diaspora_meta = json_decode($item['diaspora_meta'],true);
 		if($diaspora_meta) {
@@ -333,6 +324,8 @@ function bb2diaspora_itembody($item, $force_update = false) {
 		}
 	}
 
+	create_export_photo_body($item);
+
 	$newitem = $item;
 
 	if(array_key_exists('item_obscured',$item) && intval($item['item_obscured'])) {
@@ -345,6 +338,7 @@ function bb2diaspora_itembody($item, $force_update = false) {
 			$newitem['body']  = (($item['body'])  ? crypto_unencapsulate(json_decode($item['body'],true),$key) : '');
 		}
 	}
+
 
 	bb2diaspora_itemwallwall($newitem);
 

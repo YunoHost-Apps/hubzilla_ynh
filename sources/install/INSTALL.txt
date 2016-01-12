@@ -382,3 +382,8 @@ stuff on your server that might access MySQL, and Hubzilla's poller which
 needs MySQL access, too. A good setting for a medium-sized hub might be to
 keep MySQL's max_connections at 100 and set mpm_prefork's
 MaxRequestWorkers to 70.
+
+Here you can read more about Apache performance tuning:
+https://httpd.apache.org/docs/2.4/misc/perf-tuning.html
+
+There are tons of scripts to help you with fine-tuning your Apache installation. Just search with your favorite search engine 'apache fine-tuning script'.

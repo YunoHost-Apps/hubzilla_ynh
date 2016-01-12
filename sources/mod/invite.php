@@ -50,23 +50,6 @@ function invite_post(&$a) {
 			continue;
 		}
 		
-		if($invonly && ($x || is_site_admin())) {
-			$code = autoname(8) . srand(1000,9999);
-			$nmessage = str_replace('$invite_code',$code,$message);
-
-			$r = q("INSERT INTO `register` (`hash`,`created`) VALUES ('%s', '%s') ",
-				dbesc($code),
-				dbesc(datetime_convert())
-			);
-
-			if(! is_site_admin()) {
-				$x --;
-				if($x >= 0)
-					set_pconfig(local_channel(),'system','invites_remaining',$x);
-				else
-					return;
-			}
-		}
 		else
 			$nmessage = $message;
 
@@ -117,6 +100,23 @@ function invite_content(&$a) {
 		}
 	}			
 
+		if($invonly && ($x || is_site_admin())) {
+			$invite_code = autoname(8) . rand(1000,9999);
+			$nmessage = str_replace('$invite_code',$invite_code,$message);
+
+			$r = q("INSERT INTO `register` (`hash`,`created`) VALUES ('%s', '%s') ",
+				dbesc($invite_code),
+				dbesc(datetime_convert())
+			);
+
+			if(! is_site_admin()) {
+				$x --;
+				if($x >= 0)
+					set_pconfig(local_channel(),'system','invites_remaining',$x);
+				else
+					return;
+			}
+		}
 
 	$ob = $a->get_observer();
 	if(! $ob)

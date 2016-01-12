@@ -93,6 +93,7 @@ function change_channel($change_channel) {
 	$ret = false;
 
 	if($change_channel) {
+
 		$r = q("select channel.*, xchan.* from channel left join xchan on channel.channel_hash = xchan.xchan_hash where channel_id = %d and channel_account_id = %d and channel_removed = 0 limit 1",
 			intval($change_channel),
 			intval(get_account_id())
@@ -136,14 +137,14 @@ function change_channel($change_channel) {
 }
 
 /**
- * @brief Creates an addiontal SQL where statement to check permissions.
+ * @brief Creates an additional SQL where statement to check permissions.
  *
  * @param int $owner_id
- * @param bool $remote_verified default false, not used at all
- * @param string $groups this param is not used at all
+ * @param bool $remote_observer - if unset use current observer
  *
  * @return string additional SQL where statement
  */
+
 function permissions_sql($owner_id, $remote_observer = null) {
 
 	$local_channel = local_channel();
@@ -208,8 +209,7 @@ function permissions_sql($owner_id, $remote_observer = null) {
  * @brief Creates an addiontal SQL where statement to check permissions for an item.
  *
  * @param int $owner_id
- * @param bool $remote_verified default false, not used at all
- * @param string $groups this param is not used at all
+ * @param bool $remote_observer, use current observer if unset
  *
  * @return string additional SQL where statement
  */
@@ -400,11 +400,9 @@ function check_form_security_token_ForbiddenOnErr($typename = '', $formname = 'f
 }
 
 
-// Returns an array of group id's this contact is a member of.
-// This array will only contain group id's related to the uid of this
-// DFRN contact. They are *not* neccessarily unique across the entire site. 
+// Returns an array of group hash id's on this entire site (across all channels) that this connection is a member of.
+// var $contact_id = xchan_hash of connection
 
-if(! function_exists('init_groups_visitor')) {
 function init_groups_visitor($contact_id) {
 	$groups = array();
 	$r = q("SELECT hash FROM `groups` left join group_member on groups.id = group_member.gid WHERE xchan = '%s' ",
@@ -415,7 +413,7 @@ function init_groups_visitor($contact_id) {
 			$groups[] = $rr['hash'];
 	}
 	return $groups;
-}}
+}
 
 
 

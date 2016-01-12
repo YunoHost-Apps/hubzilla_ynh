@@ -7,12 +7,12 @@
 
 Before installing, read the [Hubzilla installation instructions](https://github.com/redmatrix/hubzilla/blob/master/install/INSTALL.txt) for important information about 
 
-- SSL certificate validation requirement
+- SSL certificate validation requirement (now with support for [Let's Encrypt!](https://letsencrypt.org))
 - Dedicated domain (must install under web root like **https://hub.example.com/** not **https://example.com/hub/** )
 - Required packages (all of these are not yet installed by this YunoHost installer package)
 
 
 Current snapshot in *sources*: 
 
-* https://github.com/redmatrix/hubzilla: 1.0
-* https://github.com/redmatrix/hubzilla-addons: 1.0
+* https://github.com/redmatrix/hubzilla: 1.1
+* https://github.com/redmatrix/hubzilla-addons: 1.1

@@ -101,6 +101,11 @@ function wfinger_init(&$a) {
 			),
 
 			array(
+				'rel' => 'http://ostatus.org/schema/1.0/subscribe',
+				'template' => z_root() . '/follow/url={uri}',
+			),
+
+			array(
 				'rel' => 'http://purl.org/zot/protocol',
 				'href' => z_root() . '/.well-known/zot-info' . '?address=' . $r[0]['xchan_addr'],
 			)

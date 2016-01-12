@@ -82,6 +82,12 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 [zrl=[baseurl]/help/hook/check_account_password]check_account_password[/zrl]
 	Used to provide policy control over account passwords (minimum length, character set inclusion, etc.)
 
+[zrl=[baseurl]/help/hook/check_channelallowed]check_channelallowed[/zrl]
+	Used to over-ride or bypass the channel black/white block lists
+
+[zrl=[baseurl]/help/hook/check_siteallowed]check_siteallowed[/zrl]
+	Used to over-ride or bypass the site black/white block lists
+
 [zrl=[baseurl]/help/hook/connect_premium]connect_premium[/zrl]
 	Called when connecting to a premium channel
 

@@ -21,7 +21,7 @@
 	{{$upload_form}}
 	{{$album_edit.1}}
 	<div class="section-content-wrapper-np">
-		<div id="photo-album-contents">
+		<div id="photo-album-contents-{{$album_id}}">
 			{{foreach $photos as $photo}}
 				{{include file="photo_top.tpl"}}
 			{{/foreach}}
@@ -30,5 +30,5 @@
 	</div>
 </div>
 <div class="photos-end"></div>
-<script>$(document).ready(function() { loadingPage = false; justifyPhotos(); });</script>
+<script>$(document).ready(function() { loadingPage = false; justifyPhotos('photo-album-contents-{{$album_id}}'); });</script>
 <div id="page-spinner"></div>

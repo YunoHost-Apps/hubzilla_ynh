@@ -100,6 +100,17 @@ function new_channel_content(&$a) {
 		return;
 	}
 
+	$default_role = '';
+	$aid = get_account_id();
+	if($aid) {
+		$r = q("select count(channel_id) as total from channel where channel_account_id = %d",
+			intval($aid)
+		);
+		if($r && (! intval($r[0]['total']))) {
+			$default_role = get_config('system','default_permissions_role');
+		}
+	}
+
 	$name         = ((x($_REQUEST,'name'))         ? $_REQUEST['name']         :  "" );
 	$nickname     = ((x($_REQUEST,'nickname'))     ? $_REQUEST['nickname']     :  "" );
 	$privacy_role = ((x($_REQUEST,'permissions_role')) ? $_REQUEST['permissions_role'] :  "" );
@@ -117,6 +128,7 @@ function new_channel_content(&$a) {
 		'$name'         => $name,
 		'$help_role'    => t('Please choose a channel type (such as social networking or community forum) and privacy requirements so we can select the best permissions for you'),
 		'$role' => array('permissions_role' , t('Channel Type'), ($privacy_role) ? $privacy_role : 'social', '<a href="help/roles" target="_blank">'.t('Read more about roles').'</a>',get_roles()),
+		'$default_role' => $default_role,
 		'$nickname'     => $nickname,
 		'$submit'       => t('Create')
 	));

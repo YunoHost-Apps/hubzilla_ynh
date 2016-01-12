@@ -17,6 +17,8 @@
     <Link rel="http://microformats.org/profile/hcard"
           type="text/html"
           href="{{$hcard_url}}" />
+    <Link rel="http://ostatus.org/schema/1.0/subscribe"
+          template="{{$subscribe}}" />
 
    <Link rel="magic-public-key"
           href="{{$modexp}}" />

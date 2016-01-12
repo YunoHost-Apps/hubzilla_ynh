@@ -1,4 +1,4 @@
-[b]Red Developer Guide[/b]
+[b]$Projectname Developer Guide[/b]
 
 [b]File system layout:[/b]
 
@@ -63,13 +63,12 @@
     [li]item_id - other identifiers on other services for posts[/li]
     [li]likes - likes of 'things'[/li]
     [li]mail - private messages[/li]
-    [li]manage - may be unused in Red, table of accounts that can &quot;su&quot; each other[/li]
     [li]menu - channel menu data[/li]
     [li]menu_item - items uses by channel menus[/li]
     [li]notify - notifications[/li]
     [li]notify-threads - need to factor this out and use item thread info on notifications[/li]
     [li]obj - object data for things (x has y)[/li]
-    [li]outq - Red output queue[/li]
+    [li]outq - output queue[/li]
     [li]pconfig - personal (per channel) configuration storage[/li]
     [li]photo - photo storage[/li]
     [li]poll - data for polls[/li]
@@ -99,9 +98,9 @@
     [li]xtag - if this hub is a directory server, contains tags or interests of everybody in the network[/li]
 
     
-[b]How to theme Red - by Olivier Migeot[/b]
+[b]How to theme $Projectname - by Olivier Migeot[/b]
 
-This is a short documentation on what I found while trying to modify Red's appearance.
+This is a short documentation on what I found while trying to modify $Projectname's appearance.
 
 First, you'll need to create a new theme. This is in /view/theme, and I chose to copy 'redbasic' since it's the only available for now. Let's assume I named it .
 

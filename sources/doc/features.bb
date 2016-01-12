@@ -146,7 +146,7 @@ Forums are typically channels which may be open to participation from multiple a
 
 Accounts in $Projectname are referred to as [i]nomadic identities[/i], because a member's identity is not bound to the hub where the identity was originally created.  For example, when you create a Facebook or Gmail account, it is tied to those services.  They cannot function without Facebook.com or Gmail.com.  
 
-By contrast, say you've created a$Projectname identity called [b]tina@redhub.com[/b].  You can clone it to another$Projectname hub by choosing the same, or a different name: [b]liveForever@Some$ProjectnameHub.info[/b]
+By contrast, say you've created a $Projectname identity called [b]tina@$Projectnamehub.com[/b].  You can clone it to another $Projectname hub by choosing the same, or a different name: [b]liveForever@Some$ProjectnameHub.info[/b]
 
 Both channels are now synchronized, which means all your contacts and preferences will be duplicated on your clone.  It doesn't matter whether you send a post from your original hub, or the new hub.  Posts will be mirrored on both accounts.
 
@@ -158,7 +158,7 @@ This is a rather revolutionary feature, if we consider some scenarios:
 
  - What if your identity is subject to government censorship?  Your hub provider may be compelled to delete your account, along with any identities and associated data.  With cloning, $Projectname offers [b]censorship resistance[/b].  You can have hundreds of clones, if you wanted to, all named different, and existing on many different hubs, strewn around the internet.  
 
-Red offers interesting new possibilities for privacy. You can read more at the &lt;&lt;Private Communications Best Practices&gt;&gt; page.
+$Projectname offers interesting new possibilities for privacy. You can read more at the &lt;&lt;Private Communications Best Practices&gt;&gt; page.
 
 Some caveats apply. For a full explanation of identity cloning, read the &lt;HOW TO CLONE MY IDENTITY&gt;.
 
@@ -180,7 +180,7 @@ Accounts can be immediately deleted by clicking on a link. That's it.  All assoc
 
 [b]Writing Posts[/b]
 
-Red supports a number of different ways of adding rich-text content. The default is a custom variant of BBcode, tailored for use in $Projectname. You may also enable the use of Markdown if you find that easier to work with. A visual editor may also be used. The traditional visual editor for $Projectname had some serious issues and has since been removed. We are currently looking for a replacement. 
+$Projectname supports a number of different ways of adding rich-text content. The default is a custom variant of BBcode, tailored for use in $Projectname. You may also enable the use of Markdown if you find that easier to work with. A visual editor may also be used. The traditional visual editor for $Projectname had some serious issues and has since been removed. We are currently looking for a replacement. 
 
 When creating &quot;Websites&quot;, content may be entered in HTML, Markdown, BBcode, and/or plain text.
 

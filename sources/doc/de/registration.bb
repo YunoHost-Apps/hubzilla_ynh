@@ -1,6 +1,6 @@
-[size=large][b]Registrieren[/b][/size]
+[h3]Registrieren[/h3]
 
-Nicht alle Server in der Red-Matrix erlauben jedem, sich zu registrieren. Wenn eine Registrierung möglich ist, erscheint unter dem Anmelde-Formular ein Link mit dem Titel „Registrieren“, der Dich zur Registrierungs-Seite des Servers führt. Auf manchen Servern wirst Du auf einen anderen Server weitergeleitet, der Registrierungen erlaubt. Da alle Red-Server miteinander verbunden sind, ist es egal, auf welchem Du Dich registrierst.
+Nicht alle $Projectname-Hubs erlauben jedem, sich zu registrieren. Wenn eine Registrierung möglich ist, erscheint unter dem Anmelde-Formular ein Link mit dem Titel „Registrieren“, der Dich zur Registrierungs-Seite des Hubs führt. Auf manchen Hubs wirst Du auf einen anderen Hub weitergeleitet, der Registrierungen erlaubt. Da alle $Projectname-Hubs miteinander verbunden sind, ist es egal, auf welchem Du Dich registrierst.
 
 [b]Deine E-Mail-Adresse[/b]
 
@@ -8,7 +8,7 @@ Bitte gib eine funktionierende E-Mail-Adresse an. Sie wird [b]nie[/b] veröffent
 
 [b]Passwort[/b]
 
-Gib ein Passwort Deiner Wahl ein und wiederhole es in der zweiten Box, um sicherzugehen, dass Du Dich nicht vertippt hast. Da die Red-Matrix dezentralisierten Identitäsnachweis beherrscht, kannst Du Dich mit Deinem Konto auf vielen anderen Webseiten anmelden.
+Gib ein Passwort Deiner Wahl ein und wiederhole es in der zweiten Box, um sicherzugehen, dass Du Dich nicht vertippt hast. Da $Projectname dezentralisierten Identitäsnachweis beherrscht, kannst Du Dich mit Deinem Konto auf vielen anderen Webseiten anmelden.
 
 [b]Nutzungsbedingungen[/b]
 
@@ -27,7 +27,7 @@ Der Kanal-Name ist der Titel oder eine kurze Beschreibung des Kanals. Der „Spi
 Wenn Dein Kanal angelegt ist, geht es direkt weiter zu den Einstellungen. Dort kannst Du Zugriffsrechte setzen, Funktionen zu- oder abschalten und so weiter. Diese Punkte werden auf den entsprechenden Hilfeseiten erklärt.  
 
 Siehe auch
-[zrl=[baseurl]/help/accounts_profiles_channels_basics]Grundlagen zu Identitäten in der $Projectname[/zrl]
+[zrl=[baseurl]/help/accounts_profiles_channels_basics]Grundlagen zu Identitäten in $Projectname[/zrl]
 [zrl=[baseurl]/help/accounts]Konten[/zrl]
 [zrl=[baseurl]/help/profiles]Profile[/zrl]
 [zrl=[baseurl]/help/permissions]Zugriffsrechte[/zrl]

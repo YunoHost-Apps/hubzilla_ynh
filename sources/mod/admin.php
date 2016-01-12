@@ -6,6 +6,8 @@
  * Controller for the /admin/ area.
  */
 
+require_once('include/queue_fn.php');
+
 
 /**
  * @param App &$a
@@ -60,6 +62,9 @@ function admin_post(&$a){
 			case 'hubloc':
 				admin_page_hubloc_post($a);
 				break;
+			case 'features':
+				admin_page_features_post($a);
+				break;
 			case 'dbsync':
 				admin_page_dbsync_post($a);
 				break;
@@ -111,6 +116,9 @@ function admin_content(&$a) {
 //			case 'hubloc':
 //				$o = admin_page_hubloc($a);
 //				break;
+			case 'features':
+				$o = admin_page_features($a);
+				break;
 			case 'logs':
 				$o = admin_page_logs($a);
 				break;
@@ -164,7 +172,7 @@ function admin_page_summary(&$a) {
 	}
 
 	// pending registrations
-	$r = q("SELECT COUNT(id) AS `count` FROM register");
+	$r = q("SELECT COUNT(id) AS `count` FROM `register` WHERE `uid` != '0'");
 	$pending = $r[0]['count'];
 
 	// available channels, primary and clones
@@ -231,7 +239,9 @@ function admin_page_site_post(&$a){
 	$maximagesize		=	((x($_POST,'maximagesize'))		? intval(trim($_POST['maximagesize']))				:  0);
 
 	$register_policy	=	((x($_POST,'register_policy'))	? intval(trim($_POST['register_policy']))	:  0);
+	
 	$access_policy	=	((x($_POST,'access_policy'))	? intval(trim($_POST['access_policy']))	:  0);
+	$invite_only        = ((x($_POST,'invite_only'))		? True	: False);
 	$abandon_days	    =	((x($_POST,'abandon_days'))	    ? intval(trim($_POST['abandon_days']))	    :  0);
 
 	$register_text		=	((x($_POST,'register_text'))	? notags(trim($_POST['register_text']))		: '');
@@ -243,7 +253,7 @@ function admin_page_site_post(&$a){
 	$not_allowed_email    = ((x($_POST,'not_allowed_email'))	? notags(trim($_POST['not_allowed_email']))		: '');
 	$block_public         = ((x($_POST,'block_public'))		? True	: False);
 	$force_publish        = ((x($_POST,'publish_all'))		? True	: False);
-	$disable_discover_tab = ((x($_POST,'disable_discover_tab'))		? True	:	False);
+	$disable_discover_tab = ((x($_POST,'disable_discover_tab'))		? False	:	True);
 	$login_on_homepage    = ((x($_POST,'login_on_homepage'))		? True	:	False);
 	$global_directory     = ((x($_POST,'directory_submit_url'))	? notags(trim($_POST['directory_submit_url']))	: '');
 	$no_community_page    = !((x($_POST,'no_community_page'))	? True	:	False);
@@ -299,6 +309,7 @@ function admin_page_site_post(&$a){
 	set_config('system','maximagesize', $maximagesize);
 
 	set_config('system','register_policy', $register_policy);
+	set_config('system','invitation_only', $invite_only);	
 	set_config('system','access_policy', $access_policy);
 	set_config('system','account_abandon_days', $abandon_days);
 	set_config('system','register_text', $register_text);
@@ -425,6 +436,13 @@ function admin_page_site(&$a) {
 //		SSL_POLICY_FULL     => t("Force all links to use SSL")
 //	);
 
+	$discover_tab = get_config('system','disable_discover_tab');
+	// $disable public streams by default
+	if($discover_tab === false)
+		$discover_tab = 1;
+	// now invert the logic for the setting.
+	$discover_tab = (1 - $discover_tab);
+
 
 	$homelogin = get_config('system','login_on_homepage');
 
@@ -450,6 +468,7 @@ function admin_page_site(&$a) {
 		'$feed_contacts'    => array('feed_contacts', t('Allow Feeds as Connections'),get_config('system','feed_contacts'),t('(Heavy system resource usage)')), 
 		'$maximagesize'		=> array('maximagesize', t("Maximum image size"), intval(get_config('system','maximagesize')), t("Maximum size in bytes of uploaded images. Default is 0, which means no limits.")),
 		'$register_policy'	=> array('register_policy', t("Does this site allow new member registration?"), get_config('system','register_policy'), "", $register_choices),
+		'$invite_only'		=> array('invite_only', t("Invitation only"), get_config('system','invitation_only'), t("Only allow new member registrations with an invitation code. Above register policy must be set to Yes.")),
 		'$access_policy'	=> array('access_policy', t("Which best describes the types of account offered by this hub?"), get_config('system','access_policy'), "This is displayed on the public server site list.", $access_choices),
 		'$register_text'	=> array('register_text', t("Register text"), htmlspecialchars(get_config('system','register_text'), ENT_QUOTES, 'UTF-8'), t("Will be displayed prominently on the registration page.")),
 		'$frontpage'	=> array('frontpage', t("Site homepage to show visitors (default: login box)"), get_config('system','frontpage'), t("example: 'public' to show public stream, 'page/sys/home' to show a system webpage called 'home' or 'include:home.html' to include a file.")),
@@ -461,7 +480,7 @@ function admin_page_site(&$a) {
 		'$block_public'		=> array('block_public', t("Block public"), get_config('system','block_public'), t("Check to block public access to all otherwise public personal pages on this site unless you are currently logged in.")),
 		'$verify_email'		=> array('verify_email', t("Verify Email Addresses"), get_config('system','verify_email'), t("Check to verify email addresses used in account registration (recommended).")),
 		'$force_publish'	=> array('publish_all', t("Force publish"), get_config('system','publish_all'), t("Check to force all profiles on this site to be listed in the site directory.")),
-		'$disable_discover_tab'	=> array('disable_discover_tab', t("Disable discovery tab"), get_config('system','disable_discover_tab'), t("Remove the tab in the network view with public content pulled from sources chosen for this site.")),
+		'$disable_discover_tab'	=> array('disable_discover_tab', t('Import Public Streams'), $discover_tab, t('Import and allow access to public content pulled from other sites. Warning: this content is unmoderated.')),
 		'$login_on_homepage'	=> array('login_on_homepage', t("login on Homepage"),((intval($homelogin) || $homelogin === false) ? 1 : '') , t("Present a login box to visitors on the home page if no other content has been configured.")),
 
 		'$directory_server' => (($dir_choices) ? array('directory_server', t("Directory Server URL"), get_config('system','directory_server'), t("Default directory server"), $dir_choices) : null),
@@ -516,6 +535,74 @@ function admin_page_hubloc_post(&$a){
 
 	goaway($a->get_baseurl(true) . '/admin/hubloc' );
 }
+
+
+function admin_page_features_post(&$a) {
+
+	check_form_security_token_redirectOnErr('/admin/features', 'admin_manage_features');
+
+	logger('postvars: ' . print_r($_POST,true));
+
+	$arr = array();
+	$features = get_features(false);
+
+	foreach($features as $fname => $fdata) {
+		foreach(array_slice($fdata,1) as $f) {
+			$feature = $f[0];
+
+			if(array_key_exists('feature_' . $feature,$_POST))
+				$val = intval($_POST['feature_' . $feature]);
+			else
+				$val = 0;
+			set_config('feature',$feature,$val);
+
+			if(array_key_exists('featurelock_' . $feature,$_POST))
+				set_config('feature_lock',$feature,$val);
+			else
+				del_config('feature_lock',$feature);
+		}
+	}
+
+	goaway(z_root() . '/admin/features' );
+
+}
+
+function admin_page_features(&$a) {
+	
+	if((argc() > 1) && (argv(1) === 'features')) {
+		$arr = array();
+		$features = get_features(false);
+
+		foreach($features as $fname => $fdata) {
+			$arr[$fname] = array();
+			$arr[$fname][0] = $fdata[0];
+			foreach(array_slice($fdata,1) as $f) {
+
+				$set = get_config('feature',$f[0]);
+				if($set === false)
+					$set = $f[3];
+				$arr[$fname][1][] = array(
+					array('feature_' .$f[0],$f[1],$set,$f[2],array(t('Off'),t('On'))),
+					array('featurelock_' .$f[0],sprintf( t('Lock feature %s'),$f[1]),(($f[4] !== false) ? 1 : 0),'',array(t('Off'),t('On')))
+				);
+			}
+		}
+		
+		$tpl = get_markup_template("admin_settings_features.tpl");
+		$o .= replace_macros($tpl, array(
+			'$form_security_token' => get_form_security_token("admin_manage_features"),
+			'$title'	=> t('Manage Additional Features'),
+			'$features' => $arr,
+			'$submit'   => t('Submit'),
+		));
+
+		return $o;
+	}
+}
+
+
+
+
 
 function admin_page_hubloc(&$a) {
 	$hubloc = q("SELECT hubloc_id, hubloc_addr, hubloc_host, hubloc_status  FROM hubloc");
@@ -605,12 +692,11 @@ function admin_page_queue($a) {
 	if($_REQUEST['drophub']) {
 		require_once('hubloc.php');
 		hubloc_mark_as_down($_REQUEST['drophub']);
+		remove_queue_by_posturl($_REQUEST['drophub']);
 	}
 
 	if($_REQUEST['emptyhub']) {
-		$r = q("delete from outq where outq_posturl = '%s' ",
-			dbesc($_REQUEST['emptyhub'])
-		);
+		remove_queue_by_posturl($_REQUEST['emptyhub']);
 	}
 
 	$r = q("select count(outq_posturl) as total, max(outq_priority) as priority, outq_posturl from outq 

@@ -205,7 +205,7 @@ function poller_run($argv, $argc){
 
 		$keep_reports = intval(get_config('system','expire_delivery_reports'));
 		if($keep_reports === 0)
-			$keep_reports = 30;
+			$keep_reports = 10;
 
 		q("delete from dreport where dreport_time < %s - INTERVAL %s",
 			db_utcnow(),

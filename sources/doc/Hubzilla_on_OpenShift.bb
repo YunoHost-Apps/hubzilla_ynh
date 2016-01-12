@@ -8,7 +8,7 @@ Create an account on OpenShift, then use the registration e-mail and password to
 [code]rhc app-create your_app_name php-5.4 mysql-5.5 cron phpmyadmin --namespace your_domain --from-code https://github.com/redmatrix/hubzilla.git -l your@email.address -p your_account_password
 [/code]
 
-Make a note of the database username and password OpenShift creates for your instance, and use these at [url=https://your_app_name-your_domain.rhcloud.com/]https://your_app_name-your_domain.rhcloud.com/[/url] to complete the setup.
+Make a note of the database username and password OpenShift creates for your instance, and use these at [url=https://your_app_name-your_domain.rhcloud.com/]https://your_app_name-your_domain.rhcloud.com/[/url] to complete the setup. You MUST change server address from 127.0.0.1 to localhost.
 
 NOTE: PostgreSQL is NOT supported by the deploy script yet, see [zrl=https://zot-mor.rhcloud.com/display/3c7035f2a6febf87057d84ea0ae511223e9b38dc27913177bc0df053edecac7c@zot-mor.rhcloud.com?zid=haakon%40zot-mor.rhcloud.com]this thread[/zrl].
 

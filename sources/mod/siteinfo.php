@@ -1,8 +1,6 @@
 <?php
 
 function siteinfo_init(&$a) {
-
-	
 	if (argv(1) ===  'json') {
 		$data = get_site_info();
 		json_return_and_die($data);
@@ -17,7 +15,7 @@ function siteinfo_content(&$a) {
 		$version = sprintf( t('Version %s'), RED_VERSION );
 		if(@is_dir('.git') && function_exists('shell_exec')) {
 			$commit = @shell_exec('git log -1 --format="%h"');
-			$tag = @shell_exec('git describe --tags --abbrev=0');
+			$tag = get_std_version(); // @shell_exec('git describe --tags --abbrev=0');
 		}
 		if(! isset($commit) || strlen($commit) > 16)
 			$commit = '';

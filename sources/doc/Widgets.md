@@ -75,7 +75,7 @@ Some/many of these widgets have restrictions which may restrict the type of page
 * suggestedchats - "interesting" chatrooms chosen for the current observer
 
 * item - displays a single webpage item by mid
-    * args: mid - message_id of webpage to display
+    * args: mid - message_id of webpage to display (must be webpage, not a conversation item)
 <br />&nbsp;<br />
 
 * photo - display a single photo

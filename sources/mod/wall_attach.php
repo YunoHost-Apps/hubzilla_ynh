@@ -6,14 +6,16 @@ require_once('include/photos.php');
 
 function wall_attach_post(&$a) {
 
-	if(argc() > 1)
-		$channel = get_channel_by_nick(argv(1));
-	elseif($_FILES['media']) {
-		require_once('include/api.php');
-		$user_info = api_get_user($a);
+	$using_api = false;
+
+	if($a->data['api_info'] && array_key_exists('media',$_FILES)) {
+		$using_api = true;
+		$user_info = $a->data['api_info'];
 		$nick = $user_info['screen_name'];
 		$channel = get_channel_by_nick($user_info['screen_name']);
-    }
+	}
+	elseif(argc() > 1)
+		$channel = get_channel_by_nick(argv(1));
 
 	if(! $channel)
 		killme();
@@ -49,12 +51,16 @@ function wall_attach_post(&$a) {
 	}
 
 	if(intval($r['data']['is_photo'])) {
-		echo "\n\n" . $r['body'] . "\n\n";
-		if($using_api)
-			return;
-		killme();
+		$s = "\n\n" . $r['body'] . "\n\n";
 	}
-	echo  "\n\n" . '[attachment]' . $r['data']['hash'] . ',' . $r['data']['revision'] . '[/attachment]' . "\n";
+	else {
+		$s =  "\n\n" . '[attachment]' . $r['data']['hash'] . ',' . $r['data']['revision'] . '[/attachment]' . "\n";
+	}
+
+	if($using_api)
+		return $s;
+
+	echo $s;
 	killme();
 
 }

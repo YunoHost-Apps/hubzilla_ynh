@@ -188,7 +188,7 @@ class RedBrowser extends DAV\Browser\Plugin {
 
 			$parentHash = '';
 			$owner = $this->auth->owner_id;
-			$splitPath = split('/', $fullPath);
+			$splitPath = explode('/', $fullPath);
 			if (count($splitPath) > 3) {
 				for ($i = 3; $i < count($splitPath); $i++) {
 					$attachName = urldecode($splitPath[$i]);

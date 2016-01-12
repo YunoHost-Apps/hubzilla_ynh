@@ -73,36 +73,18 @@ function cloud_init(&$a) {
 
 	$server->addPlugin($lockPlugin);
 
-/* This next bit should no longer be needed... */
+	$is_readable = false;
 
-	// The next section of code allows us to bypass prompting for http-auth if a
-	// FILE is being accessed anonymously and permissions allow this. This way
-	// one can create hotlinks to public media files in their cloud and anonymous
-	// viewers won't get asked to login.
-	// If a DIRECTORY is accessed or there are permission issues accessing the
-	// file and we aren't previously authenticated via zot, prompt for HTTP-auth.
-	// This will be the default case for mounting a DAV directory. 
-	// In order to avoid prompting for passwords for viewing a DIRECTORY, add
-	// the URL query parameter 'davguest=1'.
-
-//	$isapublic_file = false;
-//	$davguest = ((x($_SESSION, 'davguest')) ? true : false);
-
-//	if ((! $auth->observer) && ($_SERVER['REQUEST_METHOD'] === 'GET')) {
-//		try { 
-//			$x = RedFileData('/' . $a->cmd, $auth);
-//			if($x instanceof RedDAV\RedFile)
-//				$isapublic_file = true;
-//		}
-//		catch (Exception $e) {
-//			$isapublic_file = false;
-//		}
-//	}
-
-//	if ((! $auth->observer) && (! $isapublic_file) && (! $davguest)) {
-//		logger('mod_cloud: auth exception');
-//		http_status_exit(401, 'Permission denied.');
-//	}
+	if($_SERVER['REQUEST_METHOD'] === 'GET') {
+		try { 
+			$x = RedFileData('/' . $a->cmd, $auth);
+		}
+		catch(\Exception $e) {
+			if($e instanceof Sabre\DAV\Exception\Forbidden) {
+				http_status_exit(401, 'Permission denied.');
+			}
+		}
+	}
 
 	require_once('include/RedDAV/RedBrowser.php');
 	// provide a directory view for the cloud in Hubzilla

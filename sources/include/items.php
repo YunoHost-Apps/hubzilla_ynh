@@ -2349,7 +2349,7 @@ function item_store($arr, $allow_exec = false) {
 				return $ret;
 			}
 
-			if($arr['obj_type'] == ACTIVITY_OBJ_NOTE)
+			if(($arr['obj_type'] == ACTIVITY_OBJ_NOTE) && (! $arr['object']))
 				$arr['obj_type'] = ACTIVITY_OBJ_COMMENT;
 
 			// is the new message multi-level threaded?
@@ -2870,6 +2870,7 @@ function send_status_notifications($post_id,$item) {
 	if($x) {
 		foreach($x as $xx) {
 			if($xx['author_xchan'] === $r[0]['channel_hash']) {
+
 				$notify = true;
 
 				// check for an unfollow thread activity - we should probably decode the obj and check the id
@@ -3334,7 +3335,6 @@ function start_delivery_chain($channel, $item, $item_id, $parent) {
 	if((! $private) && $new_public_policy)
 		$private = 1;
 
-
 	$item_wall = 1;
 	$item_origin = 1;
 	$item_uplink = 0;
@@ -3385,8 +3385,13 @@ function start_delivery_chain($channel, $item, $item_id, $parent) {
 
 	if($r)
 		proc_run('php','include/notifier.php','tgroup',$item_id);
-	else
+	else {
 		logger('start_delivery_chain: failed to update item');
+		// reset the source xchan to prevent loops
+		$r = q("update item set source_xchan = '' where id = %d",
+			intval($item_id)
+		);
+	}
 }
 
 /**
@@ -3948,6 +3953,8 @@ function atom_entry($item,$type,$author,$owner,$comment = false,$cid = 0) {
 	if($item['deleted'])
 		return '<at:deleted-entry ref="' . xmlify($item['mid']) . '" when="' . xmlify(datetime_convert('UTC','UTC',$item['edited'] . '+00:00',ATOM_TIME)) . '" />' . "\r\n";
 
+
+	create_export_photo_body($item);
 
 	if($item['allow_cid'] || $item['allow_gid'] || $item['deny_cid'] || $item['deny_gid'])
 		$body = fix_private_photos($item['body'],$owner['uid'],$item,$cid);

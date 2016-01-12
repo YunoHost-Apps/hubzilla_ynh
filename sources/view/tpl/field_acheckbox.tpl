@@ -13,6 +13,7 @@
 		<input type="checkbox" name='{{$field.0}}' class='abook-edit-me' id='me_id_{{$field.0}}' value="{{$field.4}}" {{if $field.3}}checked="checked"{{/if}} />
 		{{/if}}
 		{{if $notself && $field.5}}
+		<input type="hidden" name='{{$field.0}}' value="{{if $field.7}}1{{else}}0{{/if}}" />
 		{{if $field.3}}<i class="icon-check"></i>{{else}}<i class="icon-check-empty"></i>{{/if}}
 		{{/if}}
 	</td>

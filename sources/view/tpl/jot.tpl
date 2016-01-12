@@ -118,8 +118,6 @@
 						<li class="divider visible-xs"></li>
 						{{if $writefiles}}<li class="visible-xs"><a id="wall-file-upload-sub" href="#" ><i class="icon-paper-clip"></i>&nbsp;{{$attach}}</a></li>{{/if}}
 						<li class="visible-xs"><a href="#" onclick="jotGetLink(); return false;"><i class="icon-link"></i>&nbsp;{{$weblink}}</a></li>
-						<!--li class="visible-xs"><a href="#" onclick="jotVideoURL(); return false;"><i class="icon-facetime-video"></i>&nbsp;{{$video}}</a></li-->
-						<!--li class="visible-xs"><a href="#" onclick="jotAudioURL(); return false;"><i class="icon-volume-up"></i>&nbsp;{{$audio}}</a></li-->
 						{{/if}}
 						<li class="divider visible-xs"></li>
 						<li class="visible-xs visible-sm"><a href="#" onclick="jotGetLocation(); return false;"><i class="icon-globe"></i>&nbsp;{{$setloc}}</a></li>

@@ -493,37 +493,40 @@ function widget_settings_menu($arr) {
 			'selected'	=> ((argv(1) === 'channel') ? 'active' : ''),
 		),
 
-		array(
-			'label'	=> t('Additional features'),
-			'url' 	=> $a->get_baseurl(true).'/settings/features',
-			'selected'	=> ((argv(1) === 'features') ? 'active' : ''),
-		),
-
-		array(
-			'label'	=> t('Feature/Addon settings'),
-			'url' 	=> $a->get_baseurl(true).'/settings/featured',
-			'selected'	=> ((argv(1) === 'featured') ? 'active' : ''),
-		),
-
-		array(
-			'label'	=> t('Display settings'),
-			'url' 	=> $a->get_baseurl(true).'/settings/display',
-			'selected'	=> ((argv(1) === 'display') ? 'active' : ''),
-		),	
-
-		array(
-			'label' => t('Connected apps'),
-			'url' => $a->get_baseurl(true) . '/settings/oauth',
-			'selected' => ((argv(1) === 'oauth') ? 'active' : ''),
-		),
-
-		array(
-			'label' => t('Export channel'),
-			'url' => $a->get_baseurl(true) . '/uexport',
-			'selected' => ''
-		),
-
 	);
+
+	if(get_features()) {
+		$tabs[] = 	array(
+				'label'	=> t('Additional features'),
+				'url' 	=> $a->get_baseurl(true).'/settings/features',
+				'selected'	=> ((argv(1) === 'features') ? 'active' : ''),
+		);
+	}
+
+	$tabs[] =	array(
+		'label'	=> t('Feature/Addon settings'),
+		'url' 	=> $a->get_baseurl(true).'/settings/featured',
+		'selected'	=> ((argv(1) === 'featured') ? 'active' : ''),
+	);
+
+	$tabs[] =	array(
+		'label'	=> t('Display settings'),
+		'url' 	=> $a->get_baseurl(true).'/settings/display',
+		'selected'	=> ((argv(1) === 'display') ? 'active' : ''),
+	);	
+
+	$tabs[] =	array(
+		'label' => t('Connected apps'),
+		'url' => $a->get_baseurl(true) . '/settings/oauth',
+		'selected' => ((argv(1) === 'oauth') ? 'active' : ''),
+	);
+
+	$tabs[] =	array(
+		'label' => t('Export channel'),
+		'url' => $a->get_baseurl(true) . '/uexport',
+		'selected' => ''
+	);
+
 
 	if($role === false || $role === 'custom') {
 		$tabs[] = array(
@@ -1148,7 +1151,7 @@ function widget_forums($arr) {
 		foreach($r1 as $rr) {
 			if($unseen && (! intval($rr['unseen'])))
 				continue;
-			$o .= '<li><span class="pull-right">' . ((intval($rr['unseen'])) ? intval($rr['unseen']) : '') . '</span><a href="network?f=&pf=1&cid=' . $rr['abook_id'] . '" ><img src="' . $rr['xchan_photo_s'] . '" style="width: 16px; height: 16px;" /> ' . $rr['xchan_name'] . '</a></li>';
+			$o .= '<li><a href="network?f=&pf=1&cid=' . $rr['abook_id'] . '" ><span class="badge pull-right">' . ((intval($rr['unseen'])) ? intval($rr['unseen']) : '') . '</span><img src="' . $rr['xchan_photo_s'] . '" style="width: 16px; height: 16px;" /> ' . $rr['xchan_name'] . '</a></li>';
 		}
 		$o .= '</ul></div>';
 	}
@@ -1214,6 +1217,7 @@ function widget_admin($arr) {
 		'site'      => array(z_root() . '/admin/site/',     t('Site'),           'site'),
 		'users'     => array(z_root() . '/admin/users/',    t('Accounts'),       'users'),
 		'channels'  => array(z_root() . '/admin/channels/', t('Channels'),       'channels'),
+		'features'  => array(z_root() . '/admin/features/', t('Features'),       'features'),
 		'plugins'   => array(z_root() . '/admin/plugins/',  t('Plugins'),        'plugins'),
 		'themes'    => array(z_root() . '/admin/themes/',   t('Themes'),         'themes'),
 		'queue'     => array(z_root() . '/admin/queue',     t('Inspect queue'),  'queue'),
@@ -1299,7 +1303,6 @@ function widget_album($args) {
 	//edit album name
 	$album_edit = null;
 
-
 	$photos = array();
 	if($r) {
 		$twist = 'rotright';
@@ -1338,6 +1341,7 @@ function widget_album($args) {
 	$o .= replace_macros($tpl, array(
 		'$photos' => $photos,
 		'$album' => (($title) ? $title : $album),
+		'$album_id' => rand(),
 		'$album_edit' => array(t('Edit Album'), $album_edit),
 		'$can_post' => false,
 		'$upload' => array(t('Upload'), z_root() . '/photos/' . get_app()->profile['channel_address'] . '/upload/' . bin2hex($album)),

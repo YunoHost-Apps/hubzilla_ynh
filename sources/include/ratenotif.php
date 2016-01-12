@@ -82,18 +82,14 @@ function ratenotif_run($argv, $argc){
 				$hash = random_string();
 				$n = zot_build_packet($channel,'notify',null,null,$hash);
 
-				q("insert into outq ( outq_hash, outq_account, outq_channel, outq_driver, outq_posturl, outq_async, outq_created, outq_updated, outq_notify, outq_msg ) values ( '%s', %d, %d, '%s', '%s', %d, '%s', '%s', '%s', '%s' )",
-					dbesc($hash),
-					intval($channel['channel_account_id']),
-					intval($channel['channel_id']),
-					dbesc('zot'),
-					dbesc($h . '/post'),
-					intval(1),
-					dbesc(datetime_convert()),
-					dbesc(datetime_convert()),
-					dbesc($n),
-					dbesc(json_encode($encoded_item))
-				);
+				queue_insert(array(
+					'hash'       => $hash,
+					'account_id' => $channel['channel_account_id'],
+					'channel_id' => $channel['channel_id'],
+					'posturl'    => $h . '/post',
+					'notify'     => $n,
+					'msg'        => json_encode($encoded_item)
+				));
 
 				$deliver[] = $hash;
 

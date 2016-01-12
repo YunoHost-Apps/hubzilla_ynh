@@ -203,3 +203,8 @@ util/add_theme_repo https://github.com/DeadSuperHero/redmatrix-themes.git DeadSu
 echo "Try to add or update Hubzilla ownMapp"
 cd ${OPENSHIFT_REPO_DIR}
 util/add_addon_repo https://gitlab.com/zot/ownmapp.git ownMapp
+
+# Hubzilla Chess
+echo "Try to add or update Hubzilla chess to Hubzilla on OpenShift"
+cd ${OPENSHIFT_REPO_DIR}
+util/add_addon_repo https://gitlab.com/zot/hubzilla-chess.git Chess

@@ -44,7 +44,6 @@ require_once('include/html2plain.php');
  *		expire					(in items.php)
  *		like					(in like.php, poke.php)
  *		mail					(in message.php)
- *		suggest					(in fsuggest.php)
  *		tag						(in photos.php, poke.php, tagger.php)
  *		tgroup					(in items.php)
  *		wall-new				(in photos.php, item.php)
@@ -52,11 +51,14 @@ require_once('include/html2plain.php');
  * and ITEM_ID is the id of the item in the database that needs to be sent to others.
  *
  * ZOT 
+ *       permission_create      abook_id
  *       permission_update      abook_id
  *       refresh_all            channel_id
  *       purge_all              channel_id
  *       expire                 channel_id
  *       relay					item_id (item was relayed to owner, we will deliver it as owner)
+ *       single_activity        item_id (deliver to a singleton network from the appropriate clone)
+ *       single_mail            mail_id (deliver to a singleton network from the appropriate clone)
  *       location               channel_id
  *       request                channel_id            xchan_hash             message_id
  *       rating                 xlink_id
@@ -66,6 +68,12 @@ require_once('include/html2plain.php');
 require_once('include/cli_startup.php');
 require_once('include/zot.php');
 require_once('include/queue_fn.php');
+require_once('include/session.php');
+require_once('include/datetime.php');
+require_once('include/items.php');
+require_once('include/bbcode.php');
+require_once('include/identity.php');
+require_once('include/Contact.php');
 
 function notifier_run($argv, $argc){
 
@@ -73,14 +81,9 @@ function notifier_run($argv, $argc){
 
 	$a = get_app();
 
-	require_once("session.php");
-	require_once("datetime.php");
-	require_once('include/items.php');
-	require_once('include/bbcode.php');
 
 	if($argc < 3)
 		return;
-
 
 	logger('notifier: invoked: ' . print_r($argv,true), LOGGER_DEBUG);
 
@@ -93,7 +96,6 @@ function notifier_run($argv, $argc){
 	if(! $item_id)
 		return;
 
-	require_once('include/identity.php');
 	$sys = get_sys_channel();
 
 	$deliveries = array();
@@ -108,87 +110,8 @@ function notifier_run($argv, $argc){
 	}
 
 
-	if($cmd == 'permission_update' || $cmd == 'permission_create') {
-		// Get the recipient	
-		$r = q("select abook.*, hubloc.* from abook 
-			left join hubloc on hubloc_hash = abook_xchan
-			where abook_id = %d and abook_self = 0
-			and not (hubloc_flags & %d) > 0  and not (hubloc_status & %d) > 0 limit 1",
-			intval($item_id),
-			intval(HUBLOC_FLAGS_DELETED),
-			intval(HUBLOC_OFFLINE)
-		);
-
-		if($r) {
-			// Get the sender
-			$s = q("select * from channel left join xchan on channel_hash = xchan_hash where channel_id = %d limit 1",
-				intval($r[0]['abook_channel'])
-			);
-			if($s) {
-				$perm_update = array('sender' => $s[0], 'recipient' => $r[0], 'success' => false, 'deliveries' => '');
-
-				if($cmd == 'permission_create')
-					call_hooks('permissions_create',$perm_update);
-				else
-					call_hooks('permissions_update',$perm_update);
-
-				if($perm_update['success'] && $perm_update['deliveries'])
-					$deliveries[] = $perm_update['deliveries'];
-
-				if(! $perm_update['success']) {
-					// send a refresh message to each hub they have registered here	
-					$h = q("select * from hubloc where hubloc_hash = '%s' 
-						and not (hubloc_flags & %d) > 0  and not (hubloc_status & %d) > 0",
-						dbesc($r[0]['hubloc_hash']),
-						intval(HUBLOC_FLAGS_DELETED),
-						intval(HUBLOC_OFFLINE)
-					);
-					if($h) {
-						foreach($h as $hh) {
-							if(in_array($hh['hubloc_url'],$dead_hubs)) {
-								logger('skipping dead hub: ' . $hh['hubloc_url'], LOGGER_DEBUG);
-									continue;
-							}
-
-							$data = zot_build_packet($s[0],'refresh',array(array(
-								'guid' => $hh['hubloc_guid'],
-								'guid_sig' => $hh['hubloc_guid_sig'],
-								'url' => $hh['hubloc_url'])
-							));
-							if($data) {
-								$hash = random_string();
-								q("insert into outq ( outq_hash, outq_account, outq_channel, outq_driver, outq_posturl, outq_async, outq_created, outq_updated, outq_notify, outq_msg ) 
-									values ( '%s', %d, %d, '%s', '%s', %d, '%s', '%s', '%s', '%s' )",
-                					dbesc($hash),
-									intval($s[0]['channel_account_id']),
-									intval($s[0]['channel_id']),
-									dbesc('zot'),
-									dbesc($hh['hubloc_callback']),
-									intval(1),
-									dbesc(datetime_convert()),
-									dbesc(datetime_convert()),
-									dbesc($data),
-									dbesc('')
-								);
-								$deliveries[] = $hash;
-							}
-						}
-
-					}
-				}
-
-				if($deliveries) 
-					do_delivery($deliveries);
-			}
-		}
-		return;
-	}	
-
-
-	$expire = false;
 	$request = false;
 	$mail = false;
-	$fsuggest = false;
 	$top_level = false;
 	$location  = false;
 	$recipients = array();
@@ -237,51 +160,43 @@ function notifier_run($argv, $argc){
 		$packet_type = 'request';
 		$normal_mode = false;
 	}
-	elseif($cmd === 'expire') {
-
-		// FIXME
-		// This will require a special zot packet containing a list of item message_id's to be expired. 
-		// This packet will be public, since we cannot selectively deliver here. 
-		// We need the handling on this end to create the array, and the handling on the remote end
-		// to verify permissions (for each item) and process it. Until this is complete, the expire feature will be disabled.
- 
-		return;
-
-		$normal_mode = false;
-		$expire = true;
-		$items = q("SELECT * FROM item WHERE uid = %d AND item_wall = 1
-			AND item_deleted = 1 AND `changed` > %s - INTERVAL %s",
-			intval($item_id),
-			db_utcnow(), db_quoteinterval('10 MINUTE')
-		);
-		$uid = $item_id;
-		$item_id = 0;
-		if(! $items)
-			return;
-
-	}
-	elseif($cmd === 'suggest') {
-		$normal_mode = false;
-		$fsuggest = true;
-
-		$suggest = q("SELECT * FROM `fsuggest` WHERE `id` = %d LIMIT 1",
+	elseif($cmd == 'permission_update' || $cmd == 'permission_create') {
+		// Get the (single) recipient	
+		$r = q("select * from abook left join xchan on abook_xchan = xchan_hash where abook_id = %d and abook_self = 0",
 			intval($item_id)
 		);
-		if(! count($suggest))
-			return;
-		$uid = $suggest[0]['uid'];
-		$recipients[] = $suggest[0]['cid'];
-		$item = $suggest[0];
+		if($r) {
+			$uid = $r[0]['abook_channel'];
+			// Get the sender
+			$channel = channelx_by_n($uid);
+			if($channel) {
+				$perm_update = array('sender' => $channel, 'recipient' => $r[0], 'success' => false, 'deliveries' => '');
+
+				if($cmd == 'permission_create')
+					call_hooks('permissions_create',$perm_update);
+				else
+					call_hooks('permissions_update',$perm_update);
+
+				if($perm_update['success']) {
+					if($perm_update['deliveries']) {
+						$deliveries[] = $perm_update['deliveries'];
+						do_delivery($deliveries);
+					}
+					return;				
+				}
+				else {
+					$recipients[] = $r[0]['abook_xchan'];
+					$private = false;
+					$packet_type = 'refresh';
+					$packet_recips = array(array('guid' => $r[0]['xchan_guid'],'guid_sig' => $r[0]['xchan_guid_sig'],'hash' => $r[0]['xchan_hash']));
+				}
+			}
+		}
 	}
 	elseif($cmd === 'refresh_all') {
 		logger('notifier: refresh_all: ' . $item_id);
-		$s = q("select * from channel where channel_id = %d limit 1",
-			intval($item_id)
-		);
-		if($s)
-			$channel = $s[0];
 		$uid = $item_id;
-		$recipients = array();
+		$channel = channelx_by_n($item_id);
 		$r = q("select abook_xchan from abook where abook_channel = %d",
 			intval($item_id)
 		);
@@ -383,7 +298,7 @@ function notifier_run($argv, $argc){
 			$channel = $s[0];
 
 		if($channel['channel_hash'] !== $target_item['author_xchan'] && $channel['channel_hash'] !== $target_item['owner_xchan']) {
-			logger("notifier: Sending channel {$channel['channel_hash']} is not owner {$target_item['owner_xchan']} or author {$target_item['author_xchan']}");
+			logger("notifier: Sending channel {$channel['channel_hash']} is not owner {$target_item['owner_xchan']} or author {$target_item['author_xchan']}", LOGGER_NORMAL, LOG_WARNING);
 			return;
 		}
 
@@ -402,7 +317,7 @@ function notifier_run($argv, $argc){
 				return;
 
 			if(strpos($r[0]['postopts'],'nodeliver') !== false) {
-				logger('notifier: target item is undeliverable', LOGGER_DEBUG);
+				logger('notifier: target item is undeliverable', LOGGER_DEBUG, LOG_NOTICE);
 				return;
 			}
 
@@ -438,8 +353,8 @@ function notifier_run($argv, $argc){
 		// $cmd === 'relay' indicates the owner is sending it to the original recipients
 		// don't allow the item in the relay command to relay to owner under any circumstances, it will loop
 
-		logger('notifier: relay_to_owner: ' . (($relay_to_owner) ? 'true' : 'false'), LOGGER_DATA);
-		logger('notifier: top_level_post: ' . (($top_level_post) ? 'true' : 'false'), LOGGER_DATA);
+		logger('notifier: relay_to_owner: ' . (($relay_to_owner) ? 'true' : 'false'), LOGGER_DATA, LOG_DEBUG);
+		logger('notifier: top_level_post: ' . (($top_level_post) ? 'true' : 'false'), LOGGER_DATA, LOG_DEBUG);
 
 		// tag_deliver'd post which needs to be sent back to the original author
 
@@ -464,9 +379,12 @@ function notifier_run($argv, $argc){
 			// if our parent is a tag_delivery recipient, uplink to the original author causing
 			// a delivery fork. 
 
-			if(intval($parent_item['item_uplink']) && (! $top_level_post) && ($cmd !== 'uplink')) {
-				logger('notifier: uplinking this item');
-				proc_run('php','include/notifier.php','uplink',$item_id);
+			if(($parent_item) && intval($parent_item['item_uplink']) && (! $top_level_post) && ($cmd !== 'uplink')) {
+				// don't uplink a relayed post to the relay owner
+				if($parent_item['source_xchan'] !== $parent_item['owner_xchan']) {
+					logger('notifier: uplinking this item');
+					proc_run('php','include/notifier.php','uplink',$item_id);
+				}
 			}
 
 			$private = false;
@@ -478,7 +396,7 @@ function notifier_run($argv, $argc){
 			// TODO verify this is needed - copied logic from same place in old code
 
 			if(intval($target_item['item_deleted']) && (! intval($target_item['item_wall']))) {
-				logger('notifier: ignoring delete notification for non-wall item');
+				logger('notifier: ignoring delete notification for non-wall item', LOGGER_NORMAL, LOG_NOTICE);
 				return;
 			}
 		}
@@ -493,13 +411,13 @@ function notifier_run($argv, $argc){
 	$x = $encoded_item;
 	$x['title'] = 'private';
 	$x['body'] = 'private';
-	logger('notifier: encoded item: ' . print_r($x,true), LOGGER_DATA);
+	logger('notifier: encoded item: ' . print_r($x,true), LOGGER_DATA, LOG_DEBUG);
 
 	stringify_array_elms($recipients);
 	if(! $recipients)
 		return;
 
-//	logger('notifier: recipients: ' . print_r($recipients,true));
+//	logger('notifier: recipients: ' . print_r($recipients,true), LOGGER_NORMAL, LOG_DEBUG);
 
 	$env_recips = (($private) ? array() : null);
 
@@ -527,7 +445,7 @@ function notifier_run($argv, $argc){
 
 	if(($private) && (! $env_recips)) {
 		// shouldn't happen
-		logger('notifier: private message with no envelope recipients.' . print_r($argv,true));
+		logger('notifier: private message with no envelope recipients.' . print_r($argv,true), LOGGER_NORMAL, LOG_NOTICE);
 	}
 	
 	logger('notifier: recipients (may be delivered to more if public): ' . print_r($recip_list,true), LOGGER_DEBUG);
@@ -542,7 +460,7 @@ function notifier_run($argv, $argc){
  
 
 	if(! $r) {
-		logger('notifier: no hubs');
+		logger('notifier: no hubs', LOGGER_NORMAL, LOG_NOTICE);
 		return;
 	}
 
@@ -565,7 +483,7 @@ function notifier_run($argv, $argc){
 
 	foreach($hubs as $hub) {
 		if(in_array($hub['hubloc_url'],$dead_hubs)) {
-			logger('skipping dead hub: ' . $hub['hubloc_url'], LOGGER_DEBUG);
+			logger('skipping dead hub: ' . $hub['hubloc_url'], LOGGER_DEBUG, LOG_INFO);
 			continue;
 		}
 
@@ -585,7 +503,7 @@ function notifier_run($argv, $argc){
 		}
 	}
 
-	logger('notifier: will notify/deliver to these hubs: ' . print_r($hublist,true), LOGGER_DEBUG);
+	logger('notifier: will notify/deliver to these hubs: ' . print_r($hublist,true), LOGGER_DEBUG, LOG_DEBUG);
 			 
 
 	foreach($dhubs as $hub) {
@@ -595,6 +513,7 @@ function notifier_run($argv, $argc){
 			$narr = array(
 				'channel' => $channel,
 				'env_recips' => $env_recips,
+				'packet_recips' => $packet_recips,
 				'recipients' => $recipients,
 				'item' => $item,
 				'target_item' => $target_item,
@@ -605,10 +524,8 @@ function notifier_run($argv, $argc){
 				'relay_to_owner' => $relay_to_owner,
 				'uplink' => $uplink,
 				'cmd' => $cmd,
-				'expire' =>	$expire,
 				'mail' => $mail,
 				'location' => $location,
-				'fsuggest' => $fsuggest,
 				'request' => $request,
 				'normal_mode' => $normal_mode,
 				'packet_type' => $packet_type,
@@ -628,52 +545,38 @@ function notifier_run($argv, $argc){
 
 		// default: zot protocol
 
-
 		$hash = random_string();
+		$packet = null;
+
 		if($packet_type === 'refresh' || $packet_type === 'purge') {
-			$n = zot_build_packet($channel,$packet_type);
-			q("insert into outq ( outq_hash, outq_account, outq_channel, outq_driver, outq_posturl, outq_async, outq_created, outq_updated, outq_notify, outq_msg ) values ( '%s', %d, %d, '%s', '%s', %d, '%s', '%s', '%s', '%s' )",
-				dbesc($hash),
-				intval($channel['channel_account_id']),
-				intval($channel['channel_id']),
-				dbesc('zot'),
-				dbesc($hub['hubloc_callback']),
-				intval(1),
-				dbesc(datetime_convert()),
-				dbesc(datetime_convert()),
-				dbesc($n),
-				dbesc('')
-			);
+			$packet = zot_build_packet($channel,$packet_type,(($packet_recips) ? $packet_recips : null));
 		}
 		elseif($packet_type === 'request') {
-			$n = zot_build_packet($channel,'request',$env_recips,$hub['hubloc_sitekey'],$hash,array('message_id' => $request_message_id));
-			q("insert into outq ( outq_hash, outq_account, outq_channel, outq_driver, outq_posturl, outq_async, outq_created, outq_updated, outq_notify, outq_msg ) values ( '%s', %d, %d, '%s', '%s', %d, '%s', '%s', '%s', '%s' )",
-				dbesc($hash),
-				intval($channel['channel_account_id']),
-				intval($channel['channel_id']),
-				dbesc('zot'),
-				dbesc($hub['hubloc_callback']),
-				intval(1),
-				dbesc(datetime_convert()),
-				dbesc(datetime_convert()),
-				dbesc($n),
-				dbesc('')
+			$packet = zot_build_packet($channel,$packet_type,$env_recips,$hub['hubloc_sitekey'],$hash,
+				array('message_id' => $request_message_id)
 			);
 		}
+
+		if($packet) {
+			queue_insert(array(
+				'hash'       => $hash,
+				'account_id' => $channel['channel_account_id'],
+				'channel_id' => $channel['channel_id'],
+				'posturl'    => $hub['hubloc_callback'],
+				'notify'     => $packet
+			));
+		}
 		else {
-			$n = zot_build_packet($channel,'notify',$env_recips,(($private) ? $hub['hubloc_sitekey'] : null),$hash);
-			q("insert into outq ( outq_hash, outq_account, outq_channel, outq_driver, outq_posturl, outq_async, outq_created, outq_updated, outq_notify, outq_msg ) values ( '%s', %d, %d, '%s', '%s', %d, '%s', '%s', '%s', '%s' )",
-				dbesc($hash),
-				intval($target_item['aid']),
-				intval($target_item['uid']),
-				dbesc('zot'),
-				dbesc($hub['hubloc_callback']),
-				intval(1),
-				dbesc(datetime_convert()),
-				dbesc(datetime_convert()),
-				dbesc($n),
-				dbesc(json_encode($encoded_item))
-			);
+			$packet = zot_build_packet($channel,'notify',$env_recips,(($private) ? $hub['hubloc_sitekey'] : null),$hash);
+			queue_insert(array(
+				'hash'       => $hash,
+				'account_id' => $target_item['aid'],
+				'channel_id' => $target_item['uid'],
+				'posturl'    => $hub['hubloc_callback'],
+				'notify'     => $packet,
+				'msg'        => json_encode($encoded_item)
+			));
+
 			// only create delivery reports for normal undeleted items
 			if(is_array($target_item) && array_key_exists('postopts',$target_item) && (! $target_item['item_deleted'])) {
 				q("insert into dreport ( dreport_mid, dreport_site, dreport_recip, dreport_result, dreport_time, dreport_xchan, dreport_queue ) values ( '%s','%s','%s','%s','%s','%s','%s' ) ",

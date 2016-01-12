@@ -26,7 +26,7 @@
 						<div class="wall-item-photo-end" style="clear:both"></div>
 					</div>
 					{{if $item.title}}
-					<div class="wall-item-title" id="wall-item-title-{{$item.id}}">
+					<div class="wall-item-title" id="wall-item-title-{{$item.id}}" title="{{$item.title}}">
 					<h3>{{if $item.title_tosource}}{{if $item.plink}}<a href="{{$item.plink.href}}" title="{{$item.title}} ({{$item.plink.title}})">{{/if}}{{/if}}{{$item.title}}{{if $item.title_tosource}}{{if $item.plink}}</a>{{/if}}{{/if}}</h3>
 					</div>
 					{{/if}}

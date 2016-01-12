@@ -178,7 +178,7 @@ function create_identity($arr) {
 	$ret = array('success' => false);
 
 	if(! $arr['account_id']) {
-		$ret['message'] = t('No account identifier');
+	$ret['message'] = t('No account identifier');
 		return $ret;
 	}
 	$ret = identity_check_service_class($arr['account_id']);
@@ -352,7 +352,7 @@ function create_identity($arr) {
 	);
 
 	if($role_permissions) {
-		$myperms = ((array_key_exists('perms_auto',$role_permissions) && $role_permissions['perms_auto']) ? intval($role_permissions['perms_accept']) : 0);
+		$myperms = ((array_key_exists('perms_accept',$role_permissions)) ? intval($role_permissions['perms_accept']) : 0);
 	}
 	else
 		$myperms = PERMS_R_STREAM|PERMS_R_PROFILE|PERMS_R_PHOTOS|PERMS_R_ABOOK
@@ -896,12 +896,6 @@ function profile_load(&$a, $nickname, $profile = '') {
 
 	$_SESSION['theme'] = $p[0]['channel_theme'];
 
-//	$a->set_template_engine(); // reset the template engine to the default in case the user's theme doesn't specify one
-
-//	$theme_info_file = "view/theme/".current_theme()."/php/theme.php";
-//	if (file_exists($theme_info_file)){
-//		require_once($theme_info_file);
-//	}
 }
 
 /**

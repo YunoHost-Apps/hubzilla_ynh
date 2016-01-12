@@ -50,6 +50,7 @@ function xrd_init(&$a) {
 //		'$salmon'      => $a->get_baseurl() . '/salmon/'        . $r[0]['channel_address'],
 //		'$salmen'      => $a->get_baseurl() . '/salmon/'        . $r[0]['channel_address'] . '/mention',
 		'$modexp'      => 'data:application/magic-public-key,'  . $salmon_key,
+		'$subscribe'   => $a->get_baseurl() . '/follow?url={uri}',
 //		'$bigkey'      =>  salmon_key($r[0]['pubkey'])
 	));
 

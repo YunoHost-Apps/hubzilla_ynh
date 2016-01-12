@@ -1,6 +1,6 @@
 <?php
 
-define( 'UPDATE_VERSION' , 1160 );
+define( 'UPDATE_VERSION' , 1161 );
 
 /**
  *
@@ -1949,4 +1949,11 @@ function update_r1159() {
 	return UPDATE_SUCCESS;
 }
 
+
+function update_r1160() {
+	$r = q("alter table abook add abook_instance text not null default '' ");
+	if($r)
+		return UPDATE_SUCCESS;
+    return UPDATE_FAILED;
+}
 

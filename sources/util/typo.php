@@ -33,6 +33,13 @@
 		include_once($file);
 	}
 
+	echo "Directory: Zotlabs\n";
+	$files = glob('Zotlabs/*/*.php');
+	foreach($files as $file) {
+		echo $file . "\n";
+		include_once($file);
+	}
+
 
 	echo "Directory: include/photo\n";
 	$files = glob('include/photo/*.php');

@@ -72,7 +72,7 @@ function home_content(&$a, $update = 0, $load = false) {
 
 	$sitename = get_config('system','sitename');
 	if($sitename) 
-		$o .= '<h1>' . sprintf( t("Welcome to %s") ,$sitename) . '</h1>';
+		$o .= '<h1 class="home-welcome">' . sprintf( t("Welcome to %s") ,$sitename) . '</h1>';
 
 	$loginbox = get_config('system','login_on_homepage');
 	if(intval($loginbox) || $loginbox === false)

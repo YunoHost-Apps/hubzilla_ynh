@@ -20,7 +20,7 @@
 					<div class="wall-item-photo-end" style="clear:both"></div>
 				</div>
 				{{if $item.title}}
-				<div class="wall-item-title" id="wall-item-title-{{$item.id}}">
+				<div class="wall-item-title" id="wall-item-title-{{$item.id}}" title="{{$item.title}}">
 				<h3>{{if $item.title_tosource}}{{if $item.plink}}<a href="{{$item.plink.href}}" title="{{$item.title}} ({{$item.plink.title}})">{{/if}}{{/if}}{{$item.title}}{{if $item.title_tosource}}{{if $item.plink}}</a>{{/if}}{{/if}}</h3>
 				</div>
 				{{/if}}
@@ -65,11 +65,6 @@
 					<span class="tag">{{$item.folders}}</span>
 				</div>
 				{{/if}}
-				{{if $item.attachments}}
-				<div class="body-tags" id="item-attachments">
-					<span class='tag'>{{$item.attachments}}</span>
-				</div>
-				{{/if}}
 				<div class="clear"></div>
 			</div>
 			{{/if}}
@@ -88,6 +83,12 @@
 						{{/if}}
 					</ul>
 				</div>
+				{{if $item.attachments}}
+				<div class="wall-item-tools-left btn-group">
+					<button type="button" class="btn btn-default btn-sm wall-item-like dropdown-toggle" data-toggle="dropdown" id="attachment-menu-{{$item.id}}"><i class="icon-paperclip"></i></button>
+					<ul class="dropdown-menu" role="menu" aria-labelledby="attachment-menu-{{$item.id}}">{{$item.attachments}}</ul>
+				</div>
+				{{/if}}
 				<div class="clear"></div>
 			</div>
 			<div class="clear"></div>

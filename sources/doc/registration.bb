@@ -8,7 +8,7 @@ Please provide a valid email address. Your email address is never published. Thi
 
 [b]Password[/b]
 
-Enter a password of your choice, and repeat it in the second box to ensure it was typed correctly. As the $Projectname offers a decentralised identity, your account can log you in to many other websites.
+Enter a password of your choice, and repeat it in the second box to ensure it was typed correctly. As $Projectname offers a decentralised identity, your account can log you in to many other websites.
 
 [b]Terms Of Service[/b]
 
@@ -25,7 +25,7 @@ Next, you will be presented with the &quot;Add a channel&quot; screen. Normally,
 When your channel is created you will be taken straight to your settings page where you can define permissions, enable features, etc. All these things are covered in the appropriate section of the helpfiles.
 
 See Also
-[zrl=[baseurl]/help/accounts_profiles_channels_basics]The Basics about Identities within the $Projectname[/zrl]
+[zrl=[baseurl]/help/accounts_profiles_channels_basics]The Basics about Identities within $Projectname[/zrl]
 [zrl=[baseurl]/help/accounts]Accounts[/zrl]
 [zrl=[baseurl]/help/profiles]Profiles[/zrl]
 [zrl=[baseurl]/help/permissions]Permissions[/zrl]

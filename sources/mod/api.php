@@ -35,42 +35,40 @@ function api_post(&$a) {
 }
 
 function api_content(&$a) {
-	if ($a->cmd=='api/oauth/authorize'){
+	if($a->cmd=='api/oauth/authorize'){
+
 		/* 
 		 * api/oauth/authorize interact with the user. return a standard page
 		 */
 		
 		$a->page['template'] = "minimal";
-		
-		
+				
 		// get consumer/client from request token
 		try {
-			$request = OAuthRequest::from_request();
+			$request = OAuth1Request::from_request();
 		} catch(Exception $e) {
 			echo "<pre>"; var_dump($e); killme();
 		}
 		
 		
-		if (x($_POST,'oauth_yes')){
+		if(x($_POST,'oauth_yes')){
 		
 			$app = oauth_get_client($request);
 			if (is_null($app)) return "Invalid request. Unknown token.";
-			$consumer = new OAuthConsumer($app['client_id'], $app['pw'], $app['redirect_uri']);
+			$consumer = new OAuth1Consumer($app['client_id'], $app['pw'], $app['redirect_uri']);
 
 			$verifier = md5($app['secret'].local_channel());
 			set_config("oauth", $verifier, local_channel());
 			
 			
-			if ($consumer->callback_url!=null) {
+			if($consumer->callback_url!=null) {
 				$params = $request->get_parameters();
 				$glue="?";
 				if (strstr($consumer->callback_url,$glue)) $glue="?";
-				goaway($consumer->callback_url.$glue."oauth_token=".OAuthUtil::urlencode_rfc3986($params['oauth_token'])."&oauth_verifier=".OAuthUtil::urlencode_rfc3986($verifier));
+				goaway($consumer->callback_url . $glue . "oauth_token=" . OAuth1Util::urlencode_rfc3986($params['oauth_token']) . "&oauth_verifier=" . OAuth1Util::urlencode_rfc3986($verifier));
 				killme();
 			}
-			
-			
-			
+						
 			$tpl = get_markup_template("oauth_authorize_done.tpl");
 			$o = replace_macros($tpl, array(
 				'$title' => t('Authorize application connection'),
@@ -79,8 +77,6 @@ function api_content(&$a) {
 			));
 		
 			return $o;
-		
-		
 		}
 		
 		

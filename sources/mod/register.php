@@ -103,7 +103,9 @@ function register_post(&$a) {
 
 	if($using_invites && $invite_code) {
 		q("delete * from register where hash = '%s'", dbesc($invite_code));
-		set_pconfig($result['account']['account_id'],'system','invites_remaining',$num_invites);
+// @FIXME - this total needs to be stored by account, but pconfig operates on channels
+// This also needs to be considered when using 'invites_remaining' in mod/invite.php
+//		set_pconfig($result['account']['account_id'],'system','invites_remaining',$num_invites);
 	}
 
 	if($policy == REGISTER_OPEN ) {

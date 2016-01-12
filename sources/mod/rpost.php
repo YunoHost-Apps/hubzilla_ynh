@@ -111,7 +111,7 @@ function rpost_content(&$a) {
 		'default_location' => $channel['channel_location'],
 		'nickname' => $channel['channel_address'],
 		'lockstate' => (($acl->is_private()) ? 'lock' : 'unlock'),
-		'acl' => populate_acl($channel_acl),
+		'acl' => populate_acl($channel_acl,true,(($channel['channel_r_stream'] & PERMS_PUBLIC) ? t('Public') : '')),
 		'bang' => '',
 		'visitor' => true,
 		'profile_uid' => local_channel(),

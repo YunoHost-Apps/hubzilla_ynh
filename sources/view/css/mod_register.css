@@ -1,31 +1,35 @@
 
 h2 {
-	margin-left: 5%;
-	margin-top: 5%;
+	margin: 20px 0 20px 5%;
 }
 
-#register-form {
-	font-size: 1.4em;	
-	margin-left: 10%;
-	margin-top: 5%;
+.generic-content-wrapper-styled {
+	margin-left: auto;
+	margin-right: auto;
+	max-width: 820px;
+	font-size: 1.1em;
 }
 
-#register-desc, #register-text, #register-sites {
+
+#register-desc, #register-invite-desc, #register-text, #register-sites {
 	font-weight: bold;
 	margin-bottom: 15px;
 	padding: 8px;
 	border: 1px solid #ccc;
 }
 
-.register-label {
+@media (min-width: 560px) {
+.register-label, .register-input {
 	float: left;
-	width: 275px;
+	width: 50%;
+}
 }
 
-.register-input {
+@media (max-width: 559px) {
+.register-label, .register-input {
 	float: left;
-	width: 275px;
-	padding: 5px;
+	max-width: 400px;
+}
 }
 
 .register-feedback {
