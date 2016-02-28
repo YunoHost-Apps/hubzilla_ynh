@@ -13,10 +13,10 @@ function regver_content(&$a) {
 	$hash = argv(2);
 
 	if($cmd === 'deny') {
-		if (!user_deny($hash)) killme();
+		if (! account_deny($hash)) killme();
 	}
 
 	if($cmd === 'allow') {
-		if (!user_approve($hash)) killme();
+		if (! account_approve($hash)) killme();
 	}
 }

@@ -48,7 +48,7 @@ require_once('include/AccessList.php');
 
 define ( 'PLATFORM_NAME',           'hubzilla' );
 define ( 'RED_VERSION',             trim(file_get_contents('version.inc')));
-define ( 'STD_VERSION',             '1.1' );
+define ( 'STD_VERSION',             '1.1.4' );
 define ( 'ZOT_REVISION',            1     );
 
 define ( 'DB_UPDATE_VERSION',       1161  );
@@ -245,6 +245,21 @@ define ( 'PHOTO_COVER',            0x0010 );
 define ( 'PHOTO_ADULT',            0x0008 );
 define ( 'PHOTO_FLAG_OS',          0x4000 );
 
+
+define ( 'PHOTO_RES_ORIG',              0 );
+define ( 'PHOTO_RES_1024',              1 );  // rectangular 1024 max width or height, floating height if not (4:3)
+define ( 'PHOTO_RES_640',               2 );  // to accomodate SMBC vertical comic strips without scrunching the width
+define ( 'PHOTO_RES_320',               3 );  // accordingly
+
+define ( 'PHOTO_RES_PROFILE_300',       4 );  // square 300 px
+define ( 'PHOTO_RES_PROFILE_80',        5 );  // square 80 px
+define ( 'PHOTO_RES_PROFILE_48',        6 );  // square 48 px
+
+define ( 'PHOTO_RES_COVER_1200',        7 );  // 1200w x 435h (2.75:1)
+define ( 'PHOTO_RES_COVER_850',         8 );  // 850w x 310h
+define ( 'PHOTO_RES_COVER_425',        	9 );  // 425w x 160h
+
+
 /**
  * Menu types
  */
@@ -256,11 +271,11 @@ define ( 'MENU_BOOKMARK',        0x0002 );
  * Network and protocol family types
  */
 
-define ( 'NETWORK_DFRN',             'dfrn');    // Friendica, Mistpark, other DFRN implementations
-define ( 'NETWORK_ZOT',              'zot!');    // Zot!
+define ( 'NETWORK_DFRN',             'friendica-over-diaspora');    // Friendica, Mistpark, other DFRN implementations
+define ( 'NETWORK_ZOT',              'zot');     // Zot!
 define ( 'NETWORK_OSTATUS',          'stat');    // status.net, identi.ca, GNU-social, other OStatus implementations
-define ( 'NETWORK_FEED',             'feed');    // RSS/Atom feeds with no known "post/notify" protocol
-define ( 'NETWORK_DIASPORA',         'dspr');    // Diaspora
+define ( 'NETWORK_FEED',             'rss');    // RSS/Atom feeds with no known "post/notify" protocol
+define ( 'NETWORK_DIASPORA',         'diaspora');    // Diaspora
 define ( 'NETWORK_MAIL',             'mail');    // IMAP/POP
 define ( 'NETWORK_MAIL2',            'mai2');    // extended IMAP/POP
 define ( 'NETWORK_FACEBOOK',         'face');    // Facebook API
@@ -482,6 +497,11 @@ define ( 'ACTIVITY_POST',        NAMESPACE_ACTIVITY_SCHEMA . 'post' );
 define ( 'ACTIVITY_UPDATE',      NAMESPACE_ACTIVITY_SCHEMA . 'update' );
 define ( 'ACTIVITY_TAG',         NAMESPACE_ACTIVITY_SCHEMA . 'tag' );
 define ( 'ACTIVITY_FAVORITE',    NAMESPACE_ACTIVITY_SCHEMA . 'favorite' );
+define ( 'ACTIVITY_CREATE',      NAMESPACE_ACTIVITY_SCHEMA . 'create' );
+define ( 'ACTIVITY_WIN',         NAMESPACE_ACTIVITY_SCHEMA . 'win' );
+define ( 'ACTIVITY_LOSE',        NAMESPACE_ACTIVITY_SCHEMA . 'lose' );
+define ( 'ACTIVITY_TIE',         NAMESPACE_ACTIVITY_SCHEMA . 'tie' );
+define ( 'ACTIVITY_COMPLETE',    NAMESPACE_ACTIVITY_SCHEMA . 'complete' );
 
 define ( 'ACTIVITY_POKE',        NAMESPACE_ZOT . '/activity/poke' );
 define ( 'ACTIVITY_MOOD',        NAMESPACE_ZOT . '/activity/mood' );
@@ -494,6 +514,7 @@ define ( 'ACTIVITY_OBJ_P_PHOTO', NAMESPACE_ACTIVITY_SCHEMA . 'profile-photo' );
 define ( 'ACTIVITY_OBJ_ALBUM',   NAMESPACE_ACTIVITY_SCHEMA . 'photo-album' );
 define ( 'ACTIVITY_OBJ_EVENT',   NAMESPACE_ACTIVITY_SCHEMA . 'event' );
 define ( 'ACTIVITY_OBJ_GROUP',   NAMESPACE_ACTIVITY_SCHEMA . 'group' );
+define ( 'ACTIVITY_OBJ_GAME',    NAMESPACE_ACTIVITY_SCHEMA . 'game' );
 define ( 'ACTIVITY_OBJ_TAGTERM', NAMESPACE_ZOT  . '/activity/tagterm' );
 define ( 'ACTIVITY_OBJ_PROFILE', NAMESPACE_ZOT  . '/activity/profile' );
 define ( 'ACTIVITY_OBJ_THING',   NAMESPACE_ZOT  . '/activity/thing' );
@@ -553,6 +574,9 @@ define ( 'ITEM_TYPE_PDL',        2 );
 define ( 'ITEM_TYPE_WEBPAGE',    3 );
 define ( 'ITEM_TYPE_BUG',        4 );
 define ( 'ITEM_TYPE_DOC',        5 );
+
+define ( 'ITEM_IS_STICKY',       1000 );
+
 
 define ( 'DBTYPE_MYSQL',    0 );
 define ( 'DBTYPE_POSTGRES', 1 );
@@ -839,7 +863,7 @@ class App {
 			&& array_key_exists('baseurl',$this->config['system'])
 			&& strlen($this->config['system']['baseurl'])) {
 			$url = $this->config['system']['baseurl'];
-
+			$url = trim($url,'\\/');
 			return $url;
 		}
 
@@ -857,6 +881,7 @@ class App {
 			&& array_key_exists('baseurl',$this->config['system'])
 			&& strlen($this->config['system']['baseurl'])) {
 			$url = $this->config['system']['baseurl'];
+			$url = trim($url,'\\/');
 		}
 
 		$parsed = @parse_url($url);
@@ -873,6 +898,11 @@ class App {
 				$this->path = trim($parsed['path'],'\\/');
 		}
 	}
+
+	function get_scheme() {
+		return $this->scheme;
+	}
+
 
 	function get_hostname() {
 		return $this->hostname;
@@ -978,7 +1008,7 @@ class App {
 			'$user_scalable' => $user_scalable,
 			'$baseurl' => $this->get_baseurl(),
 			'$local_channel' => local_channel(),
-			'$generator' => PLATFORM_NAME . ' ' . RED_VERSION,
+			'$generator' => get_platform_name() . ((get_project_version()) ? ' ' . get_project_version() : ''),
 			'$update_interval' => $interval,
 			'$icon' => head_get_icon(),
 			'$head_css' => head_get_css(),
@@ -1527,6 +1557,10 @@ function goaway($s) {
  * @return int|bool account_id or false
  */
 function get_account_id() {
+
+	if(intval($_SESSION['account_id']))
+		return intval($_SESSION['account_id']);
+
 	if(get_app()->account)
 		return intval(get_app()->account['account_id']);
 
@@ -1697,8 +1731,12 @@ function proc_run($cmd){
 		$cmd = "cmd /c start \"title\" /D \"$cwd\" /b $cmdline";
 		proc_close(proc_open($cmd, array(), $foo));
 	}
-	else
-		proc_close(proc_open($cmdline ." &", array(), $foo));
+	else {
+		if(get_config('system','use_proc_open')) 
+			proc_close(proc_open($cmdline ." &", array(), $foo));
+		else
+			exec($cmdline . ' > /dev/null &');
+	}
 }
 
 /**
@@ -1984,12 +2022,14 @@ function load_pdl(&$a) {
 
 		$arr = array('module' => $a->module, 'layout' => '');
 		call_hooks('load_pdl',$arr);
-		$s = $arr['layout'];
+		$layout = $arr['layout'];
 
 		$n = 'mod_' . $a->module . '.pdl' ;
 		$u = comanche_get_channel_id();
 		if($u)
 			$s = get_pconfig($u, 'system', $n);
+		if(! $s)
+			$s = $layout;
 
 		if((! $s) && (($p = theme_include($n)) != ''))
 			$s = @file_get_contents($p);
@@ -2121,6 +2161,23 @@ function construct_page(&$a) {
 	$profile = $a->profile;
 
 	header("Content-type: text/html; charset=utf-8");
+
+	// security headers - see https://securityheaders.io
+
+	if($a->get_scheme() === 'https')
+		header("Strict-Transport-Security: max-age=31536000");
+
+	header("Content-Security-Policy: script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'");
+
+	if($a->config['system']['x_security_headers']) {
+		header("X-Frame-Options: SAMEORIGIN");
+		header("X-Xss-Protection: 1; mode=block;");
+		header("X-Content-Type-Options: nosniff");	
+	}
+
+	if($a->config['system']['public_key_pins']) {
+		header("Public-Key-Pins: " . $a->config['system']['public_key_pins']);
+	}
 
 	require_once(theme_include(
 		((x($a->page, 'template')) ? $a->page['template'] : 'default' ) . '.php' )
@@ -2299,3 +2356,41 @@ function check_cron_broken() {
 	set_config('system','lastpollcheck',datetime_convert());
 	return;
 }
+
+
+function get_platform_name() {
+	$a = get_app();
+	if(is_array($a->config) && is_array($a->config['system']) && $a->config['system']['platform_name'])
+		return $a->config['system']['platform_name'];
+	return PLATFORM_NAME;
+}
+
+function get_project_version() {
+	$a = get_app();
+	if(is_array($a->config) && is_array($a->config['system']) && $a->config['system']['hide_version'])
+		return '';
+	return RED_VERSION;
+}
+
+function get_update_version() {
+	$a = get_app();
+	if(is_array($a->config) && is_array($a->config['system']) && $a->config['system']['hide_version'])
+		return '';
+	return DB_UPDATE_VERSION;
+}
+
+
+function get_notify_icon() {
+	$a = get_app();
+	if(is_array($a->config) && is_array($a->config['system']) && $a->config['system']['email_notify_icon_url'])
+		return $a->config['system']['email_notify_icon_url'];
+	return z_root() . '/images/hz-white-32.png';
+}
+
+function get_site_icon() {
+	$a = get_app();
+	if(is_array($a->config) && is_array($a->config['system']) && $a->config['system']['site_icon_url'])
+		return $a->config['system']['site_icon_url'];
+	return z_root() . '/images/hz-32.png';
+}
+

@@ -1,9 +1,10 @@
 <?php
 /**
  * Name: LDAP Authenticate
- * Description: Authenticate a user against an LDAP directory
+ * Description: Authenticate an account against an LDAP directory
  * Version: 1.0
  * Author: Mike Macgirvin <zot:mike@zothub.com>
+ * Maintainer: Mike Macgirvin <mike@macgirvin.com>
  */
  
 /**

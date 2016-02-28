@@ -123,7 +123,7 @@ function import_account(&$a, $account_id) {
 	if(array_key_exists('channel',$data)) {
 
 		if($completed < 1) {
-			$channel = import_channel($data['channel'], $account_id);
+			$channel = import_channel($data['channel'], $account_id, $seize);
 
 		}
 		else {

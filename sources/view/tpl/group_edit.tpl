@@ -1,3 +1,4 @@
+<div class="generic-content-wrapper-styled">
 <h2>{{$title}}</h2>
 
 
@@ -22,3 +23,4 @@
 	</div>
 {{/if}}
 {{if $desc}}<div id="group-edit-desc">{{$desc}}</div>{{/if}}
+</div>

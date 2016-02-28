@@ -15,7 +15,7 @@ Some/many of these widgets have restrictions which may restrict the type of page
     * args: count - number of items to return (default 24)
 <br />&nbsp;<br />
 
-* collections - collection selector for the current logged in channel
+* collections - privacy group selector for the current logged in channel
 
     * args: mode - one of "conversation", "group", "abook" depending on module
 <br />&nbsp;<br />
@@ -74,8 +74,11 @@ Some/many of these widgets have restrictions which may restrict the type of page
 
 * suggestedchats - "interesting" chatrooms chosen for the current observer
 
-* item - displays a single webpage item by mid
-    * args: mid - message_id of webpage to display (must be webpage, not a conversation item)
+* item - displays a single webpage item by mid or page title
+    * args:
+	* channel_id - channel that owns the content, defualt is the profile_uid 
+	* mid - message_id of webpage to display (must be webpage, not a conversation item)
+	* title - URL page title of webpage (must provide one of either title or mid)
 <br />&nbsp;<br />
 
 * photo - display a single photo
@@ -84,6 +87,13 @@ Some/many of these widgets have restrictions which may restrict the type of page
     * zrl - use zid authenticated link
     * style - CSS style string
 <br />&nbsp;<br />
+
+* cover_photo - display the cover photo for the selected channel
+    * args:
+	* channel_id - channel to use, default is the profile_uid 
+    * style - CSS style string (default is dynamically resized to width of region)
+<br />&nbsp;<br />
+
 
 * photo_rand - display a random photo from one of your photo albums. Photo permissions are honoured
     * args: 

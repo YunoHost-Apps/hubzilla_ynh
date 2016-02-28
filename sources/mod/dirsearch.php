@@ -75,6 +75,8 @@ function dirsearch_content(&$a) {
 	$kw       = ((x($_REQUEST,'kw'))       ? intval($_REQUEST['kw'])    : 0 );
 	$forums   = ((array_key_exists('pubforums',$_REQUEST)) ? intval($_REQUEST['pubforums']) : 0);
 
+	if(get_config('system','disable_directory_keywords'))
+		$kw = 0;
 
 
 	// by default use a safe search

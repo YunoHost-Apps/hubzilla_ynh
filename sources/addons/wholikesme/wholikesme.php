@@ -5,6 +5,7 @@
  * Description: Find out who your biggest fans are (who "likes" your posts)
  * Version: 1.0
  * Author: Mike Macgirvin
+ * Maintainer: none
  */
 
 function wholikesme_load() {}

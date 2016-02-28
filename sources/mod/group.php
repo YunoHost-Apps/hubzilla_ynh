@@ -17,13 +17,13 @@ function group_post(&$a) {
 		$public = intval($_POST['public']);
 		$r = group_add(local_channel(),$name,$public);
 		if($r) {
-			info( t('Collection created.') . EOL );
+			info( t('Privacy group created.') . EOL );
 			$r = group_byname(local_channel(),$name);
 			if($r)
 				goaway($a->get_baseurl() . '/group/' . $r);
 		}
 		else
-			notice( t('Could not create collection.') . EOL );	
+			notice( t('Could not create privacy group.') . EOL );	
 		goaway($a->get_baseurl() . '/group');
 
 	}
@@ -35,7 +35,7 @@ function group_post(&$a) {
 			intval(local_channel())
 		);
 		if(! $r) {
-			notice( t('Collection not found.') . EOL );
+			notice( t('Privacy group not found.') . EOL );
 			goaway($a->get_baseurl() . '/connections');
 
 		}
@@ -51,7 +51,7 @@ function group_post(&$a) {
 				intval($group['id'])
 			);
 			if($r)
-				info( t('Collection updated.') . EOL );
+				info( t('Privacy group updated.') . EOL );
 		}
 
 		goaway(z_root() . '/group/' . argv(1) . '/' . argv(2));
@@ -83,8 +83,8 @@ function group_content(&$a) {
 	if((argc() == 2) && (argv(1) === 'new')) {
 		
 		return replace_macros($tpl, $context + array(
-			'$title' => t('Create a collection of channels.'),
-			'$gname' => array('groupname',t('Collection Name: '), '', ''),
+			'$title' => t('Create a group of channels.'),
+			'$gname' => array('groupname',t('Privacy group name: '), '', ''),
 			'$gid' => 'new',
 			'$public' => array('public',t('Members are visible to other channels'), false, ''),
 			'$form_security_token' => get_form_security_token("group_edit"),
@@ -104,9 +104,9 @@ function group_content(&$a) {
 			if($r) 
 				$result = group_rmv(local_channel(),$r[0]['name']);
 			if($result)
-				info( t('Collection removed.') . EOL);
+				info( t('Privacy group removed.') . EOL);
 			else
-				notice( t('Unable to remove collection.') . EOL);
+				notice( t('Unable to remove privacy group.') . EOL);
 		}
 		goaway($a->get_baseurl() . '/group');
 		// NOTREACHED
@@ -134,7 +134,7 @@ function group_content(&$a) {
 			intval(local_channel())
 		);
 		if(! $r) {
-			notice( t('Collection not found.') . EOL );
+			notice( t('Privacy group not found.') . EOL );
 			goaway($a->get_baseurl() . '/connections');
 		}
 		$group = $r[0];
@@ -176,8 +176,8 @@ function group_content(&$a) {
 
 		
 		$context = $context + array(
-			'$title' => t('Collection Editor'),
-			'$gname' => array('groupname',t('Collection Name: '),$group['name'], ''),
+			'$title' => t('Privacy group editor'),
+			'$gname' => array('groupname',t('Privacy group name: '),$group['name'], ''),
 			'$gid' => $group['id'],
 			'$drop' => $drop_txt,
 			'$public' => array('public',t('Members are visible to other channels'), $group['visible'], ''),

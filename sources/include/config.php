@@ -531,3 +531,22 @@ function del_xconfig($xchan, $family, $key) {
 	);
 	return $ret;
 }
+
+
+// account configuration storage is built on top of the under-utilised xconfig
+
+function load_aconfig($account_id) {
+	load_xconfig('a_' . $account_id);
+}
+
+function get_aconfig($account_id, $family, $key) {
+	return get_xconfig('a_' . $account_id, $family, $key);
+}
+
+function set_aconfig($account_id, $family, $key, $value) {
+	return set_xconfig('a_' . $account_id, $family, $key, $value);
+}
+
+function del_aconfig($account_id, $family, $key) {
+	return del_xconfig('a_' . $account_id, $family, $key);
+}

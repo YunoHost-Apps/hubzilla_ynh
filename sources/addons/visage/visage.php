@@ -4,7 +4,7 @@
  * Description: Who viewed my channel/profile
  * Version: 1.0
  * Author: Mike Macgirvin <mike@zothub.com>
- *
+ * Maintainer: none
  */
 
 

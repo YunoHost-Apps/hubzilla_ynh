@@ -113,7 +113,7 @@ function linkinfo_content(&$a) {
 
 	// If this is a Red site, use zrl rather than url so they get zids sent to them by default
 
-	if( x($siteinfo,'generator') && (strpos($siteinfo['generator'],PLATFORM_NAME . ' ') === 0))
+	if( x($siteinfo,'generator') && (strpos($siteinfo['generator'], get_platform_name() . ' ') === 0))
 		$template = str_replace('url','zrl',$template);
 
 	if($siteinfo["title"] == "") {

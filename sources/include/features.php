@@ -49,7 +49,8 @@ function get_features($filtered = true) {
 			array('advanced_profiles',   t('Advanced Profiles'),      t('Additional profile sections and selections'),false,get_config('feature_lock','advanced_profiles')),
 			array('profile_export',      t('Profile Import/Export'),  t('Save and load profile details across sites/channels'),false,get_config('feature_lock','profile_export')),
 			array('webpages',            t('Web Pages'),              t('Provide managed web pages on your channel'),false,get_config('feature_lock','webpages')),
-			array('private_notes',       t('Private Notes'),          t('Enables a tool to store notes and reminders'),false,get_config('feature_lock','private_notes')),
+			array('hide_rating',       t('Hide Rating'),          t('Hide the rating buttons on your channel and profile pages. Note: People can still rate you somewhere else.'),false,get_config('feature_lock','hide_rating')),			
+			array('private_notes',       t('Private Notes'),          t('Enables a tool to store notes and reminders (note: not encrypted)'),false,get_config('feature_lock','private_notes')),
 			array('nav_channel_select',  t('Navigation Channel Select'), t('Change channels directly from within the navigation dropdown menu'),false,get_config('feature_lock','nav_channel_select')),
 			array('photo_location',       t('Photo Location'),          t('If location data is available on uploaded photos, link this to a map.'),false,get_config('feature_lock','photo_location')),
 
@@ -75,7 +76,7 @@ function get_features($filtered = true) {
 		'net_module' => array(
 			t('Network and Stream Filtering'),
 			array('archives',       t('Search by Date'),			t('Ability to select posts by date ranges'),false,get_config('feature_lock','archives')),
-			array('groups',    		t('Collections Filter'),		t('Enable widget to display Network posts only from selected collections'),false,get_config('feature_lock','groups')),
+			array('groups',    		t('Privacy Groups'),		t('Enable management and selection of privacy groups'),true,get_config('feature_lock','groups')),
 			array('savedsearch',    t('Saved Searches'),			t('Save search terms for re-use'),false,get_config('feature_lock','savedsearch')),
 			array('personal_tab',   t('Network Personal Tab'),		t('Enable tab to display only Network posts that you\'ve interacted on'),false,get_config('feature_lock','personal_tab')),
 			array('new_tab',   		t('Network New Tab'),			t('Enable tab to display all new Network activity'),false,get_config('feature_lock','new_tab')),

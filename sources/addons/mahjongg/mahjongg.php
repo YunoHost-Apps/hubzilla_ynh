@@ -5,6 +5,7 @@
  * Description: Ancient Chinese puzzle game that never gets old.
  * Version: 1.0
  * Author: Holger Froese
+ * Maintainer: none
  */
 
 

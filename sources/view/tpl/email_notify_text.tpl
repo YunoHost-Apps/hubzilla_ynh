@@ -5,6 +5,7 @@
 {{$textversion}}
 				
 {{$tsitelink}}
+
 {{$titemlink}}
 
 {{$thanks}}

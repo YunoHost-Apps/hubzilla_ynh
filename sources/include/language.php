@@ -182,7 +182,7 @@ function t($s, $ctx = '') {
 
 function translate_projectname($s) {
 
-	return str_replace(array('$projectname','$Projectname'),array(PLATFORM_NAME,ucfirst(PLATFORM_NAME)),$s);
+	return str_replace(array('$projectname','$Projectname'),array(get_platform_name(),ucfirst(get_platform_name())),$s);
 
 }
 

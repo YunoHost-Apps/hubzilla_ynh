@@ -5,7 +5,7 @@
  * Version: 1.3
  * Author: Mike Macgirvin <http://macgirvin.com/profile/mike>
  * Author: Klaus Weidenbach
- *
+ * Maintainer: none
  */
 
 function openstreetmap_load() {

@@ -275,6 +275,7 @@ function comanche_widget($name, $text) {
 	$vars = array();
 	$matches = array();
 
+
 	$cnt = preg_match_all("/\[var=(.*?)\](.*?)\[\/var\]/ism", $text, $matches, PREG_SET_ORDER);
 	if ($cnt) {
 		foreach ($matches as $mtch) {

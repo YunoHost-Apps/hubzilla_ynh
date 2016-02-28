@@ -5,6 +5,7 @@
  * Description: Guitar Chord Generator Application
  * Version: 1.0
  * Author: Mike Macgirvin <mike@zothub.com>
+ * Maintainer: none
  */
 
 

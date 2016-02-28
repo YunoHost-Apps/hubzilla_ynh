@@ -331,6 +331,7 @@ function channel_remove($channel_id, $local = true, $unset_session=true) {
 		dbesc(datetime_convert()),
 		intval($channel_id)
 	);
+
 	// if this was the default channel, set another one as default
 	if($a->account['account_default_channel'] == $channel_id) {
 		$r = q("select channel_id from channel where channel_account_id = %d and channel_removed = 0 limit 1",
@@ -344,11 +345,10 @@ function channel_remove($channel_id, $local = true, $unset_session=true) {
 		}
 		else {
 			$rr = q("update account set account_default_channel = 0 where account_id = %d",
-				intval($r[0]['channel_id']),
-				intval($a->account['account_id']));
+				intval($a->account['account_id'])
+			);
 		}
 	}
-
 
 	logger('deleting hublocs',LOGGER_DEBUG);
 

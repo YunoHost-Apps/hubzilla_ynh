@@ -11,6 +11,7 @@ require_once('include/text.php');
 require_once('include/language.php');
 require_once('include/datetime.php');
 require_once('include/crypto.php');
+require_once('include/identity.php');
 
 
 function check_account_email($email) {
@@ -329,7 +330,7 @@ function send_reg_approval_email($arr) {
 	return($delivered ? true : false);
 }
 
-function send_verification_email($email,$password) {
+function send_register_success_email($email,$password) {
 
 	$email_msg = replace_macros(get_intltext_template('register_open_eml.tpl'), array(
 		'$sitename' => get_config('system','sitename'),
@@ -353,7 +354,7 @@ function send_verification_email($email,$password) {
  * @param string $hash
  * @return array|boolean
  */
-function user_allow($hash) {
+function account_allow($hash) {
 
 	$ret = array('success' => false);
 
@@ -406,6 +407,9 @@ function user_allow($hash) {
 
 	pop_lang();
 
+	if(get_config('system','auto_channel_create'))
+		auto_channel_create($register[0]['uid']);
+
 	if ($res) {
 		info( t('Account approved.') . EOL );
 		return true;
@@ -414,7 +418,7 @@ function user_allow($hash) {
 
 
 /**
- * @brief Denies a user registration.
+ * @brief Denies an account registration.
  *
  * This does not have to go through user_remove() and save the nickname
  * permanently against re-registration, as the person was not yet
@@ -423,7 +427,8 @@ function user_allow($hash) {
  * @param string $hash
  * @return boolean
  */
-function user_deny($hash) {
+
+function account_deny($hash) {
 
 	$register = q("SELECT * FROM register WHERE hash = '%s' LIMIT 1",
 		dbesc($hash)
@@ -452,10 +457,13 @@ function user_deny($hash) {
 
 }
 
+// called from regver to activate an account from the email verification link
 
-function user_approve($hash) {
+function account_approve($hash) {
 
 	$ret = array('success' => false);
+
+	// Note: when the password in the register table is 'verify', the uid actually contains the account_id
 
 	$register = q("SELECT * FROM `register` WHERE `hash` = '%s' and password = 'verify' LIMIT 1",
 		dbesc($hash)
@@ -490,6 +498,10 @@ function user_approve($hash) {
 		intval(ACCOUNT_UNVERIFIED),
 		intval($register[0]['uid'])
 	);
+
+
+	if(get_config('system','auto_channel_create'))
+		auto_channel_create($register[0]['uid']);
 
 	info( t('Account verified. Please login.') . EOL );
 

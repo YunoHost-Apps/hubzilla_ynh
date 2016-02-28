@@ -942,25 +942,35 @@ function item_photo_menu($item){
 		$clean_url = normalise_link($item['author-link']);
 	}
 
-	$menu = Array(
+	$poco_rating = get_config('system','poco_rating_enable');
+	// if unset default to enabled
+	if($poco_rating === false)
+		$poco_rating = true;
+
+	$ratings_url = (($poco_rating) ? z_root() . '/ratings/' . urlencode($item['author_xchan']) : '');
+
+	$post_menu = Array(
 		t("View Source") => $vsrc_link,
 		t("Follow Thread") => $sub_link,
 		t("Unfollow Thread") => $unsub_link,
-		t("View Status") => $status_link,
+	);
+
+	$author_menu = array(
 		t("View Profile") => $profile_link,
-		t("View Photos") => $photos_link,
 		t("Activity/Posts") => $posts_link,
 		t("Connect") => $follow_url,
 		t("Edit Connection") => $contact_url,
-		t("Send PM") => $pm_url,
+		t("Message") => $pm_url,
+		t('Ratings') => $ratings_url,
 		t("Poke") => $poke_link
 	);
 
-	$args = array('item' => $item, 'menu' => $menu);
+
+	$args = array('item' => $item, 'post_menu' => $post_menu, 'author_menu' => $author_menu);
 
 	call_hooks('item_photo_menu', $args);
 
-	$menu = $args['menu'];
+	$menu = array_merge($args['post_menu'],$args['author_menu']);
 
 	$o = "";
 	foreach($menu as $k=>$v){

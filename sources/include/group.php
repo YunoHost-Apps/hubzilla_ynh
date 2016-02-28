@@ -229,7 +229,7 @@ function mini_group_select($uid,$group = '') {
 	logger('mini_group_select: ' . print_r($grps,true), LOGGER_DATA);
 
 	$o = replace_macros(get_markup_template('group_selection.tpl'), array(
-		'$label' => t('Add new connections to this collection (privacy group)'),
+		'$label' => t('Add new connections to this privacy group'),
 		'$groups' => $grps 
 	));
 	return $o;
@@ -292,10 +292,10 @@ function group_side($every="connections",$each="group",$edit = false, $group_id 
 	
 	$tpl = get_markup_template("group_side.tpl");
 	$o = replace_macros($tpl, array(
-		'$title'		=> t('Collections'),
-		'$edittext'     => t('Edit collection'),
-		'$createtext' 	=> t('Add new collection'),
-		'$ungrouped'    => (($every === 'contacts') ? t('Channels not in any collection') : ''),
+		'$title'		=> t('Privacy Groups'),
+		'$edittext'     => t('Edit group'),
+		'$createtext' 	=> t('Add privacy group'),
+		'$ungrouped'    => (($every === 'contacts') ? t('Channels not in any privacy group') : ''),
 		'$groups'		=> $groups,
 		'$add'			=> t('add'),
 	));

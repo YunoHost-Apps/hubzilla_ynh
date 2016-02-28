@@ -5,7 +5,7 @@
 		<div class="form-group">
 			<div class="input-group">
 				<input class="widget-input" type="text" name="search" title="{{$hint}}{{if $advanced_search}}{{$advanced_hint}}{{/if}}" placeholder="{{$desc}}" />
-			<div class="input-group-btn">
+				<div class="input-group-btn">
 					<button class="btn btn-default btn-sm" type="submit" name="submit"><i class="icon-search"></i></button>
 				</div>
 			</div>

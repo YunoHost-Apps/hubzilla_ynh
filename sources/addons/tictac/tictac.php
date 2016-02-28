@@ -4,6 +4,7 @@
  * Description: The 3-D TicTacToe game application
  * Version: 1.0
  * Author: Mike Macgirvin <mike@zothub.com>
+ * Maintainer: Mike Macgirvin <mike@macgirvin.com>
  */
 
 

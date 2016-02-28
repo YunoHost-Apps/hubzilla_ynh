@@ -25,10 +25,10 @@ function regmod_content(&$a) {
 	$hash = argv(2);
 
 	if($cmd === 'deny') {
-		if (!user_deny($hash)) killme();
+		if (! account_deny($hash)) killme();
 	}
 
 	if($cmd === 'allow') {
-		if (!user_allow($hash)) killme();
+		if (! account_allow($hash)) killme();
 	}
 }

@@ -170,8 +170,8 @@ function widget_follow($args) {
  	}
 	return replace_macros(get_markup_template('follow.tpl'),array(
 		'$connect' => t('Add New Connection'),
-		'$desc' => t('Enter the channel address'),
-		'$hint' => t('Example: bob@example.com, http://example.com/barbara'),
+		'$desc' => t('Enter channel address'),
+		'$hint' => t('Examples: bob@example.com, https://example.com/barbara'),
 		'$follow' => t('Connect'),
 		'$abook_usage_message' => $abook_usage_message
 	));
@@ -807,21 +807,39 @@ function widget_suggestedchats($arr) {
 }
 
 function widget_item($arr) {
-	// FIXME there is no $a here
-	$uid = $a->profile['profile_uid'];
-	if((! $uid) || (! $arr['mid']))
+
+	$channel_id = 0;
+	if(array_key_exists('channel_id',$arr) && intval($arr['channel_id']))
+		$channel_id = intval($arr['channel_id']);
+	if(! $channel_id)
+		$channel_id = get_app()->profile_uid;
+	if(! $channel_id)
 		return '';
 
-	if(! perm_is_allowed($uid, get_observer_hash(), 'view_pages'))
+
+	if((! $arr['mid']) && (! $arr['title']))
+		return '';
+
+	if(! perm_is_allowed($channel_id, get_observer_hash(), 'view_pages'))
 		return '';
 
 	require_once('include/security.php');
-	$sql_extra = item_permissions_sql($uid);
+	$sql_extra = item_permissions_sql($channel_id);
 
-	$r = q("select * from item where mid = '%s' and uid = %d and item_type = " . intval(ITEM_TYPE_WEBPAGE) . " $sql_extra limit 1",
-		dbesc($arr['mid']),
-		intval($uid)
-	);
+	if($arr['title']) {
+		$r = q("select item.* from item left join item_id on item.id = item_id.iid
+			where item.uid = %d and sid = '%s' and service = 'WEBPAGE' and item_type = %d $sql_options $revision limit 1",
+			intval($channel_id),
+			dbesc($arr['title']),
+			intval(ITEM_TYPE_WEBPAGE)
+		);
+	}
+	else {
+		$r = q("select * from item where mid = '%s' and uid = %d and item_type = " . intval(ITEM_TYPE_WEBPAGE) . " $sql_extra limit 1",
+			dbesc($arr['mid']),
+			intval($channel_id)
+		);
+	}
 
 	if(! $r)
 		return '';
@@ -915,8 +933,8 @@ function widget_photo($arr) {
 
 	// ensure they can't sneak in an eval(js) function
 
-	if(strpos($style,'(') !== false)
-		return '';
+	if(strpbrk($style,'(\'"<>') !== false)
+		$style = '';
 
 	if(array_key_exists('zrl', $arr) && isset($arr['zrl']))
 		$zrl = (($arr['zrl']) ? true : false);
@@ -932,6 +950,38 @@ function widget_photo($arr) {
 
 	$o .= '</div>';
 
+	return $o;
+}
+
+
+function widget_cover_photo($arr) {
+
+	require_once('include/identity.php');
+	$o = '';
+
+	$channel_id = 0;
+	if(array_key_exists('channel_id', $arr) && intval($arr['channel_id']))
+		$channel_id = intval($arr['channel_id']);
+	if(! $channel_id)
+		$channel_id = get_app()->profile_uid;
+	if(! $channel_id)
+		return '';
+
+	if(array_key_exists('style', $arr) && isset($arr['style']))
+		$style = $arr['style'];
+	else 
+		$style = 'width:100%; padding-right: 10px; height: auto;'; 
+
+	// ensure they can't sneak in an eval(js) function
+
+	if(strpbrk($style,'(\'"<>') !== false)
+		$style = '';
+
+	$c = get_cover_photo($channel_id,'html');
+
+	if($c) {
+		$o = '<div class="widget">' . (($style) ? str_replace('alt=',' style="' . $style . '" alt=',$c) : $c) . '</div>';
+	}
 	return $o;
 }
 
@@ -1078,16 +1128,18 @@ function widget_rating($arr) {
 
 	}
 
+
+	$o = '<div class="widget">';
+	$o .= '<h3>' . t('Rating Tools') . '</h3>';
+
 	if((($remote) || (local_channel())) && (! $self)) {
-		$o = '<div class="widget rateme">';
 		if($remote)
-			$o .= '<a class="rateme" href="' . $url . '"><i class="icon-pencil"></i> ' . t('Rate Me') . '</a>';
+			$o .= '<a class="btn btn-block btn-primary btn-sm" href="' . $url . '"><i class="icon-pencil"></i> ' . t('Rate Me') . '</a>';
 		else
-			$o .= '<div class="rateme fakelink" onclick="doRatings(\'' . $hash . '\'); return false;"><i class="icon-pencil"></i> ' . t('Rate Me') . '</div>';
-		$o .= '</div>';
+			$o .= '<div class="btn btn-block btn-primary btn-sm" onclick="doRatings(\'' . $hash . '\'); return false;"><i class="icon-pencil"></i> ' . t('Rate Me') . '</div>';
 	}
 
-	$o .= '<div class="widget rateme"><a class="rateme" href="ratings/' . $hash . '"><i class="icon-eye-open"></i> ' . t('View Ratings') . '</a>';
+	$o .= '<a class="btn btn-block btn-default btn-sm" href="ratings/' . $hash . '"><i class="icon-eye-open"></i> ' . t('View Ratings') . '</a>';
 	$o .= '</div>';
 
 	return $o;

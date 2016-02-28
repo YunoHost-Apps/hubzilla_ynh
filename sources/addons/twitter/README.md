@@ -1,10 +1,6 @@
 Twitter Plugin
 ==============
 
-*Warning: Because Twitter currently blocks ur1.ca links, tweets with these links are not accepted by Twitter. This means that you can only crosspost short messages to Twitter. Other link shortening services didn't seem to work at all, so #pleaseFIX! [BTW: the question is if we need link shortening, because Twitter has its own nowadays.]*
-
-------------
-
 Original main authors Tobias Diekershoff and Michael Vogel. Adapted for the Hubzilla by Mike Macgirvin.
 
 With this addon for the Hubzilla you can give your hub members the possibility to post
@@ -39,7 +35,7 @@ message was longer than 140 characters requires it, that you have *PHP5+* and
 Where to find
 -------------
 
-In the [Red-addons git repository /twitter/](https://github.com/friendica/red-addons/tree/master/twitter). This directory 
+In the [Hubzilla-addons git repository /twitter/](https://github.com/redmatrix/hubzilla-addons/tree/master/twitter). This directory 
 contains all required PHP files (including the [Twitter OAuth library][1] by Abraham
 Williams, MIT licensed and the [Slinky library][2] by Beau Lebens, BSD license),
 a CSS file for styling of the user configuration and an image to _Sign in with

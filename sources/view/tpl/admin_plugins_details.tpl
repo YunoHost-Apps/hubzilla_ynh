@@ -1,7 +1,12 @@
 <div class = "generic-content-wrapper-styled" id='adminpage'>
 	<h1>{{$title}} - {{$page}}</h1>
-	
-	<p><i class='toggleplugin {{if $status==on}}icon-check{{else}}icon-check-empty{{/if}} admin-icons'></i> {{$info.name}} - {{$info.version}} : <a href="{{$baseurl}}/admin/{{$function}}/{{$plugin}}/?a=t&amp;t={{$form_security_token}}">{{$action}}</a></p>
+
+	<p>{{if ! $info.disabled}}<i class='toggleplugin {{if $status==on}}icon-check{{else}}icon-check-empty{{/if}} admin-icons'></i>{{else}}<i class='icon-stop admin-icons'></i>{{/if}} {{$info.name}} - {{$info.version}}{{if ! $info.disabled}} : <a href="{{$baseurl}}/admin/{{$function}}/{{$plugin}}/?a=t&amp;t={{$form_security_token}}">{{$action}}</a>{{/if}}</p>
+
+	{{if $info.disabled}}
+	<p>{{$disabled}}</p>
+	{{/if}}
+
 	<p>{{$info.description}}</p>
 	
 	{{foreach $info.author as $a}}
@@ -9,6 +14,16 @@
 		{{$a.name}}{{if $a.link}} {{$a.link}}{{/if}}
 	</p>
 	{{/foreach}}
+
+	{{if $info.minversion}}
+	<p class="versionlimit">{{$str_minversion}}{{$info.minversion}}</p>
+	{{/if}}
+	{{if $info.maxversion}}
+	<p class="versionlimit">{{$str_maxversion}}{{$info.maxversion}}</p>
+	{{/if}}
+	{{if $info.minphpversion}}
+	<p class="versionlimit">{{$str_minphpversion}}{{$info.minphpversion}}</p>
+	{{/if}}
 
 
 	{{foreach $info.maintainer as $a}}

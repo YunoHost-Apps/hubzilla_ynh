@@ -1,4 +1,15 @@
 <?php
+
+/**
+ * Name: Like Banner
+ * Description: Creates a "like us on redmatrix" banner (obsolete)
+ * Version: 1.0
+ * Author: Mike Macgirvin
+ * Maintainer: none
+ */
+
+
+
 function likebanner_load() {}
 function likebanner_unload() {}
 function likebanner_module() {}

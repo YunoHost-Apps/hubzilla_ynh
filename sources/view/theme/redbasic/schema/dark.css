@@ -5,12 +5,19 @@
 
 .vcard, #contact-block, .widget {
 	background-color: transparent;
+	border: none;
 	border-bottom: 1px solid #333;
 	border-radius: 0px
 }
 
 #profile-photo-wrapper {
-	border:none;
+	border: none;
+}
+
+#profile-edit-default-desc {
+	background-color: #665029;
+	color: #FFF;
+	padding: 20px;
 }
 
 .photo {
@@ -88,7 +95,7 @@
     background-color: #111;
 }
 
-.jotnets-wrapper > a.btn {
+a.btn, aside a {
 	font-weight: 400 !important;
 }
 
@@ -330,11 +337,18 @@ pre {
 	text-decoration: underline;
 }
 
-
-
 @media (min-width: 768px) {
   .nav-tabs.nav-justified > li > a {
     border-bottom: 1px solid #333;
   }
 }
 
+#profile-jot-wrapper {
+	background-color: inherit;
+	border: none;
+}
+
+.nav-tabs.nav-justified {
+	background-color: inherit;
+	border: none;
+}

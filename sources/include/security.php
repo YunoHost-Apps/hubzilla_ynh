@@ -18,20 +18,13 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 
 	$_SESSION['addr'] = $_SERVER['REMOTE_ADDR'];
 
+	$lastlog_updated = false;
+
 	if(x($user_record, 'account_id')) {
 		$a->account = $user_record;
 		$_SESSION['account_id'] = $user_record['account_id'];
 		$_SESSION['authenticated'] = 1;
 
-		if($login_initial || $update_lastlog) {
-			q("update account set account_lastlog = '%s' where account_id = %d",
-				dbesc(datetime_convert()),
-				intval($_SESSION['account_id'])
-			);
-			$a->account['account_lastlog'] = datetime_convert();
-			call_hooks('logged_in', $a->account);
-
-		}
 
 		$uid_to_load = (((x($_SESSION,'uid')) && (intval($_SESSION['uid']))) 
 			? intval($_SESSION['uid']) 
@@ -42,9 +35,19 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 			change_channel($uid_to_load);
 		}
 
+		if($login_initial || $update_lastlog) {
+			q("update account set account_lastlog = '%s' where account_id = %d",
+				dbesc(datetime_convert()),
+				intval($_SESSION['account_id'])
+			);
+			$a->account['account_lastlog'] = datetime_convert();
+			$lastlog_updated = true;
+			call_hooks('logged_in', $a->account);
+		}
+
 	}
 
-	if($login_initial) {
+	if(($login_initial) && (! $lastlog_updated)) {
 
 		call_hooks('logged_in', $user_record);
 
@@ -178,7 +181,7 @@ function permissions_sql($owner_id, $remote_observer = null) {
 	 */
 
 	else {
-		$observer = (($remote_observer) ? $remote_observer : get_observer_hash());
+		$observer = ((! is_null($remote_observer)) ? $remote_observer : get_observer_hash());
 		if($observer) {
 			$groups = init_groups_visitor($observer);
 

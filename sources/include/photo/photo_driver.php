@@ -69,6 +69,8 @@ abstract class photo_driver {
 
 	abstract function cropImage($max,$x,$y,$w,$h);
 
+	abstract function cropImageRect($maxx,$maxy,$x,$y,$w,$h);
+
 	abstract function imageString();
 
 
@@ -228,6 +230,7 @@ abstract class photo_driver {
 		}
 		$this->doScaleImage($dest_width,$dest_height);
 	}
+
 
 	public function scaleImageSquare($dim) {
 		if(!$this->is_valid())

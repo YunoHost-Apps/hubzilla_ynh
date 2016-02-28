@@ -5,6 +5,7 @@
 
 .vcard, #contact-block, .widget {
 	background-color: transparent;
+	border: none;
 	border-bottom: 1px solid #fff;
 }
 
@@ -69,6 +70,10 @@
 
 .modal-content {
     background-color: #000;
+}
+
+a.btn, aside a {
+	font-weight: 400 !important;
 }
 
 .btn-default {
@@ -257,4 +262,12 @@ pre {
   }
 }
 
+#profile-jot-wrapper {
+	background-color: inherit;
+	border: none;
+}
 
+.nav-tabs.nav-justified {
+	background-color: inherit;
+	border: none;
+}

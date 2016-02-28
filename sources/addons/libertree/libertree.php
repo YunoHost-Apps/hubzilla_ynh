@@ -5,6 +5,7 @@
  * Description: Post to libertree accounts
  * Version: 1.0
  * Author: Tony Baldwin <https://red.free-haven.org/channel/tony>
+ * Maintainer: none
  */
 
 require_once('include/permissions.php');

@@ -4,7 +4,7 @@
  * Description: Make yourself a political target
  * Version: 1.0
  * Author: Mike Macgirvin <http://macgirvin.com/profile/mike>
- *
+ * Maintainer: none
  */
 
 

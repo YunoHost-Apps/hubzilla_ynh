@@ -31,9 +31,9 @@ Some connections in the mention auto-complete box behave differently than others
 
 [b]Private Mentions[/b]
 
-If you wish to restrict a post to a single person or a number of people, you can do this by selecting channels or collections from the privacy tool. You can also just tag them with a privacy tag. A privacy tag is a name preceded by the two characters @! - and in addition to tagging these channels, will also change the privacy permissions of the post to only include them. You can have more than one privacy tag, for instance @!bob and @!linda will send the post only to Bob and Linda. This mechanism over-rides the privacy selector.  
+If you wish to restrict a post to a single person or a number of people, you can do this by selecting channels or privacy groups from the privacy tool. You can also just tag them with a privacy tag. A privacy tag is a name preceded by the two characters @! - and in addition to tagging these channels, will also change the privacy permissions of the post to only include them. You can have more than one privacy tag, for instance @!bob and @!linda will send the post only to Bob and Linda. This mechanism over-rides the privacy selector.  
 
-You may also tag public collections. When you create or edit a collection, there is a checkbox to allow the group members to be seen by others. If this box is checked for a collection and you tag (for instance) @!Friends - the post will be restricted to the Friends collection. Check that the collection is public before doing this - as there is no way to take back a post except to delete it. The collection name will appear in the post and will alert members of that collection that they are members of it.    
+You may also tag privacy groups which are "public". When you create or edit a privacy group, there is a checkbox to allow the group members to be seen by others. If this box is checked for a group and you tag (for instance) @!Friends - the post will be restricted to the Friends group. Check that the group is public before doing this - as there is no way to take back a post except to delete it. The group name will appear in the post and will alert members of that group that they are members of it.    
 
 
 [b]Mentions and Comments[/b]

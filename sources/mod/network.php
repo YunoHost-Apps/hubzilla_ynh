@@ -204,7 +204,7 @@ function network_content(&$a, $update = 0, $load = false) {
 		}
 		else {
 			$contact_str = ' 0 ';
-			info( t('Collection is empty'));
+			info( t('Privacy group is empty'));
 		}
 
 		$sql_extra = " AND item.parent IN ( SELECT DISTINCT parent FROM item WHERE true $sql_options AND (( author_xchan IN ( $contact_str ) OR owner_xchan in ( $contact_str )) or allow_gid like '" . protect_sprintf('%<' . dbesc($group_hash) . '>%') . "' ) and id = parent $item_normal ) ";
@@ -213,7 +213,7 @@ function network_content(&$a, $update = 0, $load = false) {
 
 		if($x) {
 			$title = replace_macros(get_markup_template("section_title.tpl"),array(
-				'$title' => t('Collection: ') . $x['name']
+				'$title' => t('Privacy group: ') . $x['name']
 			));
 		}
 

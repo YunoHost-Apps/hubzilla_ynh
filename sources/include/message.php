@@ -11,6 +11,7 @@ require_once('include/attach.php');
 function send_message($uid = 0, $recipient='', $body='', $subject='', $replyto='',$expires = ''){ 
 
 	$ret = array('success' => false);
+	$is_reply = false;
 
 	$a = get_app();
 	$observer_hash = get_observer_hash();
@@ -51,6 +52,7 @@ function send_message($uid = 0, $recipient='', $body='', $subject='', $replyto='
 	$conv_guid = '';
 
 	if(strlen($replyto)) {
+		$is_reply = true;
 		$r = q("select conv_guid from mail where channel_id = %d and ( mid = '%s' or parent_mid = '%s' ) limit 1",
 			intval(local_channel()),
 			dbesc($replyto),
@@ -187,8 +189,8 @@ function send_message($uid = 0, $recipient='', $body='', $subject='', $replyto='
 	
 
 
-	$r = q("INSERT INTO mail ( account_id, conv_guid, mail_obscured, channel_id, from_xchan, to_xchan, title, body, attach, mid, parent_mid, created, expires )
-		VALUES ( %d, '%s', %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' )",
+	$r = q("INSERT INTO mail ( account_id, conv_guid, mail_obscured, channel_id, from_xchan, to_xchan, title, body, attach, mid, parent_mid, created, expires, mail_isreply )
+		VALUES ( %d, '%s', %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d )",
 		intval($channel['channel_account_id']),
 		dbesc($conv_guid),
 		intval(1),
@@ -201,7 +203,8 @@ function send_message($uid = 0, $recipient='', $body='', $subject='', $replyto='
 		dbesc($mid),
 		dbesc($replyto),
 		dbesc(datetime_convert()),
-		dbescdate($expires)
+		dbescdate($expires),
+		intval($is_reply)
 	);
 
 	// verify the save

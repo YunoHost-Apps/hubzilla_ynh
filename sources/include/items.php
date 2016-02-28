@@ -159,7 +159,7 @@ function filter_insecure($channel_id, $arr) {
 
 	$ret = array();
 
-	if((! intval(get_pconfig($channel_id, 'system', 'filter_insecure_collections'))) || (! $arr))
+	if((! intval(get_pconfig($channel_id, 'system', 'filter_insecure_privacy_groups'))) || (! $arr))
 		return $arr;
 
 	$str = '';
@@ -604,8 +604,8 @@ function get_feed_for($channel, $observer_hash, $params) {
 	$atom = '';
 
 	$atom .= replace_macros($feed_template, array(
-		'$version'      => xmlify(RED_VERSION),
-		'$red'          => xmlify(PLATFORM_NAME),
+		'$version'      => xmlify(get_project_version()),
+		'$red'          => xmlify(get_platform_name()),
 		'$feed_id'      => xmlify($channel['xchan_url']),
 		'$feed_title'   => xmlify($channel['channel_name']),
 		'$feed_updated' => xmlify(datetime_convert('UTC', 'UTC', 'now' , ATOM_TIME)) ,
@@ -2160,7 +2160,7 @@ function encode_rel_links($links) {
  *   * \e boolean \b success
  *   * \e int \b item_id
  */
-function item_store($arr, $allow_exec = false) {
+function item_store($arr, $allow_exec = false, $deliver = true) {
 
 	$d = array('item' => $arr, 'allow_exec' => $allow_exec);
 	call_hooks('item_store', $d );
@@ -2537,7 +2537,7 @@ function item_store($arr, $allow_exec = false) {
 	// so that we have an item in the DB that's marked deleted and won't store a fresh post
 	// that isn't aware that we were already told to delete it.
 
-	if(! intval($arr['item_deleted'])) {
+	if(($deliver) && (! intval($arr['item_deleted']))) {
 		send_status_notifications($current_post,$arr);
 		tag_deliver($arr['uid'],$current_post);
 	}
@@ -2550,7 +2550,7 @@ function item_store($arr, $allow_exec = false) {
 
 
 
-function item_store_update($arr,$allow_exec = false) {
+function item_store_update($arr,$allow_exec = false, $deliver = true) {
 
 	$d = array('item' => $arr, 'allow_exec' => $allow_exec);
 	call_hooks('item_store_update', $d );
@@ -2780,9 +2780,11 @@ function item_store_update($arr,$allow_exec = false) {
 
 	call_hooks('post_remote_update_end',$arr);
 
-	send_status_notifications($orig_post_id,$arr);
+	if($deliver) {
+		send_status_notifications($orig_post_id,$arr);
+		tag_deliver($uid,$orig_post_id);
+	}
 
-	tag_deliver($uid,$orig_post_id);
 	$ret['success'] = true;
 	$ret['item_id'] = $orig_post_id;
 
@@ -3685,6 +3687,16 @@ function consume_feed($xml, $importer, &$contact, $pass = 0) {
 		return;
 	}
 
+	$sys_expire = intval(get_config('system','default_expire_days'));
+	$chn_expire = intval($importer['channel_expire_days']);
+
+	$expire_days = $sys_expire;
+
+	if(($chn_expire != 0) && ($chn_expire < $sys_expire))
+		$expire_days = $chn_expire;
+
+logger('expire_days: ' . $expire_days);
+
 	$feed = new SimplePie();
 	$feed->set_raw_data($xml);
 	$feed->init();
@@ -3788,6 +3800,7 @@ function consume_feed($xml, $importer, &$contact, $pass = 0) {
 					intval($importer['channel_id'])
 				);
 
+
 				// Update content if 'updated' changes
 
 				if($r) {
@@ -3845,6 +3858,17 @@ function consume_feed($xml, $importer, &$contact, $pass = 0) {
 					$datarray['author_xchan'] = $contact['xchan_hash'];
 
 				$datarray['owner_xchan'] = $contact['xchan_hash'];
+
+				if(array_key_exists('created',$datarray) && $datarray['created'] != NULL_DATE && $expire_days) {
+					$t1 = $datarray['created'];
+					$t2 = datetime_convert('UTC','UTC','now - ' . $expire_days . 'days');
+					if($t1 < $t2) {
+						logger('feed content older than expiration. Ignoring.', LOGGER_DEBUG, LOG_INFO);
+						continue;
+					}
+				}
+
+
 
 				$r = q("SELECT edited FROM item WHERE mid = '%s' AND uid = %d LIMIT 1",
 					dbesc($item_id),
@@ -4835,7 +4859,7 @@ function items_fetch($arr,$channel = null,$observer_hash = null,$client_mode = C
 			intval($uid)
 		);
 		if(! $r) {
-			$result['message']  = t('Collection not found.');
+			$result['message']  = t('Privacy group not found.');
 			return $result;
 		}
 
@@ -4851,14 +4875,14 @@ function items_fetch($arr,$channel = null,$observer_hash = null,$client_mode = C
 			}
 		} else {
 			$contact_str = ' 0 ';
-			$result['message'] = t('Collection is empty.');
+			$result['message'] = t('Privacy group is empty.');
 			return $result;
 		}
 
 		$sql_extra = " AND item.parent IN ( SELECT DISTINCT parent FROM item WHERE true $sql_options AND (( author_xchan IN ( $contact_str ) OR owner_xchan in ( $contact_str)) or allow_gid like '" . protect_sprintf('%<' . dbesc($r[0]['hash']) . '>%') . "' ) and id = parent $item_normal ) ";
 
 		$x = group_rec_byhash($uid,$r[0]['hash']);
-		$result['headline'] = sprintf( t('Collection: %s'),$x['name']);
+		$result['headline'] = sprintf( t('Privacy group: %s'),$x['name']);
 	}
 	elseif($arr['cid'] && $uid) {
 

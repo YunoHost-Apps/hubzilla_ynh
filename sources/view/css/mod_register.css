@@ -42,3 +42,40 @@ h2 {
 	margin-bottom: 20px;
 }
 
+#newchannel-form {
+	font-size: 1.4em;	
+	margin-left: 15%;
+	margin-top: 20px;
+	width: 50%;
+}
+
+#newchannel-form .descriptive-paragraph {
+	color: #888;
+	margin-left: 20px;
+	margin-bottom: 25px;
+}
+
+.newchannel-label {
+	float: left;
+	width: 275px;
+}
+
+.newchannel-role-morehelp {
+	float: left;
+	width: 32px;
+}
+.newchannel-input {
+	float: left;
+	width: 275px;
+	padding: 5px;
+}
+
+.newchannel-feedback {
+	float: left;
+	margin-left: 5px;
+}
+
+.newchannel-field-end {
+	clear: both;
+	margin-bottom: 20px;
+}

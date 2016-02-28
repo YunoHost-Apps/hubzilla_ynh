@@ -4,6 +4,7 @@
  * Description: Set a custom home page or display a random channel from this server on the home page.
  * Version: 1.0  
  * Author: Thomas Willingham <zot:beardyunixer@beardyunixer.com>
+ * Maintainer: none
  */
 
 

@@ -5,7 +5,7 @@
  * Description: Allows you to select a profile photo from openclipart.org easily
  * Version: 1.0
  * Author: Habeas Codice <https://federated.social>
- *
+ * Maintainer: Habeas Codice <https://federated.social>
  */
 
 function openclipatar_load() {

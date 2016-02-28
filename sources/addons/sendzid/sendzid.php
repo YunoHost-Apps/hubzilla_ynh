@@ -6,7 +6,7 @@
  * Description: Provides an optional feature to send your identity to all websites
  * Version: 1.0
  * Author: Mike Macgirvin <mike@zothub.com>
-
+ * Maintainer: none
  */
 
 function sendzid_load() {

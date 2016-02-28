@@ -6,6 +6,7 @@
  * Description: Add some colour to tag clouds
  * Version: 1.0
  * Author: Mike Macgirvin
+ * Maintainer: Mike Macgirvin <mike@macgirvin.com>
  */
 
 

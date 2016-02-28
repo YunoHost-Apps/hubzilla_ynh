@@ -5,9 +5,11 @@
  * Version: 1.0.5
  * Author: Tobias Diekershoff <http://diekershoff.homeunix.net/friendika/profile/tobias>
  * Author: Michael Vogel <https://pirati.ca/profile/heluecht>
+ * Maintainer: none
  */
 
 require_once('include/permissions.php');
+require_once('include/queue_fn.php');
  
 /*   GNU social Plugin for Hubzilla
  *
@@ -110,6 +112,7 @@ function statusnet_load() {
 	register_hook('post_local', 'addon/statusnet/statusnet.php', 'statusnet_post_local');
 	register_hook('jot_networks',	'addon/statusnet/statusnet.php', 'statusnet_jot_nets');
 	register_hook('cron', 'addon/statusnet/statusnet.php', 'statusnet_cron');
+	register_hook('queue_deliver', 'addon/statusnet/statusnet.php', 'statusnet_queue_deliver');
 
 	logger("loaded statusnet");
 }
@@ -122,6 +125,7 @@ function statusnet_unload() {
 	unregister_hook('post_local', 'addon/statusnet/statusnet.php', 'statusnet_post_local');
 	unregister_hook('jot_networks',	'addon/statusnet/statusnet.php', 'statusnet_jot_nets');
 	unregister_hook('cron', 'addon/statusnet/statusnet.php', 'statusnet_cron');
+	unregister_hook('queue_deliver', 'addon/statusnet/statusnet.php', 'statusnet_queue_deliver');
 
 }
 
@@ -485,13 +489,14 @@ function statusnet_shortenmsg($b, $max_char) {
 
 	// Looking for the first image
 	$image = '';
-	if(preg_match("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/is",$b['body'],$matches))
+	if(preg_match("/\[[zi]mg\=([0-9]*)x([0-9]*)\](.*?)\[\/[zi]mg\]/is",$b['body'],$matches))
 		$image = $matches[3];
 
 	if ($image == '')
-		if(preg_match("/\[img\](.*?)\[\/img\]/is",$b['body'],$matches))
+		if(preg_match("/\[[zi]mg\](.*?)\[\/[zi]mg\]/is",$b['body'],$matches))
 			$image = $matches[1];
 
+    // @fixme for zmg
 	$multipleimages = (strpos($b['body'], "[img") != strrpos($b['body'], "[img"));
 
 	// When saved into the database the content is sent through htmlspecialchars
@@ -616,23 +621,34 @@ function statusnet_post_hook(&$a,&$b) {
 	 * Post to statusnet
 	 */
 
-	if((! is_item_normal($b)) || $b['item_private'] || ($b['created'] !== $b['edited']))
+	if(! strstr($b['postopts'],'statusnet')) {
+		logger('crosspost not enabled.');
 		return;
+	}
 
-	if(! perm_is_allowed($b['uid'],'','view_stream'))
+	if((! is_item_normal($b)) || $b['item_private'] || ($b['created'] !== $b['edited'])) {
+		logger('not a usable post. ' . print_r($b,true),LOGGER_DEBUG);
 		return;
+	}
 
-	if(! strstr($b['postopts'],'statusnet'))
+	if(! perm_is_allowed($b['uid'],'','view_stream')) {
+		logger('permissions prevent crossposting.',LOGGER_DEBUG);
 		return;
+	}
 
-	if($b['parent'] != $b['id'])
+
+	if($b['parent'] != $b['id']) {
+		logger('not a top level post.', LOGGER_DEBUG);
 		return;
+	}
 
 	// if posts comes from statusnet don't send it back
-	if($b['app'] == "StatusNet")
+	if($b['app'] == "StatusNet") {
+		logger('potential recursion. Crosspost ignored.');
 		return;
+	}
 
-		logger('statusnet post invoked');
+	logger('statusnet post invoked');
 
 	load_pconfig($b['uid'], 'statusnet');
 
@@ -668,12 +684,13 @@ function statusnet_post_hook(&$a,&$b) {
 					}
 					// if [url=bla][img]blub.png[/img][/url] get blub.png
 					$tmp = preg_replace( '/\[url\=(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,]+)\]\[img\](\\w+.*?)\\[\\/img\]\\[\\/url\]/i', '$2', $tmp);
+					$tmp = preg_replace( '/\[zrl\=(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,]+)\]\[zmg\](\\w+.*?)\\[\\/zmg\]\\[\\/zrl\]/i', '$2', $tmp);
 					// preserve links to images, videos and audios
 					$tmp = preg_replace( '/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism', '$3', $tmp);
 					$tmp = preg_replace( '/\[\\/?img(\\s+.*?\]|\])/i', '', $tmp);
+					$tmp = preg_replace( '/\[zmg\=([0-9]*)x([0-9]*)\](.*?)\[\/zmg\]/ism', '$3', $tmp);
+					$tmp = preg_replace( '/\[\\/?zmg(\\s+.*?\]|\])/i', '', $tmp);
 					$tmp = preg_replace( '/\[\\/?video(\\s+.*?\]|\])/i', '', $tmp);
-					$tmp = preg_replace( '/\[\\/?youtube(\\s+.*?\]|\])/i', '', $tmp);
-					$tmp = preg_replace( '/\[\\/?vimeo(\\s+.*?\]|\])/i', '', $tmp);
 					$tmp = preg_replace( '/\[\\/?audio(\\s+.*?\]|\])/i', '', $tmp);
 					$linksenabled = get_pconfig($b['uid'],'statusnet','post_taglinks');
 					// if a #tag is linked, don't send the [url] over to SN
@@ -684,7 +701,12 @@ function statusnet_post_hook(&$a,&$b) {
 				$tmp = preg_replace( '/#\[url\=(\w+.*?)\](\w+.*?)\[\/url\]/i', '#$2', $tmp);
 				// @-mentions
 				$tmp = preg_replace( '/@\[url\=(\w+.*?)\](\w+.*?)\[\/url\]/i', '@$2', $tmp);
+                // #-tags
+				$tmp = preg_replace( '/#\[zrl\=(\w+.*?)\](\w+.*?)\[\/zrl\]/i', '#$2', $tmp);
+				// @-mentions
+				$tmp = preg_replace( '/@\[zrl\=(\w+.*?)\](\w+.*?)\[\/zrl\]/i', '@$2', $tmp);
 				// recycle 1
+
 				$recycle = html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8');
 				$tmp = preg_replace( '/'.$recycle.'\[url\=(\w+.*?)\](\w+.*?)\[\/url\]/i', $recycle.'$2', $tmp);
 				// recycle 2 (test)
@@ -693,7 +715,7 @@ function statusnet_post_hook(&$a,&$b) {
 					}
 					// preserve links to webpages
 					$tmp = preg_replace( '/\[url\=(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,]+)\](\w+.*?)\[\/url\]/i', '$2 $1', $tmp);
-					$tmp = preg_replace( '/\[bookmark\=(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,]+)\](\w+.*?)\[\/bookmark\]/i', '$2 $1', $tmp);
+					$tmp = preg_replace( '/\[zrl\=(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,]+)\](\w+.*?)\[\/zrl\]/i', '$2 $1', $tmp);
 					// find all http or https links in the body of the entry and 
 					// apply the shortener if the link is longer then 20 characters 
 					if (( strlen($tmp)>$max_char ) && ( $max_char > 0 )) {
@@ -709,7 +731,7 @@ function statusnet_post_hook(&$a,&$b) {
 					}
 					// ok, all the links we want to send out are save, now strip 
 					// away the remaining bbcode
-			//$msg = strip_tags(bbcode($tmp, false, false));
+
 			$msg = bbcode($tmp, false, false, true);
 			$msg = str_replace(array('<br>','<br />'),"\n",$msg);
 			$msg = strip_tags($msg);
@@ -738,29 +760,81 @@ function statusnet_post_hook(&$a,&$b) {
 			$msg = $msgarr["msg"];
 			$image = $msgarr["image"];
 			if ($image != "") {
-				$imagedata = file_get_contents($image);
-				$tempfile = tempnam(get_config("system","temppath"), "upload");
-				file_put_contents($tempfile, $imagedata);
-				$postdata = array("status"=>$msg, "media"=>"@".$tempfile);
+				$x = z_fetch_url($image,true,0,array('novalidate' => true));
+				if($x['success']) {
+					$imagedata = $x['body'];
+					$tempfile = tempnam(get_config("system","temppath"), "upload");
+					file_put_contents($tempfile, $imagedata);
+					$postdata = array("status"=>$msg, "media"=>"@".$tempfile);
+				}
 			} else
 				$postdata = array("status"=>$msg);
 		}
 
 		// and now dent it :-)
 		if(strlen($msg)) {
-					//$result = $dent->post('statuses/update', array('status' => $msg));
-					$result = $dent->post('statuses/update', $postdata);
-					logger('statusnet_post send, result: ' . print_r($result, true).
-						   "\nmessage: ".$msg, LOGGER_DEBUG);
-					logger("Original post: ".print_r($b, true)."\nPost Data: ".print_r($postdata, true), LOGGER_DEBUG);
-					if ($result->error) {
-						logger('Send to GNU social failed: "' . $result->error . '"');
-					}
+			$result = $dent->post('statuses/update', $postdata);
+			logger('statusnet_post send, result: ' . print_r($result, true).
+				   "\nmessage: ".$msg, LOGGER_DEBUG);
+			logger("Original post: ".print_r($b, true)."\nPost Data: ".print_r($postdata, true), LOGGER_DEBUG);
+			if ($result->error) {
+				logger('Send to GNU social failed: queued."' . $result->error . '"');
+				// @fixme - unable to queue media uploads
+				if(! $image) {
+					queue_insert(array(
+						'hash' => random_string(),
+						'account_id' => $b['aid'],
+						'channel_id' => $b['uid'],
+						'driver'     => 'statusnet',
+						'posturl'    => $api,
+						'msg'        => $msg
+					));
 				}
+			}
+		}
 		if ($tempfile != "")
 			unlink($tempfile);
 	}
 }
+
+
+function statusnet_queue_deliver(&$a,&$b) {
+
+	$outq = $b['outq'];
+
+	if($outq['outq_driver'] !== 'statusnet')
+		return;
+
+	$ckey	 = get_pconfig($outq['outq_channel'], 'statusnet', 'consumerkey');
+	$csecret = get_pconfig($outq['outq_channel'], 'statusnet', 'consumersecret');
+	$otoken  = get_pconfig($outq['outq_channel'], 'statusnet', 'oauthtoken');
+	$osecret = get_pconfig($outq['outq_channel'], 'statusnet', 'oauthsecret');
+
+	if($ckey && $csecret && $otoken && $osecret) {
+		$dent = new StatusNetOAuth($api,$ckey,$csecret,$otoken,$osecret);
+		if($outq['outq_msg']) {
+			$result = $dent->post('statuses/update', array('status' => $outq['outq_msg']));
+			if ($result->error) {
+				logger('Send to GNU social failed: "' . $result->error . '"');
+				update_queue_item($outq['outq_hash']);
+			}
+			else {
+				logger('statusnet_post send, result: ' . print_r($result, true) 
+					. "\nmessage: " . $outq['outq_msg'], LOGGER_DEBUG);
+				remove_queue_item($outq['outq_hash']);
+			}
+		}
+	}
+
+	$b['handled'] = true;
+}
+
+
+
+
+
+
+
 
 function statusnet_plugin_admin_post(&$a){
 	
@@ -839,7 +913,7 @@ function statusnet_cron($a,$b) {
 			return;
 		}
 	}
-	logger('statusnet: cron_start');
+	logger('statusnet: cron_start', LOGGER_DEBUG);
 
 	$rand = db_getfunc('rand');
 
@@ -851,7 +925,7 @@ function statusnet_cron($a,$b) {
 		}
 	}
 
-	logger('statusnet: cron_end');
+	logger('statusnet: cron_end', LOGGER_DEBUG);
 
 	set_config('statusnet','last_poll', time());
 }

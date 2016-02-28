@@ -5,6 +5,7 @@
  * Version: 0.1
  * Author: Johannes Schwab , Christian Vogeley
  * ToDo: Add this to comments, Allow to disable on webpages, nicer position of button
+ * Maintainer: none
  */
 
 

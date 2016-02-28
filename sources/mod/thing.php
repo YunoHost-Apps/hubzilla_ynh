@@ -14,7 +14,6 @@ function thing_init(&$a) {
 	if(! local_channel())
 		return;
 
-	$account_id = $a->get_account();
 	$channel    = $a->get_channel();
 
 	$term_hash = (($_REQUEST['term_hash']) ? $_REQUEST['term_hash'] : '');

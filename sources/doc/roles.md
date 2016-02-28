@@ -11,11 +11,11 @@ The channel is a typical social networking profile. By default posts and publish
 
 **Restricted**
 
-By default all posts and published items are sent to your 'Friends' collection and not made public. New friends are added to this collection. You can over-ride this and create a public post or published item if you desire. You are listed in the directory. Your online presence (for chat) and your connections (friends) are visible to your profile viewers.
+By default all posts and published items are sent to your 'Friends' privacy group and not made public. New friends are added to this privacy group. You can over-ride this and create a public post or published item if you desire. You are listed in the directory. Your online presence (for chat) and your connections (friends) are visible to your profile viewers.
 
 **Private**
 
-By default all posts and published items are sent to your 'Friends' collection. New friends are added to this collection. You can over-ride this and create a public post or public item if you desire. You are NOT listed in the directory. Only your connections can see your other connections. Your online presence is hidden. 
+By default all posts and published items are sent to your 'Friends' privacy group. New friends are added to this privacy group. You can over-ride this and create a public post or public item if you desire. You are NOT listed in the directory. Only your connections can see your other connections. Your online presence is hidden. 
 
 
 ##Forum
@@ -27,11 +27,11 @@ The channel is a typical forum. By default posts and published items are public.
 
 **Restricted**
 
-By default all posts and published items are sent to the channel's 'Friends' collection. New friends are added to this collection. Members may post by @mention+ or wall-to-wall post, but posts and replies may also be seen by other receipients of the top-level post who are not members. The channel is visible in the directory. Members must be manually added by the forum owner. 
+By default all posts and published items are sent to the channel's 'Friends' privacy group. New friends are added to this privacy group. Members may post by @mention+ or wall-to-wall post, but posts and replies may also be seen by other receipients of the top-level post who are not members. The channel is visible in the directory. Members must be manually added by the forum owner. 
 
 **Private**
 
-By default all posts and published items are sent to your 'Friends' collection. New friends are added to this collection. The owner can over-ride this and create a public post or public item if desired. Members cannot. You are NOT listed in the directory. Only your connections can see your other connections. Your online presence is hidden. Members must be manually added by the forum owner. Posting by @mention+ is disabled. Posts can only be made via wall-to-wall posts, and sent to members of the 'Friends' collection. They are not publicly visible.  
+By default all posts and published items are sent to your 'Friends' privacy group. New friends are added to this privacy group. The owner can over-ride this and create a public post or public item if desired. Members cannot. You are NOT listed in the directory. Only your connections can see your other connections. Your online presence is hidden. Members must be manually added by the forum owner. Posting by @mention+ is disabled. Posts can only be made via wall-to-wall posts, and sent to members of the 'Friends' privacy group. They are not publicly visible.  
 
 
 ##Feed
@@ -44,7 +44,7 @@ Similiar to Social - Mostly Public, but tailored for RSS feed sources. Items may
 
 **Restricted**
 
-Not listed in directory. Online presence is meaningless, therefore hidden. Feed is published only to members of the 'Friends' collection. New connections are automatically added to this collections. Members must be manually approved by the channel owner. 
+Not listed in directory. Online presence is meaningless, therefore hidden. Feed is published only to members of the 'Friends' privacy group. New connections are automatically added to this privacy group. Members must be manually approved by the channel owner. 
 
 
 ##Special

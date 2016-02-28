@@ -5,6 +5,7 @@
  * Description: visit $yoursite/upload_limits to show what system limits may apply to file/photo uploads
  * Version: 1.0
  * Author: Mike Macgirvin
+ * Maintainer: none
  */
 
 

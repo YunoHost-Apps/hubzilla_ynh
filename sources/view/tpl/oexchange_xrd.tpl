@@ -4,23 +4,23 @@
     <Subject>{{$base}}</Subject>
 
     <Property 
-        type="http://www.oexchange.org/spec/0.8/prop/vendor">Friendika</Property>
+        type="http://www.oexchange.org/spec/0.8/prop/vendor">Zotlabs</Property>
     <Property 
-        type="http://www.oexchange.org/spec/0.8/prop/title">Friendika Social Network</Property>
+        type="http://www.oexchange.org/spec/0.8/prop/title">Hubzilla</Property>
     <Property 
-        type="http://www.oexchange.org/spec/0.8/prop/name">Friendika</Property>
+        type="http://www.oexchange.org/spec/0.8/prop/name">Hubzilla</Property>
     <Property 
-        type="http://www.oexchange.org/spec/0.8/prop/prompt">Send to Friendika</Property>
+        type="http://www.oexchange.org/spec/0.8/prop/prompt">Send to Hubzilla</Property>
 
     <Link 
         rel="icon" 
-        href="{{$base}}/images/friendika-16.png"
+        href="{{$base}}/images/hz-16.png"
         type="image/png" 
         />
 
     <Link 
         rel="icon32" 
-        href="{{$base}}/images/friendika-32.png"
+        href="{{$base}}/images/hz-32.png"
         type="image/png" 
         />
 

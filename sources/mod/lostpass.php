@@ -87,7 +87,7 @@ function lostpass_content(&$a) {
 				'$lbl2' => t('Your password has been reset as requested.'),
 				'$lbl3' => t('Your new password is'),
 				'$lbl4' => t('Save or copy your new password - and then'),
-				'$lbl5' => '<a href="' . $a->get_baseurl() . '">' . t('click here to login') . '</a>.',
+				'$lbl5' => '<a href="' . $a->get_baseurl() . '/login">' . t('click here to login') . '</a>.',
 				'$lbl6' => t('Your password may be changed from the <em>Settings</em> page after successful login.'),
 				'$newpass' => $new_password,
 				'$baseurl' => $a->get_baseurl()

@@ -463,7 +463,7 @@ function photos_post(&$a) {
 		$_REQUEST['group_deny']    = expand_acl($channel['channel_deny_gid']);
 	}
 
-	$r = attach_store($a->channel,get_observer_hash(), '', $_REQUEST);
+	$r = attach_store($channel,get_observer_hash(), '', $_REQUEST);
 
 	if(! $r['success']) {
 		notice($r['message'] . EOL);
@@ -803,6 +803,8 @@ function photos_content(&$a) {
 	 */
 
 	if($datatype === 'image') {
+
+		$a->page['htmlhead'] .= "\r\n" . '<link rel="alternate" type="application/json+oembed" href="' . z_root() . '/oep?f=&url=' . urlencode(z_root() . '/' . $a->cmd) . '" title="oembed" />' . "\r\n";
 
 		// fetch image, item containing image, then comments
 

@@ -4,7 +4,7 @@
  * Description: Set a preferred page to load on login from home page
  * Version: 1.0
  * Author: Mike Macgirvin <http://macgirvin.com/profile/mike>
- * 
+ * Maintainer: Mike Macgirvin <mike@macgirvin.com> 
  */
 
 

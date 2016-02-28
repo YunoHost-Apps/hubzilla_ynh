@@ -264,7 +264,7 @@ class Item extends BaseObject {
 		if($keep_reports === 0)
 			$keep_reports = 30;
 
-		if(strcmp(datetime_convert('UTC','UTC',$item['created']),datetime_convert('UTC','UTC',"now - $keep_reports days")) > 0)
+		if((! get_config('system','disable_dreport')) && strcmp(datetime_convert('UTC','UTC',$item['created']),datetime_convert('UTC','UTC',"now - $keep_reports days")) > 0)
 			$dreport = t('Delivery Report');
 
 		if(strcmp(datetime_convert('UTC','UTC',$item['created']),datetime_convert('UTC','UTC','now - 12 hours')) > 0)

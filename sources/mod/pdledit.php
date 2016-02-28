@@ -10,6 +10,7 @@ function pdledit_post(&$a) {
 		goaway(z_root() . '/pdledit/' . $_REQUEST['module']);
 	}
 	set_pconfig(local_channel(),'system','mod_' . $_REQUEST['module'] . '.pdl',escape_tags($_REQUEST['content']));
+	build_sync_packet();
 	info( t('Layout updated.') . EOL);
 	goaway(z_root() . '/pdledit/' . $_REQUEST['module']);
 }

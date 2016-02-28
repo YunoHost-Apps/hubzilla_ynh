@@ -273,14 +273,14 @@ function notification($params) {
 		$preamble = sprintf( t('%1$s, you\'ve received an new connection request from \'%2$s\' at %3$s'), $recip['channel_name'], $sender['xchan_name'], $sitename); 
 		$epreamble = sprintf( t('%1$s, you\'ve received [zrl=%2$s]a new connection request[/zrl] from %3$s.'),
 			$recip['channel_name'],
-			$itemlink,
+			$siteurl . '/connections/ifpending',
 			'[zrl=' . $sender['xchan_url'] . ']' . $sender['xchan_name'] . '[/zrl]'); 
 		$body = sprintf( t('You may visit their profile at %s'),$sender['xchan_url']);
 
 		$sitelink = t('Please visit %s to approve or reject the connection request.');
-		$tsitelink = sprintf( $sitelink, $siteurl );
-		$hsitelink = sprintf( $sitelink, '<a href="' . $siteurl . '">' . $sitename . '</a>');
-		$itemlink =  $params['link'];
+		$tsitelink = sprintf( $sitelink, $siteurl . '/connections/ifpending');
+		$hsitelink = sprintf( $sitelink, '<a href="' . $siteurl . '/connections/ifpending">' . $sitename . '</a>');
+		$itemlink = $params['link'];
 	}
 
 	if ($params['type'] == NOTIFY_SUGGEST) {
@@ -529,6 +529,7 @@ function notification($params) {
 		$tpl = get_markup_template('email_notify_html.tpl');
 		$email_html_body = replace_macros($tpl,array(
 			'$banner'       => $datarray['banner'],
+			'$notify_icon'  => get_notify_icon(),
 			'$product'      => $datarray['product'],
 			'$preamble'     => $datarray['preamble'],
 			'$sitename'     => $datarray['sitename'],

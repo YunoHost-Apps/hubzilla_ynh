@@ -5,6 +5,7 @@
  * Description: Generates some statistics for the-federation.info (formerly http://pods.jasonrobinson.me/)
  * Version: 0.1
  * Author: Michael Vogel <https://pirati.ca/profile/heluecht>
+ * Maintainer: none
  */
 
 function statistics_json_load() {
@@ -26,8 +27,8 @@ function statistics_json_init() {
 
 	$statistics = array(
 		"name" => get_config('system','sitename'),
-		"network" => PLATFORM_NAME,
-		"version" => RED_VERSION,
+		"network" => get_platform_name(),
+		"version" => get_project_version(),
 		"registrations_open" => (get_config('system','register_policy') != 0),
 		"total_users" => get_config('statistics_json','total_users'),
 		"active_users_halfyear" => get_config('statistics_json','active_users_halfyear'),

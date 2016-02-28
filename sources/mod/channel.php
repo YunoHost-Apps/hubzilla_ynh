@@ -163,6 +163,7 @@ function channel_content(&$a, $update = 0, $load = false) {
 		$simple_update = '';
 
 	if(($update) && (! $load)) {
+
 		if ($mid) {
 			$r = q("SELECT parent AS item_id from item where mid like '%s' and uid = %d $item_normal
 				AND item_wall = 1 AND item_unseen = 1 $sql_extra limit 1",
@@ -257,7 +258,6 @@ function channel_content(&$a, $update = 0, $load = false) {
 	} else {
 		$items = array();
 	}
-
 
 	if((! $update) && (! $load)) {
 

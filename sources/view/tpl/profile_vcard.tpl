@@ -1,5 +1,8 @@
 <div class="vcard">
 	<div id="profile-photo-wrapper"><img class="photo" src="{{$profile.photo}}?rev={{$profile.picdate}}" alt="{{$profile.name}}"></div>
+	{{if $connect}}
+	<div class="connect-btn-wrapper"><a href="{{$connect_url}}" class="btn btn-block btn-success btn-sm"><i class="icon-plus"></i> {{$connect}}</a></div>
+	{{/if}}
 	{{if $profile.edit}}
 	<div class="dropdown">
 	<a class="profile-edit-side-link dropdown-toggle" data-toggle="dropdown" title="{{$profile.edit.3}}" href="#" ><i class="icon-pencil" title="{{$profile.edit.1}}" ></i></a>
@@ -45,16 +48,10 @@
 	{{if $diaspora}}
 	{{include file="diaspora_vcard.tpl"}}
 	{{/if}}
-
-{{if $connect}}
-<a href="{{$connect_url}}" class="rconnect"><i class="icon-plus connect-icon"></i> {{$connect}}</a>
-{{/if}}
+</div>
+<div id="clear"></div>
 
 {{$rating}}
-
-</div>
-<div id="vcard-end"></div>
-
 
 {{$chanmenu}}
 

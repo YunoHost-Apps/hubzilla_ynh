@@ -5,6 +5,7 @@
  * Description: Migrate photo albums from Redmatrix to Hubzilla
  * Version: 1.0
  * Author: Mike Macgirvin
+ * Maintainer: Mike Macgirvin <mike@macgirvin.com>
  */
 
 

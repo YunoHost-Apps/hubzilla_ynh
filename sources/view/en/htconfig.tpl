@@ -28,7 +28,7 @@ $db_type = '{{$dbtype}}'; // an integer. 0 or unset for mysql, 1 for postgres
 
 $default_timezone = '{{$timezone}}';
 
-// What is your site name?
+// What is your site name? DO NOT ADD A TRAILING SLASH!
 
 $a->config['system']['baseurl'] = '{{$siteurl}}';
 $a->config['system']['sitename'] = "Hubzilla";

@@ -8,6 +8,7 @@
  * Screenshot: None
  * Depends: Core
  * Recommends: None
+ * Maintainer: none
  */
 
 function smiley_pack_load() {

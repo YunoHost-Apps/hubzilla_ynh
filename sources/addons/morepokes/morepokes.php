@@ -4,7 +4,7 @@
  * Description: Additional poke options
  * Version: 1.0
  * Author: Thomas Willingham <https://kakste.com/profile/beardyunixer>
- *
+ * Maintainer: none
  */
 
 function morepokes_load() {

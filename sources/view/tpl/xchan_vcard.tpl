@@ -1,11 +1,10 @@
 <div class="vcard">
 <div id="profile-photo-wrapper"><a href="{{$link}}"><img class="vcard-photo photo" src="{{$photo}}" alt="{{$name}}" /></a></div>
+{{if $connect}}
+<div class="connect-btn-wrapper"><a href="follow?f=&url={{$follow}}" class="btn btn-block btn-success btn-sm"><i class="icon-plus"></i> {{$connect}}</a></div>
+{{/if}}
 <div class="fn">{{$name}}</div>
 </div>
 
 
-{{if $mode != 'mail'}}	
-{{if $connect}}
-	<a href="follow?f=&url={{$follow}}" class="rconnect"><i class="icon-plus connect-icon"></i> {{$connect}}</a>
-{{/if}}
-{{/if}}
+

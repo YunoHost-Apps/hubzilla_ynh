@@ -4,6 +4,7 @@
  * Description: Add a random fortune cookie at the bottom of every pages. [Requires manual confguration.]
  * Version: 1.0
  * Author: Mike Macgirvin <http://macgirvin.com/profile/mike>
+ * Maintainer: none
  */
 
 

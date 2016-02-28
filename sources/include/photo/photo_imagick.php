@@ -163,6 +163,24 @@ class photo_imagick extends photo_driver {
 		$this->doScaleImage($max,$max);
 	}
 
+	public function cropImageRect($maxx,$maxy,$x,$y,$w,$h) {
+		if(!$this->is_valid())
+			return FALSE;
+
+		$this->image->setFirstIterator();
+		do {
+			$this->image->cropImage($w, $h, $x, $y);
+			/**
+			 * We need to remove the canvas,
+			 * or the image is not resized to the crop:
+			 * http://php.net/manual/en/imagick.cropimage.php#97232
+			 */
+			$this->image->setImagePage(0, 0, 0, 0);
+		} while ($this->image->nextImage());
+
+		$this->doScaleImage($maxx,$maxy);
+	}
+
 	public function imageString() {
 		if(!$this->is_valid())
 			return FALSE;

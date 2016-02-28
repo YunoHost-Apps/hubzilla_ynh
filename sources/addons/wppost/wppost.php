@@ -5,6 +5,7 @@
  * Description: Post to WordPress (or anything else which uses the wordpress XMLRPC API)
  * Version: 1.0
  * Author: Mike Macgirvin <zot:mike@zothub.com>
+ * Maintainer: Mike Macgirvin <mike@macgirvin.com>
  */
 
 require_once('include/permissions.php');
@@ -153,6 +154,9 @@ function wppost_post_local(&$a,&$b) {
 function wppost_dreport($dr,$update) {
 	$dr->update($update);
 	$xx = $dr->get();
+	if(get_config('system','disable_dreport'))
+		return;
+
 	q("insert into dreport ( dreport_mid, dreport_site, dreport_recip, dreport_result, dreport_time, dreport_xchan ) values ( '%s', '%s','%s','%s','%s','%s' ) ",
 		dbesc($xx['message_id']),
 		dbesc($xx['location']),

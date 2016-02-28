@@ -446,7 +446,7 @@ function item_post(&$a) {
 
 	$execflag = false;
 
-	if($mimetype === 'application/x-php') {
+	if($mimetype !== 'text/bbcode') {
 		$z = q("select account_id, account_roles, channel_pageflags from account left join channel on channel_account_id = account_id where channel_id = %d limit 1",
 			intval($profile_uid)
 		);
@@ -720,8 +720,7 @@ function item_post(&$a) {
 
 	$datarray = array();
 
-	$item_thead_top = ((! $parent) ? 1 : 0);
-
+	$item_thread_top = ((! $parent) ? 1 : 0);
 
 	if ((! $plink) && ($item_thread_top)) {
 		$plink = z_root() . '/channel/' . $channel['channel_address'] . '/?f=&mid=' . $mid;
@@ -818,25 +817,26 @@ function item_post(&$a) {
 			dbesc($body)
 		);
 
-		if($z && $z[0]['created'] > datetime_convert('UTC','UTC', 'now - 2 minutes')) {
-			$datarray['cancel'] = 1;
-			notice( t('Duplicate post suppressed.') . EOL);
-			logger('Duplicate post. Faking plugin cancel.');
+		if($z) {
+			foreach($z as $zz) {
+				if($zz['created'] > datetime_convert('UTC','UTC', 'now - 2 minutes')) {
+					$datarray['cancel'] = 1;
+					notice( t('Duplicate post suppressed.') . EOL);
+					logger('Duplicate post. Faking plugin cancel.');
+				}
+			}
 		}
 	}
 
 	call_hooks('post_local',$datarray);
 
 	if(x($datarray,'cancel')) {
-		logger('mod_item: post cancelled by plugin.');
-		if($return_path) {
+		logger('mod_item: post cancelled by plugin or duplicate suppressed.');
+		if($return_path)
 			goaway($a->get_baseurl() . "/" . $return_path);
-		}
 
 		$json = array('cancel' => 1);
-		if(x($_REQUEST,'jsreload') && strlen($_REQUEST['jsreload']))
-			$json['reload'] = $a->get_baseurl() . '/' . $_REQUEST['jsreload'];
-
+		$json['reload'] = $a->get_baseurl() . '/' . $_REQUEST['jsreload'];
 		echo json_encode($json);
 		killme();
 	}

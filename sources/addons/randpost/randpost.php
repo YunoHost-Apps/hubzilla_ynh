@@ -4,6 +4,7 @@
  * Description: Make random posts/replies (requires fortunate and/or a fortunate server)
  * Version: 1.0
  * Author: Mike Macgirvin
+ * Maintainer: none
  */
 
 require_once('include/crypto.php');
