@@ -5,7 +5,7 @@
      * Description: Display math
      * Version: 0.0
      * Author: Stefan Parviainen <pafcu@iki.fi>
-     *
+     * Maintainer: none
      */
 
 require_once('phplatex.php');

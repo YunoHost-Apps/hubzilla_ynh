@@ -5,7 +5,7 @@
 * Description: Provides a Facebook-like chat using Jappix Mini
 * Version: 1.0.1
 * Author: leberwurscht <leberwurscht@hoegners.de>
-*
+* Maintainer: none
 */
 
 //

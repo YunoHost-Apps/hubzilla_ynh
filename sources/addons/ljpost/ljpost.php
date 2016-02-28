@@ -7,6 +7,7 @@
  * Author: Tony Baldwin <https://red.free-haven.org/channel/tony>
  * Author: Michael Johnston
  * Author: Cat Gray <https://free-haven.org/profile/catness>
+ * Maintainer: none
  */
 
 require_once('include/permissions.php');

@@ -5,6 +5,7 @@
  * Description: Hexadecimal Conversion Tool
  * Version: 1.0
  * Author: Macgirvin
+ * Maintainer: none
  *
  */
 

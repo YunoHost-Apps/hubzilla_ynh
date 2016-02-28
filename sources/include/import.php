@@ -2,7 +2,7 @@
 
 require_once('include/menu.php');
 
-function import_channel($channel, $account_id) {
+function import_channel($channel, $account_id, $seize) {
 
 	if(! array_key_exists('channel_system',$channel)) {
 		$channel['channel_system']  = (($channel['channel_pageflags'] & 0x1000) ? 1 : 0);
@@ -496,6 +496,8 @@ function import_items($channel,$items) {
 			}
 		}
 
+		$deliver = false;  // Don't deliver any messages or notifications when importing
+
 		foreach($items as $i) {
 			$item = get_item_elements($i,$allow_code);
 			if(! $item)
@@ -509,16 +511,15 @@ function import_items($channel,$items) {
 				if($item['edited'] > $r[0]['edited']) {
 					$item['id'] = $r[0]['id'];
 					$item['uid'] = $channel['channel_id'];
-					item_store_update($item);
+					item_store_update($item,$allow_code,$deliver);
 					continue;
 				}	
 			}
 			else {
 				$item['aid'] = $channel['channel_account_id'];
 				$item['uid'] = $channel['channel_id'];
-				$item_result = item_store($item);
+				$item_result = item_store($item,$allow_code,$deliver);
 			}
-
 		}
 	}
 }

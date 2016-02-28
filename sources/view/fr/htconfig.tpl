@@ -10,6 +10,7 @@ $db_port = '{{$dbport}}';
 $db_user = '{{$dbuser}}';
 $db_pass = '{{$dbpass}}';
 $db_data = '{{$dbdata}}';
+$db_type = '{{$dbtype}}'; // an integer. 0 or unset for mysql, 1 for postgres
 
 /*
  * Note: Plusieurs de ces réglages seront disponibles via le panneau d'administration

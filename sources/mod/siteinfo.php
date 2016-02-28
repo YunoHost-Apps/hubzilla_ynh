@@ -12,7 +12,7 @@ function siteinfo_init(&$a) {
 function siteinfo_content(&$a) {
 
 	if(! get_config('system','hidden_version_siteinfo')) {
-		$version = sprintf( t('Version %s'), RED_VERSION );
+		$version = sprintf( t('Version %s'), get_project_version());
 		if(@is_dir('.git') && function_exists('shell_exec')) {
 			$commit = @shell_exec('git log -1 --format="%h"');
 			$tag = get_std_version(); // @shell_exec('git describe --tags --abbrev=0');

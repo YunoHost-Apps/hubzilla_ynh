@@ -2,9 +2,10 @@
 
 /**
  * Name: Friendica Photo Migrator
- * Description: Migrate photo albums from Friendica to a Red channel
+ * Description: Migrate photo albums from Friendica to a Redmatrix channel (not yet ported to Hubzilla)
  * Version: 1.0
  * Author: Mike Macgirvin
+ * Maintainer: none
  */
 
 

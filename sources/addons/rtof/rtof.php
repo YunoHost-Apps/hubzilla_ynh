@@ -1,9 +1,10 @@
 <?php
 
 /**
- * Name: Red-to-Friendica Connector (rtof)
+ * Name: Hubzilla-to-Friendica Connector (rtof)
  * Description: Relay public postings to a connected Friendica account
  * Version: 1.0
+ * Maintainer: none
  */
  
 /*
@@ -97,7 +98,7 @@ function rtof_settings(&$a,&$s) {
 	));
 
 	$s .= replace_macros(get_markup_template('generic_addon_settings.tpl'), array(
-		'$addon' 	=> array('rtof', '<img src="addon/rtof/friendica.png" style="width:auto; height:1em; margin:-3px 5px 0px 0px;">' . t('Red to Friendica Post Settings'), '', t('Submit')),
+		'$addon' 	=> array('rtof', '<img src="addon/rtof/friendica.png" style="width:auto; height:1em; margin:-3px 5px 0px 0px;">' . t('Hubzilla to Friendica Post Settings'), '', t('Submit')),
 		'$content'	=> $sc
 	));
 }
@@ -151,7 +152,7 @@ function rtof_post_hook(&$a,&$b) {
 	if(! strstr($b['postopts'],'rtof'))
 		return;
 
-	logger('Red-to-Friendica post invoked');
+	logger('Hubzilla-to-Friendica post invoked');
 
 	load_pconfig($b['uid'], 'rtof');
 

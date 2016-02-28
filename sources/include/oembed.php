@@ -78,7 +78,6 @@ function oembed_fetch_url($embedurl){
 		else {
 			// try oembed autodiscovery
 			$redirects = 0;
-
 			$result = z_fetch_url($embedurl, false, $redirects, array('timeout' => 15, 'accept_content' => "text/*", 'novalidate' => true ));
 			if($result['success'])
 				$html_text = $result['body'];
@@ -88,8 +87,8 @@ function oembed_fetch_url($embedurl){
 				if ($dom){
 					$xpath = new DOMXPath($dom);
 					$attr = "oembed";
-				
 					$xattr = oe_build_xpath("class","oembed");
+
 					$entries = $xpath->query("//link[@type='application/json+oembed']");
 					foreach($entries as $e){
 						$href = $e->getAttributeNode("href")->nodeValue;
@@ -173,6 +172,14 @@ function oembed_format_object($j){
 			$ret.="<br>";
 		}; break;  
 		case "link": {
+			if($j->thumbnail_url) {
+				if(is_matrix_url($embedurl)) {
+					$embedurl = zid($embedurl);
+					$j->thumbnail_url = zid($j->thumbnail_url);
+				}
+				$ret = '<a href="' . $embedurl . '" ><img src="' . $j->thumbnail_url . '" alt="thumbnail" /></a><br /><br />';
+			}
+
 			//$ret = "<a href='".$embedurl."'>".$j->title."</a>";
 		}; break;  
 		case "rich": {

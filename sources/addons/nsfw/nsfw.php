@@ -6,7 +6,7 @@
  * Description: Collapse posts with inappropriate content
  * Version: 1.0
  * Author: Mike Macgirvin <http://macgirvin.com/profile/mike>
- * 
+ * Maintainer: Mike Macgirvin <mike@macgirvin.com> 
  */
 
 function nsfw_install() {

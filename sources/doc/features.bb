@@ -106,9 +106,9 @@ There is also experimental support for OpenID authentication which may be used i
 
 Channels may have permissions to become "derivative channels" where two or more existing channels combine to create a new topical channel. 
 
-[b]Collections[/b]
+[b]Privacy Groups[/b]
 
-"Collections" is our implementation of privacy groups, which is similar to Google "Circles" and Diaspora "Aspects". This allows you to filter your incoming stream by collections or groups, and automatically set the outbound Access Control List to only those in the Collection when you post. You may over-ride this at any time (prior to sending the post).  
+Our implementation of privacy groups is similar to Google "Circles" and Diaspora "Aspects". This allows you to filter your incoming stream by selected groups, and automatically set the outbound Access Control List to only those in that privacy group when you post. You may over-ride this at any time (prior to sending the post).  
 
 
 [b]Directory Services[/b]

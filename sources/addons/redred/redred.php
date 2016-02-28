@@ -1,13 +1,14 @@
 <?php
 
 /**
- * Name: Red-to-Red Connector (redred)
- * Description: Relay public postings to another Red channel
+ * Name: Hubzilla Crosspost Connector (redred)
+ * Description: Relay public postings to another Redmatrix/Hubzilla channel
  * Version: 1.0
+ * Maintainer: none
  */
  
 /*
- *   Red to Red
+ *   Hubzilla to Hubzilla
  */
 
 require_once('include/permissions.php');
@@ -65,9 +66,7 @@ function redred_settings_post ($a,$post) {
 		return;
 	}
 
- 
-
-	
+ 	
 	set_pconfig(local_channel(), 'redred', 'baseapi',         trim($_POST['redred_baseapi']));
 	set_pconfig(local_channel(), 'redred', 'username',        trim($_POST['redred_username']));
 	set_pconfig(local_channel(), 'redred', 'password',        z_obscure(trim($_POST['redred_password'])));
@@ -93,31 +92,31 @@ function redred_settings(&$a,&$s) {
 	$defchecked = (($defenabled) ? 1 : false);
 
 	$sc .= replace_macros(get_markup_template('field_checkbox.tpl'), array(
-		'$field'	=> array('redred_enable', t('Allow posting to Red Channel'), $checked, '', array(t('No'),t('Yes'))),
+		'$field'	=> array('redred_enable', t('Allow posting to another Hubzilla Channel'), $checked, '', array(t('No'),t('Yes'))),
 	));
 
 	$sc .= replace_macros(get_markup_template('field_checkbox.tpl'), array(
-		'$field'	=> array('redred_default', t('Send public postings to Red by default'), $defchecked, '', array(t('No'),t('Yes'))),
+		'$field'	=> array('redred_default', t('Send public postings to Hubzilla channel by default'), $defchecked, '', array(t('No'),t('Yes'))),
 	));
 
 	$sc .= replace_macros(get_markup_template('field_input.tpl'), array(
-		'$field'	=> array('redred_baseapi', t('Red API Path'), $api, t('https://{sitename}/api'))
+		'$field'	=> array('redred_baseapi', t('Hubzilla API Path'), $api, t('https://{sitename}/api'))
 	));
 
 	$sc .= replace_macros(get_markup_template('field_input.tpl'), array(
-		'$field'	=> array('redred_username', t('Red login name'), $username, t('Email'))
+		'$field'	=> array('redred_username', t('Hubzilla login name'), $username, t('Email'))
 	));
 
 	$sc .= replace_macros(get_markup_template('field_input.tpl'), array(
-		'$field'	=> array('redred_channel', t('Red channel name'), $channel, t('Nickname'))
+		'$field'	=> array('redred_channel', t('Hubzilla channel name'), $channel, t('Nickname'))
 	));
 
 	$sc .= replace_macros(get_markup_template('field_password.tpl'), array(
-		'$field'	=> array('redred_password', t('Red password'), $password, '')
+		'$field'	=> array('redred_password', t('Hubzilla password'), $password, '')
 	));
 
 	$s .= replace_macros(get_markup_template('generic_addon_settings.tpl'), array(
-		'$addon' 	=> array('redred', '<img src="images/rm-32.png" style="width:auto; height:1em; margin:-3px 5px 0px 0px;">' . t('Red to Red Post Settings'), '', t('Submit')),
+		'$addon' 	=> array('redred', '<img src="images/hz-32.png" style="width:auto; height:1em; margin:-3px 5px 0px 0px;">' . t('Hubzilla Crosspost Settings'), '', t('Submit')),
 		'$content'	=> $sc
 	));
 

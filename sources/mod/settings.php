@@ -354,7 +354,7 @@ function settings_post(&$a) {
 					);
 				}
 				else {
-					notice( sprintf('Default privacy collection \'%s\' not found. Please create and re-submit permission change.', t('Friends')) . EOL);
+					notice( sprintf('Default privacy group \'%s\' not found. Please create and re-submit permission change.', t('Friends')) . EOL);
 					return;
 				}
 			}
@@ -846,9 +846,9 @@ function settings_content(&$a) {
 			'$theme_config' => $theme_config,
 			'$expert' => feature_enabled(local_channel(),'expert'),
 			'$channel_list_mode' => array('channel_list_mode', t('Use blog/list mode on channel page'), get_pconfig(local_channel(),'system','channel_list_mode'), t('(comments displayed separately)'), $yes_no),
-			'$network_list_mode' => array('network_list_mode', t('Use blog/list mode on matrix page'), get_pconfig(local_channel(),'system','network_list_mode'), t('(comments displayed separately)'), $yes_no),
+			'$network_list_mode' => array('network_list_mode', t('Use blog/list mode on grid page'), get_pconfig(local_channel(),'system','network_list_mode'), t('(comments displayed separately)'), $yes_no),
 			'$channel_divmore_height' => array('channel_divmore_height', t('Channel page max height of content (in pixels)'), ((get_pconfig(local_channel(),'system','channel_divmore_height')) ? get_pconfig(local_channel(),'system','channel_divmore_height') : 400), t('click to expand content exceeding this height')),
-			'$network_divmore_height' => array('network_divmore_height', t('Matrix page max height of content (in pixels)'), ((get_pconfig(local_channel(),'system','network_divmore_height')) ? get_pconfig(local_channel(),'system','network_divmore_height') : 400) , t('click to expand content exceeding this height')),
+			'$network_divmore_height' => array('network_divmore_height', t('Grid page max height of content (in pixels)'), ((get_pconfig(local_channel(),'system','network_divmore_height')) ? get_pconfig(local_channel(),'system','network_divmore_height') : 400) , t('click to expand content exceeding this height')),
 
 
 		));
@@ -917,6 +917,7 @@ function settings_content(&$a) {
 		$maxreq     = $channel['channel_max_friend_req'];
 		$expire     = $channel['channel_expire_days'];
 		$adult_flag = intval($channel['channel_pageflags'] & PAGE_ADULT);
+		$sys_expire = get_config('system','default_expire_days');
 
 //		$unkmail    = $a->user['unkmail'];
 //		$cntunkmail = $a->user['cntunkmail'];
@@ -1050,7 +1051,7 @@ function settings_content(&$a) {
 
 			'$lbl_p2macro' => t('Advanced Privacy Settings'),
 
-			'$expire' => array('expire',t('Expire other channel content after this many days'),$expire,t('0 or blank prevents expiration')),
+			'$expire' => array('expire',t('Expire other channel content after this many days'),$expire,sprintf( t('0 or blank to use the website limit. The website expires after %d days.'),intval($sys_expire))),
 			'$maxreq' 	=> array('maxreq', t('Maximum Friend Requests/Day:'), intval($channel['channel_max_friend_req']) , t('May reduce spam activity')),
 			'$permissions' => t('Default Post Permissions'),
 			'$permdesc' => t("\x28click to open/close\x29"),
@@ -1084,7 +1085,7 @@ function settings_content(&$a) {
 
 			'$lbl_vnot' 	=> t('Show visual notifications including:'),
 
-			'$vnotify1'	=> array('vnotify1', t('Unseen matrix activity'), ($vnotify & VNOTIFY_NETWORK), VNOTIFY_NETWORK, '', $yes_no),
+			'$vnotify1'	=> array('vnotify1', t('Unseen grid activity'), ($vnotify & VNOTIFY_NETWORK), VNOTIFY_NETWORK, '', $yes_no),
 			'$vnotify2'	=> array('vnotify2', t('Unseen channel activity'), ($vnotify & VNOTIFY_CHANNEL), VNOTIFY_CHANNEL, '', $yes_no),
 			'$vnotify3'	=> array('vnotify3', t('Unseen private messages'), ($vnotify & VNOTIFY_MAIL), VNOTIFY_MAIL, t('Recommended'), $yes_no),
 			'$vnotify4'	=> array('vnotify4', t('Upcoming events'), ($vnotify & VNOTIFY_EVENT), VNOTIFY_EVENT, '', $yes_no),

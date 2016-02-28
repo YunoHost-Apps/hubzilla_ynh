@@ -5,6 +5,7 @@
  * Description: Support the Redmatrix/Hubzilla projects
  * Version: 1.0
  * Author: Macgirvin
+ * Maintainer: none
  *
  */
 

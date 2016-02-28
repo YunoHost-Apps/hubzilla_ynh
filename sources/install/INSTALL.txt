@@ -1,6 +1,6 @@
 Hubzilla Installation
 
-We've tried very hard to ensure that the Hubzilla will run on commodity
+We've tried very hard to ensure that Hubzilla will run on commodity
 hosting platforms - such as those used to host Wordpress blogs and Drupal 
 websites. It will run on most any Linux VPS system. Windows LAMP platforms
 such as XAMPP and WAMP are not officially supported at this time - however 
@@ -29,7 +29,7 @@ issues.
 
 Before you begin: Choose a domain name or subdomain name for your server.
 
-The Hubzilla can only be installed into the root of a domain or
+Hubzilla can only be installed into the root of a domain or
 sub-domain, and can not be installed using alternate TCP ports. 
 
 Decide if you will use SSL and obtain an SSL certificate before software
@@ -53,13 +53,22 @@ advice. This is disruptive to the community. That said, we recognise the issues
 surrounding the current certificate infrastructure and agree there are many
 problems, but that doesn't change the requirement. 
 
-Free "browser-valid" certificates are available from providers such as StartSSL. 
+Free "browser-valid" certificates are available from providers such as StartSSL
+and LetsEncrypt. 
 
 If you do NOT use SSL, there may be a delay of up to a minute for the initial
 install script - while we check the SSL port to see if anything responds there.
 When communicating with new sites, Hubzilla always attempts connection on the
 SSL port first, before falling back to a less secure connection.  If you do not
-use SSL, your webserver must not listen on port 443 at all.
+use SSL, your webserver MUST NOT listen on port 443 at all.
+
+If you use LetsEncrypt to provide certificates and create a file under 
+.well-known/acme-challenge so that LetsEncrypt can verify your domain ownership, 
+please remove or rename the .well-known directory as soon as the certificate is 
+generated. Hubzilla will provide its own handler for ".well-known" services when
+it is installed, and an existing directory in this location may prevent some of 
+these services from working correctly. 
+
 
 1. Requirements
     - Apache with mod-rewrite enabled and "AllowOverride All" so you can use a 
@@ -137,7 +146,7 @@ use SSL, your webserver must not listen on port 443 at all.
             cd mywebsite
             util/update_addon_repo matrix
 
-	- Create searchable represenations of the online documentation. You may do this any time
+	- Create searchable representations of the online documentation. You may do this any time
 		that the documentation is updated.
 
 			cd mywebsite
@@ -177,7 +186,16 @@ Registration errors should all be recoverable automatically.
 If you get any *critical* failure at this point, it generally indicates the
 database was not installed correctly. You might wish to move/rename 
 .htconfig.php to another name and empty (called 'dropping') the database 
-tables, so that you can start fresh.  
+tables, so that you can start fresh.
+
+In order for your account to be given administrator access, it should be the
+first account created, and the email address provided during registration
+must match the "administrator email" address you provided during 
+installation. Otherwise to give an account administrator access,
+add 4096 to the account_roles for that account in the database. 
+
+For your site security there is no way to provide administrator access
+using web forms.
 
 ****************************************************************************
 ****************************************************************************
@@ -185,7 +203,7 @@ tables, so that you can start fresh.
 ****************************************************************************
 ****************************************************************************
 
-8. Set up a cron job or scheduled task to run the poller once every 5-10 
+8. Set up a cron job or scheduled task to run the poller once every 10-15 
 minutes to pick up the recent "public" postings of your friends. Example:
 
 	cd /base/directory; /path/to/php include/poller.php
@@ -201,10 +219,11 @@ You can generally find the location of PHP by executing "which php". If you
 have troubles with this section please contact your hosting provider for 
 assistance. Hubzilla will not work correctly if you cannot perform this step.
 
-You should also be sure that $a->config['system']['php_path'] is set correctly, 
-it should look like (changing it to the correct PHP location)
+You should also be sure that $a->config['system']['php_path'] is set correctly 
+in your .htconfig.php file, it should look like (changing it to the correct 
+PHP location):
 
-$a->config['system']['php_path'] = '/usr/local/php53/bin/php';
+$a->config['system']['php_path'] = '/usr/local/php55/bin/php';
   
  
 #####################################################################
@@ -221,7 +240,7 @@ $a->config['system']['php_path'] = '/usr/local/php53/bin/php';
 	
 Check your database settings. It usually means your database could not be 
 opened or accessed. If the database resides on the same machine, check that
-the database server name is the word "localhost". 
+the database server name is "127.0.0.1" or the word "localhost". 
 
 #####################################################################
 - 500 Internal Error
@@ -296,7 +315,7 @@ Retry the installation. As soon as the database has been created,
 
 #####################################################################
 - Some configurations with "suhosin" security are configured without
-an ability to run external processes. The Hubzilla requires this ability.
+an ability to run external processes. Hubzilla requires this ability.
 Following are some notes provided by one of our members.
 #####################################################################
 
@@ -386,4 +405,5 @@ MaxRequestWorkers to 70.
 Here you can read more about Apache performance tuning:
 https://httpd.apache.org/docs/2.4/misc/perf-tuning.html
 
-There are tons of scripts to help you with fine-tuning your Apache installation. Just search with your favorite search engine 'apache fine-tuning script'.
+There are tons of scripts to help you with fine-tuning your Apache installation. 
+Just search with your favorite search engine 'apache fine-tuning script'.

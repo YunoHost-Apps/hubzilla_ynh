@@ -492,7 +492,7 @@ function admin_page_site(&$a) {
 		'$delivery_batch_count' => array('delivery_batch_count', t('Deliveries per process'),(x(get_config('system','delivery_batch_count'))?get_config('system','delivery_batch_count'):1), t("Number of deliveries to attempt in a single operating system process. Adjust if necessary to tune system performance. Recommend: 1-5.")),
 		'$poll_interval'			=> array('poll_interval', t("Poll interval"), (x(get_config('system','poll_interval'))?get_config('system','poll_interval'):2), t("Delay background polling processes by this many seconds to reduce system load. If 0, use delivery interval.")),
 		'$maxloadavg'			=> array('maxloadavg', t("Maximum Load Average"), ((intval(get_config('system','maxloadavg')) > 0)?get_config('system','maxloadavg'):50), t("Maximum system load before delivery and poll processes are deferred - default 50.")),
-		'$default_expire_days' => array('default_expire_days', t('Expiration period in days for imported (matrix/network) content'), intval(get_config('system','default_expire_days')), t('0 for no expiration of imported content')),
+		'$default_expire_days' => array('default_expire_days', t('Expiration period in days for imported (grid/network) content'), intval(get_config('system','default_expire_days')), t('0 for no expiration of imported content')),
 		'$form_security_token' => get_form_security_token("admin_site"),
 	));
 }
@@ -1092,6 +1092,23 @@ function admin_page_plugins(&$a){
 			return '';
 		}
 
+		$enabled = in_array($plugin,$a->plugins);
+		$info = get_plugin_info($plugin);
+		$x = check_plugin_versions($info);
+
+		// disable plugins which are installed but incompatible versions
+
+		if($enabled && ! $x) {
+			$enabled = false;
+			$idz = array_search($plugin, $a->plugins);
+			if ($idz !== false) {
+				unset($a->plugins[$idz]);
+				uninstall_plugin($plugin);
+				set_config("system","addon", implode(", ",$a->plugins));
+			}
+		}
+		$info['disabled'] = 1-intval($x);
+
 		if (x($_GET,"a") && $_GET['a']=="t"){
 			check_form_security_token_redirectOnErr('/admin/plugins', 'admin_plugins', 't');
 
@@ -1142,6 +1159,7 @@ function admin_page_plugins(&$a){
 			}
 		}
 
+
 		$t = get_markup_template('admin_plugins_details.tpl');
 		return replace_macros($t, array(
 			'$title' => t('Administration'),
@@ -1153,9 +1171,14 @@ function admin_page_plugins(&$a){
 			'$plugin' => $plugin,
 			'$status' => $status,
 			'$action' => $action,
-			'$info' => get_plugin_info($plugin),
+			'$info' => $info,
 			'$str_author' => t('Author: '),
 			'$str_maintainer' => t('Maintainer: '),
+			'$str_minversion' => t('Minimum project version: '),
+			'$str_maxversion' => t('Maximum project version: '),
+			'$str_minphpversion' => t('Minimum PHP version: '),
+
+			'$disabled' => t('Disabled - version incompatibility'),
 
 			'$admin_form' => $admin_form,
 			'$function' => 'plugins',
@@ -1177,7 +1200,23 @@ function admin_page_plugins(&$a){
 			if (is_dir($file)){
 				list($tmp, $id) = array_map('trim', explode('/', $file));
 				$info = get_plugin_info($id);
-				$plugins[] = array( $id, (in_array($id,  $a->plugins)?"on":"off") , $info);
+				$enabled = in_array($id,$a->plugins);
+				$x = check_plugin_versions($info);
+
+				// disable plugins which are installed but incompatible versions
+
+				if($enabled && ! $x) {
+					$enabled = false;
+					$idz = array_search($id, $a->plugins);
+					if ($idz !== false) {
+						unset($a->plugins[$idz]);
+						uninstall_plugin($id);
+						set_config("system","addon", implode(", ",$a->plugins));
+					}
+				}
+				$info['disabled'] = 1-intval($x);
+
+				$plugins[] = array( $id, (($enabled)?"on":"off") , $info);
 			}
 		}
 	}
@@ -1190,6 +1229,7 @@ function admin_page_plugins(&$a){
 		'$baseurl' => $a->get_baseurl(true),
 		'$function' => 'plugins',
 		'$plugins' => $plugins,
+		'$disabled' => t('Disabled - version incompatibility'),
 		'$form_security_token' => get_form_security_token('admin_plugins'),
 	));
 }

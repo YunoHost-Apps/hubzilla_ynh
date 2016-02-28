@@ -299,7 +299,7 @@ function ping_init(&$a) {
 		if($r) {
 			foreach($r as $rr) {
 				$result[] = array(
-					'notify_link' => $a->get_baseurl() . '/connedit/' . $rr['abook_id'],
+					'notify_link' => $a->get_baseurl() . '/connections/ifpending',
 					'name' => $rr['xchan_name'],
 					'url' => $rr['xchan_url'],
 					'photo' => $rr['xchan_photo_s'],

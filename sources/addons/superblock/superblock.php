@@ -5,8 +5,9 @@
  * Name: superblock
  * Description: block people
  * Version: 1.0
- * Author: Mike Macgirvin <http://macgirvin.com/profile/mike>
- * 
+ * Author: Mike Macgirvin
+ * Maintainer: Mike Macgirvin <mike@macgirvin.com> 
+ * MinVersion: 1.1.3
  */
 
 function superblock_load() {
@@ -197,7 +198,7 @@ function superblock_item_photo_menu(&$a,&$b) {
 		}
 	}
 
-	$b['menu'][ t('Block Completely')] = 'javascript:superblockBlock(\'' . $author . '\'); return false;';
+	$b['author_menu'][ t('Block Completely')] = 'javascript:superblockBlock(\'' . $author . '\'); return false;';
 }
 
 function superblock_module() {}
@@ -217,6 +218,8 @@ function superblock_init(&$a) {
 	}
 
 	set_pconfig(local_channel(),'system','blocked',$words);
+	build_sync_packet();
+
 	info( t('superblock settings updated') . EOL );
 	killme();
 }

@@ -4,6 +4,7 @@
 * Description: add an Internet Relay Chat chatroom
 * Version: 1.0
 * Author: tony baldwin <https://free-haven.org/profile/tony>
+* Maintainer: none
 */
 
 /* enable in admin->plugins

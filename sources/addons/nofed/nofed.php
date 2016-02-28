@@ -4,6 +4,7 @@
  * Name: No Federation (nofed)
  * Description: Prevent posting from being federated to anybody. It will exist only on your channel page. 
  * Version: 1.0
+ * Maintainer: none
  */
  
 /*

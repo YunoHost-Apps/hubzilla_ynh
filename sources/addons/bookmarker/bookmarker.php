@@ -6,6 +6,7 @@
  * Description: replace #^ with bookmark icon
  * Version: 1.0
  * Author: Mike Macgirvin <mike@zothub.com>
+ * Maintainer: Mike Macgirvin <mike@macgirvin.com>
  * 
  */
 

@@ -5,6 +5,7 @@
  * Description: Post to Diaspora
  * Version: 0.1
  * Author: Michael Vogel <heluecht@pirati.ca>
+ * Maintainer: none
  */
 
 function diaspost_load() {
@@ -101,7 +102,7 @@ function diaspost_queue_hook(&$a,&$b) {
 
 		if (!$success) {
 			logger('diaspost_queue: delayed');
-			update_queue_time($x['id']);
+			update_queue_item($x['id']);
 		}
 	}
 }

@@ -27,6 +27,8 @@ custom/
 apps/
 # default startpage
 home.html
+# page header plugin
+pageheader.html
 # Ignore site TOS
 doc/SiteTOS.md
 # themes except for redbasic

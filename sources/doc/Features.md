@@ -57,9 +57,9 @@ Private messages are encrypted during transport and storage. In this day and age
 
 This provides the ability to select posts by date ranges
 
-**Collections Filter**
+**Privacy Group Filter**
 
-Enable widget to display stream posts only from selected collections. This also toggles the outbound permissions while you are viewing a collection. This is analogous to Google "circles" or Disapora "aspects". 
+Enable widget to display stream posts only from selected groups of connection. This also toggles the outbound permissions while you are viewing a privacy group. This is analogous to Google "circles" or Disapora "aspects". 
 
 **Saved Searches**
 

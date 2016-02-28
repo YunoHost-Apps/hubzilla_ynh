@@ -36,7 +36,7 @@ function p_init(&$a) {
 	$body = bb2diaspora_itembody($item);
 	$created = datetime_convert('UTC','UTC',$item['created'],'Y-m-d H:i:s \U\T\C');
 
-	$tpl = get_markup_template('diaspora_post.tpl');
+	$tpl = get_markup_template('diaspora_post.tpl','addon/diaspora');
 	$msg = replace_macros($tpl, array(
 		'$body' => xmlify($body),
 		'$guid' => $item['mid'],

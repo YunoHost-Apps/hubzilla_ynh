@@ -22,8 +22,9 @@
 	<div id="newchannel-name-help" class="descriptive-paragraph">{{$help_name}}</div>
 
 	<label for="newchannel-nickname" id="label-newchannel-nickname" class="newchannel-label" >{{$label_nick}}</label>
-	<input type="text" name="nickname" id="newchannel-nickname" class="newchannel-input" value="{{$nickname}}" />
+	<input type="text" name="nickname" id="newchannel-nickname" class="newchannel-input" value="{{$nickname}}" /> 
 	<div id="nick-spinner"></div>
+	<div id="newchannel-nick-desc" class="descriptive-paragraph">{{$nick_hub}}</div>
 	<div id="newchannel-nickname-feedback" class="newchannel-feedback"></div>
 	<div id="newchannel-nickname-end"  class="newchannel-field-end"></div>
 

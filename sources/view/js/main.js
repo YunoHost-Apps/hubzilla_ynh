@@ -248,6 +248,7 @@ var updateCountsOnly = false;
 var divmore_height = 400;
 var last_filestorage_id = null;
 var mediaPlaying = false;
+var contentHeightDiff = 0;
 
 $(function() {
 	$.ajaxSetup({cache: false});
@@ -630,32 +631,40 @@ function updateConvItems(mode,data) {
 	} else {
 		collapseHeight();
 	}
+
 }
 
-
 function collapseHeight() {
+	var origContentHeight = parseInt($("#region_2").height());
 	$(".wall-item-content, .directory-collapse").each(function() {
-		var orgHeight = $(this).outerHeight(true);
-		if(orgHeight > divmore_height + 10) {
+		var orgHeight = parseInt($(this).css('height'));
+		if(orgHeight > divmore_height) {
 			if(! $(this).hasClass('divmore')) {
-				$(this).readmore({
-					speed: 0,
-					heightMargin: 50,
-					collapsedHeight: divmore_height, 
-					moreLink: '<a href="#" class="divgrow-showmore">' + aStr.divgrowmore + '</a>',
-					lessLink: '<a href="#" class="divgrow-showmore">' + aStr.divgrowless + '</a>',
-					beforeToggle: function(trigger, element, expanded) {
-						if(expanded) {
-							if((($(element).offset().top + divmore_height) - $(window).scrollTop()) < 65 ) {
-								$('html, body').animate( { scrollTop: $(window).scrollTop() - (orgHeight - divmore_height) }, {duration: 0 } );
+				if($(window).scrollTop() + ($(window).height() - divmore_height) < $(this).offset().top) {
+					$(this).readmore({
+						speed: 0,
+						heightMargin: 50,
+						collapsedHeight: divmore_height,
+						moreLink: '<a href="#" class="divgrow-showmore">' + aStr.divgrowmore + '</a>',
+						lessLink: '<a href="#" class="divgrow-showmore">' + aStr.divgrowless + '</a>',
+						beforeToggle: function(trigger, element, expanded) {
+							if(expanded) {
+								if((($(element).offset().top + divmore_height) - $(window).scrollTop()) < 65 ) {
+									$('html, body').animate( { scrollTop: $(window).scrollTop() - (orgHeight - divmore_height) }, {duration: 0 } );
+								}
 							}
 						}
-					}
-				});
-				$(this).addClass('divmore');
+					});
+					$(this).addClass('divmore');
+				}
 			}
 		}
 	});
+
+	var collapsedContentHeight = parseInt($("#region_2").height());
+	contentHeightDiff = origContentHeight - collapsedContentHeight;
+
+
 }
 
 function liveUpdate() {
@@ -707,8 +716,10 @@ function liveUpdate() {
 		$("#page-spinner").spin(false);
 		$("#profile-jot-text-loading").spin(false);
 
+		console.log('contentHeightDiff: ' + contentHeightDiff);
+
 		if(update_mode === 'update') {
-			$(window).scrollTop($(window).scrollTop() + $("#region_2").height() - orgHeight);
+			$(window).scrollTop($(window).scrollTop() + $("#region_2").height() - orgHeight + contentHeightDiff);
 		}
 
 		in_progress = false;

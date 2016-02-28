@@ -305,6 +305,9 @@ function connedit_post(&$a) {
 
 	connedit_clone($a);
 
+	if(($_REQUEST['pending']) && (!$_REQUEST['done']))
+		goaway($a->get_baseurl(true) . '/connections/ifpending');
+
 	return;
 
 }
@@ -711,10 +714,6 @@ function connedit_content(&$a) {
 			'$slide'          => $slide,
 			'$affinity'       => $affinity,
 			'$pending_label'  => t('Connection Pending Approval'),
-			'$pending_modal_title' => t('Connection Request'),
-			'$pending_modal_body' => sprintf(t('(%s) would like to connect with you. Please approve this connection to allow communication.'), $contact['xchan_addr']),
-			'$pending_modal_approve' => t('Approve'),
-			'$pending_modal_dismiss' => t('Approve Later'),
 			'$is_pending'     => (intval($contact['abook_pending']) ? 1 : ''),
 			'$unapproved'     => $unapproved,
 			'$inherited'      => t('inherited'),

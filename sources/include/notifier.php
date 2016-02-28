@@ -578,7 +578,7 @@ function notifier_run($argv, $argc){
 			));
 
 			// only create delivery reports for normal undeleted items
-			if(is_array($target_item) && array_key_exists('postopts',$target_item) && (! $target_item['item_deleted'])) {
+			if(is_array($target_item) && array_key_exists('postopts',$target_item) && (! $target_item['item_deleted']) && (! get_config('system','disable_dreport'))) {
 				q("insert into dreport ( dreport_mid, dreport_site, dreport_recip, dreport_result, dreport_time, dreport_xchan, dreport_queue ) values ( '%s','%s','%s','%s','%s','%s','%s' ) ",
 					dbesc($target_item['mid']),
 					dbesc($hub['hubloc_host']),

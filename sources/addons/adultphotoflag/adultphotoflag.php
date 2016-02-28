@@ -6,7 +6,7 @@
  * Description: Provides an optional feature to hide individual photos from the default album view
  * Version: 1.0
  * Author: Mike Macgirvin <mike@zothub.com>
-
+ * Maintainer: none
  */
 
 function adultphotoflag_load() {

@@ -5,6 +5,7 @@
  * Description: Sample Hubzilla plugin/addon for creating a test drive site with automatic account expiration.
  * Version: 1.1
  * Author: Mike Macgirvin <https://macgirvin.com/channel/mike>
+ * Maintainer: none
  */
 
 

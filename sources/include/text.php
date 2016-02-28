@@ -812,7 +812,7 @@ function contact_block() {
 		);
 
 		if(count($r)) {
-			$contacts = sprintf( tt('%d Connection','%d Connections', $total),$total);
+			$contacts = t('Connections');
 			$micropro = Array();
 			foreach($r as $rr) {
 				$rr['archived'] = (intval($rr['abook_archived']) ? true : false);
@@ -825,7 +825,7 @@ function contact_block() {
 	$o = replace_macros($tpl, array(
 		'$contacts' => $contacts,
 		'$nickname' => $a->profile['channel_address'],
-		'$viewconnections' => t('View Connections'),
+		'$viewconnections' => (($total > $shown) ? sprintf(t('View all %s connections'),$total) : ''),
 		'$micropro' => $micropro,
 	));
 
@@ -2716,5 +2716,7 @@ function item_url_replace($channel,&$item,$old,$new) {
 		$item['sig'] = base64url_encode(rsa_sign($item['body'],$channel['channel_prvkey']));
 		$item['item_verified']  = 1;
 	}
+	
+	// @fixme item['plink'] and item['llink']
 
 }

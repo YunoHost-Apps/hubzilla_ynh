@@ -144,11 +144,14 @@ function directory_content(&$a) {
 	}
 
 	if($url) {
-		// We might want to make the tagadelic count (&kw=) configurable or turn it off completely.
 
 		$numtags = get_config('system','directorytags');
 
-		$kw = ((intval($numtags)) ? $numtags : 50);
+		$kw = ((intval($numtags) > 0) ? intval($numtags) : 50);
+
+		if(get_config('system','disable_directory_keywords'))
+			$kw = 0;
+
 		$query = $url . '?f=&kw=' . $kw . (($safe_mode != 1) ? '&safe=' . $safe_mode : '');
 
 		if($token)

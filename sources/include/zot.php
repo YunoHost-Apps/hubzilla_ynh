@@ -3186,8 +3186,9 @@ function process_channel_sync_delivery($sender, $arr, $deliveries) {
 						logger('process_channel_sync_delivery: total_feeds service class limit exceeded');
 						continue;
 					}
-					q("insert into abook ( abook_xchan, abook_channel ) values ('%s', %d ) ",
+					q("insert into abook ( abook_xchan, abook_account, abook_channel ) values ('%s', %d, %d ) ",
 						dbesc($clean['abook_xchan']),
+						intval($channel['channel_account_id']),
 						intval($channel['channel_id'])
 					);
 					$total_friends ++;
@@ -3828,7 +3829,7 @@ function zotinfo($arr) {
 		$ret['site']['channels'] = channel_total();
 
 
-		$ret['site']['version'] = PLATFORM_NAME . ' ' . RED_VERSION . '[' . DB_UPDATE_VERSION . ']';
+		$ret['site']['version'] = get_platform_name() . ' ' . RED_VERSION . '[' . DB_UPDATE_VERSION . ']';
 
 		$ret['site']['admin'] = get_config('system','admin_email');
 
@@ -3848,7 +3849,7 @@ function zotinfo($arr) {
 		$ret['site']['sellpage'] = get_config('system','sellpage');
 		$ret['site']['location'] = get_config('system','site_location');
 		$ret['site']['realm'] = get_directory_realm();
-		$ret['site']['project'] = PLATFORM_NAME;
+		$ret['site']['project'] = get_platform_name();
 
 	}
 
@@ -3923,6 +3924,9 @@ function check_zotinfo($channel,$locations,&$ret) {
 }
 
 function delivery_report_is_storable($dr) {
+
+	if(get_config('system','disable_dreport'))
+		return false;
 
 	call_hooks('dreport_is_storable',$dr);
 

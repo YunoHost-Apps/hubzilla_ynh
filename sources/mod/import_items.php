@@ -86,13 +86,10 @@ function import_items_post(&$a) {
 
 	$channel = $a->get_channel();
 
-	$saved_notification_flags = notifications_off($channel['channel_id']);
 
 	if(array_key_exists('item',$data) && $data['item']) {
 		import_items($channel,$data['item']);
 	}
-
-	notifications_on($channel['channel_id'],$saved_notification_flags);
 
 	if(array_key_exists('item_id',$data) && $data['item_id']) {
 		import_item_ids($channel,$data['item_id']);
@@ -106,9 +103,6 @@ function import_items_post(&$a) {
 
 
 function import_items_content(&$a) {
-
-
-
 
 	if(! local_channel()) {
 		notice( t('Permission denied') . EOL);

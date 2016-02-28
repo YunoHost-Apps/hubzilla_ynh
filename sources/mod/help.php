@@ -157,7 +157,7 @@ function help_content(&$a) {
 				$path = trim(substr($dirname,4),'/');
 
 				$o .= '<li><a href="help/' . (($path) ? $path . '/' : '') . $fname . '" >' . ucwords(str_replace('_',' ',notags($fname))) . '</a><br />' . 
-				str_replace('$Projectname',PLATFORM_NAME,substr($rr['text'],0,200)) . '...<br /><br /></li>';
+				str_replace('$Projectname',get_platform_name(),substr($rr['text'],0,200)) . '...<br /><br /></li>';
 
 			}
 			$o .= '</ul>';
@@ -229,6 +229,8 @@ function help_content(&$a) {
 	if($doctype === 'bbcode') {
 		require_once('include/bbcode.php');
 		$content = bbcode($text);
+		// bbcode retargets external content to new windows. This content is internal.
+		$content = str_replace(' target="_blank"','',$content);		
 	} 
 
 	$content = preg_replace_callback("/#include (.*?)\;/ism", 'preg_callback_help_include', $content);
@@ -248,7 +250,9 @@ function preg_callback_help_include($matches) {
 		if(preg_match('/\.bb$/', $matches[1]) || preg_match('/\.txt$/', $matches[1])) {
 			require_once('include/bbcode.php');
 			$include = bbcode($include);
-		} elseif(preg_match('/\.md$/', $matches[1])) {
+			$include = str_replace(' target="_blank"','',$include);		
+		} 
+		elseif(preg_match('/\.md$/', $matches[1])) {
 			require_once('library/markdown.php');
 			$include = Markdown($include);
 		}

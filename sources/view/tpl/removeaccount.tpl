@@ -10,7 +10,7 @@
 			<input type="hidden" name="verify" value="{{$hash}}" />
 			<div class="form-group" id="remove-account-pass-wrapper">
 				<label id="remove-account-pass-label" for="remove-account-pass">{{$passwd}}</label>
-				<input class="form-control" type="password" id="remove-account-pass" name="qxz_password" />
+				<input class="form-control" type="password" id="remove-account-pass" autocomplete="off" name="qxz_password"  value=" " />
 			</div>
 			{{include file="field_checkbox.tpl" field=$global}}
 			<button type="submit" name="submit" class="btn btn-danger">{{$submit}}</button>

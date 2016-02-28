@@ -7,6 +7,7 @@
  * Recommends: None
  * Category: Example
  * Author: ken restivo <ken@restivo.org>
+ * Maintainer: ken restivo <ken@restivo.org>
  */
 
 

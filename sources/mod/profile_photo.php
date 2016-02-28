@@ -502,8 +502,8 @@ function profile_photo_crop_ui_head(&$a, $ph, $hash, $smallest){
 	$width  = $ph->getWidth();
 	$height = $ph->getHeight();
 
-	if($width < 300 || $height < 300) {
-		$ph->scaleImageUp(200);
+	if($width < 500 || $height < 500) {
+		$ph->scaleImageUp(400);
 		$width  = $ph->getWidth();
 		$height = $ph->getHeight();
 	}

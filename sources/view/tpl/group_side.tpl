@@ -16,7 +16,7 @@
 			</li>
 			{{/foreach}}
 			<li>
-				<a href="group/new" title="{{$createtext}}" >{{$createtext}}</a>
+				<a href="group/new" title="{{$createtext}}" ><i class="icon-plus-sign"></i> {{$createtext}}</a>
 			</li>
 		</ul>
 

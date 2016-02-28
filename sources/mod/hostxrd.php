@@ -12,6 +12,7 @@ function hostxrd_init(&$a) {
 	));
 	$arr = array('xrd' => $x);
 	call_hooks('hostxrd',$arr);
+
 	echo $arr['xrd'];
 	killme();
 }

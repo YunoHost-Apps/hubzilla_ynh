@@ -5,6 +5,7 @@
  * Description: Logfile Rotator
  * Version: 1.0
  * Author: Mike Macgirvin
+ * Maintainer: Mike Macgirvin <mike@macgirvin.com>
  */
 
 
@@ -63,9 +64,9 @@ function logrot_logger(&$a,&$b) {
 	if(! $logrotsize)
 		return;
 
-	$x = filesize($b['filename']);
+	$x = @filesize($b['filename']);
 
-	if($x < $logrotsize)
+	if(($x === false) || ($x < $logrotsize))
 		return;
 
 	rename($b['filename'],$logrotpath . '/logfile-' . datetime_convert('UTC','UTC','now','Y-m-d_H:i') . '.out');

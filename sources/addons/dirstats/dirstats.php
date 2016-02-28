@@ -13,6 +13,7 @@
 *
 * Version: 1.0
 * Author: Thomas Willingham <zot:beardyunixer@beardyunixer.com>
+* Maintainer: none
 */
 
 function dirstats_load() {

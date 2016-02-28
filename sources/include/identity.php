@@ -482,6 +482,8 @@ function identity_basic_export($channel_id, $items = false) {
 
 	$ret = array();
 
+	// use constants here as otherwise we will have no idea if we can import from a site 
+	// with a non-standard platform and version.
 	$ret['compatibility'] = array('project' => PLATFORM_NAME, 'version' => RED_VERSION, 'database' => DB_UPDATE_VERSION);
 
 	$r = q("select * from channel where channel_id = %d limit 1",
@@ -922,6 +924,13 @@ function profile_sidebar($profile, $block = 0, $show_connect = true) {
 	$pdesc = true;
 	$reddress = true;
 
+	if(! perm_is_allowed($profile['uid'],((is_array($observer)) ? $observer['xchan_hash'] : ''),'view_profile')) {
+		$block = true;
+	}
+
+	if($block && intval(get_config('system','block_public_blackout')))
+		return $o;
+
 	if((! is_array($profile)) && (! count($profile)))
 		return $o;
 
@@ -931,6 +940,7 @@ function profile_sidebar($profile, $block = 0, $show_connect = true) {
 
 	if(is_sys_channel($profile['uid']))
 		$show_connect = false;
+
 
 
 	$profile['picdate'] = urlencode($profile['picdate']);
@@ -1006,9 +1016,6 @@ function profile_sidebar($profile, $block = 0, $show_connect = true) {
 
 //	logger('online: ' . $profile['online']);
 
-	if(! perm_is_allowed($profile['uid'],((is_array($observer)) ? $observer['xchan_hash'] : ''),'view_profile')) {
-		$block = true;
-	}
 
 	if(($profile['hidewall'] && (! local_channel()) && (! remote_channel())) || $block ) {
 		$location = $reddress = $pdesc = $gender = $marital = $homepage = False;
@@ -1049,8 +1056,10 @@ function profile_sidebar($profile, $block = 0, $show_connect = true) {
 	$tpl = get_markup_template('profile_vcard.tpl');
 
 	require_once('include/widgets.php');
-	$z = widget_rating(array('target' => $profile['channel_hash']));
 
+	if(! feature_enabled($profile['uid'],'hide_rating'))
+		$z = widget_rating(array('target' => $profile['channel_hash']));
+		
 	$o .= replace_macros($tpl, array(
 		'$profile'       => $profile,
 		'$connect'       => $connect,
@@ -1694,4 +1703,81 @@ function profiles_build_sync($channel_id) {
 	if($r) {
 		build_sync_packet($channel_id,array('profile' => $r));
 	}
+}
+
+
+function auto_channel_create($account_id) {
+
+	if(! $account_id)
+		return false;
+
+	$arr = array();
+	$arr['account_id'] = $account_id;
+	$arr['name'] = get_aconfig($account_id,'register','channel_name');
+	$arr['nickname'] = legal_webbie(get_aconfig($account_id,'register','channel_address'));
+	$arr['permissions_role'] = get_aconfig($account_id,'register','permissions_role');
+
+	del_aconfig($account_id,'register','channel_name');
+	del_aconfig($account_id,'register','channel_address');
+	del_aconfig($account_id,'register','permissions_role');
+
+	if((! $arr['name']) || (! $arr['nickname'])) {
+		$x = q("select * from account where account_id = %d limit 1",
+			intval($account_id)
+		);
+		if($x) {
+			if(! $arr['name'])
+				$arr['name'] = substr($x[0]['account_email'],0,strpos($x[0]['account_email'],'@'));
+			if(! $arr['nickname'])
+				$arr['nickname'] = legal_webbie(substr($x[0]['account_email'],0,strpos($x[0]['account_email'],'@')));
+		}
+	}
+	if(! $arr['permissions_role'])
+		$arr['permissions_role'] = 'social';
+
+	if(validate_channelname($arr['name']))
+		return false;
+	if($arr['nickname'] === 'sys')
+		$arr['nickname'] = $arr['nickname'] . mt_rand(1000,9999);
+
+	$arr['nickname'] = check_webbie(array($arr['nickname'], $arr['nickname'] . mt_rand(1000,9999)));
+
+	return create_identity($arr);
+
+}
+
+function get_cover_photo($channel_id,$format = 'bbcode', $res = PHOTO_RES_COVER_1200) {
+
+	$r = q("select height, width, resource_id, type from photo where uid = %d and scale = %d and photo_usage = %d",
+		intval($channel_id),
+		intval($res),
+		intval(PHOTO_COVER)
+	);
+	if(! $r)
+		return false;
+
+	$output = false;
+
+	$url = z_root() . '/photo/' . $r[0]['resource_id'] . '-' . $res ;
+
+	switch($format) {
+		case 'bbcode':
+			$output = '[zrl=' . $r[0]['width'] . 'x' . $r[0]['height'] . ']' . $url . '[/zrl]';
+			break;
+		case 'html':
+ 			$output = '<img class="zrl" width="' . $r[0]['width'] . '" height="' . $r[0]['height'] . '" src="' . $url . '" alt="' . t('cover photo') . '" />';
+			break;
+		case 'array':
+		default:
+			$output = array(
+				'width' => $r[0]['width'],
+				'height' => $r[0]['type'],
+				'type' => $r[0]['type'],
+				'url' => $url
+			);
+			break;
+	}
+
+	return $output;  
+		
 }

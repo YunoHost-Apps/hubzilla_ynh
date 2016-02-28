@@ -105,6 +105,7 @@ function magic_init(&$a) {
 			$r = q("select * from channel left join hubloc on channel_hash = hubloc_hash where hubloc_addr = '%s' limit 1",
 				dbesc($delegate)
 			);
+
 			if($r && intval($r[0]['channel_id'])) {
 				$allowed = perm_is_allowed($r[0]['channel_id'],get_observer_hash(),'delegate');
 				if($allowed) {
@@ -112,6 +113,7 @@ function magic_init(&$a) {
 					$_SESSION['delegate'] = get_observer_hash();
 					$_SESSION['account_id'] = intval($r[0]['channel_account_id']);
 					change_channel($r[0]['channel_id']);
+
 					$delegation_success = true;
 				}
 			}

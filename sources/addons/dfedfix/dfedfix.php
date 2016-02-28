@@ -4,6 +4,7 @@
  * Description: Fix Diaspora federation until the proper fix is deployed
  * Version: 1.0
  * Author: Mike Macgirvin
+ * Maintainer: none
  */
 
 

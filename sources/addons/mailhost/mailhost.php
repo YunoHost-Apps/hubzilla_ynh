@@ -5,7 +5,7 @@
  * Description: Select one server to send email notifications when you have multiple clones
  * Version: 1.0
  * Author: Mike Macgirvin <mike@zothub.com>
- * 
+ * Maintainer: Mike Macgirvin <mike@macgirvin.com>
  */
 
 function mailhost_install() {

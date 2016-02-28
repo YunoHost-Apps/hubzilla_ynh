@@ -4,7 +4,7 @@
  * Description: Additional mood options
  * Version: 1.0
  * Author: Macgirvin
- *
+ * Maintainer: none
  */
 
 function moremoods_load() {

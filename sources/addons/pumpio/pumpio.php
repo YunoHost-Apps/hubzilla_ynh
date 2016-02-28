@@ -4,6 +4,7 @@
  * Description: Post to pump.io
  * Version: 0.1
  * Author: Michael Vogel <http://pirati.ca/profile/heluecht>
+ * Maintainer: none
  */
 
 require_once('library/oauth/http.php');

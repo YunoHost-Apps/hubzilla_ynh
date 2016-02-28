@@ -45,7 +45,7 @@ function share_init(&$a) {
 	$is_photo = (($r[0]['obj_type'] === ACTIVITY_OBJ_PHOTO) ? true : false);
 	if($is_photo) {
 		$object = json_decode($r[0]['object'],true);
-		$photo_bb = $object['bbcode'];
+		$photo_bb = $object['body'];
 	}
 
 	if (strpos($r[0]['body'], "[/share]") !== false) {
