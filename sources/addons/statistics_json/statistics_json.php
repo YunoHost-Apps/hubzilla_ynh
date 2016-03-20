@@ -27,8 +27,8 @@ function statistics_json_init() {
 
 	$statistics = array(
 		"name" => get_config('system','sitename'),
-		"network" => get_platform_name(),
-		"version" => get_project_version(),
+		"network" => Zotlabs\Project\System::get_platform_name(),
+		"version" => Zotlabs\Project\System::get_project_version(),
 		"registrations_open" => (get_config('system','register_policy') != 0),
 		"total_users" => get_config('statistics_json','total_users'),
 		"active_users_halfyear" => get_config('statistics_json','active_users_halfyear'),

@@ -1,4 +1,18 @@
 
+CREATE TABLE IF NOT EXISTS `abconfig` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `chan` char(255) NOT NULL DEFAULT '',
+  `xchan` char(255) NOT NULL DEFAULT '',
+  `cat` char(255) NOT NULL DEFAULT '',
+  `k` char(255) NOT NULL DEFAULT '',
+  `v` mediumtext NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `chan` (`chan`),
+  KEY `xchan` (`xchan`),
+  KEY `cat` (`cat`),
+  KEY `k` (`k`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `abook` (
   `abook_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `abook_account` int(10) unsigned NOT NULL DEFAULT '0',
@@ -230,6 +244,7 @@ CREATE TABLE IF NOT EXISTS `channel` (
   `channel_w_like` int(10) unsigned NOT NULL DEFAULT '0',
   `channel_removed` tinyint(1) NOT NULL DEFAULT '0',
   `channel_system` tinyint(1) NOT NULL DEFAULT '0',
+  `channel_moved` char(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`channel_id`),
   UNIQUE KEY `channel_address_unique` (`channel_address`),
   KEY `channel_account_id` (`channel_account_id`),
@@ -268,7 +283,8 @@ CREATE TABLE IF NOT EXISTS `channel` (
   KEY `channel_w_like` (`channel_w_like`),
   KEY `channel_removed` (`channel_removed`),
   KEY `channel_system` (`channel_system`),
-  KEY `channel_lastpost` (`channel_lastpost`)
+  KEY `channel_lastpost` (`channel_lastpost`),
+  KEY `channel_moved` (`channel_moved`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `chat` (
@@ -541,6 +557,21 @@ CREATE TABLE IF NOT EXISTS `hubloc` (
   KEY `hubloc_orphancheck` (`hubloc_orphancheck`),
   KEY `hubloc_deleted` (`hubloc_deleted`),
   KEY `hubloc_error` (`hubloc_error`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+
+
+CREATE TABLE IF NOT EXISTS `iconfig` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `iid` int(11) NOT NULL DEFAULT '0',
+  `cat` char(255) NOT NULL DEFAULT '',
+  `k` char(255) NOT NULL DEFAULT '',
+  `v` mediumtext NOT NULL,
+  `sharing` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `iid` (`iid`),
+  KEY `cat` (`cat`),
+  KEY `k` (`k`),
+  KEY `sharing` (`sharing`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `issue` (

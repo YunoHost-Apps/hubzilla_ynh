@@ -202,6 +202,7 @@ a.rconnect, a.rateme, div.rateme {
     text-decoration: underline;
     background-color: #000;
 	color: #50f148;
+	border-color: #143D12;
 }
 
 aside .nav > li > a:hover, aside .nav > li > a:focus {
@@ -291,4 +292,16 @@ pre {
 .nav-tabs.nav-justified {
 	background-color: inherit;
 	border: none;
+}
+
+.table-striped > tbody > tr:nth-of-type(2n+1) {
+	background-color: #000;
+}
+
+.table-hover > tbody > tr:hover {
+	background-color: #143D12;
+}
+
+.table > tbody > tr > td {
+	border-color: #143D12;
 }

@@ -6,7 +6,7 @@ function string_plural_select_nl($n){
 }}
 ;
 $a->strings["Comma separated profile URLS to block"] = "Door komma's gescheiden profiel-URL's die geblokkeerd moeten worden";
-$a->strings["\"Superblock\" Settings"] = "\"Superblock\"-instellingen";
+$a->strings["\"Superblock\" Settings"] = "Superblock (kanalen volledig blokkeren)";
 $a->strings["Submit"] = "Opslaan";
 $a->strings["SUPERBLOCK Settings saved."] = "Superblock-instellingen opgeslagen.";
 $a->strings["Block Completely"] = "Volledig blokkeren";

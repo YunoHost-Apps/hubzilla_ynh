@@ -1,31 +1,43 @@
-<div class="generic-content-wrapper-styled">
-<h1>{{$title}}</h1>
+<div id="profile-photo-content" class="generic-content-wrapper">
+    <div class="section-title-wrapper">
+    <h2>{{$title}}</h2>
+    </div>
+    <div class="section-content-wrapper">
 
-<form enctype="multipart/form-data" action="profile_photo" method="post">
-<input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
+		<form enctype="multipart/form-data" action="profile_photo" method="post">
+		<input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
 
-<div id="profile-photo-upload-wrapper">
+		<div id="profile-photo-upload-wrapper">
 
-<label id="profile-photo-upload-label" class="form-label" for="profile-photo-upload">{{$lbl_upfile}}</label>
-<input name="userfile" class="form-input" type="file" id="profile-photo-upload" size="48" />
-<div class="clear"></div>
+			<label id="profile-photo-upload-label" class="form-label" for="profile-photo-upload">{{$lbl_upfile}}</label>
+			<input name="userfile" class="form-input" type="file" id="profile-photo-upload" size="48" />
+			<div class="clear"></div>
 
-<label id="profile-photo-profiles-label" class="form-label" for="profile-photo-profiles">{{$lbl_profiles}}</label>
-<select name="profile" id="profile-photo-profiles" class="form-input" >
-{{foreach $profiles as $p}}
-<option value="{{$p.id}}" {{if $p.is_default}}selected="selected"{{/if}}>{{$p.name}}</option>
-{{/foreach}}
-</select>
-<div class="clear"></div>
+			{{if $single}}
+			<input type="hidden" name="profile" value="{{$profile0.id}}" />
+			{{else}}
 
-<div id="profile-photo-submit-wrapper">
-<input type="submit" name="submit" id="profile-photo-submit" value="{{$submit}}">
-</div>
-</div>
+			<label id="profile-photo-profiles-label" class="form-label" for="profile-photo-profiles">{{$lbl_profiles}}</label>
+			<select name="profile" id="profile-photo-profiles" class="form-control" >
+			{{foreach $profiles as $p}}
+				<option value="{{$p.id}}" {{if $p.is_default}}selected="selected"{{/if}}>{{$p.name}}</option>
+			{{/foreach}}
+			</select>
+			<div class="clear"></div>
+			<br />
+			<br />
+			{{/if}}
 
-</form>
+			<div id="profile-photo-submit-wrapper">
+				<input type="submit" name="submit" id="profile-photo-submit" value="{{$submit}}">
+			</div>
+		</div>
 
-<div id="profile-photo-link-select-wrapper">
-{{$select}}
-</div>
+		</form>
+		<br />
+		<br />
+		<div id="profile-photo-link-select-wrapper">
+		{{$select}}
+		</div>
+	</div>
 </div>

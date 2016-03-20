@@ -10,6 +10,8 @@ $db_pass = '{{$dbpass}}';
 $db_data = '{{$dbdata}}';
 $db_type = '{{$dbtype}}'; // an integer. 0 or unset for mysql, 1 for postgres
 
+define( 'UNO', {{$uno}} );
+
 /*
  * Notice: Many of the following settings will be available in the admin panel 
  * after a successful site install. Once they are set in the admin panel, they

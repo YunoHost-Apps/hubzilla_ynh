@@ -15,6 +15,7 @@ require_once('include/items.php');
  */
 
 class Conversation extends BaseObject {
+
 	private $threads = array();
 	private $mode = null;
 	private $observer = null;
@@ -52,14 +53,8 @@ class Conversation extends BaseObject {
 
 		switch($mode) {
 			case 'network':
-//				if(array_key_exists('firehose',$a->data) && intval($a->data['firehose'])) {
-//					$this->profile_owner = intval($a->data['firehose']);
-//					$this->writable = false;
-//				}
-//				else {
-					$this->profile_owner = local_channel();
-					$this->writable = true;
-//				}
+				$this->profile_owner = local_channel();
+				$this->writable = true;
 				break;
 			case 'channel':
 				$this->profile_owner = $a->profile['profile_uid'];
@@ -69,7 +64,6 @@ class Conversation extends BaseObject {
 				// in this mode we set profile_owner after initialisation (from conversation()) and then 
 				// pull some trickery which allows us to re-invoke this function afterward
 				// it's an ugly hack so FIXME
-//				$this->profile_owner = $a->profile['uid'];
 				$this->writable = perm_is_allowed($this->profile_owner,$ob_hash,'post_comments');
 				break;
 			case 'page':
@@ -142,11 +136,11 @@ class Conversation extends BaseObject {
 	public function add_thread($item) {
 		$item_id = $item->get_id();
 		if(!$item_id) {
-			logger('[ERROR] Conversation::add_thread : Item has no ID!!', LOGGER_DEBUG);
+			logger('Item has no ID!!', LOGGER_DEBUG, LOG_ERR);
 			return false;
 		}
 		if($this->get_thread($item->get_id())) {
-			logger('[WARN] Conversation::add_thread : Thread already exists ('. $item->get_id() .').', LOGGER_DEBUG);
+			logger('Thread already exists ('. $item->get_id() .').', LOGGER_DEBUG, LOG_WARNING);
 			return false;
 		}
 
@@ -177,11 +171,6 @@ class Conversation extends BaseObject {
 			}
 		}
 		require_once('include/identity.php');
-//		$sys = get_sys_channel();
-
-//		if($sys && $item->get_data_value('uid') == $sys['channel_id']) {
-//			$item->set_commentable(false);
-//		}
 
 		$item->set_conversation($this);
 		$this->threads[] = $item;
@@ -209,7 +198,7 @@ class Conversation extends BaseObject {
 				$item_data = $item->get_template_data($conv_responses);
 			}
 			if(!$item_data) {
-				logger('[ERROR] Conversation::get_template_data : Failed to get item template data ('. $item->get_id() .').', LOGGER_DEBUG);
+				logger('Failed to get item template data ('. $item->get_id() .').', LOGGER_DEBUG, LOG_ERR);
 				return false;
 			}
 			$result[] = $item_data;

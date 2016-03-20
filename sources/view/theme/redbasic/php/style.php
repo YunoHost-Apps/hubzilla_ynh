@@ -40,7 +40,6 @@ if(! $a->install) {
 	$nav_min_opacity=get_pconfig($uid,'redbasic','nav_min_opacity');
 	$top_photo=get_pconfig($uid,'redbasic','top_photo');
 	$reply_photo=get_pconfig($uid,'redbasic','reply_photo');
-
 }
 
 // Now load the scheme.  If a value is changed above, we'll keep the settings
@@ -154,7 +153,7 @@ if(file_exists('view/theme/redbasic/css/style.css')) {
 
 	$x = file_get_contents('view/theme/redbasic/css/style.css');
 
-	$aside_width = 285;
+	$aside_width = 287;
 
 	// left aside and right aside are 285px + converse width
 	if($align_left) {
@@ -216,3 +215,8 @@ if($align_left && file_exists('view/theme/redbasic/css/align_left.css')) {
 if($schemecss) {
 	echo $schemecss;
 }
+
+// Set the schema to the default schema in derived themes. See the documentation for creating derived themes how to override this. 
+
+if(local_channel() && $a->channel && $a->channel['channel_theme'] != 'redbasic')
+	set_pconfig(local_channel(), 'redbasic', 'schema', '---');

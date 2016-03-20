@@ -1,6 +1,6 @@
 <?php
 
-define( 'UPDATE_VERSION' , 1161 );
+define( 'UPDATE_VERSION' , 1165 );
 
 /**
  *
@@ -1954,6 +1954,107 @@ function update_r1160() {
 	$r = q("alter table abook add abook_instance text not null default '' ");
 	if($r)
 		return UPDATE_SUCCESS;
+    return UPDATE_FAILED;
+}
+
+function update_r1161() {
+
+	if(ACTIVE_DBTYPE == DBTYPE_POSTGRES) { 
+		$r1 = q("CREATE TABLE \"iconfig\" (
+  \"id\" serial NOT NULL,
+  \"iid\" bigint NOT NULL DEFAULT '0',
+  \"cat\" text NOT NULL DEFAULT '',
+  \"k\" text NOT NULL DEFAULT '',
+  \"v\" text NOT NULL DEFAULT '',
+  PRIMARY_KEY(\"id\")
+) ");
+$r2 = q("create index \"iconfig_iid\" on iconfig (\"iid\") ");;
+$r3 = q("create index \"iconfig_cat\" on iconfig (\"cat\") ");
+$r4 = q("create index \"iconfig_k\" on iconfig (\"k\") ");
+	$r = $r1 && $r2 && $r3 && $r4;
+	}
+	else {
+		$r = q("CREATE TABLE IF NOT EXISTS `iconfig` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `iid` int(11) NOT NULL DEFAULT '0',
+  `cat` char(255) NOT NULL DEFAULT '',
+  `k` char(255) NOT NULL DEFAULT '',
+  `v` mediumtext NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `iid` (`iid`),
+  KEY `cat` (`cat`),
+  KEY `k` (`k`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 ");
+
+	}
+
+    if($r)
+        return UPDATE_SUCCESS;
+    return UPDATE_FAILED;
+}
+
+function update_r1162() {
+	$r1 = q("alter table iconfig add sharing int not null default '0' ");
+
+	if(ACTIVE_DBTYPE == DBTYPE_POSTGRES)
+		$r2 = q("create index \"iconfig_sharing\" on iconfig (\"sharing\") "); 
+	else 
+		$r2 = q("alter table iconfig add index ( sharing ) ");
+    if($r1 && $r2)
+        return UPDATE_SUCCESS;
+    return UPDATE_FAILED;
+}
+
+function update_r1163() {
+
+	if(ACTIVE_DBTYPE == DBTYPE_POSTGRES) {
+		$r1 = q("alter table channel add channel_moved text not null default '' ");
+		$r2 = q("create index \"channel_channel_moved\" on channel (\"channel_moved\") ");
+	} 
+	else {
+		$r1 = q("alter table channel add channel_moved char(255) not null default '' ");
+		$r2 = q("alter table channel add index ( channel_moved ) ");
+	}
+    if($r1 && $r2)
+        return UPDATE_SUCCESS;
+    return UPDATE_FAILED;
+}
+
+function update_r1164() {
+
+	if(ACTIVE_DBTYPE == DBTYPE_POSTGRES) {
+		$r1 = q("CREATE TABLE \"abconfig\" (
+			\"id\" serial  NOT NULL,
+		 	\"chan\" text NOT NULL,
+			\"xchan\" text NOT NULL,
+			\"cat\" text NOT NULL,
+			\"k\" text NOT NULL,
+			\"v\" text NOT NULL,
+			PRIMARY KEY (\"id\") ");
+		$r2 = q("create index \"abconfig_chan\" on abconfig (\"chan\") ");
+		$r3 = q("create index \"abconfig_xchan\" on abconfig (\"xchan\") ");
+		$r4 = q("create index \"abconfig_cat\" on abconfig (\"cat\") ");
+		$r5 = q("create index \"abconfig_k\" on abconfig (\"k\") ");
+		$r = $r1 && $r2 && $r3 && $r4 && $r5;
+	}
+	else {
+		$r = q("CREATE TABLE IF NOT EXISTS `abconfig` (
+			`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+			`chan` char(255) NOT NULL DEFAULT '',
+			`xchan` char(255) NOT NULL DEFAULT '',
+			`cat` char(255) NOT NULL DEFAULT '',
+			`k` char(255) NOT NULL DEFAULT '',
+			`v` mediumtext NOT NULL,
+			PRIMARY KEY (`id`),
+			KEY `chan` (`chan`),
+			KEY `xchan` (`xchan`),
+			KEY `cat` (`cat`),
+			KEY `k` (`k`)
+			) ENGINE=MyISAM  DEFAULT CHARSET=utf8 ");
+
+	}
+    if($r)
+        return UPDATE_SUCCESS;
     return UPDATE_FAILED;
 }
 

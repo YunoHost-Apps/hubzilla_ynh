@@ -14,7 +14,7 @@ Once you've done that, cd into the directory, and add an upstream.
 
 [code]
 cd red
-git remote add upstream https://github.com/redmatrix/redmatrix
+git remote add upstream https://github.com/redmatrix/hubzilla
 [/code]
 
 From now on, you can pull upstream changes with the command

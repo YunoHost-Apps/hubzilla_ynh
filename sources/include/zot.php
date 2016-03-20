@@ -11,7 +11,6 @@
 require_once('include/crypto.php');
 require_once('include/items.php');
 require_once('include/hubloc.php');
-require_once('include/DReport.php');
 require_once('include/queue_fn.php');
 
 
@@ -523,6 +522,11 @@ function zot_refresh($them, $channel = null, $force = false) {
 						unset($new_connection[0]['abook_id']);
 						unset($new_connection[0]['abook_account']);
 						unset($new_connection[0]['abook_channel']);
+
+						$abconfig = load_abconfig($channel['channel_hash'],$new_connection['abook_xchan']);
+						if($abconfig)
+							$new_connection['abconfig'] = $abconfig;
+
 						build_sync_packet($channel['channel_id'], array('abook' => $new_connection));
 					}
 				}
@@ -1589,7 +1593,7 @@ function process_delivery($sender, $arr, $deliveries, $relay, $public = false, $
 	foreach($deliveries as $d) {
 		$local_public = $public;
 
-		$DR = new DReport(z_root(),$sender['hash'],$d['hash'],$arr['mid']);
+		$DR = new Zotlabs\Zot\DReport(z_root(),$sender['hash'],$d['hash'],$arr['mid']);
 
 		$r = q("select * from channel where channel_hash = '%s' limit 1",
 			dbesc($d['hash'])
@@ -2068,7 +2072,7 @@ function process_mail_delivery($sender, $arr, $deliveries) {
 
 	foreach($deliveries as $d) {
 
-		$DR = new DReport(z_root(),$sender['hash'],$d['hash'],$arr['mid']);
+		$DR = new Zotlabs\Zot\DReport(z_root(),$sender['hash'],$d['hash'],$arr['mid']);
 
 		$r = q("select * from channel where channel_hash = '%s' limit 1",
 			dbesc($d['hash'])
@@ -2230,6 +2234,56 @@ function process_location_delivery($sender,$arr,$deliveries) {
 }
 
 /**
+ * @brief checks for a moved UNO channel and sets the channel_moved flag
+ *   
+ * Currently the effect of this flag is to turn the channel into 'read-only' mode.
+ * New content will not be processed (there was still an issue with blocking the 
+ * ability to post comments as of 10-Mar-2016).
+ * We do not physically remove the channel at this time. The hub admin may choose 
+ * to do so, but is encouraged to allow a grace period of several days in case there
+ * are any issues migrating content. This packet will generally be received by the
+ * original site when the basic channel import has been processed.
+ * 
+ * This will only be executed on the UNO system which is the old location
+ * if a new location is reported and there is only one location record.
+ * The rest of the hubloc syncronisation will be handled within
+ * sync_locations
+ */
+
+
+
+function check_location_move($sender_hash,$locations) {
+
+	if(! $locations)
+		return;	
+
+	if(! UNO)
+		return;
+
+	if(count($locations) != 1)
+		return;
+
+	$loc = $locations[0];
+
+	$r = q("select * from channel where channel_hash = '%s' limit 1",
+		dbesc($sender_hash)
+	);
+
+	if(! $r)
+		return;
+
+	if($loc['url'] !== z_root()) {
+		$x = q("update channel set channel_moved = '%s' where channel_hash = '%s' limit 1",
+			dbesc($loc['url']),
+			dbesc($sender_hash)
+		);
+
+	}		
+
+}
+
+
+/**
  * @brief Synchronises locations.
  *
  * @param array $sender
@@ -2242,6 +2296,10 @@ function sync_locations($sender, $arr, $absolute = false) {
 	$ret = array();
 
 	if($arr['locations']) {
+
+		if($absolute)
+			check_location_move($sender['hash'],$arr['locations']);
+
 
 		$xisting = q("select hubloc_id, hubloc_url, hubloc_sitekey from hubloc where hubloc_hash = '%s'",
 			dbesc($sender['hash'])
@@ -2868,6 +2926,9 @@ function import_site($arr, $pubkey) {
  */
 function build_sync_packet($uid = 0, $packet = null, $groups_changed = false) {
 
+	if(UNO)
+		return;
+
 	$a = get_app();
 
 	logger('build_sync_packet');
@@ -2969,6 +3030,8 @@ function build_sync_packet($uid = 0, $packet = null, $groups_changed = false) {
 
 	logger('build_sync_packet: packet: ' . print_r($info,true), LOGGER_DATA, LOG_DEBUG);
 
+	$total = count($synchubs);
+
 	foreach($synchubs as $hub) {
 		$hash = random_string();
 		$n = zot_build_packet($channel,'notify',$env_recips,$hub['hubloc_sitekey'],$hash);
@@ -2982,7 +3045,9 @@ function build_sync_packet($uid = 0, $packet = null, $groups_changed = false) {
 		));
 
 		proc_run('php', 'include/deliver.php', $hash);
-		if($interval)
+		$total = $total - 1;
+
+		if($interval && $total)
 			@time_sleep_until(microtime(true) + (float) $interval);
 	}
 }
@@ -2996,6 +3061,9 @@ function build_sync_packet($uid = 0, $packet = null, $groups_changed = false) {
  * @return array
  */
 function process_channel_sync_delivery($sender, $arr, $deliveries) {
+
+	if(UNO)
+		return;
 
 	require_once('include/import.php');
 
@@ -3115,6 +3183,11 @@ function process_channel_sync_delivery($sender, $arr, $deliveries) {
 
 			foreach($arr['abook'] as $abook) {
 
+				$abconfig = null;
+
+				if(array_key_exists('abconfig',$abook) && is_array($abook['abconfig']) && count($abook['abconfig']))
+					$abconfig = $abook['abconfig'];
+
 				if(! array_key_exists('abook_blocked',$abook)) {
 					// convert from redmatrix
 					$abook['abook_blocked']     = (($abook['abook_flags'] & 0x0001) ? 1 : 0);
@@ -3205,8 +3278,13 @@ function process_channel_sync_delivery($sender, $arr, $deliveries) {
 					}
 				}
 
-
-
+				if($abconfig) {
+					// @fixme does not handle sync of del_abconfig
+					foreach($abconfig as $abc) {
+						if($abc['chan'] === $channel['channel_hash'])
+							set_abconfig($abc['chan'],$abc['xchan'],$abc['cat'],$abc['k'],$abc['v']);
+					}
+				}
 			}
 		}
 
@@ -3404,14 +3482,12 @@ function process_channel_sync_delivery($sender, $arr, $deliveries) {
 
 		// we should probably do this for all items, but usually we only send one.
 
-		require_once('include/DReport.php');
-
 		if(array_key_exists('item',$arr) && is_array($arr['item'][0])) {
-			$DR = new DReport(z_root(),$d['hash'],$d['hash'],$arr['item'][0]['message_id'],'channel sync processed');
+			$DR = new Zotlabs\Zot\DReport(z_root(),$d['hash'],$d['hash'],$arr['item'][0]['message_id'],'channel sync processed');
 			$DR->addto_recipient($channel['channel_name'] . ' <' . $channel['channel_address'] . '@' . get_app()->get_hostname() . '>');
 		}
 		else
-			$DR = new DReport(z_root(),$d['hash'],$d['hash'],'sync packet','channel sync delivered');
+			$DR = new Zotlabs\Zot\DReport(z_root(),$d['hash'],$d['hash'],'sync packet','channel sync delivered');
 
 		$result[] = $DR->get();
 
@@ -3829,7 +3905,7 @@ function zotinfo($arr) {
 		$ret['site']['channels'] = channel_total();
 
 
-		$ret['site']['version'] = get_platform_name() . ' ' . RED_VERSION . '[' . DB_UPDATE_VERSION . ']';
+		$ret['site']['version'] = Zotlabs\Project\System::get_platform_name() . ' ' . RED_VERSION . '[' . DB_UPDATE_VERSION . ']';
 
 		$ret['site']['admin'] = get_config('system','admin_email');
 
@@ -3849,7 +3925,7 @@ function zotinfo($arr) {
 		$ret['site']['sellpage'] = get_config('system','sellpage');
 		$ret['site']['location'] = get_config('system','site_location');
 		$ret['site']['realm'] = get_directory_realm();
-		$ret['site']['project'] = get_platform_name();
+		$ret['site']['project'] = Zotlabs\Project\System::get_platform_name();
 
 	}
 

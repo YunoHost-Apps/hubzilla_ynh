@@ -48,10 +48,9 @@ Content (especially status posts) that you share with other networks or that you
 
 Comments to posts that were created by others and posts which are designated as forum posts belong to you as the creator/author, but the distribution of these posts is not under your direct control. These posts/comments MAY be re-distributed to others, and MAY be visible to anybody on the internet. In the case of comments, the creator of the "first message" in the thread to which you are replying controls the distribution of all comments and replies to that message.
 
-
 **Private Information**
 
-$Projectname developers will ensure that any content you provide which is designated as PRIVATE will be protected against eavesdropping - to the best of their ability. Private content is generally hidden or obscured even from hub administrators. It is also stripped from email notifications. It is difficult but NOT impossible for this content to be seen by a hub administrator.  End to end encryption is provided as an optional feature and this CANNOT be seen, even by a determined administrator. 
+$Projectname developers will ensure that any content you provide which is designated as PRIVATE will be protected against eavesdropping - to the best of their ability. Private channel content CAN be seen in the database of every involved hub administrator, but private messages are obscured in the database. The latter means that it is very difficult, but NOT impossible for this content to be seen by a hub administrator. Private channel content and private messages are also stripped from email notifications. End to end encryption is provided as an optional feature and this CANNOT be seen, even by a determined administrator.  
 
 ##Identity Privacy
 

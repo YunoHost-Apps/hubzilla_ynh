@@ -618,7 +618,7 @@ function updateConvItems(mode,data) {
 	/* autocomplete @nicknames */
 	$(".comment-edit-form  textarea").editor_autocomplete(baseurl+"/acl?f=&n=1");
 
-	var bimgs = $(".wall-item-body img").not(function() { return this.complete; });
+	var bimgs = ((preloadImages) ? false : $(".wall-item-body img").not(function() { return this.complete; }));
 	var bimgcount = bimgs.length;
 
 	if (bimgcount) {
@@ -636,33 +636,57 @@ function updateConvItems(mode,data) {
 
 function collapseHeight() {
 	var origContentHeight = parseInt($("#region_2").height());
+	var cDiff = 0;
+	var i = 0;
+	var position = $(window).scrollTop();
+
 	$(".wall-item-content, .directory-collapse").each(function() {
 		var orgHeight = parseInt($(this).css('height'));
 		if(orgHeight > divmore_height) {
 			if(! $(this).hasClass('divmore')) {
-				if($(window).scrollTop() + ($(window).height() - divmore_height) < $(this).offset().top) {
-					$(this).readmore({
-						speed: 0,
-						heightMargin: 50,
-						collapsedHeight: divmore_height,
-						moreLink: '<a href="#" class="divgrow-showmore">' + aStr.divgrowmore + '</a>',
-						lessLink: '<a href="#" class="divgrow-showmore">' + aStr.divgrowless + '</a>',
-						beforeToggle: function(trigger, element, expanded) {
-							if(expanded) {
-								if((($(element).offset().top + divmore_height) - $(window).scrollTop()) < 65 ) {
-									$('html, body').animate( { scrollTop: $(window).scrollTop() - (orgHeight - divmore_height) }, {duration: 0 } );
-								}
+
+				//var trigger = $(window).scrollTop() < $(this).offset().top ? true : false;
+				//console.log($(this).offset().top + divmore_height - $(window).scrollTop() + cDiff - ($(".divgrow-showmore").outerHeight() * i));
+
+				// check if we will collapse some content above the visible content and compensate the diff later
+				if($(this).offset().top + divmore_height - $(window).scrollTop() + cDiff - ($(".divgrow-showmore").outerHeight() * i) < 65) {
+					//$(this).css('color', 'red');
+					//console.log($(this).offset().top + divmore_height + ' / ' + $(window).scrollTop());
+					diff = orgHeight - divmore_height;
+					cDiff = cDiff + diff;
+					i++;
+				}
+
+				//if(trigger) {
+				$(this).readmore({
+					speed: 0,
+					heightMargin: 50,
+					collapsedHeight: divmore_height,
+					moreLink: '<a href="#" class="divgrow-showmore">' + aStr.divgrowmore + '</a>',
+					lessLink: '<a href="#" class="divgrow-showmore">' + aStr.divgrowless + '</a>',
+					beforeToggle: function(trigger, element, expanded) {
+						if(expanded) {
+							if((($(element).offset().top + divmore_height) - $(window).scrollTop()) < 65 ) {
+								$(window).scrollTop($(window).scrollTop() - (orgHeight - divmore_height));
 							}
 						}
-					});
-					$(this).addClass('divmore');
-				}
+					}
+				});
+				$(this).addClass('divmore');
+				//}
 			}
 		}
 	});
 
 	var collapsedContentHeight = parseInt($("#region_2").height());
 	contentHeightDiff = origContentHeight - collapsedContentHeight;
+	console.log('collapseHeight() - contentHeightDiff: ' + contentHeightDiff + 'px');
+
+	if(i){
+		var sval = position - cDiff + ($(".divgrow-showmore").outerHeight() * i);
+		console.log('collapsed above viewport count: ' + i);
+		$(window).scrollTop(sval);
+	}
 
 
 }
@@ -709,34 +733,74 @@ function liveUpdate() {
 		var orgHeight = $("#region_2").height();
 	}
 
+
+	var dstart = new Date();
+	console.log('LOADING data...');
 	$.get(update_url, function(data) {
-		page_load = false;
-		scroll_next = false;
-		updateConvItems(update_mode,data);
-		$("#page-spinner").spin(false);
-		$("#profile-jot-text-loading").spin(false);
+		var dready = new Date();
+		console.log('DATA ready in: ' + (dready - dstart)/1000 + ' seconds.');
 
-		console.log('contentHeightDiff: ' + contentHeightDiff);
+		if(update_mode === 'update' || preloadImages) {
+			console.log('LOADING images...');
 
-		if(update_mode === 'update') {
-			$(window).scrollTop($(window).scrollTop() + $("#region_2").height() - orgHeight + contentHeightDiff);
+			$('.wall-item-body, .wall-photo-item',data).imagesLoaded( function() {
+				var iready = new Date();
+				console.log('IMAGES ready in: ' + (iready - dready)/1000 + ' seconds.');
+
+				page_load = false;
+				scroll_next = false;
+				updateConvItems(update_mode,data);
+				$("#page-spinner").spin(false);
+				$("#profile-jot-text-loading").spin(false);
+
+				// adjust scroll position if new content was added above viewport
+				if(update_mode === 'update') {
+					$(window).scrollTop($(window).scrollTop() + $("#region_2").height() - orgHeight + contentHeightDiff);
+				}
+
+				in_progress = false;
+
+				// FIXME - the following lines were added so that almost
+				// immediately after we update the posts on the page, we
+				// re-check and update the notification counts.
+				// As it turns out this causes a bit of an inefficiency
+				// as we're pinging twice for every update, once before
+				// and once after. A btter way to do this is to rewrite
+				// NavUpdate and perhaps LiveUpdate so that we check for 
+				// post updates first and only call the notification ping 
+				// once. 
+
+				updateCountsOnly = true;
+				if(timer) clearTimeout(timer);
+				timer = setTimeout(NavUpdate,10);
+
+			});
+		}
+		else {
+			page_load = false;
+			scroll_next = false;
+			updateConvItems(update_mode,data);
+			$("#page-spinner").spin(false);
+			$("#profile-jot-text-loading").spin(false);
+
+			in_progress = false;
+
+			// FIXME - the following lines were added so that almost
+			// immediately after we update the posts on the page, we
+			// re-check and update the notification counts.
+			// As it turns out this causes a bit of an inefficiency
+			// as we're pinging twice for every update, once before
+			// and once after. A btter way to do this is to rewrite
+			// NavUpdate and perhaps LiveUpdate so that we check for 
+			// post updates first and only call the notification ping 
+			// once. 
+
+			updateCountsOnly = true;
+			if(timer) clearTimeout(timer);
+			timer = setTimeout(NavUpdate,10);
+
 		}
 
-		in_progress = false;
-
-		// FIXME - the following lines were added so that almost
-		// immediately after we update the posts on the page, we
-		// re-check and update the notification counts.
-		// As it turns out this causes a bit of an inefficiency
-		// as we're pinging twice for every update, once before
-		// and once after. A btter way to do this is to rewrite
-		// NavUpdate and perhaps LiveUpdate so that we check for 
-		// post updates first and only call the notification ping 
-		// once. 
-
-		updateCountsOnly = true;
-		if(timer) clearTimeout(timer);
-		timer = setTimeout(NavUpdate,10);
 	});
 }
 
@@ -1213,21 +1277,8 @@ function zFormError(elm,x) {
 $(window).scroll(function () {
 	if(typeof buildCmd == 'function') {
 		// This is a content page with items and/or conversations
-		$('#more').hide();
-		$('#no-more').hide();
-
-		if($(window).scrollTop() + $(window).height() > $(document).height() - 200) {
-			$('#more').css("top","400");
-			$('#more').show();
-		}
-
-		if($(window).scrollTop() + $(window).height() > $(document).height() - 100) {
-//		if($(window).scrollTop() > $(document).height() - ($(window).height() * 1.5 )) {
-
+		if($(window).scrollTop() + $(window).height() > $(document).height() - 300) {
 			if((pageHasMoreContent) && (! loadingPage)) {
-				$('#more').hide();
-				$('#no-more').hide();
-
 				next_page++;
 				scroll_next = true;
 				loadingPage = true;
@@ -1237,18 +1288,8 @@ $(window).scroll(function () {
 	}
 	else {
 		// This is some other kind of page - perhaps a directory
-
-		if($(window).scrollTop() + $(window).height() > $(document).height() - 200) {
-			$('#more').css("top","400");
-			$('#more').show();
-		}
-
-		if($(window).scrollTop() + $(window).height() > $(document).height() - 100) {
-//		if($(window).scrollTop() > ($(document).height() - $(window).height() * 1.5 )) {
+		if($(window).scrollTop() + $(window).height() > $(document).height() - 300) {
 			if((pageHasMoreContent) && (! loadingPage) && (! justifiedGalleryActive)) {
-				$('#more').hide();
-				$('#no-more').hide();
-
 				next_page++;
 				scroll_next = true;
 				loadingPage = true;

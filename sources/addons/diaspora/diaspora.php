@@ -362,8 +362,10 @@ function diaspora_process_outbound(&$a, &$arr) {
 			}
 			elseif($arr['top_level_post']) {
 				$qi = diaspora_send_status($target_item,$arr['channel'],$contact);
-				if($qi)
-					$arr['queued'][] = $qi;
+				if($qi) {
+					foreach($qi as $q)
+						$arr['queued'][] = $q;
+				}
 				continue;
 			}
 		}
@@ -394,8 +396,10 @@ function diaspora_process_outbound(&$a, &$arr) {
 			if(perm_is_allowed($arr['channel'],'','view_stream')) {
 				logger('delivery: diaspora status: ' . $loc);
 				$qi = diaspora_send_status($target_item,$arr['channel'],$contact,true);
-				if($qi)
-					$arr['queued'][] = $qi;
+				if($qi) {
+					foreach($qi as $q)
+						$arr['queued'][] = $q;
+				}
 				return;
 			}
 		}
@@ -889,7 +893,7 @@ function diaspora_request($importer,$xml) {
 // End FIXME
 
 
-	$role = get_pconfig($channel['channel_id'],'system','permissions_role');
+	$role = get_pconfig($importer['channel_id'],'system','permissions_role');
 	if($role) {
 		$x = get_role_perms($role);
 		if($x['perms_auto'])
@@ -938,7 +942,6 @@ function diaspora_request($importer,$xml) {
 				'link'         => z_root() . '/connedit/' . $new_connection[0]['abook_id'],
 			));
 
-
 			if($default_perms) {
 				// Send back a sharing notification to them
 				$x = diaspora_share($importer,$new_connection[0]);
@@ -956,6 +959,11 @@ function diaspora_request($importer,$xml) {
 			unset($clone['abook_id']);
 			unset($clone['abook_account']);
 			unset($clone['abook_channel']);
+		
+			$abconfig = load_abconfig($importer['channel_hash'],$clone['abook_xchan']);
+
+			if($abconfig)
+				$clone['abconfig'] = $abconfig;
 
 			build_sync_packet($importer['channel_id'], array('abook' => array($clone)));
 
@@ -2695,12 +2703,14 @@ function diaspora_send_status($item,$owner,$contact,$public_batch = false) {
 
 	$slap = 'xml=' . urlencode(urlencode(diaspora_msg_build($msg,$owner,$contact,$owner['channel_prvkey'],$contact['xchan_pubkey'],$public_batch)));
 
-	$qi = diaspora_queue($owner,$contact,$slap,$public_batch,$item['mid']);
+	$qi = array(diaspora_queue($owner,$contact,$slap,$public_batch,$item['mid']));
 
 //	logger('diaspora_send_status: guid: '.$item['mid'].' result '.$return_code, LOGGER_DEBUG);
 
 	if(count($images)) {
-		diaspora_send_images($item,$owner,$contact,$images,$public_batch,$item['mid']);
+		$qim = diaspora_send_images($item,$owner,$contact,$images,$public_batch,$item['mid']);
+		if($qim)
+			$qi = array_merge($qi,$qim);
 	}
 
 	return $qi;
@@ -2761,6 +2771,8 @@ function diaspora_send_images($item,$owner,$contact,$images,$public_batch = fals
 		return;
 	$mysite = substr($a->get_baseurl(),strpos($a->get_baseurl(),'://') + 3) . '/photo';
 
+	$qi = array();
+
 	$tpl = get_markup_template('diaspora_photo.tpl','addon/diaspora');
 	foreach($images as $image) {
 		if(! stristr($image['path'],$mysite))
@@ -2785,12 +2797,13 @@ function diaspora_send_images($item,$owner,$contact,$images,$public_batch = fals
 			'$created_at' => xmlify(datetime_convert('UTC','UTC',$r[0]['created'],'Y-m-d H:i:s \U\T\C'))
 		));
 
-
 		logger('diaspora_send_photo: base message: ' . $msg, LOGGER_DATA);
 		$slap = 'xml=' . urlencode(urlencode(diaspora_msg_build($msg,$owner,$contact,$owner['channel_prvkey'],$contact['xchan_pubkey'],$public_batch)));
 
-		return(diaspora_queue($owner,$contact,$slap,$public_batch,$item['mid']));
+		$qi[] = diaspora_queue($owner,$contact,$slap,$public_batch,$item['mid']);
 	}
+
+	return $qi;
 
 }
 
@@ -2848,9 +2861,9 @@ function diaspora_send_followup($item,$owner,$contact,$public_batch = false) {
 				$meta = $diaspora_meta;
 		}
 		$signed_text = $meta['signed_text'];
-		$authorsig = $meta['signature'];
-		$signer = $meta['signer'];
-		$text = $meta['body'];
+		$authorsig   = $meta['signature'];
+		$signer      = $meta['signer'];
+		$text        = $meta['body'];
 	}
 	else {
 		$text = bb2diaspora_itembody($item);
@@ -2858,7 +2871,7 @@ function diaspora_send_followup($item,$owner,$contact,$public_batch = false) {
 		// sign it
 
 		if($like)
-			$signed_text = $item['mid'] . ';' . $target_type . ';' . $parent['mid'] . ';' . $positive . ';' . $myaddr;
+			$signed_text = $positive . ';' . $item['mid'] . ';' . $target_type . ';' . $parent['mid'] . ';' . $myaddr;
 		else
 			$signed_text = $item['mid'] . ';' . $parent['mid'] . ';' . $text . ';' . $myaddr;
 
@@ -3445,8 +3458,6 @@ function diaspora_feature_settings_post(&$a,&$b) {
 
 function diaspora_feature_settings(&$a,&$s) {
 	$dspr_allowed = get_pconfig(local_channel(),'system','diaspora_allowed');
-	if($dspr_allowed === false)
-		$dspr_allowed = get_config('diaspora','allowed');	
 	$pubcomments = get_pconfig(local_channel(),'system','diaspora_public_comments');
 	if($pubcomments === false)
 		$pubcomments = 1;

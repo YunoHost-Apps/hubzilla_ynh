@@ -68,7 +68,6 @@ require_once('include/html2plain.php');
 require_once('include/cli_startup.php');
 require_once('include/zot.php');
 require_once('include/queue_fn.php');
-require_once('include/session.php');
 require_once('include/datetime.php');
 require_once('include/items.php');
 require_once('include/bbcode.php');
@@ -423,6 +422,7 @@ function notifier_run($argv, $argc){
 
 	$details = q("select xchan_hash, xchan_instance_url, xchan_network, xchan_addr, xchan_guid, xchan_guid_sig from xchan where xchan_hash in (" . implode(',',$recipients) . ")");
 
+
 	$recip_list = array();
 
 	if($details) {
@@ -437,11 +437,38 @@ function notifier_run($argv, $argc){
 				if(! $delivery_options)
 					format_and_send_email($channel,$d,$target_item);
 			}
-
-
-
 		}
 	}
+
+
+	$narr = array(
+		'channel' => $channel,
+		'env_recips' => $env_recips,
+		'packet_recips' => $packet_recips,
+		'recipients' => $recipients,
+		'item' => $item,
+		'target_item' => $target_item,
+		'top_level_post' => $top_level_post,
+		'private' => $private,
+		'followup' => $followup,
+		'relay_to_owner' => $relay_to_owner,
+		'uplink' => $uplink,
+		'cmd' => $cmd,
+		'mail' => $mail,
+		'location' => $location,
+		'request' => $request,
+		'normal_mode' => $normal_mode,
+		'packet_type' => $packet_type,
+		'walltowall' => $walltowall,
+		'queued' => array()
+	);
+
+	call_hooks('notifier_process', $narr);
+	if($narr['queued']) {
+		foreach($narr['queued'] as $pq)
+			$deliveries[] = $pq;
+	}
+
 
 	if(($private) && (! $env_recips)) {
 		// shouldn't happen
@@ -504,7 +531,7 @@ function notifier_run($argv, $argc){
 	}
 
 	logger('notifier: will notify/deliver to these hubs: ' . print_r($hublist,true), LOGGER_DEBUG, LOG_DEBUG);
-			 
+
 
 	foreach($dhubs as $hub) {
 

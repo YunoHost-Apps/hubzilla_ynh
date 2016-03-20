@@ -19,13 +19,13 @@
  */
 
 use Sabre\DAV;
-use RedMatrix\RedDAV;
+use Zotlabs\Storage;
 
 require_once('vendor/autoload.php');
 require_once('include/attach.php');
-require_once('include/RedDAV/RedFile.php');
-require_once('include/RedDAV/RedDirectory.php');
-require_once('include/RedDAV/RedBasicAuth.php');
+//require_once('Zotlabs/Storage/File.php');
+//require_once('Zotlabs/Storage/Directory.php');
+//require_once('Zotlabs/Storage/BasicAuth.php');
 
 /**
  * @brief Returns an array with viewable channels.
@@ -51,7 +51,7 @@ function RedChannelList(&$auth) {
 			if (perm_is_allowed($rr['channel_id'], $auth->observer, 'view_storage')) {
 				logger('found channel: /cloud/' . $rr['channel_address'], LOGGER_DATA);
 				// @todo can't we drop '/cloud'? It gets stripped off anyway in RedDirectory
-				$ret[] = new RedDAV\RedDirectory('/cloud/' . $rr['channel_address'], $auth);
+				$ret[] = new Zotlabs\Storage\Directory('/cloud/' . $rr['channel_address'], $auth);
 			}
 		}
 	}
@@ -167,9 +167,9 @@ function RedCollectionData($file, &$auth) {
 	foreach ($r as $rr) {
 		//logger('filename: ' . $rr['filename'], LOGGER_DEBUG);
 		if (intval($rr['is_dir'])) {
-			$ret[] = new RedDAV\RedDirectory($path . '/' . $rr['filename'], $auth);
+			$ret[] = new Zotlabs\Storage\Directory($path . '/' . $rr['filename'], $auth);
 		} else {
-			$ret[] = new RedDAV\RedFile($path . '/' . $rr['filename'], $rr, $auth);
+			$ret[] = new Zotlabs\Storage\File($path . '/' . $rr['filename'], $rr, $auth);
 		}
 	}
 
@@ -204,7 +204,7 @@ function RedFileData($file, &$auth, $test = false) {
 
 
 	if ((! $file) || ($file === '/')) {
-		return new RedDAV\RedDirectory('/', $auth);
+		return new Zotlabs\Storage\Directory('/', $auth);
 	}
 
 	$file = trim($file, '/');
@@ -274,7 +274,7 @@ function RedFileData($file, &$auth, $test = false) {
 		if ($test)
 			return true;
 		// final component was a directory.
-		return new RedDAV\RedDirectory($file, $auth);
+		return new Zotlabs\Storage\Directory($file, $auth);
 	}
 
 	if ($errors) {
@@ -293,9 +293,9 @@ function RedFileData($file, &$auth, $test = false) {
 			return true;
 
 		if (intval($r[0]['is_dir'])) {
-			return new RedDAV\RedDirectory($path . '/' . $r[0]['filename'], $auth);
+			return new Zotlabs\Storage\Directory($path . '/' . $r[0]['filename'], $auth);
 		} else {
-			return new RedDAV\RedFile($path . '/' . $r[0]['filename'], $r[0], $auth);
+			return new Zotlabs\Storage\File($path . '/' . $r[0]['filename'], $r[0], $auth);
 		}
 	}
 	return false;

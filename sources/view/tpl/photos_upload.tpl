@@ -26,7 +26,7 @@
 			<div id="body-textarea">
 			{{include file="field_textarea.tpl" field=$body}}
 			</div>
-			<div class="pull-right btn-group form-group">
+			<div class="pull-right btn-group">
 				<div class="btn-group">
 					{{if $lockstate}}
 					<button id="dbtn-acl" class="btn btn-default btn-sm" data-toggle="modal" data-target="#aclModal" onclick="return false;">

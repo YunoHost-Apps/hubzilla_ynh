@@ -51,8 +51,6 @@ function wfinger_init(&$a) {
 
 	header('Access-Control-Allow-Origin: *');
 
-	header('Content-type: application/jrd+json');
-
 
 	if($resource && $r) {
 
@@ -75,12 +73,14 @@ function wfinger_init(&$a) {
 
 		$result['aliases'] = array();
 
-		$result['properties'] = array('http://webfinger.net/ns/name' => $r[0]['channel_name']);
+		$result['properties'] = array(
+				'http://webfinger.net/ns/name' => $r[0]['channel_name'],
+				'http://xmlns.com/foaf/0.1/name' => $r[0]['channel_name']
+		);
 
 		foreach($aliases as $alias) 
 			if($alias != $resource)
 				$result['aliases'][] = $alias;
-
 
 		$result['links'] = array(
 
@@ -108,6 +108,11 @@ function wfinger_init(&$a) {
 			array(
 				'rel' => 'http://purl.org/zot/protocol',
 				'href' => z_root() . '/.well-known/zot-info' . '?address=' . $r[0]['xchan_addr'],
+			),
+
+			array(
+				'rel' => 'magic-public-key',
+				'href' => 'data:application/magic-public-key,' . salmon_key($r[0]['channel_pubkey']),
 			)
 		);
 
@@ -124,7 +129,6 @@ function wfinger_init(&$a) {
 	$arr = array('channel' => $r[0], 'request' => $_REQUEST, 'result' => $result);
 	call_hooks('webfinger',$arr);
 
-	echo json_encode($arr['result']);
-	killme();
+	json_return_and_die($arr['result'],'application/jrd+json');
 
 }

@@ -25,7 +25,7 @@ function feature_enabled($uid,$feature) {
 }
 
 function get_feature_default($feature) {
-	$f = get_features();
+	$f = get_features(false);
 	foreach($f as $cat) {
 		foreach($cat as $feat) {
 			if(is_array($feat) && $feat[0] === $feature)
@@ -37,6 +37,9 @@ function get_feature_default($feature) {
 
 
 function get_features($filtered = true) {
+
+	if(UNO && $filtered)
+		return array();
 
 	$arr = array(
 
@@ -54,6 +57,7 @@ function get_features($filtered = true) {
 			array('nav_channel_select',  t('Navigation Channel Select'), t('Change channels directly from within the navigation dropdown menu'),false,get_config('feature_lock','nav_channel_select')),
 			array('photo_location',       t('Photo Location'),          t('If location data is available on uploaded photos, link this to a map.'),false,get_config('feature_lock','photo_location')),
 
+			array('smart_birthdays',       t('Smart Birthdays'),          t('Make birthday events timezone aware in case your friends are scattered across the planet.'),true,get_config('feature_lock','smart_birthdays')),
 			array('expert',       t('Expert Mode'),                 t('Enable Expert Mode to provide advanced configuration options'),false,get_config('feature_lock','expert')),
 			array('premium_channel', t('Premium Channel'), t('Allows you to set restrictions and terms on those that connect with your channel'),false,get_config('feature_lock','premium_channel')),
 		),
@@ -62,7 +66,7 @@ function get_features($filtered = true) {
 		'composition' => array(
 			t('Post Composition Features'),
 //			array('richtext',       t('Richtext Editor'),			t('Enable richtext editor'),falseget_config('feature_lock','richtext')),
-			array('markdown',       t('Use Markdown'),              t('Allow use of "Markdown" to format posts'),false,get_config('feature_lock','markdown')),
+//			array('markdown',       t('Use Markdown'),              t('Allow use of "Markdown" to format posts'),false,get_config('feature_lock','markdown')),
 			array('large_photos',   t('Large Photos'),              t('Include large (1024px) photo thumbnails in posts. If not enabled, use small (640px) photo thumbnails'),false,get_config('feature_lock','large_photos')),
 			array('channel_sources', t('Channel Sources'),          t('Automatically import channel content from other channels or feeds'),false,get_config('feature_lock','channel_sources')),
 			array('content_encrypt', t('Even More Encryption'),          t('Allow optional encryption of content end-to-end with a shared secret key'),false,get_config('feature_lock','content_encrypt')),

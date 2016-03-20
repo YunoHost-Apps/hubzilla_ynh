@@ -200,7 +200,7 @@ function group_get_members($gid) {
 	if(intval($gid)) {
 		$r = q("SELECT * FROM `group_member` 
 			LEFT JOIN abook ON abook_xchan = `group_member`.`xchan` left join xchan on xchan_hash = abook_xchan
-			WHERE `gid` = %d AND abook_channel = %d and `group_member`.`uid` = %d and xchan_deleted = 0 and abook_blocked = 0 and abook_pending = 0 ORDER BY xchan_name ASC ",
+			WHERE `gid` = %d AND abook_channel = %d and `group_member`.`uid` = %d and xchan_deleted = 0 and abook_self = 0 and abook_blocked = 0 and abook_pending = 0 ORDER BY xchan_name ASC ",
 			intval($gid),
 			intval(local_channel()),
 			intval(local_channel())

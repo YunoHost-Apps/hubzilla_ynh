@@ -156,6 +156,8 @@ function channel_content(&$a, $update = 0, $load = false) {
 	$abook_uids = " and abook.abook_channel = " . intval($a->profile['profile_uid']) . " ";
 
 	$simple_update = (($update) ? " AND item_unseen = 1 " : '');
+
+	$a->page['htmlhead'] .= "\r\n" . '<link rel="alternate" type="application/json+oembed" href="' . z_root() . '/oep?f=&url=' . urlencode(z_root() . '/' . $a->query_string) . '" title="oembed" />' . "\r\n";
 		
 	if($update && $_SESSION['loadtime'])
 		$simple_update = " AND (( item_unseen = 1 AND item.changed > '" . datetime_convert('UTC','UTC',$_SESSION['loadtime']) . "' )  OR item.changed > '" . datetime_convert('UTC','UTC',$_SESSION['loadtime']) . "' ) ";

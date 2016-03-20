@@ -407,7 +407,7 @@ function account_allow($hash) {
 
 	pop_lang();
 
-	if(get_config('system','auto_channel_create'))
+	if(get_config('system','auto_channel_create') || UNO)
 		auto_channel_create($register[0]['uid']);
 
 	if ($res) {
@@ -500,7 +500,7 @@ function account_approve($hash) {
 	);
 
 
-	if(get_config('system','auto_channel_create'))
+	if(get_config('system','auto_channel_create') || UNO)
 		auto_channel_create($register[0]['uid']);
 
 	info( t('Account verified. Please login.') . EOL );

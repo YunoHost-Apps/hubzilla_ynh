@@ -107,13 +107,13 @@ function like_content(&$a) {
 				// to them.
 				$allow_cid = $allow_gid = $deny_cid = $deny_gid = '';
 				foreach($d as $dd) {
-					$allow_gid .= '<' . $dd['abook_xchan'] . '>';
+					$allow_cid .= '<' . $dd['abook_xchan'] . '>';
 				}
 			}
 			$post_type = t('channel');
 			$objtype = ACTIVITY_OBJ_PROFILE;
 
-
+			$profile = $r[0];
 		}
 		elseif($obj_type == 'thing') {
 
@@ -299,7 +299,8 @@ function like_content(&$a) {
 
 		
 		$verbs = " '".dbesc($activity)."' ";
-		$multi_undo = 0;		
+
+		$multi_undo = false;		
 
 		// event participation and consensus items are essentially radio toggles. If you make a subsequent choice,
 		// we need to eradicate your first choice. 
@@ -310,15 +311,14 @@ function like_content(&$a) {
 		}
 		if($activity === ACTIVITY_AGREE || $activity === ACTIVITY_DISAGREE || $activity === ACTIVITY_ABSTAIN) {
 			$verbs = " '" . dbesc(ACTIVITY_AGREE) . "','" . dbesc(ACTIVITY_DISAGREE) . "','" . dbesc(ACTIVITY_ABSTAIN) . "' ";
-			$multi_undo = 1;
+			$multi_undo = true;
 		}
 
 		$item_normal = item_normal();
 
 		$r = q("SELECT id, parent, uid, verb FROM item WHERE verb in ( $verbs ) $item_normal
-			AND author_xchan = '%s' AND ( parent = %d OR thr_parent = '%s') and uid = %d ",
+			AND author_xchan = '%s' AND thr_parent = '%s' and uid = %d ",
 			dbesc($observer['xchan_hash']),
-			intval($item_id),
 			dbesc($item['mid']),
 			intval($owner_uid)
 		);
@@ -338,6 +338,12 @@ function like_content(&$a) {
 				// don't fall through and create another
 				if(activity_match($rr['verb'],$activity))
 					$multi_undo = false;
+
+				// drop_item was not done interactively, so we need to invoke the notifier
+				// in order to push the changes to connections
+
+				proc_run('php','include/notifier.php','drop',$rr['id']);
+
 			}
 
 			if($interactive)
@@ -461,6 +467,13 @@ function like_content(&$a) {
 	$arr['body']          =  sprintf( $bodyverb, $alink, $ulink, $plink );
 	if($obj_type === 'thing' && $r[0]['imgurl']) {
 		$arr['body'] .= "\n\n[zmg=80x80]" . $r[0]['imgurl'] . '[/zmg]';
+	}	
+	if($obj_type === 'profile') {
+		if($public) {
+			$arr['body'] .= "\n\n" . '[embed]' . z_root() . '/profile/' . $ch[0]['channel_address'] . '[/embed]';	
+		}
+		else
+			$arr['body'] .= "\n\n[zmg=80x80]" . $profile['thumb'] . '[/zmg]';
 	}	
 
 

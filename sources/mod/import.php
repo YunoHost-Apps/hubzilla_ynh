@@ -108,7 +108,9 @@ function import_account(&$a, $account_id) {
 		import_diaspora($data);
 		return;
 	}
-
+	
+	$moving = false;
+	
 	if(array_key_exists('compatibility',$data) && array_key_exists('database',$data['compatibility'])) {
 		$v1 = substr($data['compatibility']['database'],-4);
 		$v2 = substr(DB_UPDATE_VERSION,-4);
@@ -116,7 +118,12 @@ function import_account(&$a, $account_id) {
 			$t = sprintf( t('Warning: Database versions differ by %1$d updates.'), $v2 - $v1 ); 
 			notice($t);
 		}
+		if(array_key_exists('server_role',$data['compatibility']) && $data['compatibility']['server_role'] == 'basic')
+			$moving = true;
 	}
+
+	if($moving)
+		$seize = 1;
 
 	// import channel
 
@@ -180,7 +187,7 @@ function import_account(&$a, $account_id) {
 
 	if($completed < 4) {
 
-		if(is_array($data['hubloc'])) {
+		if(is_array($data['hubloc']) && (! $moving)) {
 			import_hublocs($channel,$data['hubloc'],$seize);
 
 		}
@@ -332,6 +339,10 @@ function import_account(&$a, $account_id) {
 		if($abooks) {
 			foreach($abooks as $abook) {
 
+				$abconfig = null;
+				if(array_key_exists('abconfig',$abook) && is_array($abook['abconfig']) && count($abook['abconfig']))
+					$abconfig = $abook['abconfig'];
+
 				unset($abook['abook_id']);
 				unset($abook['abook_rating']);
 				unset($abook['abook_rating_text']);
@@ -373,6 +384,17 @@ function import_account(&$a, $account_id) {
 				$friends ++;
 				if(intval($abook['abook_feed']))
 					$feeds ++;
+
+				if($abconfig) {
+					// @fixme does not handle sync of del_abconfig
+					foreach($abconfig as $abc) {
+						if($abc['chan'] === $channel['channel_hash'])
+							set_abconfig($abc['chan'],$abc['xchan'],$abc['cat'],$abc['k'],$abc['v']);
+					}
+				}
+
+
+
 			}
 		}
 		logger('import step 8');

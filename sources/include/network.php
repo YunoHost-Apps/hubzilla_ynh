@@ -40,7 +40,7 @@ function z_fetch_url($url, $binary = false, $redirects = 0, $opts = array()) {
 
 	$ch = @curl_init($url);
 	if(($redirects > 8) || (! $ch)) 
-		return false;
+		return $ret;
 
 	@curl_setopt($ch, CURLOPT_HEADER, true);
 	@curl_setopt($ch, CURLINFO_HEADER_OUT, true);
@@ -171,7 +171,7 @@ function z_post_url($url,$params, $redirects = 0, $opts = array()) {
 
 	$ch = curl_init($url);
 	if(($redirects > 8) || (! $ch)) 
-		return ret;
+		return $ret;
 
 	@curl_setopt($ch, CURLOPT_HEADER, true);
 	@curl_setopt($ch, CURLINFO_HEADER_OUT, true);
@@ -294,8 +294,8 @@ function z_post_url_json($url, $params, $redirects = 0, $opts = array()) {
 }
 
 
-function json_return_and_die($x) {
-	header("content-type: application/json");
+function json_return_and_die($x, $content_type = 'application/json') {
+	header("Content-type: $content_type");
 	echo json_encode($x);
 	killme();
 }
@@ -1043,75 +1043,184 @@ function discover_by_url($url,$arr = null) {
 
 }
 
+
+function convert_salmon_key($key) {
+
+	if(strstr($key,','))
+		$rawkey = substr($key,strpos($key,',')+1);
+	else
+		$rawkey = substr($key,5);
+
+	$key_info = explode('.',$rawkey);
+
+	$m = base64url_decode($key_info[1]);
+	$e = base64url_decode($key_info[2]);
+
+	logger('key details: ' . print_r($key_info,true), LOGGER_DEBUG);
+	$salmon_key = metopem($m,$e);
+	return $salmon_key;
+
+}
+
+
 function discover_by_webbie($webbie) {
 	require_once('library/HTML5/Parser.php');
+
+	$result = array();
+	$network = null;
+	$diaspora = false;
+	$gnusoc = false;
+	
+	$has_salmon = false;
+	$salmon_key = false;
+	$atom_feed = false;
+	$diaspora_base = '';
+	$diaspora_guid = '';
+	$diaspora_key = '';
+	$dfrn = false;
 
 	$webbie = strtolower($webbie);
 
 	$x = webfinger_rfc7033($webbie,true);
 	if($x && array_key_exists('links',$x) && $x['links']) {
 		foreach($x['links'] as $link) {
-			if(array_key_exists('rel',$link) && $link['rel'] == 'http://purl.org/zot/protocol') {
-				logger('discover_by_webbie: zot found for ' . $webbie, LOGGER_DEBUG);
-				if(array_key_exists('zot',$x) && $x['zot']['success'])
-					$i = import_xchan($x['zot']);
-				else {
-					$z = z_fetch_url($link['href']);
-					if($z['success']) {
-						$j = json_decode($z['body'],true);
-						$i = import_xchan($j);
-						return true;
+			if(array_key_exists('rel',$link)) {
+				if($link['rel'] == 'http://purl.org/zot/protocol') {
+					logger('discover_by_webbie: zot found for ' . $webbie, LOGGER_DEBUG);
+					if(array_key_exists('zot',$x) && $x['zot']['success'])
+						$i = import_xchan($x['zot']);
+					else {
+						$z = z_fetch_url($link['href']);
+						if($z['success']) {
+							$j = json_decode($z['body'],true);
+							$i = import_xchan($j);
+							return true;
+						}
 					}
+				}
+				if($link['rel'] == 'magic-public-key') {
+        			if(substr($link['href'],0,5) === 'data:') {
+						$salmon_key = convert_salmon_key($link['href']);
+					}
+				}
+				if($link['rel'] == 'salmon') {
+					$has_salmon = true;
+				}
+				if($link['rel'] == 'http://schemas.google.com/g/2010#updates-from') {
+					$atom_feed = $link['href'];
 				}
 			}
 		}
 	}
 
-	$arr = array('address' => $webbie, 'success' => false);
-	call_hooks('discover_by_webbie', $arr);
+
+	logger('webfing: ' . print_r($x,true));
+
+	$arr = array('address' => $webbie, 'success' => false, 'webfinger' => $x);
+	call_hooks('discover_channel_webfinger', $arr);
 	if($arr['success'])
 		return true;
 
-	$result = array();
-	$network = null;
-	$diaspora = false;
+	if($salmon_key && $has_salmon && $atom_feed) {
+		
+		$gnusoc = true;
+		$addr = $x['address'];
 
-	$diaspora_base = '';
-	$diaspora_guid = '';
-	$diaspora_key = '';
-	$dfrn = false;
+		$m = parse_url($x['location']);
 
-	$x = old_webfinger($webbie);			
-	if($x) {
-		logger('old_webfinger: ' . print_r($x,true));
-		foreach($x as $link) {
-			if($link['@attributes']['rel'] === NAMESPACE_DFRN)
-				$dfrn = unamp($link['@attributes']['href']);				
-			if($link['@attributes']['rel'] === 'salmon')
-				$notify = unamp($link['@attributes']['href']);
- 			if($link['@attributes']['rel'] === NAMESPACE_FEED)
-				$poll = unamp($link['@attributes']['href']);
-			if($link['@attributes']['rel'] === 'http://microformats.org/profile/hcard')
-				$hcard = unamp($link['@attributes']['href']);
-			if($link['@attributes']['rel'] === 'http://webfinger.net/rel/profile-page')
-				$profile = unamp($link['@attributes']['href']);
-			if($link['@attributes']['rel'] === 'http://portablecontacts.net/spec/1.0')
-				$poco = unamp($link['@attributes']['href']);
-			if($link['@attributes']['rel'] === 'http://joindiaspora.com/seed_location') {
-				$diaspora_base = unamp($link['@attributes']['href']);
-				$diaspora = true;
+		$k = z_fetch_url($atom_feed);
+		if($k['success'])
+			$feed_meta = feed_meta($k['body']);
+		if($feed_meta && $feed_meta['author']) {
+			$r = q("select * from xchan where xchan_hash = '%s' limit 1",
+				dbesc($addr)
+			);
+			if($r) {
+				$r = q("update xchan set xchan_name = '%s', xchan_network = '%s', xchan_name_date = '%s' where xchan_hash = '%s' limit 1",
+					dbesc(($feed_meta['author']['author_name']) ? $feed_meta['author']['author_name'] : $x['nickname']),
+					dbesc('gnusoc'),
+					dbesc(datetime_convert()),
+					dbesc($addr)
+				);
 			}
-			if($link['@attributes']['rel'] === 'http://joindiaspora.com/guid') {
-				$diaspora_guid = unamp($link['@attributes']['href']);
-				$diaspora = true;
+			else {
+
+				$r = q("insert into xchan ( xchan_hash, xchan_guid, xchan_pubkey, xchan_addr, xchan_url, xchan_name, xchan_network, xchan_name_date ) values ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s') ",
+					dbesc($addr),
+					dbesc($x['location']),
+					dbesc($salmon_key),
+					dbesc($addr),
+					dbesc($x['location']),
+					dbesc(($feed_meta['author']['author_name']) ? $feed_meta['author']['author_name'] : $x['nickname']),
+					dbesc('gnusoc'),
+					dbescdate(datetime_convert())
+				);
 			}
-			if($link['@attributes']['rel'] === 'diaspora-public-key') {
-				$diaspora_key = base64_decode(unamp($link['@attributes']['href']));
-				if(strstr($diaspora_key,'RSA '))
-					$pubkey = rsatopem($diaspora_key);
-				else
-					$pubkey = $diaspora_key;
-				$diaspora = true;
+
+			$r = q("select * from hubloc where hubloc_hash = '%s' limit 1",
+				dbesc($addr)
+			);
+
+			if(! $r) {
+
+				$r = q("insert into hubloc ( hubloc_guid, hubloc_hash, hubloc_addr, hubloc_network, hubloc_url, hubloc_host, hubloc_callback, hubloc_updated, hubloc_primary ) values ('%s','%s','%s','%s','%s','%s','%s','%s', 1)",
+					dbesc($x['location']),
+					dbesc($addr),
+					dbesc($addr),
+					dbesc('gnusoc'),
+					dbesc($m['scheme'] . '://' . $m['host']),
+					dbesc($m['host']),
+					dbesc($salmon),
+					dbescdate(datetime_convert())
+				);
+			}
+			$photos = import_xchan_photo($feed_meta['author']['author_photo'],$addr);
+			$r = q("update xchan set xchan_photo_date = '%s', xchan_photo_l = '%s', xchan_photo_m = '%s', xchan_photo_s = '%s', xchan_photo_mimetype = '%s' where xchan_hash = '%s'",
+				dbescdate(datetime_convert()),
+				dbesc($photos[0]),
+				dbesc($photos[1]),
+				dbesc($photos[2]),
+				dbesc($photos[3]),
+				dbesc($addr)
+			);
+			return true;
+
+		}
+	}
+	else {
+
+		$x = old_webfinger($webbie);			
+		if($x) {
+			logger('old_webfinger: ' . print_r($x,true));
+			foreach($x as $link) {
+				if($link['@attributes']['rel'] === NAMESPACE_DFRN)
+					$dfrn = unamp($link['@attributes']['href']);				
+				if($link['@attributes']['rel'] === 'salmon')
+					$notify = unamp($link['@attributes']['href']);
+	 			if($link['@attributes']['rel'] === NAMESPACE_FEED)
+					$poll = unamp($link['@attributes']['href']);
+				if($link['@attributes']['rel'] === 'http://microformats.org/profile/hcard')
+					$hcard = unamp($link['@attributes']['href']);
+				if($link['@attributes']['rel'] === 'http://webfinger.net/rel/profile-page')
+					$profile = unamp($link['@attributes']['href']);
+				if($link['@attributes']['rel'] === 'http://portablecontacts.net/spec/1.0')
+					$poco = unamp($link['@attributes']['href']);
+				if($link['@attributes']['rel'] === 'http://joindiaspora.com/seed_location') {
+					$diaspora_base = unamp($link['@attributes']['href']);
+					$diaspora = true;
+				}
+				if($link['@attributes']['rel'] === 'http://joindiaspora.com/guid') {
+					$diaspora_guid = unamp($link['@attributes']['href']);
+					$diaspora = true;
+				}
+				if($link['@attributes']['rel'] === 'diaspora-public-key') {
+					$diaspora_key = base64_decode(unamp($link['@attributes']['href']));
+					if(strstr($diaspora_key,'RSA '))
+						$pubkey = rsatopem($diaspora_key);
+					else
+						$pubkey = $diaspora_key;
+					$diaspora = true;
+				}
 			}
 		}
 
@@ -1167,7 +1276,7 @@ function discover_by_webbie($webbie) {
 			}
 			else {
 
-				$r = q("insert into xchan ( xchan_hash, xchan_guid, xchan_pubkey, xchan_addr, xchan_url, xchan_name, xchan_network, xchan_instance_url, xchan_name_date ) values ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s') ",
+				$r = q("insert into xchan ( xchan_hash, xchan_guid, xchan_pubkey, xchan_addr, xchan_url, xchan_name, xchan_network, xchan_name_date ) values ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s') ",
 					dbesc($addr),
 					dbesc($guid),
 					dbesc($pubkey),
@@ -1175,7 +1284,6 @@ function discover_by_webbie($webbie) {
 					dbesc($profile),
 					dbesc($vcard['fn']),
 					dbesc($network),
-					dbesc(z_root()),
 					dbescdate(datetime_convert())
 				);
 			}
@@ -1199,7 +1307,7 @@ function discover_by_webbie($webbie) {
 			}
 			$photos = import_xchan_photo($vcard['photo'],$addr);
 			$r = q("update xchan set xchan_photo_date = '%s', xchan_photo_l = '%s', xchan_photo_m = '%s', xchan_photo_s = '%s', xchan_photo_mimetype = '%s' where xchan_hash = '%s'",
-				dbescdate(datetime_convert('UTC','UTC',$arr['photo_updated'])),
+				dbescdate(datetime_convert()),
 				dbesc($photos[0]),
 				dbesc($photos[1]),
 				dbesc($photos[2]),
@@ -1209,7 +1317,7 @@ function discover_by_webbie($webbie) {
 			return true;
 
 		}
-
+	}
 	return false;
 
 /*
@@ -1278,31 +1386,114 @@ LSIeXnd14lQYK/uxW/8cTFjcmddsKxeXysoQxbSa9VdDK+KkpZdgYXYrTTofXs6v+
 )
 */
 
-
-
-
-	}
 }
 
 
 function webfinger_rfc7033($webbie,$zot = false) {
 
 
-	if(! strpos($webbie,'@'))
-		return false;
-	$lhs = substr($webbie,0,strpos($webbie,'@'));
-	$rhs = substr($webbie,strpos($webbie,'@')+1);
-
-	$resource = 'acct:' . $webbie;
+	if(strpos($webbie,'@')) {
+		$lhs = substr($webbie,0,strpos($webbie,'@'));
+		$rhs = substr($webbie,strpos($webbie,'@')+1);
+		$resource = 'acct:' . $webbie;
+	}
+	else {
+		$m = parse_url($webbie);
+		if($m) {
+			if($m['scheme'] !== 'https')
+				return false;
+			$rhs = $m['host'] . (($m['port']) ? ':' . $m['port'] : '');
+			$resource = urlencode($webbie);
+		}
+		else
+			return false;
+	}
+	logger('fetching url from resource: ' . $rhs . ':' . $webbie);
 
 	$s = z_fetch_url('https://' . $rhs . '/.well-known/webfinger?f=&resource=' . $resource . (($zot) ? '&zot=1' : ''));
 
-	if($s['success'])
+	if($s['success']) {
 		$j = json_decode($s['body'],true);
+
+		// We could have a number of URL aliases and webbies
+		// make an executive decision about the most likely "best" of each
+		// by comparing against some examples from known networks we're likely to encounter.
+		// Otherwise we have to store every alias that we may ever encounter and 
+		// validate every URL we ever find against every possible alias
+
+		// @fixme pump.io is going to be a real bugger since it doesn't return subject or aliases
+		// or provide lookup by url
+
+		$j['address'] = find_webfinger_address($j,$rhs);
+		$j['location'] = find_webfinger_location($j,$rhs);
+		if($j['address'])
+			$j['nickname'] = substr($j['address'],0,strpos($j['address'],'@'));
+	}
 	else
 		return false;
+
 	return($j);
 }
+
+function find_webfinger_address($j,$rhs) {
+	if(is_array($j) && ($j)) {
+		if(strpos($j['subject'],'acct:') !== false && strpos($j['subject'],'@' . $rhs))
+			return str_replace('acct:','',$j['subject']);
+		if($j['aliases']) {
+			foreach($j['aliases'] as $alias) {
+				if(strpos($alias,'acct:') !== false && strpos($alias,'@' . $rhs)) {
+					return str_replace('acct:','',$alias);
+				}
+			}
+		}
+	}
+	return '';
+}
+
+
+function find_webfinger_location($j,$rhs) {
+	if(is_array($j) && ($j)) {
+		if(strpos($j['subject'],'http') === 0) {
+			$x = match_webfinger_location($j['subject'],$rhs);
+			if($x)
+				return $x;
+		}
+		if($j['aliases']) {
+			foreach($j['aliases'] as $alias) {
+				if(strpos($alias,'http') === 0) {
+					$x = match_webfinger_location($alias,$rhs);
+					if($x)
+						return($x);
+				}
+			}
+		}
+	}
+	return '';
+}
+
+function match_webfinger_location($s,$h) {
+
+	// GNU-social and the older StatusNet
+	if(preg_match('|' . $h . '/user/([0-9]*?)$|',$s))
+		return $s;
+	// Redmatrix / hubzilla
+	if(preg_match('|' . $h . '/channel/|',$s))
+		return $s;
+	// Friendica
+	if(preg_match('|' . $h . '/profile/|',$s))
+		return $s;
+
+	$arr = array('test' => $s, 'host' => $h, 'success' => false);
+	call_hooks('match_webfinger_location',$arr);
+	if($arr['success'])
+		return $s;
+	return '';
+}
+	
+
+
+
+
 
 
 function old_webfinger($webbie) {
@@ -1455,8 +1646,25 @@ function scrape_vcard($url) {
 		if(attribute_contains($item->getAttribute('class'), 'vcard')) {
 			$level2 = $item->getElementsByTagName('*');
 			foreach($level2 as $x) {
+				if(attribute_contains($x->getAttribute('id'),'pod_location'))
+					$ret['pod_location'] = $x->textContent;
 				if(attribute_contains($x->getAttribute('class'),'fn'))
 					$ret['fn'] = $x->textContent;
+				if(attribute_contains($x->getAttribute('class'),'uid'))
+					$ret['uid'] = $x->textContent;
+				if(attribute_contains($x->getAttribute('class'),'nickname'))
+					$ret['nick'] = $x->textContent;
+				if(attribute_contains($x->getAttribute('class'),'searchable'))
+					$ret['searchable'] = $x->textContent;
+				if(attribute_contains($x->getAttribute('class'),'key'))
+					$ret['public_key'] = $x->textContent;
+				if(attribute_contains($x->getAttribute('class'),'given_name'))
+					$ret['given_name'] = $x->textContent;
+				if(attribute_contains($x->getAttribute('class'),'family_name'))
+					$ret['family_name'] = $x->textContent;
+				if(attribute_contains($x->getAttribute('class'),'url'))
+					$ret['url'] = $x->textContent;
+
 				if((attribute_contains($x->getAttribute('class'),'photo'))
 					|| (attribute_contains($x->getAttribute('class'),'avatar'))) {
 					$size = intval($x->getAttribute('width'));
@@ -1464,10 +1672,6 @@ function scrape_vcard($url) {
 						$ret['photo'] = $x->getAttribute('src');
 						$largest_photo = $size;
 					}
-				}
-				if((attribute_contains($x->getAttribute('class'),'nickname'))
-					|| (attribute_contains($x->getAttribute('class'),'uid'))) {
-					$ret['nick'] = $x->textContent;
 				}
 			}
 		}
@@ -1620,7 +1824,7 @@ function format_and_send_email($sender,$xchan,$item) {
 		$tpl = get_markup_template('email_notify_html.tpl');
 		$email_html_body = replace_macros($tpl,array(
 			'$banner'	    => $banner,
-			'$notify_icon'  => get_notify_icon(),
+			'$notify_icon'  => Zotlabs\Project\System::get_notify_icon(),
 			'$product'	    => $product,
 			'$preamble'	    => '',
 			'$sitename'	    => $sitename,
@@ -1722,7 +1926,7 @@ function get_site_info() {
 	global $a;
 
 	$register_policy = Array('REGISTER_CLOSED', 'REGISTER_APPROVE', 'REGISTER_OPEN');
-	$directory_mode = Array('DIRECTORY_MODE_NORMAL', 'DIRECTORY_MODE_SECONDARY','DIRECTORY_MODE_PRIMARY', 256 => 'DIRECTORY_MODE_STANDALONE');
+	$directory_mode = Array('DIRECTORY_MODE_NORMAL', 'DIRECTORY_MODE_PRIMARY', 'DIRECTORY_MODE_SECONDARY', 256 => 'DIRECTORY_MODE_STANDALONE');
 		
 	$sql_extra = '';
 
@@ -1768,8 +1972,8 @@ function get_site_info() {
 	$site_info = get_config('system','info');
 	$site_name = get_config('system','sitename');
 	if(! get_config('system','hidden_version_siteinfo')) {
-		$version = get_project_version();
-		$tag = get_std_version();
+		$version = Zotlabs\Project\System::get_project_version();
+		$tag = Zotlabs\Project\System::get_std_version();
 
 		if(@is_dir('.git') && function_exists('shell_exec')) {
 			$commit = trim( @shell_exec('git log -1 --format="%h"'));
@@ -1805,6 +2009,7 @@ function get_site_info() {
 	$data = Array(
 		'version' => $version,
 		'version_tag' => $tag,
+		'server_role' => Zotlabs\Project\System::get_server_role(),
 		'commit' => $commit,
 		'url' => z_root(),
 		'plugins' => $visible_plugins,
@@ -1818,7 +2023,7 @@ function get_site_info() {
 		'locked_features' => $locked_features,
 		'admin' => $admin,
 		'site_name' => (($site_name) ? $site_name : ''),
-		'platform' => get_platform_name(),
+		'platform' => Zotlabs\Project\System::get_platform_name(),
 		'dbdriver' => $db->getdriver(),
 		'lastpoll' => get_config('system','lastpoll'),
 		'info' => (($site_info) ? $site_info : ''),

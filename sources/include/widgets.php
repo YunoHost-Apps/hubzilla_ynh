@@ -8,13 +8,23 @@
 require_once('include/dir_fns.php');
 require_once('include/contact_widgets.php');
 require_once('include/attach.php');
-
+require_once('include/Contact.php');
 
 function widget_profile($args) {
 	$a = get_app();
 	$block = (((get_config('system', 'block_public')) && (! local_channel()) && (! remote_channel())) ? true : false);
 	return profile_sidebar($a->profile, $block, true);
 }
+
+function widget_zcard($args) {
+	$a = get_app();
+	$block = (((get_config('system', 'block_public')) && (! local_channel()) && (! remote_channel())) ? true : false);
+	$channel = channelx_by_n($a->profile_uid);
+	return get_zcard($channel,get_observer_hash(),array('width' => 875));
+}
+
+
+
 
 // FIXME The problem with the next widget is that we don't have a search function for webpages that we can send the links to.
 // Then we should also provide an option to search webpages and conversations.
@@ -369,6 +379,17 @@ function widget_fullprofile($arr) {
 	return profile_sidebar($a->profile, $block);
 }
 
+function widget_shortprofile($arr) {
+	$a = get_app();
+	if(! $a->profile['profile_uid'])
+		return;
+
+	$block = (((get_config('system', 'block_public')) && (! local_channel()) && (! remote_channel())) ? true : false);
+
+	return profile_sidebar($a->profile, $block, true, true);
+}
+
+
 function widget_categories($arr) {
 	$a = get_app();
 
@@ -521,12 +542,14 @@ function widget_settings_menu($arr) {
 		'selected' => ((argv(1) === 'oauth') ? 'active' : ''),
 	);
 
-	$tabs[] =	array(
-		'label' => t('Export channel'),
-		'url' => $a->get_baseurl(true) . '/uexport',
-		'selected' => ''
-	);
-
+	// IF can go away when UNO export and import is fully functional
+	if(! UNO) {
+		$tabs[] =	array(
+			'label' => t('Export channel'),
+			'url' => $a->get_baseurl(true) . '/uexport',
+			'selected' => ''
+		);
+	}
 
 	if($role === false || $role === 'custom') {
 		$tabs[] = array(
@@ -959,28 +982,52 @@ function widget_cover_photo($arr) {
 	require_once('include/identity.php');
 	$o = '';
 
+	$a = get_app();
+	
+	if($a->module == 'channel' && $_REQUEST['mid'])
+		return '';
+
 	$channel_id = 0;
 	if(array_key_exists('channel_id', $arr) && intval($arr['channel_id']))
 		$channel_id = intval($arr['channel_id']);
 	if(! $channel_id)
-		$channel_id = get_app()->profile_uid;
+		$channel_id = $a->profile_uid;
 	if(! $channel_id)
 		return '';
+
+	$channel = channelx_by_n($channel_id);
 
 	if(array_key_exists('style', $arr) && isset($arr['style']))
 		$style = $arr['style'];
 	else 
-		$style = 'width:100%; padding-right: 10px; height: auto;'; 
+		$style = 'width:100%; height: auto;';
 
 	// ensure they can't sneak in an eval(js) function
 
 	if(strpbrk($style,'(\'"<>') !== false)
 		$style = '';
 
+	if(array_key_exists('title', $arr) && isset($arr['title']))
+		$title = $arr['title'];
+	else
+		$title = $channel['channel_name'];
+
+	if(array_key_exists('subtitle', $arr) && isset($arr['subtitle']))
+		$subtitle = $arr['subtitle'];
+	else
+		$subtitle = $channel['xchan_addr'];
+
 	$c = get_cover_photo($channel_id,'html');
 
 	if($c) {
-		$o = '<div class="widget">' . (($style) ? str_replace('alt=',' style="' . $style . '" alt=',$c) : $c) . '</div>';
+		$photo_html = (($style) ? str_replace('alt=',' style="' . $style . '" alt=',$c) : $c);
+
+		$o = replace_macros(get_markup_template('cover_photo_widget.tpl'),array(
+			'$photo_html'	=> $photo_html,
+			'$title'	=> $title,
+			'$subtitle'	=> $subtitle,
+			'$hovertitle' => t('Click to show more'),
+		));
 	}
 	return $o;
 }
@@ -1174,7 +1221,7 @@ function widget_forums($arr) {
 
 	$perms_sql = item_permissions_sql(local_channel()) . item_normal();
 
-	$r1 = q("select * from abook left join xchan on abook_xchan = xchan_hash where ( xchan_pubforum = 1 or ((abook_their_perms & %d ) != 0 and (abook_their_perms & %d ) = 0) ) and abook_channel = %d order by xchan_name $limit ",
+	$r1 = q("select * from abook left join xchan on abook_xchan = xchan_hash where ( xchan_pubforum = 1 or ((abook_their_perms & %d ) != 0 and (abook_their_perms & %d ) = 0) ) and xchan_deleted = 0 and abook_channel = %d order by xchan_name $limit ",
 		intval(PERMS_W_TAGWALL),
 		intval(PERMS_W_STREAM),
 		intval(local_channel())
@@ -1269,11 +1316,12 @@ function widget_admin($arr) {
 		'site'      => array(z_root() . '/admin/site/',     t('Site'),           'site'),
 		'users'     => array(z_root() . '/admin/users/',    t('Accounts'),       'users'),
 		'channels'  => array(z_root() . '/admin/channels/', t('Channels'),       'channels'),
+		'security'  => array(z_root() . '/admin/security/', t('Security'),       'security'),
 		'features'  => array(z_root() . '/admin/features/', t('Features'),       'features'),
 		'plugins'   => array(z_root() . '/admin/plugins/',  t('Plugins'),        'plugins'),
 		'themes'    => array(z_root() . '/admin/themes/',   t('Themes'),         'themes'),
 		'queue'     => array(z_root() . '/admin/queue',     t('Inspect queue'),  'queue'),
-		'profs'     => array(z_root() . '/admin/profs',     t('Profile Config'), 'profs'),
+		'profs'     => array(z_root() . '/admin/profs',     t('Profile Fields'), 'profs'),
 		'dbsync'    => array(z_root() . '/admin/dbsync/',   t('DB updates'),     'dbsync')
 
 	);

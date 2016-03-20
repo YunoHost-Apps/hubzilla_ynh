@@ -263,7 +263,7 @@ function rrmdir($path)
     return false;
 }
 
-function channel_remove($channel_id, $local = true, $unset_session=true) {
+function channel_remove($channel_id, $local = true, $unset_session=false) {
 
 	if(! $channel_id)
 		return;
@@ -389,8 +389,7 @@ function channel_remove($channel_id, $local = true, $unset_session=true) {
 	proc_run('php','include/directory.php',$channel_id);
 
 	if($channel_id == local_channel() && $unset_session) {
-		unset($_SESSION['authenticated']);
-		unset($_SESSION['uid']);
+		nuke_session();
 		goaway($a->get_baseurl());
 	}
 

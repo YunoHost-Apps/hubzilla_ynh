@@ -18,3 +18,8 @@ Sincerely,
 	{{$sitename}} Administrator
 
  
+
+--
+Terms Of Service:
+{{$siteurl}}/help/TermsOfService
+

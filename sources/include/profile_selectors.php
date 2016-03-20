@@ -7,7 +7,7 @@ function gender_selector($current="",$suffix="") {
 
 	call_hooks('gender_selector', $select);
 
-	$o .= "<select name=\"gender$suffix\" id=\"gender-select$suffix\" size=\"1\" >";
+	$o .= "<select class=\"form-control\" name=\"gender$suffix\" id=\"gender-select$suffix\" size=\"1\" >";
 	foreach($select as $selection) {
 		if($selection !== 'NOTRANSLATION') {
 			$selected = (($selection == $current) ? ' selected="selected" ' : '');
@@ -24,7 +24,7 @@ function gender_selector_min($current="",$suffix="") {
 
 	call_hooks('gender_selector_min', $select);
 
-	$o .= "<select name=\"gender$suffix\" id=\"gender-select$suffix\" size=\"1\" >";
+	$o .= "<select class=\"form-control\" name=\"gender$suffix\" id=\"gender-select$suffix\" size=\"1\" >";
 	foreach($select as $selection) {
 		if($selection !== 'NOTRANSLATION') {
 			$selected = (($selection == $current) ? ' selected="selected" ' : '');
@@ -44,7 +44,7 @@ function sexpref_selector($current="",$suffix="") {
 
 	call_hooks('sexpref_selector', $select);
 
-	$o .= "<select name=\"sexual$suffix\" id=\"sexual-select$suffix\" size=\"1\" >";
+	$o .= "<select class=\"form-control\" name=\"sexual$suffix\" id=\"sexual-select$suffix\" size=\"1\" >";
 	foreach($select as $selection) {
 		if($selection !== 'NOTRANSLATION') {
 			$selected = (($selection == $current) ? ' selected="selected" ' : '');
@@ -62,7 +62,7 @@ function sexpref_selector_min($current="",$suffix="") {
 
 	call_hooks('sexpref_selector_min', $select);
 
-	$o .= "<select name=\"sexual$suffix\" id=\"sexual-select$suffix\" size=\"1\" >";
+	$o .= "<select class=\"form-control\" name=\"sexual$suffix\" id=\"sexual-select$suffix\" size=\"1\" >";
 	foreach($select as $selection) {
 		if($selection !== 'NOTRANSLATION') {
 			$selected = (($selection == $current) ? ' selected="selected" ' : '');
@@ -81,7 +81,7 @@ function marital_selector($current="",$suffix="") {
 
 	call_hooks('marital_selector', $select);
 
-	$o .= "<select name=\"marital\" id=\"marital-select\" size=\"1\" >";
+	$o .= "<select class=\"form-control\" name=\"marital\" id=\"marital-select\" size=\"1\" >";
 	foreach($select as $selection) {
 		if($selection !== 'NOTRANSLATION') {
 			$selected = (($selection == $current) ? ' selected="selected" ' : '');
@@ -98,7 +98,7 @@ function marital_selector_min($current="",$suffix="") {
 
 	call_hooks('marital_selector_min', $select);
 
-	$o .= "<select name=\"marital\" id=\"marital-select\" size=\"1\" >";
+	$o .= "<select class=\"form-control\" name=\"marital\" id=\"marital-select\" size=\"1\" >";
 	foreach($select as $selection) {
 		if($selection !== 'NOTRANSLATION') {
 			$selected = (($selection == $current) ? ' selected="selected" ' : '');

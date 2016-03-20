@@ -67,7 +67,8 @@ If you use LetsEncrypt to provide certificates and create a file under
 please remove or rename the .well-known directory as soon as the certificate is 
 generated. Hubzilla will provide its own handler for ".well-known" services when
 it is installed, and an existing directory in this location may prevent some of 
-these services from working correctly. 
+these services from working correctly. This should not be a problem with Apache,
+but may be an issue with nginx or other web server platforms.
 
 
 1. Requirements
@@ -135,16 +136,16 @@ these services from working correctly.
             cd mywebsite
 
     - Then you should clone the addon repository (separately). We'll give this repository
-         a nickname of 'matrix'. You can pull in other hubzilla addon repositories by 
+         a nickname of 'hzaddons'. You can pull in other hubzilla addon repositories by 
          giving them different nicknames.
 
-            util/add_addon_repo https://github.com/redmatrix/hubzilla-addons.git matrix
+            util/add_addon_repo https://github.com/redmatrix/hubzilla-addons.git hzaddons
 
     - For keeping the addon tree updated, you should be on your top level website 
 		directory and issue an update command for that repository.
 
             cd mywebsite
-            util/update_addon_repo matrix
+            util/update_addon_repo hzaddons
 
 	- Create searchable representations of the online documentation. You may do this any time
 		that the documentation is updated.

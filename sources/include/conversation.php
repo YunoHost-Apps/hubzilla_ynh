@@ -1110,6 +1110,11 @@ function status_editor($a, $x, $popup = false) {
 
 	$o = '';
 
+	require_once('include/Contact.php');
+	$c = channelx_by_n($x['profile_uid']);
+	if($c && $c['channel_moved'])
+		return $o;
+
 	$geotag = (($x['allow_location']) ? replace_macros(get_markup_template('jot_geotag.tpl'), array()) : '');
 
 	$plaintext = true;
@@ -1595,7 +1600,16 @@ function profile_tabs($a, $is_owner = false, $nickname = null){
 	if (is_null($nickname))
 		$nickname  = $channel['channel_address'];
 
+
 	$uid = (($a->profile['profile_uid']) ? $a->profile['profile_uid'] : local_channel());
+
+	if($uid == local_channel()) {
+		$cal_link = '';
+	}
+	else {
+		$cal_link = '/cal/' . $nickname;
+	}
+
 
 	if (get_pconfig($uid, 'system', 'noprofiletabs'))
 		return;
@@ -1643,6 +1657,17 @@ function profile_tabs($a, $is_owner = false, $nickname = null){
 			'id'    => 'files-tab',
 		);
 	}
+
+	if($p['view_stream'] && $cal_link) {
+		$tabs[] = array(
+			'label' => t('Events'),
+			'url'   => $a->get_baseurl() . $cal_link,
+			'sel'   => ((argv(0) == 'cal' || argv(0) == 'events') ? 'active' : ''),
+			'title' => t('Events'),
+			'id'    => 'event-tab',
+		);
+	}
+
 
 	if ($p['chat']) {
 		require_once('include/chat.php');

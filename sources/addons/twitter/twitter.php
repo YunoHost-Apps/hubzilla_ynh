@@ -772,8 +772,8 @@ logger('Twitter admin');
 	$o = replace_macros($t, array(
 		'$submit' => t('Submit Settings'),
 								// name, label, value, help, [extra values]
-		'$consumerkey' => array('consumerkey', t('API key'),  get_config('twitter', 'consumerkey' ), ''),
-                '$consumersecret' => array('consumersecret', t('API secret'),  get_config('twitter', 'consumersecret' ), '')
+		'$consumerkey' => array('consumerkey', t('Consumer Key'),  get_config('twitter', 'consumerkey' ), ''),
+                '$consumersecret' => array('consumersecret', t('Consumer Secret'),  get_config('twitter', 'consumersecret' ), '')
 	));
 }
 

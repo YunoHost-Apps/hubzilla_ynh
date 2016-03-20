@@ -83,7 +83,9 @@ This document assumes you're an administrator.
 		'forum', 'forum_restricted' and 'forum_private'. 
 		Read more about permissions roles [zrl=[baseurl]/help/roles]here[/zrl].
     [b]system.workflow_channel_next[/b]
-        The page to direct users to immediately after creating a channel.
+        The page to direct new members to immediately after creating a channel.
+    [b]system.workflow_register_next[/b]
+        The page to direct members to immediately after creating an account (only when auto_channel_create or UNO is enabled).
     [b]system.max_daily_registrations[/b]
         Set the maximum number of new registrations allowed on any day.
         Useful to prevent oversubscription after a bout of publicity
@@ -100,6 +102,10 @@ This document assumes you're an administrator.
     [b]system.paranoia[/b]
         As the pconfig, but on a site-wide basis.  Can be overwritten
         by member settings.
+	[b]system.transport_security_header[/b]
+		if non-zero and SSL is being used, include a strict-transport-security header on webpages
+	[b]system.poke_basic[/b]
+		Reduce the number of poke verbs to exactly 1 ("poke"). Disable other verbs. 
     [b]system.openssl_conf_file[/b]
         Specify a file containing OpenSSL configuration.  Read the code first.
         If you can't read the code, don't play with it.

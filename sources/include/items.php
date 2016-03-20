@@ -552,6 +552,12 @@ function get_public_feed($channel, $params) {
 	$params['top']       = ((x($params,'top'))       ? intval($params['top'])   : 0);
 	$params['cat']       = ((x($params,'cat'))       ? $params['cat']          : '');
 
+
+	// put a sane lower limit on feed requests if not specified
+
+	if($params['begin'] === NULL_DATE)
+		$params['begin'] = datetime_convert('UTC','UTC','now - 1 month');
+
 	switch($params['type']) {
 		case 'json':
 			header("Content-type: application/atom+json");
@@ -587,8 +593,8 @@ function get_feed_for($channel, $observer_hash, $params) {
 	}
 	$items = items_fetch(array(
 		'wall' => '1',
-		'datequery' => $params['begin'],
-		'datequery2' => $params['end'],
+		'datequery' => $params['end'],
+		'datequery2' => $params['begin'],
 		'start' => $params['start'],          // FIXME
 	 	'records' => $params['records'],      // FIXME
 		'direction' => $params['direction'],  // FIXME
@@ -604,8 +610,8 @@ function get_feed_for($channel, $observer_hash, $params) {
 	$atom = '';
 
 	$atom .= replace_macros($feed_template, array(
-		'$version'      => xmlify(get_project_version()),
-		'$red'          => xmlify(get_platform_name()),
+		'$version'      => xmlify(Zotlabs\Project\System::get_project_version()),
+		'$red'          => xmlify(Zotlabs\Project\System::get_platform_name()),
 		'$feed_id'      => xmlify($channel['xchan_url']),
 		'$feed_title'   => xmlify($channel['channel_name']),
 		'$feed_updated' => xmlify(datetime_convert('UTC', 'UTC', 'now' , ATOM_TIME)) ,
@@ -622,6 +628,7 @@ function get_feed_for($channel, $observer_hash, $params) {
 		'$birthday'     => '',
 		'$community'    => '',
 	));
+
 
 	call_hooks('atom_feed', $atom);
 
@@ -842,7 +849,7 @@ function get_item_elements($x,$allow_code = false) {
 	if($allow_code)
 		$arr['body'] = $x['body'];
 	else
-		$arr['body']         = (($x['body']) ? htmlspecialchars($x['body'],ENT_COMPAT,'UTF-8',false) : '');
+		$arr['body'] = (($x['body']) ? htmlspecialchars($x['body'],ENT_COMPAT,'UTF-8',false) : '');
 
 	$key = get_config('system','pubkey');
 
@@ -910,6 +917,7 @@ function get_item_elements($x,$allow_code = false) {
 
 	$arr['attach']       = activity_sanitise($x['attach']);
 	$arr['term']         = decode_tags($x['tags']);
+	$arr['iconfig']      = decode_item_meta($x['meta']);
 
 	$arr['item_private'] = ((array_key_exists('flags',$x) && is_array($x['flags']) && in_array('private',$x['flags'])) ? 1 : 0);
 
@@ -1136,9 +1144,8 @@ function import_author_rss($x) {
 		$photos = import_xchan_photo($x['photo']['src'],$x['url']);
 
 		if($photos) {
-			/** @bug $arr is undefined in this SQL query */
 			$r = q("update xchan set xchan_photo_date = '%s', xchan_photo_l = '%s', xchan_photo_m = '%s', xchan_photo_s = '%s', xchan_photo_mimetype = '%s' where xchan_url = '%s' and xchan_network = 'rss'",
-				dbesc(datetime_convert('UTC', 'UTC', $arr['photo_updated'])),
+				dbesc(datetime_convert()),
 				dbesc($photos[0]),
 				dbesc($photos[1]),
 				dbesc($photos[2]),
@@ -1181,9 +1188,8 @@ function import_author_unknown($x) {
 		$photos = import_xchan_photo($x['photo']['src'],$x['url']);
 
 		if($photos) {
-			/** @bug $arr is undefined in this SQL query */
 			$r = q("update xchan set xchan_photo_date = '%s', xchan_photo_l = '%s', xchan_photo_m = '%s', xchan_photo_s = '%s', xchan_photo_mimetype = '%s' where xchan_url = '%s' and xchan_network = 'unknown'",
-				dbesc(datetime_convert('UTC','UTC',$arr['photo_updated'])),
+				dbesc(datetime_convert()),
 				dbesc($photos[0]),
 				dbesc($photos[1]),
 				dbesc($photos[2]),
@@ -1317,6 +1323,9 @@ function encode_item($item,$mirror = false) {
 	if($item['term'])
 		$x['tags']        = encode_item_terms($item['term'],$mirror);
 
+	if($item['iconfig'])
+		$x['meta']        = encode_item_meta($item['iconfig'],$mirror);
+
 	if($item['diaspora_meta']) {
 		$z = json_decode($item['diaspora_meta'],true);
 		if($z) {
@@ -1425,6 +1434,30 @@ function encode_item_terms($terms,$mirror = false) {
 	}
 
 	return $ret;
+}
+
+function encode_item_meta($meta,$mirror = false) {
+	$ret = array();
+
+	if($meta) {
+		foreach($meta as $m) {
+			if($m['sharing'] || $mirror)
+				$ret[] = array('family' => $m['cat'], 'key' => $m['k'], 'value' => $m['v'], 'sharing' => intval($m['sharing']));
+		}
+	}
+
+	return $ret;
+}
+
+function decode_item_meta($meta) {
+	$ret = array();
+
+	if(is_array($meta) && $meta) {
+		foreach($meta as $m) {
+			$ret[] = array('cat' => escape_tags($m['family']),'k' => escape_tags($m['key']),'v' => $m['value'],'sharing' => $m['sharing']);
+		}
+	}
+	return $ret;		
 }
 
 /**
@@ -2058,6 +2091,10 @@ function get_atom_elements($feed, $item, &$author) {
 			$res['obj_type'] = $child[NAMESPACE_ACTIVITY]['obj_type'][0]['data'];
 			$obj['type'] = $child[NAMESPACE_ACTIVITY]['obj_type'][0]['data'];
 		}
+		if($child[NAMESPACE_ACTIVITY]['object-type'][0]['data']) {
+			$res['obj_type'] = $child[NAMESPACE_ACTIVITY]['object-type'][0]['data'];
+			$obj['type'] = $child[NAMESPACE_ACTIVITY]['object-type'][0]['data'];
+		}
 		if(x($child[SIMPLEPIE_NAMESPACE_ATOM_10], 'id') && $child[SIMPLEPIE_NAMESPACE_ATOM_10]['id'][0]['data'])
 			$obj['id'] = $child[SIMPLEPIE_NAMESPACE_ATOM_10]['id'][0]['data'];
 		if(x($child[SIMPLEPIE_NAMESPACE_ATOM_10], 'link') && $child[SIMPLEPIE_NAMESPACE_ATOM_10]['link'])
@@ -2091,6 +2128,10 @@ function get_atom_elements($feed, $item, &$author) {
 			$res['tgt_type'] = $child[NAMESPACE_ACTIVITY]['obj_type'][0]['data'];
 			$obj['type'] = $child[NAMESPACE_ACTIVITY]['obj_type'][0]['data'];
 		}
+		if($child[NAMESPACE_ACTIVITY]['object-type'][0]['data']) {
+			$res['tgt_type'] = $child[NAMESPACE_ACTIVITY]['object-type'][0]['data'];
+			$obj['type'] = $child[NAMESPACE_ACTIVITY]['object-type'][0]['data'];
+		}
 		if(x($child[SIMPLEPIE_NAMESPACE_ATOM_10], 'id') && $child[SIMPLEPIE_NAMESPACE_ATOM_10]['id'][0]['data'])
 			$obj['id'] = $child[SIMPLEPIE_NAMESPACE_ATOM_10]['id'][0]['data'];
 		if(x($child[SIMPLEPIE_NAMESPACE_ATOM_10], 'link') && $child[SIMPLEPIE_NAMESPACE_ATOM_10]['link'])
@@ -2115,9 +2156,6 @@ function get_atom_elements($feed, $item, &$author) {
 		$res['target'] = $obj;
 	}
 
-	$res['public_policy'] = 'specific';
-	$res['comment_policy'] = 'none';
-
 	$arr = array('feed' => $feed, 'item' => $item, 'result' => $res);
 
 	call_hooks('parse_atom', $arr);
@@ -2129,26 +2167,27 @@ function get_atom_elements($feed, $item, &$author) {
 }
 
 function encode_rel_links($links) {
-	$o = '';
+	$o = array();
 	if(! ((is_array($links)) && (count($links))))
 		return $o;
 
 	foreach($links as $link) {
-		$o .= '<link ';
+		$l = array();
 		if($link['attribs']['']['rel'])
-			$o .= 'rel="' . $link['attribs']['']['rel'] . '" ';
+			$l['rel'] =  $link['attribs']['']['rel'];
 		if($link['attribs']['']['type'])
-			$o .= 'type="' . $link['attribs']['']['type'] . '" ';
+			$l['type'] =  $link['attribs']['']['type'];
 		if($link['attribs']['']['href'])
-			$o .= 'href="' . $link['attribs']['']['href'] . '" ';
+			$l['href'] = $link['attribs']['']['href'];
 		if( (x($link['attribs'],NAMESPACE_MEDIA)) && $link['attribs'][NAMESPACE_MEDIA]['width'])
-			$o .= 'media:width="' . $link['attribs'][NAMESPACE_MEDIA]['width'] . '" ';
+			$l['width'] = $link['attribs'][NAMESPACE_MEDIA]['width'];
 		if( (x($link['attribs'],NAMESPACE_MEDIA)) && $link['attribs'][NAMESPACE_MEDIA]['height'])
-			$o .= 'media:height="' . $link['attribs'][NAMESPACE_MEDIA]['height'] . '" ';
-		$o .= ' />' . "\n" ;
-	}
+			$l['height'] = $link['attribs'][NAMESPACE_MEDIA]['height'];
 
-	return xmlify($o);
+		if($l)
+			$o[] = $l;
+	}
+	return $o;
 }
 
 /**
@@ -2439,6 +2478,13 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 		unset($arr['term']);
 	}
 
+	$meta = null;
+	if(array_key_exists('iconfig',$arr)) {
+		$meta = $arr['iconfig'];
+		unset($arr['iconfig']);
+	}
+
+
  	if(strlen($allow_cid) || strlen($allow_gid) || strlen($deny_cid) || strlen($deny_gid) || strlen($public_policy))
 		$private = 1;
 	else
@@ -2515,6 +2561,15 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 
 		$arr['term'] = $terms;
 	}
+
+	if($meta) {
+		foreach($meta as $m) {
+			set_iconfig($current_post,$m['cat'],$m['k'],$m['v'],$m['sharing']);
+		}
+		$arr['iconfig'] = $meta;
+	}
+
+
 
 	call_hooks('post_remote_end',$arr);
 
@@ -2737,6 +2792,13 @@ function item_store_update($arr,$allow_exec = false, $deliver = true) {
 		unset($arr['term']);
 	}
 
+	$meta = null;
+	if(array_key_exists('iconfig',$arr)) {
+		$meta = $arr['iconfig'];
+		unset($arr['iconfig']);
+	}
+
+
 	dbesc_array($arr);
 
 	logger('item_store_update: ' . print_r($arr,true), LOGGER_DATA);
@@ -2776,6 +2838,17 @@ function item_store_update($arr,$allow_exec = false, $deliver = true) {
 			);
 		}
 		$arr['term'] = $terms;
+	}
+
+	$r = q("delete from iconfig where iid = %d",
+		intval($orig_post_id)
+	);
+
+	if($meta) {
+		foreach($meta as $m) {
+			set_iconfig($orig_post_id,$m['cat'],$m['k'],$m['v'],$m['sharing']);
+		}
+		$arr['iconfig'] = $meta;
 	}
 
 	call_hooks('post_remote_update_end',$arr);
@@ -2818,13 +2891,13 @@ function store_diaspora_comment_sig($datarray, $channel, $parent_item, $post_id,
 
 	$signed_text = $datarray['mid'] . ';' . $parent_item['mid'] . ';' . $signed_body . ';' . $diaspora_handle;
 
-	/** @FIXME $uprvkey is undefined, do we still need this if-statement? */
-	if( $uprvkey !== false )
+
+	if( $channel && $channel['channel_prvkey'] )
 		$authorsig = base64_encode(rsa_sign($signed_text, $channel['channel_prvkey'], 'sha256'));
 	else
 		$authorsig = '';
 
-	$x = array('signer' => $diaspora_handle, 'body' => $signed_body, 'signed_text' => $signed_text, 'signature' => base64_encode($authorsig));
+	$x = array('signer' => $diaspora_handle, 'body' => $signed_body, 'signed_text' => $signed_text, 'signature' => $authorsig);
 
 	$y = json_encode($x);
 
@@ -2832,6 +2905,7 @@ function store_diaspora_comment_sig($datarray, $channel, $parent_item, $post_id,
 		dbesc($y),
 		intval($post_id)
 	);
+
 
 	if(! $r)
 		logger('store_diaspora_comment_sig: DB write failed');
@@ -3438,6 +3512,7 @@ function check_item_source($uid, $item) {
 	if(! $r[0]['src_patt'])
 		return true;
 
+
 	require_once('include/html2plain.php');
 	$text = prepare_text($item['body'],$item['mimetype']);
 	$text = html2plain($text);
@@ -3653,10 +3728,6 @@ function mail_store($arr) {
 /**
  * @brief Process atom feed and update anything/everything we might need to update.
  *
- * $hub = should we find a hub declation in the feed, pass it back to our calling process, who might (or
- *        might not) try and subscribe to it.
- * $datedir sorts in reverse order
- *
  * @param array $xml
  *   The (atom) feed to consume - RSS isn't as fully supported but may work for simple feeds.
  * @param $importer
@@ -3695,7 +3766,7 @@ function consume_feed($xml, $importer, &$contact, $pass = 0) {
 	if(($chn_expire != 0) && ($chn_expire < $sys_expire))
 		$expire_days = $chn_expire;
 
-logger('expire_days: ' . $expire_days);
+	// logger('expire_days: ' . $expire_days);
 
 	$feed = new SimplePie();
 	$feed->set_raw_data($xml);
@@ -3776,6 +3847,11 @@ logger('expire_days: ' . $expire_days);
 				$author = array();
 				$datarray = get_atom_elements($feed,$item,$author);
 
+				if($contact['xchan_network'] === 'rss') {
+					$res['public_policy'] = 'specific';
+					$res['comment_policy'] = 'none';
+				}
+
 				if((! x($author,'author_name')) || ($author['author_is_feed']))
 					$author['author_name'] = $contact['xchan_name'];
 				if((! x($author,'author_link')) || ($author['author_is_feed']))
@@ -3817,6 +3893,7 @@ logger('expire_days: ' . $expire_days);
 				}
 
 				$datarray['parent_mid'] = $parent_mid;
+				$datarray['aid'] = $importer['channel_account_id'];
 				$datarray['uid'] = $importer['channel_id'];
 
 				logger('consume_feed: ' . print_r($datarray,true),LOGGER_DATA);
@@ -3832,6 +3909,12 @@ logger('expire_days: ' . $expire_days);
 				$item_id  = base64url_encode($item->get_id());
 				$author = array();
 				$datarray = get_atom_elements($feed,$item,$author);
+
+				if($contact['xchan_network'] === 'rss') {
+					$res['public_policy'] = 'specific';
+					$res['comment_policy'] = 'none';
+				}
+
 
 				if(is_array($contact)) {
 					if((! x($author,'author_name')) || ($author['author_is_feed']))
@@ -3893,6 +3976,7 @@ logger('expire_days: ' . $expire_days);
 
 				$datarray['parent_mid'] = $item_id;
 				$datarray['uid'] = $importer['channel_id'];
+				$datarray['aid'] = $importer['channel_account_id'];
 
 				if(! link_compare($author['owner_link'],$contact['xchan_url'])) {
 					logger('consume_feed: Correcting item owner.', LOGGER_DEBUG);
@@ -3915,6 +3999,140 @@ logger('expire_days: ' . $expire_days);
 		}
 	}
 }
+
+
+/**
+ * @brief Process atom feed and return the first post and structure
+ *
+ * @param array $xml
+ *   The (atom) feed to consume - RSS isn't as fully supported but may work for simple feeds.
+ * @param $importer
+ *   The contact_record (joined to user_record) of the local user who owns this
+ *   relationship. It is this person's stuff that is going to be updated.
+ */
+
+function process_salmon_feed($xml, $importer) {
+
+	$ret = array();
+
+	require_once('library/simplepie/simplepie.inc');
+
+	if(! strlen($xml)) {
+		logger('process_feed: empty input');
+		return;
+	}
+
+	$feed = new SimplePie();
+	$feed->set_raw_data($xml);
+	$feed->init();
+
+	if($feed->error())
+		logger('Error parsing XML: ' . $feed->error());
+
+	$permalink = $feed->get_permalink();
+
+	if($feed->get_item_quantity()) {
+
+		// this should be exactly one
+
+		logger('feed item count = ' . $feed->get_item_quantity(), LOGGER_DEBUG);
+
+		$items = $feed->get_items();
+
+		foreach($items as $item) {
+
+			$item_id = base64url_encode($item->get_id());
+
+			logger('processing ' . $item_id, LOGGER_DEBUG);
+
+			$rawthread = $item->get_item_tags( NAMESPACE_THREAD,'in-reply-to');
+			if(isset($rawthread[0]['attribs']['']['ref'])) {
+				$is_reply = true;
+				$parent_mid = base64url_encode($rawthread[0]['attribs']['']['ref']);
+			}
+
+			if($is_reply)
+				$ret['parent_mid'] = $parent_mid;
+
+			$ret['author'] = array();
+
+			$datarray = get_atom_elements($feed,$item,$ret['author']);
+
+			// reset policies which are restricted by default for RSS connections
+			// This item is likely coming from GNU-social via salmon and allows public interaction 
+			$datarray['public_policy'] = '';
+			$datarray['comment_policy'] = '';
+
+			$ret['item'] = $datarray;			
+		}
+	}
+
+	return $ret;
+}
+
+/*
+ * Given an xml (atom) feed, find author and hub links
+ */
+
+
+function feed_meta($xml) {
+	require_once('library/simplepie/simplepie.inc');
+
+	$ret = array();
+
+    if(! strlen($xml)) {
+        logger('empty input');
+        return $ret;
+    }
+
+    $feed = new SimplePie();
+    $feed->set_raw_data($xml);
+    $feed->init();
+
+    if($feed->error()) {
+        logger('Error parsing XML: ' . $feed->error());
+		return $ret;
+	}
+
+    $ret['hubs'] = $feed->get_links('hub');
+
+//     logger('consume_feed: hubs: ' . print_r($hubs,true), LOGGER_DATA);
+	
+	$author = array();
+
+    $found_author = $feed->get_author();
+    if($found_author) {
+        $author['author_name'] = unxmlify($found_author->get_name());
+        $author['author_link'] = unxmlify($found_author->get_link());
+
+    	$rawauthor = $feed->get_feed_tags(SIMPLEPIE_NAMESPACE_ATOM_10,'author');
+		logger('rawauthor: ' . print_r($rawauthor,true));
+
+	    if($rawauthor && $rawauthor[0]['child'][SIMPLEPIE_NAMESPACE_ATOM_10]['link']) {
+    	    $base = $rawauthor[0]['child'][SIMPLEPIE_NAMESPACE_ATOM_10]['link'];
+        	foreach($base as $link) {
+            	if(!x($author, 'author_photo') || ! $author['author_photo']) {
+                	if($link['attribs']['']['rel'] === 'photo' || $link['attribs']['']['rel'] === 'avatar') {
+                    	$author['author_photo'] = unxmlify($link['attribs']['']['href']);
+						break;
+					}
+            	}
+        	}
+			if($rawauthor[0]['child'][NAMESPACE_POCO]['displayName'][0]['data'])
+				$author['full_name'] = unxmlify($rawauthor[0]['child'][NAMESPACE_POCO]['displayName'][0]['data']);
+		}
+    }
+
+
+    if(substr($author['author_link'],-1,1) == '/')
+        $author['author_link'] = substr($author['author_link'],0,-1);
+
+	$ret['author'] = $author; 
+
+	return $ret;
+}
+
+
 
 function update_feed_item($uid,$datarray) {
 	logger('update_feed_item: not implemented! ' . $uid . ' ' . print_r($datarray,true), LOGGER_DATA);
@@ -3939,8 +4157,8 @@ function handle_feed($uid,$abook_id,$url) {
 //logger('handle_feed:' . print_r($z,true));
 
 	if($z['success']) {
-		consume_feed($z['body'],$channel,$x[0],0);
 		consume_feed($z['body'],$channel,$x[0],1);
+		consume_feed($z['body'],$channel,$x[0],2);
 	}
 }
 
@@ -3999,12 +4217,25 @@ function atom_entry($item,$type,$author,$owner,$comment = false,$cid = 0) {
 		$o .= '<thr:in-reply-to ref="' . xmlify($parent_item) . '" type="text/html" href="' .  xmlify($item['plink']) . '" />' . "\r\n";
 	}
 
+	if(activity_match($item['obj_type'],ACTIVITY_OBJ_EVENT) && activity_match($item['verb'],ACTIVITY_POST)) {
+		$obj = ((is_array($item['obj'])) ? $item['object'] : json_decode($item['object'],true));
+ 
+		$o .= '<title>' . xmlify($item['title']) . '</title>' . "\r\n";
+		$o .= '<summary>' . xmlify(bbcode($obj['title'])) . '</summary>' . "\r\n";
+		$o .= '<dtstart xmlns="urn:ietf:params:xml:ns:xcal">' . datetime_convert('UTC','UTC', $obj['start'],'Ymd\\THis' . (($obj['adjust']) ? '\\Z' : '')) .  '</dtstart>' . "\r\n";
+		$o .= '<dtend xmlns="urn:ietf:params:xml:ns:xcal">' . datetime_convert('UTC','UTC', $obj['finish'],'Ymd\\THis' . (($obj['adjust']) ? '\\Z' : '')) .  '</dtend>' . "\r\n";
+		$o .= '<location>' . bbcode($obj['location']) . '</location>' . "\r\n";
+		$o .= '<content type="' . $type . '" >' . xmlify(bbcode($obj['description'])) . '</content>' . "\r\n";
+	}
+	else {
+		$o .= '<title>' . xmlify($item['title']) . '</title>' . "\r\n";
+		$o .= '<content type="' . $type . '" >' . xmlify(prepare_text($body,$item['mimetype'])) . '</content>' . "\r\n";
+	}
+
 	$o .= '<id>' . xmlify($item['mid']) . '</id>' . "\r\n";
-	$o .= '<title>' . xmlify($item['title']) . '</title>' . "\r\n";
 	$o .= '<published>' . xmlify(datetime_convert('UTC','UTC',$item['created'] . '+00:00',ATOM_TIME)) . '</published>' . "\r\n";
 	$o .= '<updated>' . xmlify(datetime_convert('UTC','UTC',$item['edited'] . '+00:00',ATOM_TIME)) . '</updated>' . "\r\n";
 
-	$o .= '<content type="' . $type . '" >' . xmlify(prepare_text($body,$item['mimetype'])) . '</content>' . "\r\n";
 	$o .= '<link rel="alternate" type="text/html" href="' . xmlify($item['plink']) . '" />' . "\r\n";
 
 	if($item['location']) {
@@ -4667,6 +4898,10 @@ function fetch_post_tags($items,$link = false) {
 			dbesc($tag_finder_str),
 			intval(TERM_OBJ_POST)
 		);
+		$imeta = q("select * from iconfig where iid in ( %s )",
+			dbesc($tag_finder_str)
+		); 
+
 	}
 
 	for($x = 0; $x < count($items); $x ++) {
@@ -4686,6 +4921,26 @@ function fetch_post_tags($items,$link = false) {
 						if(! is_array($items[$x]['term']))
 							$items[$x]['term'] = array();
 						$items[$x]['term'][] = $t;
+					}
+				}
+			}
+		}
+		if($imeta) {
+			foreach($imeta as $i) {
+				if(array_key_exists('item_id',$items[$x])) {
+					if($i['iid'] == $items[$x]['item_id']) {
+						if(! is_array($items[$x]['iconfig']))
+							$items[$x]['iconfig'] = array();
+						$i['v'] = ((preg_match('|^a:[0-9]+:{.*}$|s',$i['v'])) ? unserialize($i['v']) : $i['v']);
+						$items[$x]['iconfig'][] = $i;
+					}
+				}
+				else {
+					if($i['iid'] == $items[$x]['id']) {
+						if(! is_array($items[$x]['iconfig']))
+							$items[$x]['iconfig'] = array();
+						$i['v'] = ((preg_match('|^a:[0-9]+:{.*}$|s',$i['v'])) ? unserialize($i['v']) : $i['v']);
+						$items[$x]['iconfig'][] = $i;
 					}
 				}
 			}
@@ -4900,15 +5155,15 @@ function items_fetch($arr,$channel = null,$observer_hash = null,$client_mode = C
 	}
 
 	if ($arr['datequery']) {
-		$sql_extra3 .= protect_sprintf(sprintf(" AND item.created <= '%s' ", dbesc(datetime_convert(date_default_timezone_get(),'',$arr['datequery']))));
+		$sql_extra3 .= protect_sprintf(sprintf(" AND item.created <= '%s' ", dbesc(datetime_convert('UTC','UTC',$arr['datequery']))));
 	}
 	if ($arr['datequery2']) {
-		$sql_extra3 .= protect_sprintf(sprintf(" AND item.created >= '%s' ", dbesc(datetime_convert(date_default_timezone_get(),'',$arr['datequery2']))));
+		$sql_extra3 .= protect_sprintf(sprintf(" AND item.created >= '%s' ", dbesc(datetime_convert('UTC','UTC',$arr['datequery2']))));
 	}
 
 	if(! array_key_exists('nouveau',$arr)) {
 		$sql_extra2 = " AND item.parent = item.id ";
-		$sql_extra3 = '';
+//		$sql_extra3 = '';
 	}
 
 	if($arr['search']) {
@@ -5298,3 +5553,212 @@ function asencode_person($p) {
 
 	return $ret;
 }
+
+
+function send_profile_photo_activity($channel,$photo,$profile) {
+
+	// for now only create activities for the default profile
+
+	if(! intval($profile['is_default']))
+		return;
+
+	$arr = array();
+	$arr['item_thread_top'] = 1;
+	$arr['item_origin'] = 1;
+	$arr['item_wall'] = 1;
+	$arr['obj_type'] = ACTIVITY_OBJ_PHOTO;
+	$arr['verb'] = ACTIVITY_UPDATE;
+
+	$arr['object'] = json_encode(array(
+		'type' => $arr['obj_type'],
+		'id' => z_root() . '/photo/profile/l/' . $channel['channel_id'],
+		'link' => array('rel' => 'photo', 'type' => $photo['type'], 'href' => z_root() . '/photo/profile/l/' . $channel['channel_id'])
+	));
+
+	if(stripos($profile['gender'],t('female')) !== false)
+		$t = t('%1$s updated her %2$s');
+	elseif(stripos($profile['gender'],t('male')) !== false)
+		$t = t('%1$s updated his %2$s');
+	else
+		$t = t('%1$s updated their %2$s');
+
+	$ptext = '[zrl=' . z_root() . '/photos/' . $channel['channel_address'] . '/image/' . $photo['resource_id'] . ']' . t('profile photo') . '[/zrl]';
+
+	$ltext = '[zrl=' . z_root() . '/profile/' . $channel['channel_address'] . ']' . '[zmg=150x150]' . z_root() . '/photo/' . $photo['resource_id'] . '-4[/zmg][/zrl]'; 
+
+	$arr['body'] = sprintf($t,$channel['channel_name'],$ptext) . "\n\n" . $ltext;
+
+	$acl = new Zotlabs\Access\AccessList($channel);
+	$x = $acl->get();
+	$arr['allow_cid'] = $x['allow_cid'];
+
+	$arr['allow_gid'] = $x['allow_gid'];
+	$arr['deny_cid'] = $x['deny_cid'];
+	$arr['deny_gid'] = $x['deny_gid'];
+
+	$arr['uid'] = $channel['channel_id'];
+	$arr['aid'] = $channel['channel_account_id'];
+
+	$arr['owner_xchan'] = $channel['channel_hash'];
+	$arr['author_xchan'] = $channel['channel_hash'];
+
+	post_activity_item($arr);
+
+
+}
+
+
+
+
+
+function get_iconfig(&$item, $family, $key) {
+
+	$is_item = false;
+	if(is_array($item)) {
+		$is_item = true;
+		if((! array_key_exists('iconfig',$item)) || (! is_array($item['iconfig'])))
+			$item['iconfig'] = array();
+
+		if(array_key_exists('item_id',$item))
+			$iid = $item['item_id'];
+		else
+			$iid = $item['id'];
+	}
+	elseif(intval($item))
+		$iid = $item;
+
+	if(! $iid)
+		return false;
+
+	if(is_array($item) && array_key_exists('iconfig',$item) && is_array($item['iconfig'])) {
+		foreach($item['iconfig'] as $c) {
+			if($c['iid'] == $iid && $c['cat'] == $family && $c['k'] == $key)
+				return $c['v'];
+		}
+	}
+		 
+	$r = q("select * from iconfig where iid = %d and cat = '%s' and k = '%s' limit 1",
+		intval($iid),
+		dbesc($family),
+		dbesc($key)
+	);
+	if($r) {
+		$r[0]['v'] = ((preg_match('|^a:[0-9]+:{.*}$|s',$r[0]['v'])) ? unserialize($r[0]['v']) : $r[0]['v']);
+		if($is_item)
+			$item['iconfig'][] = $r[0];
+		return $r[0]['v'];
+	}
+	return false;
+
+}
+
+/**
+ * set_iconfig(&$item, $family, $key, $value, $sharing = false);
+ *
+ * $item - item array or item id. If passed an array the iconfig meta information is
+ *    added to the item structure (which will need to be saved with item_store eventually).
+ *    If passed an id, the DB is updated, but may not be federated and/or cloned.
+ * $family - namespace of meta variable
+ * $key - key of meta variable
+ * $value - value of meta variable
+ * $sharing - boolean (default false); if true the meta information is propagated with the item
+ *   to other sites/channels, mostly useful when $item is an array and has not yet been stored/delivered.
+ *   If the meta information is added after delivery and you wish it to be shared, it may be necessary to 
+ *   alter the item edited timestamp and invoke the delivery process on the updated item. The edited 
+ *   timestamp needs to be altered in order to trigger an item_store_update() at the receiving end.
+ */
+ 
+
+function set_iconfig(&$item, $family, $key, $value, $sharing = false) {
+
+	$dbvalue = ((is_array($value))  ? serialize($value) : $value);
+	$dbvalue = ((is_bool($dbvalue)) ? intval($dbvalue)  : $dbvalue);
+
+	$is_item = false;
+	$idx = null;
+
+	if(is_array($item)) {
+		$is_item = true;
+		if((! array_key_exists('iconfig',$item)) || (! is_array($item['iconfig'])))
+			$item['iconfig'] = array();
+		elseif($item['iconfig']) {
+			for($x = 0; $x < count($item['iconfig']); $x ++) {
+				if($item['iconfig'][$x]['cat'] == $family && $item['iconfig'][$x]['k'] == $key) {
+					$idx = $x;
+				}
+			}
+		}
+		$entry = array('cat' => $family, 'k' => $key, 'v' => $value, 'sharing' => $sharing);
+
+		if(is_null($idx))
+			$item['iconfig'][] = $entry;
+		else
+			$item['iconfig'][$idx] = $entry;
+		return $value;
+	}
+
+	if(intval($item))
+		$iid = intval($item);
+
+	if(! $iid)
+		return false;
+
+	if(get_iconfig($item, $family, $key) === false) {
+		$r = q("insert into iconfig( iid, cat, k, v, sharing ) values ( %d, '%s', '%s', '%s', %d ) ",
+			intval($iid),
+			dbesc($family),
+			dbesc($key),
+			dbesc($dbvalue),
+			intval($sharing)
+		);
+	}
+	else {
+		$r = q("update iconfig set v = '%s', sharing = %d where iid = %d and cat = '%s' and  k = '%s' ",
+			dbesc($dbvalue),
+			intval($sharing),
+			intval($iid),
+			dbesc($family),
+			dbesc($key)
+		);
+	}
+
+	if(! $r)
+		return false;
+
+	return $value;
+}
+
+
+
+function del_iconfig(&$item, $family, $key) {
+
+
+	$is_item = false;
+	$idx = null;
+
+	if(is_array($item)) {
+		$is_item = true;
+		if(is_array($item['iconfig'])) {
+			for($x = 0; $x < count($item['iconfig']); $x ++) {
+				if($item['iconfig'][$x]['cat'] == $family && $item['iconfig'][$x]['k'] == $key) {
+					unset($item['iconfig'][$x]);
+				}
+			}
+		}
+		return true;
+	}
+
+	if(intval($item))
+		$iid = intval($item);
+
+	if(! $iid)
+		return false;
+
+	return q("delete from iconfig where iid = %d and cat = '%s' and  k = '%s' ",
+		intval($iid),
+		dbesc($family),
+		dbesc($key)
+	);
+
+}
+

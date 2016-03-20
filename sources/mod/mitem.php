@@ -127,7 +127,7 @@ function mitem_content(&$a) {
 			$menu_names[] = $menus['menu_name'];
 	}
 
-	$acl = new AccessList($channel);
+	$acl = new Zotlabs\Access\AccessList($channel);
 
 	$lockstate = (($channel['channel_allow_cid'] || $channel['channel_allow_gid'] || $channel['channel_deny_cid'] || $channel['channel_deny_gid']) ? 'lock' : 'unlock');
 

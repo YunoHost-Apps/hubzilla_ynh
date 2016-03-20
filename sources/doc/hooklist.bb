@@ -127,7 +127,7 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 [zrl=[baseurl]/help/hook/directory_item]directory_item[/zrl]
 	Called when generating a directory listing for display
 
-[zrl=[baseurl]/help/hook/discover_by_webbie]discover_by_webbie[/zrl]
+[zrl=[baseurl]/help/hook/discover_channel_webfinger]discover_channel_webfinger[/zrl]
 	Called when performing a webfinger lookup
 
 [zrl=[baseurl]/help/hook/display_item]display_item[/zrl]

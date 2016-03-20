@@ -30,7 +30,7 @@ function filestorage_post(&$a) {
 
 	$channel = $a->get_channel();
 
-	$acl = new AccessList($channel);
+	$acl = new Zotlabs\Access\AccessList($channel);
 	$acl->set_from_array($_REQUEST);
 	$x = $acl->get();
 

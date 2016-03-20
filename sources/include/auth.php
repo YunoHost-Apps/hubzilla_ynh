@@ -12,33 +12,6 @@
 require_once('include/api_auth.php');
 require_once('include/security.php');
 
-/**
- * @brief Resets the current session.
- *
- * @return void
- */
-function nuke_session() {
-	new_cookie(0); // 0 means delete on browser exit
-
-	unset($_SESSION['authenticated']);
-	unset($_SESSION['account_id']);
-	unset($_SESSION['uid']);
-	unset($_SESSION['visitor_id']);
-	unset($_SESSION['administrator']);
-	unset($_SESSION['cid']);
-	unset($_SESSION['theme']);
-	unset($_SESSION['mobile_theme']);
-	unset($_SESSION['show_mobile']);
-	unset($_SESSION['page_flags']);
-	unset($_SESSION['delegate']);
-	unset($_SESSION['delegate_channel']);
-	unset($_SESSION['my_url']);
-	unset($_SESSION['my_address']);
-	unset($_SESSION['addr']);
-	unset($_SESSION['return_url']);
-	unset($_SESSION['remote_service_class']);
-	unset($_SESSION['remote_hub']);
-}
 
 /**
  * @brief Verify login credentials.

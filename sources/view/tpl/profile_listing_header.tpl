@@ -1,11 +1,12 @@
-<div class="generic-content-wrapper-styled">
-<h1>{{$header}}</h1>
-<p id="profile-listing-desc" class="btn btn-default" >
-<a href="profile_photo" >{{$chg_photo}}</a>
-</p>
-<p id="profile-stuff-link" class="btn btn-default">
-<a href="thing" title="{{$stuff_desc}}">{{$addstuff}}</a>
-</p>
-<p id="profile-listing-new-link-wrapper" class="btn btn-default" >
-<a href="{{$cr_new_link}}" id="profile-listing-new-link" title="{{$cr_new}}" >{{$cr_new}}</a>
+<div class="generic-content-wrapper">
+	<div class="section-title-wrapper">
+		<a class="btn btn-success btn-xs pull-right" href="{{$cr_new_link}}" id="profile-listing-new-link" title="{{$cr_new}}" ><i class="icon-plus-sign"></i>&nbsp;{{$cr_new}}</a>
+		<h2>{{$header}}</h2>
+	</div>
+	<div class="section-content-wrapper">
+		<div class="profile-listing-table">
+			{{$profiles}}
+		</div>
+	</div>
+
 </div>

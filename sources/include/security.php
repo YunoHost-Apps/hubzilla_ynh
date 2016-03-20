@@ -148,7 +148,7 @@ function change_channel($change_channel) {
  * @return string additional SQL where statement
  */
 
-function permissions_sql($owner_id, $remote_observer = null) {
+function permissions_sql($owner_id, $remote_observer = null, $table = '') {
 
 	$local_channel = local_channel();
 
@@ -158,10 +158,14 @@ function permissions_sql($owner_id, $remote_observer = null) {
 	 * default permissions - anonymous user
 	 */
 
-	$sql = " AND allow_cid = '' 
-			 AND allow_gid = '' 
-			 AND deny_cid  = '' 
-			 AND deny_gid  = '' 
+	if($table)
+		$table .= '.';
+
+
+	$sql = " AND {$table}allow_cid = '' 
+			 AND {$table}allow_gid = '' 
+			 AND {$table}deny_cid  = '' 
+			 AND {$table}deny_gid  = '' 
 	";
 
 	/**
@@ -193,8 +197,8 @@ function permissions_sql($owner_id, $remote_observer = null) {
 			}
 			$regexop = db_getfunc('REGEXP');
 			$sql = sprintf(
-				" AND ( NOT (deny_cid like '%s' OR deny_gid $regexop '%s')
-				  AND ( allow_cid like '%s' OR allow_gid $regexop '%s' OR ( allow_cid = '' AND allow_gid = '') )
+				" AND ( NOT ({$table}deny_cid like '%s' OR {$table}deny_gid $regexop '%s')
+				  AND ( {$table}allow_cid like '%s' OR {$table}allow_gid $regexop '%s' OR ( {$table}allow_cid = '' AND {$table}allow_gid = '') )
 				  )
 				",
 				dbesc(protect_sprintf( '%<' . $observer . '>%')),
@@ -411,7 +415,7 @@ function init_groups_visitor($contact_id) {
 	$r = q("SELECT hash FROM `groups` left join group_member on groups.id = group_member.gid WHERE xchan = '%s' ",
 		dbesc($contact_id)
 	);
-	if(count($r)) {
+	if($r) {
 		foreach($r as $rr)
 			$groups[] = $rr['hash'];
 	}

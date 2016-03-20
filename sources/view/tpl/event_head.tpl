@@ -6,7 +6,7 @@
 <script>
 	function showEvent(eventid) {
 		$.get(
-			'{{$baseurl}}/events/?id='+eventid,
+			'{{$baseurl}}{{$module_url}}/?id='+eventid,
 			function(data){
 				$.colorbox({ scrolling: false, html: data, onComplete: function() { $.colorbox.resize(); }});
 			}
@@ -36,7 +36,7 @@
 
 	$(document).ready(function() {
 		$('#events-calendar').fullCalendar({
-			events: '{{$baseurl}}/events/json',
+			events: '{{$baseurl}}{{$module_url}}/json',
 			header: false,
 			lang: '{{$lang}}',
 			firstDay: {{$first_day}},
@@ -109,10 +109,17 @@
 		});
 		
 		// center on date
+		// @fixme does not work for cal/$nick module_url
 		var args=location.href.replace(baseurl,"").split("/");
+		{{if $modparams == 2}}
+		if (args.length>=5) {
+			$("#events-calendar").fullCalendar('gotoDate',args[3] , args[4]-1);
+		}
+		{{else}}
 		if (args.length>=4) {
 			$("#events-calendar").fullCalendar('gotoDate',args[2] , args[3]-1);
-		} 
+		}
+		{{/if}} 
 		
 		// show event popup
 		var hash = location.hash.split("-")

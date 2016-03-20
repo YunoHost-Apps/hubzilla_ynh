@@ -23,3 +23,8 @@ To deny the request and remove the account, please visit:
 
 Thank you.
 
+
+--
+Terms Of Service:
+{{$siteurl}}/help/TermsOfService
+

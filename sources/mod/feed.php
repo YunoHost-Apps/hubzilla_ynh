@@ -31,7 +31,9 @@ function feed_init(&$a) {
 			killme();
  
 		logger('mod_feed: public feed request from ' . $_SERVER['REMOTE_ADDR'] . ' for ' . $channel['channel_address']);
+
 		echo get_public_feed($channel,$params);
+
 		killme();
 	}
 

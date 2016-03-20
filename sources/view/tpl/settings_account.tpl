@@ -8,6 +8,7 @@
 		<input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
 		<div class="section-content-tools-wrapper">
 			{{include file="field_input.tpl" field=$email}}
+			{{include file="field_password.tpl" field=$origpass}}
 			{{include file="field_password.tpl" field=$password1}}
 			{{include file="field_password.tpl" field=$password2}}
 			<div class="settings-submit-wrapper" >

@@ -145,7 +145,10 @@ function help_content(&$a) {
 	if($_REQUEST['search']) {
 	
 		$o .= '<div id="help-content" class="generic-content-wrapper">';
+		$o .= '<div class="section-title-wrapper">';
 		$o .= '<h2>' . t('Documentation Search') . ' - ' . htmlspecialchars($_REQUEST['search']) . '</h2>';
+		$o .= '</div>';
+		$o .= '<div class="section-content-wrapper">';
 
 		$r = search_doc_files($_REQUEST['search']);
 		if($r) {
@@ -157,10 +160,11 @@ function help_content(&$a) {
 				$path = trim(substr($dirname,4),'/');
 
 				$o .= '<li><a href="help/' . (($path) ? $path . '/' : '') . $fname . '" >' . ucwords(str_replace('_',' ',notags($fname))) . '</a><br />' . 
-				str_replace('$Projectname',get_platform_name(),substr($rr['text'],0,200)) . '...<br /><br /></li>';
+				str_replace('$Projectname',Zotlabs\Project\System::get_platform_name(),substr($rr['text'],0,200)) . '...<br /><br /></li>';
 
 			}
 			$o .= '</ul>';
+			$o .= '</div>';
 			$o .= '</div>';
 		}
 		return $o;

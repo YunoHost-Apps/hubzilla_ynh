@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file include/session.php
  *
@@ -11,11 +12,43 @@
 $session_exists = 0;
 $session_expire = 180000;
 
+
+/**
+ * @brief Resets the current session.
+ *
+ * @return void
+ */
+
+function nuke_session() {
+	new_cookie(0); // 0 means delete on browser exit
+
+	unset($_SESSION['authenticated']);
+	unset($_SESSION['account_id']);
+	unset($_SESSION['uid']);
+	unset($_SESSION['visitor_id']);
+	unset($_SESSION['administrator']);
+	unset($_SESSION['cid']);
+	unset($_SESSION['theme']);
+	unset($_SESSION['mobile_theme']);
+	unset($_SESSION['show_mobile']);
+	unset($_SESSION['page_flags']);
+	unset($_SESSION['delegate']);
+	unset($_SESSION['delegate_channel']);
+	unset($_SESSION['my_url']);
+	unset($_SESSION['my_address']);
+	unset($_SESSION['addr']);
+	unset($_SESSION['return_url']);
+	unset($_SESSION['remote_service_class']);
+	unset($_SESSION['remote_hub']);
+}
+
+
+
 function new_cookie($time) {
 	$old_sid = session_id();
 
-// ??? This shouldn't have any effect if called after session_start()
-// We probably need to set the session expiration and change the PHPSESSID cookie.
+	// ??? This shouldn't have any effect if called after session_start()
+	// We probably need to set the session expiration and change the PHPSESSID cookie.
 
 	session_set_cookie_params($time);
 	session_regenerate_id(false);
@@ -108,8 +141,9 @@ ini_set('session.use_only_cookies', 1);
 ini_set('session.cookie_httponly', 1);
 
 /*
- * PHP function which sets our user-level session storage functions.
+ * Set our session storage functions.
  */
+
 session_set_save_handler(
 		'ref_session_open',
 		'ref_session_close',
@@ -118,3 +152,16 @@ session_set_save_handler(
 		'ref_session_destroy',
 		'ref_session_gc'
 );
+
+
+   // Force cookies to be secure (https only) if this site is SSL enabled. Must be done before session_start().
+
+    if(intval(get_app()->config['system']['ssl_cookie_protection'])) {
+        $arr = session_get_cookie_params();
+        session_set_cookie_params(
+            ((isset($arr['lifetime']))  ? $arr['lifetime'] : 0),
+            ((isset($arr['path']))      ? $arr['path']     : '/'),
+            ((isset($arr['domain']))    ? $arr['domain']   : get_app()->get_hostname()),
+            ((isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) == 'on') ? true : false),
+            ((isset($arr['httponly']))  ? $arr['httponly'] : true));
+    }

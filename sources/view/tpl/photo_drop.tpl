@@ -1,4 +1,3 @@
 <div class="wall-item-delete-wrapper" id="wall-item-delete-wrapper-{{$id}}" >
-	<a href="item/drop/{{$id}}" onclick="return confirmDelete();" title="{{$delete}}" ><i class="icon-trash drop-icons"></i></a>
+	<a class="btn btn-default btn-sm" href="#" onclick="dropItem('item/drop/{{$id}}', '#wall-item-outside-wrapper-{{$id}}'); return false;" title="{{$delete}}" ><i class="icon-trash"></i></a>
 </div>
-<div class="wall-item-delete-end"></div>

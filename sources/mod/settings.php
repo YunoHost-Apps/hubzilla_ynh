@@ -155,6 +155,7 @@ function settings_post(&$a) {
 
 		$theme = ((x($_POST,'theme')) ? notags(trim($_POST['theme']))  : $a->channel['channel_theme']);
 		$mobile_theme = ((x($_POST,'mobile_theme')) ? notags(trim($_POST['mobile_theme']))  : '');
+		$preload_images = ((x($_POST,'preload_images')) ? intval($_POST['preload_images'])  : 0);
 		$user_scalable = ((x($_POST,'user_scalable')) ? intval($_POST['user_scalable'])  : 0);
 		$nosmile = ((x($_POST,'nosmile')) ? intval($_POST['nosmile'])  : 0); 
 		$title_tosource = ((x($_POST,'title_tosource')) ? intval($_POST['title_tosource'])  : 0);		 
@@ -184,6 +185,7 @@ function settings_post(&$a) {
 			set_pconfig(local_channel(),'system','mobile_theme',$mobile_theme);
 		}
 
+		set_pconfig(local_channel(),'system','preload_images',$preload_images);
 		set_pconfig(local_channel(),'system','user_scalable',$user_scalable);
 		set_pconfig(local_channel(),'system','update_interval', $browser_update);
 		set_pconfig(local_channel(),'system','itemspage', $itemspage);
@@ -223,10 +225,44 @@ function settings_post(&$a) {
 
 		$errs = array();
 
+		$email = ((x($_POST,'email')) ? trim(notags($_POST['email'])) : '');
+		$account = $a->get_account();
+		if($email != $account['account_email']) {
+    	    if(! valid_email($email))
+				$errs[] = t('Not valid email.');
+			$adm = trim(get_config('system','admin_email'));
+			if(($adm) && (strcasecmp($email,$adm) == 0)) {
+				$errs[] = t('Protected email address. Cannot change to that email.');
+				$email = $a->user['email'];
+			}
+			if(! $errs) {
+				$r = q("update account set account_email = '%s' where account_id = %d",
+					dbesc($email),
+					intval($account['account_id'])
+				);
+				if(! $r)
+					$errs[] = t('System failure storing new email. Please try again.');
+			}
+		}
+
+		if($errs) {
+			foreach($errs as $err)
+				notice($err . EOL);
+			$errs = array();
+		}
+
+
 		if((x($_POST,'npassword')) || (x($_POST,'confirm'))) {
 
-			$newpass = $_POST['npassword'];
-			$confirm = $_POST['confirm'];
+			$origpass = trim($_POST['origpass']);
+
+			require_once('include/auth.php');
+			if(! account_verify_password($email,$origpass)) {
+				$errs[] = t('Password verification failed.');
+			}
+
+			$newpass = trim($_POST['npassword']);
+			$confirm = trim($_POST['confirm']);
 
 			if($newpass != $confirm ) {
 				$errs[] = t('Passwords do not match. Password unchanged.');
@@ -253,31 +289,6 @@ function settings_post(&$a) {
 			}
 		}
 
-		if($errs) {
-			foreach($errs as $err)
-				notice($err . EOL);
-			$errs = array();
-		}
-
-		$email = ((x($_POST,'email')) ? trim(notags($_POST['email'])) : '');
-		$account = $a->get_account();
-		if($email != $account['account_email']) {
-    	    if(! valid_email($email))
-				$errs[] = t('Not valid email.');
-			$adm = trim(get_config('system','admin_email'));
-			if(($adm) && (strcasecmp($email,$adm) == 0)) {
-				$errs[] = t('Protected email address. Cannot change to that email.');
-				$email = $a->user['email'];
-			}
-			if(! $errs) {
-				$r = q("update account set account_email = '%s' where account_id = %d",
-					dbesc($email),
-					intval($account['account_id'])
-				);
-				if(! $r)
-					$errs[] = t('System failure storing new email. Please try again.');
-			}
-		}
 
 		if($errs) {
 			foreach($errs as $err)
@@ -312,7 +323,7 @@ function settings_post(&$a) {
 			foreach($global_perms as $k => $v) {
 				$set_perms .= ', ' . $v[0] . ' = ' . intval($_POST[$k]) . ' ';
 			}
-			$acl = new AccessList($channel);
+			$acl = new Zotlabs\Access\AccessList($channel);
 			$acl->set_from_array($_POST);
 			$x = $acl->get();
 
@@ -600,7 +611,7 @@ function settings_content(&$a) {
 					local_channel());
 			
 			if (!count($r)){
-				notice(t("You can't edit this application."));
+				notice(t('Application not found.'));
 				return;
 			}
 			$app = $r[0];
@@ -693,8 +704,9 @@ function settings_content(&$a) {
 		$o .= replace_macros($tpl, array(
 			'$form_security_token' => get_form_security_token("settings_account"),
 			'$title'	=> t('Account Settings'),
-			'$password1'=> array('npassword', t('Enter New Password:'), '', ''),
-			'$password2'=> array('confirm', t('Confirm New Password:'), '', t('Leave password fields blank unless changing')),
+			'$origpass' => array('origpass', t('Current Password'), ' ',''),
+			'$password1'=> array('npassword', t('Enter New Password'), '', ''),
+			'$password2'=> array('confirm', t('Confirm New Password'), '', t('Leave password fields blank unless changing')),
 			'$submit' 	=> t('Submit'),
 			'$email' 	=> array('email', t('Email Address:'), $email, ''),
 			'$removeme' => t('Remove Account'),
@@ -803,6 +815,9 @@ function settings_content(&$a) {
 		$theme_selected = (!x($_SESSION,'theme')? $default_theme : $_SESSION['theme']);
 		$mobile_theme_selected = (!x($_SESSION,'mobile_theme')? $default_mobile_theme : $_SESSION['mobile_theme']);
 
+		$preload_images = get_pconfig(local_channel(),'system','preload_images');
+		$preload_images = (($preload_images===false)? '0': $preload_images); // default if not set: 0
+
 		$user_scalable = get_pconfig(local_channel(),'system','user_scalable');
 		$user_scalable = (($user_scalable===false)? '1': $user_scalable); // default if not set: 1
 		
@@ -836,7 +851,8 @@ function settings_content(&$a) {
 			'$uid' => local_channel(),
 		
 			'$theme'	=> (($themes) ? array('theme', t('Display Theme:'), $theme_selected, '', $themes, 'preview') : false),
-			'$mobile_theme'	=> (($mobile_themes) ? array('mobile_theme', t('Mobile Theme:'), $mobile_theme_selected, '', $mobile_themes, '') : false),
+			'$mobile_theme' => (($mobile_themes) ? array('mobile_theme', t('Mobile Theme:'), $mobile_theme_selected, '', $mobile_themes, '') : false),
+			'$preload_images' => array('preload_images', t("Preload images before rendering the page"), $preload_images, t("The subjective page load time will be longer but the page will be ready when displayed"), $yes_no),
 			'$user_scalable' => array('user_scalable', t("Enable user zoom on mobile devices"), $user_scalable, '', $yes_no),
 			'$ajaxint'   => array('browser_update',  t("Update browser every xx seconds"), $browser_update, t('Minimum of 10 seconds, no maximum')),
 			'$itemspage'   => array('itemspage',  t("Maximum number of conversations to load at any time:"), $itemspage, t('Maximum of 100 items')),
@@ -986,7 +1002,7 @@ function settings_content(&$a) {
 
 		$stpl = get_markup_template('settings.tpl');
 
-		$acl = new AccessList($channel);
+		$acl = new Zotlabs\Access\AccessList($channel);
 		$perm_defaults = $acl->get();
 
 		require_once('include/group.php');
@@ -1013,6 +1029,7 @@ function settings_content(&$a) {
 			$permissions_role = 'custom';
 
 		$permissions_set = (($permissions_role != 'custom') ? true : false);
+
 		$vnotify = get_pconfig(local_channel(),'system','vnotify');
 		$always_show_in_notices = get_pconfig(local_channel(),'system','always_show_in_notices');
 		if($vnotify === false)
@@ -1037,6 +1054,7 @@ function settings_content(&$a) {
 
 			'$h_prv' 	=> t('Security and Privacy Settings'),
 			'$permissions_set' => $permissions_set,
+			'$server_role' => Zotlabs\Project\System::get_server_role(),
 			'$perms_set_msg' => t('Your permissions are already configured. Click to view/adjust'),
 
 			'$hide_presence' => array('hide_presence', t('Hide my online presence'),$hide_presence, t('Prevents displaying in your profile that you are online'), $yes_no),

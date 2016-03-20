@@ -1,7 +1,7 @@
 <?php
 
 if(! function_exists("string_plural_select_ca")) {
-function string_plural_select_de($n){
+function string_plural_select_ca($n){
 	return ($n != 1);;
 }}
 ;

@@ -22,6 +22,8 @@ function linkinfo_content(&$a) {
 	else
 		$url = trim($_GET['url']);
 
+	$url = strip_zids($url);
+
 	if((substr($url,0,1) != '/') && (substr($url,0,4) != 'http'))
 		$url = 'http://' . $url;
 
@@ -113,7 +115,7 @@ function linkinfo_content(&$a) {
 
 	// If this is a Red site, use zrl rather than url so they get zids sent to them by default
 
-	if( x($siteinfo,'generator') && (strpos($siteinfo['generator'], get_platform_name() . ' ') === 0))
+	if( x($siteinfo,'generator') && (strpos($siteinfo['generator'], Zotlabs\Project\System::get_platform_name() . ' ') === 0))
 		$template = str_replace('url','zrl',$template);
 
 	if($siteinfo["title"] == "") {

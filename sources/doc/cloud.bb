@@ -10,7 +10,7 @@ On many public servers there may be limits on disk usage.
 
 The quickest and easiest way to share files is through file attachments. In the row of icons below the status post editor is a tool to upload attachments. Click the tool, select a file and submit. After the file is uploaded, you will see an attachment code placed inside the text region. Do not edit this line or it may break the ability for your friends to see the attachment. You can use the post permissions dialogue box or privacy hashtags to restrict the visibility of the file - which will be set to match the permissions of the post your are sending.
 
-To delete attachments or change the permissions on the stored files, visit [observer.baseurl]/filestorage/{{username}}&quot; replacing {{username}} with the nickname you provided during channel creation.
+To delete attachments or change the permissions on the stored files, visit [observer.baseurl]/cloud/{{username}}&quot; replacing {{username}} with the nickname you provided during channel creation.
 
 [b]Web Access[/b]
 
