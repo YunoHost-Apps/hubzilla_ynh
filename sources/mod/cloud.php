@@ -7,7 +7,7 @@
  */
 
 use Sabre\DAV;
-use RedMatrix\RedDAV;
+use Zotlabs\Storage;
 
 // composer autoloader for SabreDAV
 require_once('vendor/autoload.php');
@@ -35,7 +35,7 @@ function cloud_init(&$a) {
 	if ($which)
 		profile_load($a, $which, $profile);
 
-	$auth = new RedDAV\RedBasicAuth();
+	$auth = new Zotlabs\Storage\BasicAuth();
 
 	$ob_hash = get_observer_hash();
 
@@ -63,7 +63,7 @@ function cloud_init(&$a) {
 	$_SERVER['REQUEST_URI'] = strip_zids($_SERVER['REQUEST_URI']);
 	$_SERVER['REQUEST_URI'] = preg_replace('/[\?&]davguest=(.*?)([\?&]|$)/ism', '', $_SERVER['REQUEST_URI']);
 
-	$rootDirectory = new RedDAV\RedDirectory('/', $auth);
+	$rootDirectory = new Zotlabs\Storage\Directory('/', $auth);
 
 	// A SabreDAV server-object
 	$server = new DAV\Server($rootDirectory);
@@ -86,16 +86,16 @@ function cloud_init(&$a) {
 		}
 	}
 
-	require_once('include/RedDAV/RedBrowser.php');
+//	require_once('Zotlabs/Storage/Browser.php');
 	// provide a directory view for the cloud in Hubzilla
-	$browser = new RedDAV\RedBrowser($auth);
+	$browser = new Zotlabs\Storage\Browser($auth);
 	$auth->setBrowserPlugin($browser);
 
 	$server->addPlugin($browser);
 
 	// Experimental QuotaPlugin
-//	require_once('include/RedDAV/QuotaPlugin.php');
-//	$server->addPlugin(new RedDAV\QuotaPlugin($auth));
+//	require_once('Zotlabs\Storage/QuotaPlugin.php');
+//	$server->addPlugin(new Zotlabs\Storage\\QuotaPlugin($auth));
 
 	// All we need to do now, is to fire up the server
 	$server->exec();

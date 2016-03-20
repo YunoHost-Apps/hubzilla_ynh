@@ -7,7 +7,7 @@
  */
 
 require_once('include/queue_fn.php');
-
+require_once('include/account.php');
 
 /**
  * @param App &$a
@@ -61,6 +61,9 @@ function admin_post(&$a){
 				break;
 			case 'hubloc':
 				admin_page_hubloc_post($a);
+				break;
+			case 'security':
+				admin_page_security_post($a);
 				break;
 			case 'features':
 				admin_page_features_post($a);
@@ -116,6 +119,9 @@ function admin_content(&$a) {
 //			case 'hubloc':
 //				$o = admin_page_hubloc($a);
 //				break;
+			case 'security':
+				$o = admin_page_security($a);
+				break;
 			case 'features':
 				$o = admin_page_features($a);
 				break;
@@ -251,7 +257,6 @@ function admin_page_site_post(&$a){
 	$allowed_sites        = ((x($_POST,'allowed_sites'))	? notags(trim($_POST['allowed_sites']))		: '');
 	$allowed_email        = ((x($_POST,'allowed_email'))	? notags(trim($_POST['allowed_email']))		: '');
 	$not_allowed_email    = ((x($_POST,'not_allowed_email'))	? notags(trim($_POST['not_allowed_email']))		: '');
-	$block_public         = ((x($_POST,'block_public'))		? True	: False);
 	$force_publish        = ((x($_POST,'publish_all'))		? True	: False);
 	$disable_discover_tab = ((x($_POST,'disable_discover_tab'))		? False	:	True);
 	$login_on_homepage    = ((x($_POST,'login_on_homepage'))		? True	:	False);
@@ -316,7 +321,6 @@ function admin_page_site_post(&$a){
 	set_config('system','allowed_sites', $allowed_sites);
 	set_config('system','allowed_email', $allowed_email);
 	set_config('system','not_allowed_email', $not_allowed_email);	
-	set_config('system','block_public', $block_public);
 	set_config('system','publish_all', $force_publish);
 	set_config('system','disable_discover_tab', $disable_discover_tab);
 	if ($global_directory == '') {
@@ -477,7 +481,6 @@ function admin_page_site(&$a) {
 		'$allowed_sites'	=> array('allowed_sites', t("Allowed friend domains"), get_config('system','allowed_sites'), t("Comma separated list of domains which are allowed to establish friendships with this site. Wildcards are accepted. Empty to allow any domains")),
 		'$allowed_email'	=> array('allowed_email', t("Allowed email domains"), get_config('system','allowed_email'), t("Comma separated list of domains which are allowed in email addresses for registrations to this site. Wildcards are accepted. Empty to allow any domains")),
 		'$not_allowed_email'	=> array('not_allowed_email', t("Not allowed email domains"), get_config('system','not_allowed_email'), t("Comma separated list of domains which are not allowed in email addresses for registrations to this site. Wildcards are accepted. Empty to allow any domains, unless allowed domains have been defined.")),
-		'$block_public'		=> array('block_public', t("Block public"), get_config('system','block_public'), t("Check to block public access to all otherwise public personal pages on this site unless you are currently logged in.")),
 		'$verify_email'		=> array('verify_email', t("Verify Email Addresses"), get_config('system','verify_email'), t("Check to verify email addresses used in account registration (recommended).")),
 		'$force_publish'	=> array('publish_all', t("Force publish"), get_config('system','publish_all'), t("Check to force all profiles on this site to be listed in the site directory.")),
 		'$disable_discover_tab'	=> array('disable_discover_tab', t('Import Public Streams'), $discover_tab, t('Import and allow access to public content pulled from other sites. Warning: this content is unmoderated.')),
@@ -535,6 +538,53 @@ function admin_page_hubloc_post(&$a){
 
 	goaway($a->get_baseurl(true) . '/admin/hubloc' );
 }
+
+function trim_array_elems($arr) {
+	$narr = array();
+
+	if($arr && is_array($arr)) {
+		for($x = 0; $x < count($arr); $x ++) {
+			$y = trim($arr[$x]);
+			if($y)
+				$narr[] = $y;
+		}
+	}
+	return $narr;
+}
+
+function admin_page_security_post(&$a){
+	check_form_security_token_redirectOnErr('/admin/security', 'admin_security');
+
+logger('post: ' . print_r($_POST,true));
+
+	$block_public         = ((x($_POST,'block_public'))		? True	: False);
+	set_config('system','block_public',$block_public);
+
+	$ws = trim_array_elems(explode("\n",$_POST['whitelisted_sites']));
+	set_config('system','whitelisted_sites',$ws);
+
+	$bs = trim_array_elems(explode("\n",$_POST['blacklisted_sites']));
+	set_config('system','blacklisted_sites',$bs);
+
+	$wc = trim_array_elems(explode("\n",$_POST['whitelisted_channels']));
+	set_config('system','whitelisted_channels',$wc);
+
+	$bc = trim_array_elems(explode("\n",$_POST['blacklisted_channels']));
+	set_config('system','blacklisted_channels',$bc);
+
+	$embed_coop         = ((x($_POST,'embed_coop'))		? True	: False);
+	set_config('system','embed_coop',$embed_coop);
+
+	$we = trim_array_elems(explode("\n",$_POST['embed_allow']));
+	set_config('system','embed_allow',$we);
+
+	$be = trim_array_elems(explode("\n",$_POST['embed_deny']));
+	set_config('system','embed_deny',$be);
+
+	goaway(z_root() . '/admin/security');
+}
+
+
 
 
 function admin_page_features_post(&$a) {
@@ -625,6 +675,54 @@ function admin_page_hubloc(&$a) {
 		'$form_security_token' => get_form_security_token('admin_hubloc')
 	));
 }
+
+function admin_page_security(&$a) {
+
+	$whitesites = get_config('system','whitelisted_sites');
+	$whitesites_str = ((is_array($whitesites)) ? implode($whitesites,"\n") : '');
+
+	$blacksites = get_config('system','blacklisted_sites');
+	$blacksites_str = ((is_array($blacksites)) ? implode($blacksites,"\n") : '');
+
+
+	$whitechannels = get_config('system','whitelisted_channels');
+	$whitechannels_str = ((is_array($whitechannels)) ? implode($whitechannels,"\n") : '');
+
+	$blackchannels = get_config('system','blacklisted_channels');
+	$blackchannels_str = ((is_array($blackchannels)) ? implode($blackchannels,"\n") : '');
+
+
+	$whiteembeds = get_config('system','embed_allow');
+	$whiteembeds_str = ((is_array($whiteembeds)) ? implode($whiteembeds,"\n") : '');
+
+	$blackembeds = get_config('system','embed_deny');
+	$blackembeds_str = ((is_array($blackembeds)) ? implode($blackembeds,"\n") : '');
+
+	$embed_coop = intval(get_config('system','embed_coop'));
+
+// wait to implement this until we have a co-op in place. 
+//	if((! $whiteembeds) && (! $blackembeds) && (! $embed_coop))
+//		$whiteembeds_str = "youtube.com\nyoutu.be\ntwitter.com\nvimeo.com\nsoundcloud.com\nwikipedia.com";
+
+	$t = get_markup_template('admin_security.tpl');
+	return replace_macros($t, array(
+		'$title' => t('Administration'),
+		'$page' => t('Security'),
+		'$form_security_token' => get_form_security_token('admin_security'),
+        '$block_public'     => array('block_public', t("Block public"), get_config('system','block_public'), t("Check to block public access to all otherwise public personal pages on this site unless you are currently authenticated.")),
+		'$whitelisted_sites' => array('whitelisted_sites', t('Allow communications only from these sites'), $whitesites_str, t('One site per line. Leave empty to allow communication from anywhere by default')),
+		'$blacklisted_sites' => array('blacklisted_sites', t('Block communications from these sites'), $blacksites_str, ''),
+		'$whitelisted_channels' => array('whitelisted_channels', t('Allow communications only from these channels'), $whitechannels_str, t('One channel (hash) per line. Leave empty to allow from any channel by default')),
+		'$blacklisted_channels' => array('blacklisted_channels', t('Block communications from these channels'), $blackchannels_str, ''),
+		'$embed_allow' => array('embed_allow', t('Allow embedded HTML content only from these domains'), $whiteembeds_str, t('One site per line. Leave empty to allow from any site by default')),
+		'$embed_deny' => array('embed_deny', t('Block embedded HTML from these domains'), $blackembeds_str, ''),
+
+        '$embed_coop'     => array('embed_coop', t('Cooperative embed security'), $embed_coop, t('Enable to share embed security with other compatible sites/hubs')),
+		'$submit' => t('Submit')
+	));
+}
+
+
 
 
 function admin_page_dbsync(&$a) {
@@ -763,13 +861,13 @@ function admin_page_users_post($a) {
 	// registration approved button was submitted
 	if (x($_POST, 'page_users_approve')) {
 		foreach ($pending as $hash) {
-			user_allow($hash);
+			account_allow($hash);
 		}
 	}
 	// registration deny button was submitted
 	if (x($_POST, 'page_users_deny')) {
 		foreach ($pending as $hash) {
-			user_deny($hash);
+			account_deny($hash);
 		}
 	}
 
@@ -1177,7 +1275,7 @@ function admin_page_plugins(&$a){
 			'$str_minversion' => t('Minimum project version: '),
 			'$str_maxversion' => t('Maximum project version: '),
 			'$str_minphpversion' => t('Minimum PHP version: '),
-
+			'$str_requires' => t('Requires: '),
 			'$disabled' => t('Disabled - version incompatibility'),
 
 			'$admin_form' => $admin_form,
@@ -1522,25 +1620,46 @@ readable.");
 
 function admin_page_profs_post(&$a) {
 
-	if($_REQUEST['id']) {
-		$r = q("update profdef set field_name = '%s', field_type = '%s', field_desc = '%s' field_help = '%s', field_inputs = '%s' where id = %d",
-			dbesc($_REQUEST['field_name']),
-			dbesc($_REQUEST['field_type']),
-			dbesc($_REQUEST['field_desc']),
-			dbesc($_REQUEST['field_help']),
-			dbesc($_REQUEST['field_inputs']),
-			intval($_REQUEST['id'])
-		);
+	if(array_key_exists('basic',$_REQUEST)) {
+		$arr = explode(',',$_REQUEST['basic']);
+		for($x = 0; $x < count($arr); $x ++) 
+			if(trim($arr[$x]))
+				$arr[$x] = trim($arr[$x]);
+		set_config('system','profile_fields_basic',$arr);
+
+		if(array_key_exists('advanced',$_REQUEST)) {
+			$arr = explode(',',$_REQUEST['advanced']);
+			for($x = 0; $x < count($arr); $x ++)
+				if(trim($arr[$x]))
+					$arr[$x] = trim($arr[$x]);
+			set_config('system','profile_fields_advanced',$arr);
+		}
+		goaway(z_root() . '/admin/profs');
 	}
-	else {
-		$r = q("insert into profdef ( field_name, field_type, field_desc, field_help, field_inputs ) values ( '%s' , '%s', '%s', '%s', '%s' )",
-			dbesc($_REQUEST['field_name']),
-			dbesc($_REQUEST['field_type']),
-			dbesc($_REQUEST['field_desc']),
-			dbesc($_REQUEST['field_help']),
-			dbesc($_REQUEST['field_inputs'])
-		);
+
+
+	if(array_key_exists('field_name',$_REQUEST)) {
+		if($_REQUEST['id']) {
+			$r = q("update profdef set field_name = '%s', field_type = '%s', field_desc = '%s' field_help = '%s', field_inputs = '%s' where id = %d",
+				dbesc($_REQUEST['field_name']),
+				dbesc($_REQUEST['field_type']),
+				dbesc($_REQUEST['field_desc']),
+				dbesc($_REQUEST['field_help']),
+				dbesc($_REQUEST['field_inputs']),
+				intval($_REQUEST['id'])
+			);
+		}
+		else {
+			$r = q("insert into profdef ( field_name, field_type, field_desc, field_help, field_inputs ) values ( '%s' , '%s', '%s', '%s', '%s' )",
+				dbesc($_REQUEST['field_name']),
+				dbesc($_REQUEST['field_type']),
+				dbesc($_REQUEST['field_desc']),
+				dbesc($_REQUEST['field_help']),
+				dbesc($_REQUEST['field_inputs'])
+			);
+		}
 	}
+
 
 	// add to chosen array basic or advanced
 
@@ -1588,4 +1707,70 @@ function admin_page_profs(&$a) {
 			'$submit' => t('Save')
 		));
 	}
+
+	$basic = '';
+	$barr = array();
+	$fields = get_profile_fields_basic();
+	if(! $fields)
+		$fields = get_profile_fields_basic(1);
+	if($fields) {
+		foreach($fields as $k => $v) {
+			if($basic)
+				$basic .= ', ';
+			$basic .= trim($k);
+			$barr[] = trim($k);
+		}
+	}
+
+	$advanced = '';
+	$fields = get_profile_fields_advanced();
+	if(! $fields)
+		$fields = get_profile_fields_advanced(1);
+	if($fields) {
+		foreach($fields as $k => $v) {
+			if(in_array(trim($k),$barr))
+				continue;
+			if($advanced)
+				$advanced .= ', ';
+			$advanced .= trim($k);
+		}
+	}
+
+	$all = '';
+	$fields = get_profile_fields_advanced(1);
+	if($fields) {
+		foreach($fields as $k => $v) {
+			if($all)
+				$all .= ', ';
+			$all .= trim($k);
+		}
+	}
+
+	$r = q("select * from profdef where true");
+	if($r) {
+		foreach($r as $rr) {
+			if($all)
+				$all .= ', ';
+			$all .= $rr['field_name'];
+		}
+	}
+
+	
+	$o = replace_macros(get_markup_template('admin_profiles.tpl'),array(
+		'$title' => t('Profile Fields'),
+		'$basic' => array('basic',t('Basic Profile Fields'),$basic,''),
+		'$advanced' => array('advanced',t('Advanced Profile Fields'),$advanced,t('(In addition to basic fields)')),
+		'$all' => $all,
+		'$all_desc' => t('All available fields'),
+		'$cust_field_desc' => t('Custom Fields'),
+		'$cust_fields' => $r,
+		'$edit' => t('Edit'),
+		'$drop' => t('Delete'),
+		'$new' => t('Create Custom Field'),		
+		'$submit' => t('Submit')
+	));
+
+	return $o;
+
+
 }

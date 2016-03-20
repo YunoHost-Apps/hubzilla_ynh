@@ -241,7 +241,7 @@ class Item extends BaseObject {
 		$has_bookmarks = false;
 		if(is_array($item['term'])) {
 			foreach($item['term'] as $t) {
-				if($t['type'] == TERM_BOOKMARK)
+				if(!UNO && $t['type'] == TERM_BOOKMARK)
 					$has_bookmarks = true;
 			}
 		}
@@ -681,14 +681,20 @@ class Item extends BaseObject {
 		$qc = ((local_channel()) ? get_pconfig(local_channel(),'system','qcomment') : null);
 		$qcomment = (($qc) ? explode("\n",$qc) : null);
 
+		$arr = array('comment_buttons' => '','id' => $this->get_id());
+		call_hooks('comment_buttons',$arr);
+		$comment_buttons = $arr['comment_buttons'];
+
+
 		$comment_box = replace_macros($template,array(
 			'$return_path' => '',
 			'$threaded' => $this->is_threaded(),
-			'$jsreload' => (($conv->get_mode() === 'display') ? $_SESSION['return_url'] : ''),
+			'$jsreload' => '', //(($conv->get_mode() === 'display') ? $_SESSION['return_url'] : ''),
 			'$type' => (($conv->get_mode() === 'channel') ? 'wall-comment' : 'net-comment'),
 			'$id' => $this->get_id(),
 			'$parent' => $this->get_id(),
 			'$qcomment' => $qcomment,
+			'$comment_buttons' => $comment_buttons,
 			'$profile_uid' =>  $conv->get_profile_owner(),
 			'$mylink' => $observer['xchan_url'],
 			'$mytitle' => t('This is you'),

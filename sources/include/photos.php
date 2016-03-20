@@ -48,7 +48,7 @@ function photo_upload($channel, $observer, $args) {
 	// all other settings. 'allow_cid' being passed from an external source takes priority over channel settings.
 	// ...messy... needs re-factoring once the photos/files integration stabilises
 
-	$acl = new AccessList($channel);
+	$acl = new Zotlabs\Access\AccessList($channel);
 	if(array_key_exists('directory',$args) && $args['directory'])
 		$acl->set($args['directory']);
 	if(array_key_exists('allow_cid',$args))
@@ -296,11 +296,11 @@ function photo_upload($channel, $observer, $args) {
 
 	$photo_link = '[zrl=' . z_root() . '/photos/' . $channel['channel_address'] . '/image/' . $photo_hash . ']' . t('a new photo') . '[/zrl]';
 
-	$album_link = '[zrl=' . z_root() . '/photos/album/' . bin2hex($album) . ']' . $album . '[/zrl]';
+	$album_link = '[zrl=' . z_root() . '/photos/' . $channel['channel_address'] . '/album/' . bin2hex($album) . ']' . $album . '[/zrl]';
 
 	$activity_format = sprintf(t('%1$s posted %2$s to %3$s','photo_upload'), $author_link, $photo_link, $album_link);
 
-	$summary = $activity_format . "\n\n" . (($args['body']) ? $args['body'] . "\n\n" : ''); 	
+	$summary = (($args['body']) ? $args['body'] : '') . '[footer]' . $activity_format . '[/footer]';
 
 	$obj_body =  '[zrl=' . z_root() . '/photos/' . $channel['channel_address'] . '/image/' . $photo_hash . ']' 
 		. $tag . z_root() . "/photo/{$photo_hash}-{$scale}." . $ph->getExt() . '[/zmg]' 
@@ -391,8 +391,8 @@ function photo_upload($channel, $observer, $args) {
 		$arr['deny_cid']        = $ac['deny_cid'];
 		$arr['deny_gid']        = $ac['deny_gid'];
 		$arr['verb']            = ACTIVITY_POST;
-		$arr['obj_type']	    = ACTIVITY_OBJ_PHOTO;
-		$arr['object']		    = json_encode($object);
+		$arr['obj_type']	= ACTIVITY_OBJ_PHOTO;
+		$arr['object']		= json_encode($object);
 		$arr['tgt_type']        = ACTIVITY_OBJ_ALBUM;
 		$arr['target']	        = json_encode($target);
 		$arr['item_wall']       = 1;
@@ -400,7 +400,7 @@ function photo_upload($channel, $observer, $args) {
 		$arr['item_thread_top'] = 1;
 		$arr['item_private']    = intval($acl->is_private());
 		$arr['plink']           = z_root() . '/channel/' . $channel['channel_address'] . '/?f=&mid=' . $arr['mid'];
-		$arr['body']		    = $summary; 
+		$arr['body']		= $summary;
 
 
 		// this one is tricky because the item and the photo have the same permissions, those of the photo.

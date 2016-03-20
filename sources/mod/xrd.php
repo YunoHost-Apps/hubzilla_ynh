@@ -35,8 +35,6 @@ function xrd_init(&$a) {
 	header("Content-type: application/xrd+xml");
 
 
-	$tpl = get_markup_template('view/xrd_person.tpl');
-
 	$o = replace_macros(get_markup_template('xrd_person.tpl'), array(
 		'$nick'        => $r[0]['channel_address'],
 		'$accturi'     => $uri,
@@ -51,7 +49,7 @@ function xrd_init(&$a) {
 //		'$salmen'      => $a->get_baseurl() . '/salmon/'        . $r[0]['channel_address'] . '/mention',
 		'$modexp'      => 'data:application/magic-public-key,'  . $salmon_key,
 		'$subscribe'   => $a->get_baseurl() . '/follow?url={uri}',
-//		'$bigkey'      =>  salmon_key($r[0]['pubkey'])
+		'$bigkey'      =>  salmon_key($r[0]['channel_pubkey'])
 	));
 
 

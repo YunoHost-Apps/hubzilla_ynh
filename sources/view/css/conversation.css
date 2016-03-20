@@ -19,20 +19,30 @@ code {
 	display:none;
 }
 
+#jot-title-wrap,
+#jot-pagetitle-wrap,
+#jot-category-wrap {
+	border-bottom: 1px solid #ccc;
+}
+
+#jot-attachment-wrap {
+	border-top: 1px solid #ccc;
+}
+
 #jot-title-wrap input,
 #jot-pagetitle-wrap input {
-	padding: 8px;
-	margin-bottom: 5px;
+	padding: 10px;
 }
 
 .profile-jot-text {
 	height: 39px;
-	padding: 8px;
+	padding: 10px;
 	width: 100%;
 }
 
 .jot-attachment {
-	padding: 8px;
+	border: 0px;
+	padding: 10px;
 	width: 100%;
 }
 
@@ -42,11 +52,16 @@ code {
 }
 
 #profile-jot-submit-wrapper {
-	margin-top: 10px;
+	border-top: 1px solid #ccc;
+	padding: 10px;
 }
 
 #profile-jot-perms-end {
 	height: 30px;
+}
+
+#profile-jot-form {
+	line-height: initial;
 }
 
 #profile-jot-wrapper {
@@ -194,6 +209,7 @@ a.wall-item-name-link {
 	padding: 8px;
 	height: 150px;
 	overflow: auto;
+	resize: vertical;
 }
 
 .qcomment {

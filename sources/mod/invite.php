@@ -49,15 +49,15 @@ function invite_post(&$a) {
 			notice(  sprintf( t('%s : Not a valid email address.'), $recip) . EOL);
 			continue;
 		}
-		
+
 		else
 			$nmessage = $message;
 
 		$account = $a->get_account();
 
 
-		$res = mail($recip, sprintf( t('Please join us on $Projectname'), $a->config['sitename']), 
-			$nmessage, 
+		$res = mail($recip, sprintf( t('Please join us on $Projectname'), $a->config['sitename']),
+			$nmessage,
 			"From: " . $account['account_email'] . "\n"
 			. 'Content-type: text/plain; charset=UTF-8' . "\n"
 			. 'Content-transfer-encoding: 8bit' );
@@ -98,7 +98,7 @@ function invite_content(&$a) {
 			notice( t('You have no more invitations available') . EOL);
 			return '';
 		}
-	}			
+	}
 
 		if($invonly && ($x || is_site_admin())) {
 			$invite_code = autoname(8) . rand(1000,9999);
@@ -131,11 +131,11 @@ function invite_content(&$a) {
 		'$msg_text' => t('Your message:'),
 		'$default_message' => t('Please join my community on $Projectname.') . "\r\n" . "\r\n"
 			. $linktxt
-			. (($invonly) ? "\r\n" . "\r\n" . t('You will need to supply this invitation code: ') . $invite_code . "\r\n" . "\r\n" : '') 
+			. (($invonly) ? "\r\n" . "\r\n" . t('You will need to supply this invitation code:') . " " . $invite_code . "\r\n" . "\r\n" : '')
 			. t('1. Register at any $Projectname location (they are all inter-connected)')
 			. "\r\n" . "\r\n" . z_root() . '/register'
 			. "\r\n" . "\r\n" . t('2. Enter my $Projectname network address into the site searchbar.')
-			. "\r\n" . "\r\n" . $ob['xchan_addr'] . ' (' . t('or visit ') . z_root() . '/channel/' . $channel['channel_address'] . ')'
+			. "\r\n" . "\r\n" . $ob['xchan_addr'] . ' (' . t('or visit') . " " . z_root() . '/channel/' . $channel['channel_address'] . ')'
 			. "\r\n" . "\r\n"
 			. t('3. Click [Connect]')
 			. "\r\n" . "\r\n"  ,

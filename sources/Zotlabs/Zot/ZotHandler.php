@@ -2,9 +2,6 @@
 
 namespace Zotlabs\Zot;
 
-require_once('Zotlabs/Zot/IHandler.php');
-
-
 class ZotHandler implements IHandler {
 
 	function Ping() {

@@ -26,6 +26,7 @@ function pdledit_content(&$a) {
 	if(argc() > 1)
 		$module = 'mod_' . argv(1) . '.pdl';
 	else {
+		$o .= '<div class="generic-content-wrapper-styled">';
 		$o .= '<h1>' . t('Edit System Page Description') . '</h1>';
 		$files = glob('mod/*');
 		if($files) {
@@ -38,6 +39,8 @@ function pdledit_content(&$a) {
 			}
 		}
 
+                $o .= '</div>';
+		
 		// list module pdl files
 		return $o;
 	}

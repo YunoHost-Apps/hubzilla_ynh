@@ -1,5 +1,12 @@
-<div id="profile-jot-wrapper">
-	<form id="profile-jot-form" action="{{$action}}" method="post">
+<form id="profile-jot-form" action="{{$action}}" method="post">
+	{{$mimeselect}}
+	{{$layoutselect}}
+	{{if $id_select}}
+	<div class="channel-id-select-div">
+		<span class="channel-id-select-desc">{{$id_seltext}}</span> {{$id_select}}
+	</div>
+	{{/if}}
+	<div id="profile-jot-wrapper">
 		{{if $parent}}
 			<input type="hidden" name="parent" value="{{$parent}}" />
 		{{/if}}
@@ -17,13 +24,7 @@
 		<input type="hidden" name="preview" id="jot-preview" value="0" />
 		<input type="hidden" id="jot-consensus" name="consensus" value="{{if $consensus}}{{$consensus}}{{else}}0{{/if}}" />
 		{{if $showacl}}{{$acl}}{{/if}}
-		{{$mimeselect}}
-		{{$layoutselect}}
-		{{if $id_select}}
-		<div class="channel-id-select-div">
-			<span class="channel-id-select-desc">{{$id_seltext}}</span> {{$id_select}}
-		</div>
-		{{/if}}
+
 		{{if $webpage}}
 		<div id="jot-pagetitle-wrap" class="jothidden">
 			<input name="pagetitle" id="jot-pagetitle" type="text" placeholder="{{$placeholdpagetitle}}" value="{{$pagetitle}}">
@@ -159,9 +160,10 @@
 		</div>
 		<div id="profile-jot-text-loading"></div>
 		<div id="profile-jot-end" class="clear"></div>
-		<div id="jot-preview-content" style="display:none;"></div>
-	</form>
-</div>
+	</div>
+</form>
+
+<div id="jot-preview-content" style="display:none;"></div>
 
 <!-- Modal for item expiry-->
 <div class="modal" id="expiryModal" tabindex="-1" role="dialog" aria-labelledby="expiryModalLabel" aria-hidden="true">

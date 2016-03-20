@@ -3,9 +3,5 @@
 }
 
 .wall-item-content-wrapper.comment {
-	border-width: 0px 0px 1px 0px;
-}
-
-.hide-comments-outer {
-	border-width: 1px 0px 1px 0px;
+	border-bottom: 1px solid #ccc;
 }

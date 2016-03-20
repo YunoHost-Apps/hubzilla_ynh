@@ -1,6 +1,6 @@
 <div class="generic-content-wrapper">
 	<div class="section-title-wrapper">
-		<a title="{{$removechannel}}" class="btn btn-danger btn-xs pull-right" href="removeme"><i class="icon-trash"></i>&nbsp;{{$removeme}}</a>
+		{{if $server_role != 'basic'}}<a title="{{$removechannel}}" class="btn btn-danger btn-xs pull-right" href="removeme"><i class="icon-trash"></i>&nbsp;{{$removeme}}</a>{{/if}}
 		<h2>{{$ptitle}}</h2>
 		<div class="clear"></div>
 	</div>
@@ -42,8 +42,12 @@
 				</div>
 				<div id="privacy-settings-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="privacy-settings">
 					<div class="section-content-tools-wrapper">
+						{{if $server_role != 'basic'}}
 						{{include file="field_select_grouped.tpl" field=$role}}
-						<div id="advanced-perm" style="display:{{if $permissions_set}}none{{else}}block{{/if}};">
+						{{/if}}
+						<div id="advanced-perm" style="display:{{if $permissions_set && $server_role != 'basic' }}none{{else}}block{{/if}};">
+
+							{{if $server_role != 'basic'}}
 							<div class="form-group">
 								<button type="button" class="btn btn-default" data-toggle="modal" data-target="#apsModal">{{$lbl_p2macro}}</button>
 							</div>
@@ -65,6 +69,7 @@
 									</div><!-- /.modal-content -->
 								</div><!-- /.modal-dialog -->
 							</div><!-- /.modal -->
+							{{/if}}
 							<div id="settings-default-perms" class="form-group" >
 								<button type="button" class="btn btn-default" data-toggle="modal" data-target="#aclModal"><i id="jot-perms-icon"></i>&nbsp;{{$permissions}}</button>
 								{{$aclselect}}

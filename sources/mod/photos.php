@@ -85,7 +85,7 @@ function photos_post(&$a) {
 
 	$owner_record = $s[0];	
 
-	$acl = new AccessList($a->data['channel']);
+	$acl = new Zotlabs\Access\AccessList($a->data['channel']);
 
 	if((argc() > 3) && (argv(2) === 'album')) {
 
@@ -595,13 +595,21 @@ function photos_content(&$a) {
 		if($_is_owner) {
 			$channel = $a->get_channel();
 
-			$acl = new AccessList($channel);
+			$acl = new Zotlabs\Access\AccessList($channel);
 			$channel_acl = $acl->get();
 
 			$lockstate = (($acl->is_private()) ? 'lock' : 'unlock');
 		}
 
 		$aclselect = (($_is_owner) ? populate_acl($channel_acl,false) : '');
+
+		// this is wrong but is to work around an issue with js_upload wherein it chokes if these variables
+		// don't exist. They really should be set to a parseable representation of the channel's default permissions 
+		// which can be processed by getSelected() 
+
+		if(! $aclselect) {
+			$aclselect = '<input id="group_allow" type="hidden" name="allow_gid[]" value="" /><input id="contact_allow" type="hidden" name="allow_cid[]" value="" /><input id="group_deny" type="hidden" name="deny_gid[]" value="" /><input id="contact_deny" type="hidden" name="deny_cid[]" value="" />';
+		}
 
 		$selname = (($datum) ? hex2bin($datum) : '');
 
@@ -659,6 +667,10 @@ function photos_content(&$a) {
 		}
 
 		$album = (($datum) ? hex2bin($datum) : '');
+
+
+		$a->page['htmlhead'] .= "\r\n" . '<link rel="alternate" type="application/json+oembed" href="' . z_root() . '/oep?f=&url=' . urlencode(z_root() . '/' . $a->cmd) . '" title="oembed" />' . "\r\n";
+
 
 		$r = q("SELECT `resource_id`, max(`scale`) AS `scale` FROM `photo` WHERE `uid` = %d AND `album` = '%s' 
 			AND `scale` <= 4 and photo_usage IN ( %d, %d ) and is_nsfw = %d $sql_extra GROUP BY `resource_id`",
@@ -1227,6 +1239,9 @@ function photos_content(&$a) {
 
 	// Default - show recent photos with upload link (if applicable)
 	//$o = '';
+
+		$a->page['htmlhead'] .= "\r\n" . '<link rel="alternate" type="application/json+oembed" href="' . z_root() . '/oep?f=&url=' . urlencode(z_root() . '/' . $a->cmd) . '" title="oembed" />' . "\r\n";
+
 
 	$r = q("SELECT `resource_id`, max(`scale`) AS `scale` FROM `photo` WHERE `uid` = %d AND `album` != '%s' AND `album` != '%s' 
 		and photo_usage in ( %d, %d ) and is_nsfw = %d $sql_extra GROUP BY `resource_id`",

@@ -181,6 +181,7 @@ echo "chmod done, permissions set to 777 on poller script."
 # to make Hubzilla on OpenShift a more pleasant experience 
 echo "Changing default configuration to conserve space and autocreate a social private channel upon account registration"
 cd ${OPENSHIFT_REPO_DIR}
+util/config system auto_channel_create
 util/config system default_permissions_role social_private
 util/config system workflow_channel_next channel
 util/config system expire_delivery_reports 3

@@ -2,12 +2,13 @@
  * redbasic theme specific JavaScript
  */
 $(document).ready(function() {
+
 	// CSS3 calc() fallback (for unsupported browsers)
 	$('body').append('<div id="css3-calc" style="width: 10px; width: calc(10px + 10px); display: none;"></div>');
 	if( $('#css3-calc').width() == 10) {
 		$(window).resize(function() {
 			if($(window).width() < 767) {
-				$('main').css('width', $(window).width() + 285 );
+				$('main').css('width', $(window).width() + 287 );
 			} else {
 				$('main').css('width', '100%' );
 			}
@@ -38,9 +39,7 @@ $(document).ready(function() {
 	$("input[data-role=cat-tagsinput]").tagsinput({
 		tagClass: 'label label-primary'
 	});
-});
 
-$(document).ready(function(){
 	var doctitle = document.title;
 	function checkNotify() {
 		var notifyUpdateElem = document.getElementById('notify-update');

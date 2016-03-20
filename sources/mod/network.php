@@ -174,8 +174,10 @@ function network_content(&$a, $update = 0, $load = false) {
 		if($deftag)
 			$x['pretext'] = $deftag;
 
+
 		$status_editor = status_editor($a,$x);
 		$o .= $status_editor;
+
 	}
 
 

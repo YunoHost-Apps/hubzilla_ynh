@@ -1,4 +1,6 @@
+{{if $theme == redbasic}}
 {{include file="field_select.tpl" field=$schema}}
+{{/if}}
 {{include file="field_checkbox.tpl" field=$align_left}}
 {{include file="field_checkbox.tpl" field=$narrow_navbar}}
 {{include file="field_input.tpl" field=$converse_width}}

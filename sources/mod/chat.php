@@ -54,7 +54,7 @@ function chat_post(&$a) {
 		goaway(z_root() . '/chat/' . $channel['channel_address']);
 	}
 
-	$acl = new AccessList($channel);
+	$acl = new Zotlabs\Access\AccessList($channel);
 	$acl->set_from_array($_REQUEST);
 
 	$arr = $acl->get();
@@ -162,7 +162,7 @@ function chat_content(&$a) {
 			intval($a->profile['profile_uid'])
 		);
 		if($x) {
-			$acl = new AccessList(false);
+			$acl = new Zotlabs\Access\AccessList(false);
 			$acl->set($x[0]);
 
 			$private = $acl->is_private();
@@ -199,7 +199,7 @@ function chat_content(&$a) {
 
 	if(local_channel() && argc() > 2 && argv(2) === 'new') {
 
-		$acl = new AccessList($channel);
+		$acl = new Zotlabs\Access\AccessList($channel);
 		$channel_acl = $acl->get();
 
 		require_once('include/acl_selectors.php');

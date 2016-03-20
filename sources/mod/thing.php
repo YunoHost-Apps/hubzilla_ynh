@@ -65,7 +65,7 @@ function thing_init(&$a) {
 	if((! $name) || (! $translated_verb))
 		return;
 
-	$acl = new AccessList($channel);
+	$acl = new Zotlabs\Access\AccessList($channel);
 
 	if(array_key_exists('contact_allow',$_REQUEST)
 		|| array_key_exists('group_allow',$_REQUEST)
@@ -271,7 +271,7 @@ function thing_content(&$a) {
 		return;
 	}
 
-	$acl = new AccessList($channel);
+	$acl = new Zotlabs\Access\AccessList($channel);
 	$channel_acl = $acl->get();
 
 	$lockstate = (($acl->is_private()) ? 'lock' : 'unlock');

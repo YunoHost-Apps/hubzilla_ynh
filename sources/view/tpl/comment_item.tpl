@@ -57,6 +57,7 @@
 							</button>
 						</div>
 						{{/if}}
+						{{$comment_buttons}}
 					</div>
 					<div class="btn-group pull-right" id="comment-edit-submit-wrapper-{{$id}}">
 						{{if $preview}}

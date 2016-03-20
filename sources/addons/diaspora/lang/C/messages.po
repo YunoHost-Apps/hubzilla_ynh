@@ -1,0 +1,87 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 
+# This file is distributed under the same license as the PACKAGE package.
+# 
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-02-05 00:26+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: p.php:46 diaspora.php:2679 diaspora.php:2690
+msgid "$projectname"
+msgstr ""
+
+#: diaspora.php:2277
+msgid "photo"
+msgstr ""
+
+#: diaspora.php:2277
+msgid "status"
+msgstr ""
+
+#: diaspora.php:2306
+#, php-format
+msgid "%1$s likes %2$s's %3$s"
+msgstr ""
+
+#: diaspora.php:2639 diaspora.php:2651
+msgid "Please choose"
+msgstr ""
+
+#: diaspora.php:2641
+msgid "Agree"
+msgstr ""
+
+#: diaspora.php:2643
+msgid "Disagree"
+msgstr ""
+
+#: diaspora.php:2645
+msgid "Abstain"
+msgstr ""
+
+#: diaspora.php:2653
+msgid "I will attend"
+msgstr ""
+
+#: diaspora.php:2655
+msgid "I will not attend"
+msgstr ""
+
+#: diaspora.php:2657
+msgid "I may attend"
+msgstr ""
+
+#: diaspora.php:3441
+msgid "Diaspora Protocol Settings updated."
+msgstr ""
+
+#: diaspora.php:3456
+msgid "Enable the (experimental) Diaspora protocol for this channel"
+msgstr ""
+
+#: diaspora.php:3460
+msgid "Allow any Diaspora member to comment on your public posts"
+msgstr ""
+
+#: diaspora.php:3464
+msgid "Prevent your hashtags from being redirected to other sites"
+msgstr ""
+
+#: diaspora.php:3469
+msgid "Diaspora Protocol Settings"
+msgstr ""
+
+#: diaspora.php:3469
+msgid "Submit"
+msgstr ""

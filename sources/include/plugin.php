@@ -291,7 +291,7 @@ function call_hooks($name, &$data = null) {
 				$func = $hook[1];
 				$func($a, $data);
 			} else {
-				// remove orphan hooks
+
 				q("DELETE FROM hook WHERE hook = '%s' AND file = '%s' AND function = '%s'",
 					dbesc($name),
 					dbesc($hook[0]),
@@ -325,7 +325,8 @@ function get_plugin_info($plugin){
 		'description' => '',
 		'author' => array(),
 		'maintainer' => array(),
-		'version' => ''
+		'version' => '',
+		'requires' => ''
 	);
 
 	if (!is_file("addon/$plugin/$plugin.php"))
@@ -381,6 +382,22 @@ function check_plugin_versions($info) {
 			logger('minphpversion limit: ' . $info['name'],LOGGER_NORMAL,LOG_WARNING);
 			return false;
 		}
+	}
+
+	if(array_key_exists('requires',$info)) {
+		$arr = explode(',',$info['requires']);
+		$found = true;
+		if($arr) {
+			foreach($arr as $test) {
+				$test = trim($test);
+				if(! $test)
+					continue;
+				if(! in_array($test,get_app()->plugins))
+					$found = false;				
+			}
+		}
+		if(! $found)
+			return false;
 	}
 
 	return true;
@@ -651,17 +668,6 @@ function get_markup_template($s, $root = '') {
 	$t = $a->template_engine();
 	$template = $t->get_markup_template($s, $root);
 	return $template;
-}
-
-// return the standardised version. Since we can't easily compare
-// before the STD_VERSION definition was applied, we have to treat 
-// all prior release versions the same. You can dig through them
-// with other means (such as RED_VERSION) if necessary. 
-
-function get_std_version() {
-	if(defined('STD_VERSION'))
-		return STD_VERSION;
-	return '0.0.0';
 }
 
 

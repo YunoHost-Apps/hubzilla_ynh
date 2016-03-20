@@ -398,16 +398,17 @@ function get_things($profile_hash,$uid) {
 			$things[$k] = null;
 		foreach($r as $rr) {
 
-			$l = q("select xchan_name, xchan_url from likes left join xchan on likee = xchan_hash where
+			$l = q("select xchan_name, xchan_photo_s, xchan_url from likes left join xchan on likee = xchan_hash where
 				target_type = '%s' and target_id = '%s' and channel_id = %d",
 				dbesc(ACTIVITY_OBJ_THING),
 				dbesc($rr['obj_obj']),
 				intval($uid)
 			);
 
-			for($x = 0; $x < count($l); $x ++) 
+			for($x = 0; $x < count($l); $x ++) {
 				$l[$x]['xchan_url'] = zid($l[$x]['xchan_url']);
-
+				$l[$x]['xchan_photo_s'] = zid($l[$x]['xchan_photo_s']);
+			}
 			if(! $things[$rr['obj_verb']])
 				$things[$rr['obj_verb']] = array();
 

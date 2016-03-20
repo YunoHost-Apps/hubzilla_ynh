@@ -8,12 +8,14 @@ require_once('include/cli_startup.php');
 cli_startup();
 
 if($argc > 3) {
+	
+
 	set_config($argv[1],$argv[2],$argv[3]);
-	echo "config[{$argv[1]}][{$argv[2]}] = " . get_config($argv[1],$argv[2]) . "\n";
+	echo "config[{$argv[1]}][{$argv[2]}] = " . printable_config(get_config($argv[1],$argv[2])) . "\n";
 }
 
 if($argc == 3) {
-	echo "config[{$argv[1]}][{$argv[2]}] = " . get_config($argv[1],$argv[2]) . "\n";
+	echo "config[{$argv[1]}][{$argv[2]}] = " . printable_config(get_config($argv[1],$argv[2])) . "\n";
 }
 
 if($argc == 2) {
@@ -27,8 +29,19 @@ if($argc == 1) {
 	$r = q("select * from config where 1");
 	if($r) {
 		foreach($r as $rr) {
-			echo "config[{$rr['cat']}][{$rr['k']}] = " . $rr['v'] . "\n";
+			echo "config[{$rr['cat']}][{$rr['k']}] = " . printable_config($rr['v']) . "\n";
 		}
 	}
 }
 
+function printable_config($x) {
+	$s = '';
+	if(is_array($x)) {
+		foreach($x as $v) {
+			$s .= $v . "\n";
+		}
+		return $s;
+	}
+	else
+		return $x;
+}

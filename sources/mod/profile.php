@@ -75,6 +75,7 @@ function profile_content(&$a, $update = 0) {
 
 	$o .= profile_tabs($a, $is_owner, $a->profile['channel_address']);
 
+	$a->page['htmlhead'] .= "\r\n" . '<link rel="alternate" type="application/json+oembed" href="' . z_root() . '/oep?f=&url=' . urlencode(z_root() . '/' . $a->query_string) . '" title="oembed" />' . "\r\n";
 
 	$o .= advanced_profile($a);
 	call_hooks('profile_advanced',$o);

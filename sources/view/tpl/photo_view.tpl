@@ -36,6 +36,7 @@
 	<div id="photo-edit" class="section-content-tools-wrapper">
 		<form action="photos/{{$edit.nickname}}/{{$edit.resource_id}}" method="post" id="photo_edit_form">
 			<input type="hidden" name="item_id" value="{{$edit.item_id}}" />
+			{{* album renaming is not supported atm.
 			<div class="form-group">
 				<label id="photo-edit-albumname-label" for="photo-edit-albumname">{{$edit.newalbum_label}}</label>
 				<input id="photo-edit-albumname" class="form-control" type="text" name="albname" value="{{$edit.album}}" placeholder="{{$edit.newalbum_placeholder}}" list="dl-albums" />
@@ -49,6 +50,7 @@
 				</datalist>
 				{{/if}}
 			</div>
+			*}}
 			<div class="form-group">
 				<label id="photo-edit-caption-label" for="photo-edit-caption">{{$edit.capt_label}}</label>
 				<input id="photo-edit-caption" class="form-control" type="text" name="desc" value="{{$edit.caption}}" />

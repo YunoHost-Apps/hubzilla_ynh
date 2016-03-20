@@ -1,7 +1,7 @@
 <?php
 
 if(! function_exists("string_plural_select_ru")) {
-function string_plural_select_nl($n){
+function string_plural_select_ru($n){
 	return ($n != 1);;
 }}
 ;

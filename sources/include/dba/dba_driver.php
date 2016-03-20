@@ -303,9 +303,9 @@ function q($sql) {
 		if($stmt === false) {
 			if(version_compare(PHP_VERSION, '5.4.0') >= 0)
 				logger('dba: vsprintf error: ' .
-					print_r(debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1), true));
+					print_r(debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1), true),LOGGER_NORMAL,LOG_CRIT);
 			else
-				logger('dba: vsprintf error: ' . print_r(debug_backtrace(), true));
+				logger('dba: vsprintf error: ' . print_r(debug_backtrace(), true),LOGGER_NORMAL,LOG_CRIT);
 		}
 		return $db->q($stmt);
 	}
@@ -314,7 +314,7 @@ function q($sql) {
 	 * This will happen occasionally trying to store the 
 	 * session data after abnormal program termination 
 	 */
-	logger('dba: no database: ' . print_r($args,true));
+	logger('dba: no database: ' . print_r($args,true),LOGGER_NORMAL,LOG_CRIT);
 
 	return false;
 }
@@ -385,6 +385,7 @@ function db_getfunc($f) {
 	if(isset($lookup[$f]) && isset($lookup[$f][ACTIVE_DBTYPE]))
 		return $lookup[$f][ACTIVE_DBTYPE];
 
-	logger('Unable to abstract DB function "'. $f . '" for dbtype ' . ACTIVE_DBTYPE, LOGGER_DEBUG);
+	logger('Unable to abstract DB function "'. $f . '" for dbtype ' . ACTIVE_DBTYPE, LOGGER_DEBUG, LOG_ERR);
 	return $f;
 }
+

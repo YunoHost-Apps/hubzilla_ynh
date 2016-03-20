@@ -145,8 +145,9 @@ function register_post(&$a) {
 	authenticate_success($result['account'],true,false,true);
 	
 	$new_channel = false;
+	$next_page = 'new_channel';
 
-	if(get_config('system','auto_channel_create')) {
+	if(get_config('system','auto_channel_create') || UNO) {
 		$new_channel = auto_channel_create($result['account']['account_id']);
 		if($new_channel['success']) {
 			$channel_id = $new_channel['channel']['channel_id'];
@@ -156,10 +157,10 @@ function register_post(&$a) {
 		else
 			$new_channel = false;
 	}
-	if(! $new_channel) {
-		if(! strlen($next_page = get_config('system','workflow_register_next')))
-			$next_page = 'new_channel';
 
+	$x = get_config('system','workflow_register_next');
+	if($x) {
+		$next_page = $x;
 		$_SESSION['workflow'] = true;
 	}
 
@@ -176,7 +177,7 @@ function register_content(&$a) {
 
 	if(get_config('system','register_policy') == REGISTER_CLOSED) {
 		if(get_config('system','directory_mode') == DIRECTORY_MODE_STANDALONE) {
-			notice( t('Registration on this site is disabled.')  . EOL);
+			notice( t('Registration on this hub is disabled.')  . EOL);
 			return;
 		}
 
@@ -185,8 +186,8 @@ function register_content(&$a) {
 	}
 
 	if(get_config('system','register_policy') == REGISTER_APPROVE) {
-		$registration_is = t('Registration on this site/hub is by approval only.');
-		$other_sites = t('<a href="pubsites">Register at another affiliated site/hub</a>'); 
+		$registration_is = t('Registration on this hub is by approval only.');
+		$other_sites = t('<a href="pubsites">Register at another affiliated hub.</a>');
 	}
 
 	$max_dailies = intval(get_config('system','max_daily_registrations'));
@@ -207,7 +208,7 @@ function register_content(&$a) {
 	if(! $tosurl)
 		$tosurl = $a->get_baseurl() . '/help/TermsOfService';
 
-	$toslink = '<a href="' . $tosurl . '" >' . t('Terms of Service') . '</a>';
+	$toslink = '<a href="' . $tosurl . '" target="_blank">' . t('Terms of Service') . '</a>';
 
 	// Configurable whether to restrict age or not - default is based on international legal requirements
 	// This can be relaxed if you are on a restricted server that does not share with public servers
@@ -219,16 +220,19 @@ function register_content(&$a) {
 
 	$enable_tos = 1 - intval(get_config('system','no_termsofservice'));
 
-	$email        = ((x($_REQUEST,'email'))       ? strip_tags(trim($_REQUEST['email']))       :  "" );
-	$password     = ((x($_REQUEST,'password'))    ? trim($_REQUEST['password'])                :  "" );
-	$password2    = ((x($_REQUEST,'password2'))   ? trim($_REQUEST['password2'])               :  "" );
-	$invite_code  = ((x($_REQUEST,'invite_code')) ? strip_tags(trim($_REQUEST['invite_code'])) :  "" );
-	$name         = ((x($_REQUEST,'name'))        ? escape_tags(trim($_REQUEST['name']))       :  "" );
-	$nickname     = ((x($_REQUEST,'nickname'))    ? strip_tags(trim($_REQUEST['nickname']))    :  "" );
-	$privacy_role = ((x($_REQUEST,'permissions_role')) ? $_REQUEST['permissions_role']         :  "" );
+	$email        = array('email', t('Your email address'), ((x($_REQUEST,'email')) ? strip_tags(trim($_REQUEST['email'])) : ""));
+	$password     = array('password', t('Choose a password'), ((x($_REQUEST,'password')) ? trim($_REQUEST['password']) : ""));
+	$password2    = array('password2', t('Please re-enter your password'), ((x($_REQUEST,'password2')) ? trim($_REQUEST['password2']) : ""));
+	$invite_code  = array('invite_code', t('Please enter your invitation code'), ((x($_REQUEST,'invite_code')) ? strip_tags(trim($_REQUEST['invite_code'])) : ""));
+	$name = array('name', t('Name or caption'), ((x($_REQUEST,'name')) ? $_REQUEST['name'] : ''), t('Examples: "Bob Jameson", "Lisa and her Horses", "Soccer", "Aviation Group"'));
+	$nickhub = '@' . str_replace(array('http://','https://','/'), '', get_config('system','baseurl'));
+	$nickname = array('nickname', t('Choose a short nickname'), ((x($_REQUEST,'nickname')) ? $_REQUEST['nickname'] : ''), sprintf( t('Your nickname will be used to create an easy to remember channel address e.g. nickname%s'), $nickhub));
+	$privacy_role = ((x($_REQUEST,'permissions_role')) ? $_REQUEST['permissions_role'] : "");
+	$role = array('permissions_role' , t('Channel role and privacy'), ($privacy_role) ? $privacy_role : 'social', t('Select a channel role with your privacy requirements.') . ' <a href="help/roles" target="_blank">' . t('Read more about roles') . '</a>',get_roles());
+	$tos = array('tos', $label_tos, '', '', array(t('no'),t('yes')));
 
-	$auto_create = get_config('system','auto_channel_create');
-	$default_role = get_config('system','default_permissions_role');
+	$auto_create  = ((UNO) || (get_config('system','auto_channel_create')) ? true : false);
+	$default_role = ((UNO) ? 'social' : get_config('system','default_permissions_role'));
 
 	require_once('include/bbcode.php');
 
@@ -240,28 +244,18 @@ function register_content(&$a) {
 		'$other_sites'  => $other_sites,
 		'$invitations'  => get_config('system','invitation_only'),
 		'$invite_desc'  => t('Membership on this site is by invitation only.'),
-		'$label_invite' => t('Please enter your invitation code'),
 		'$invite_code'  => $invite_code,
 		'$auto_create'  => $auto_create,
-		'$label_name'   => t('Channel Name'),
-		'$help_name'    => t('Enter your name'),
-		'$label_nick'   => t('Choose a short nickname'),
-		'$nick_desc'    => t('Your nickname will be used to create an easily remembered channel address (like an email address) which you can share with others.'),
 		'$name'         => $name,
-		'$help_role'    => t('Please choose a channel type (such as social networking or community forum) and privacy requirements so we can select the best permissions for you'),
-		'$role' => array('permissions_role' , t('Channel Type'), ($privacy_role) ? $privacy_role : 'social', '<a href="help/roles" target="_blank">'.t('Read more about roles').'</a>',get_roles()),
+		'$role' 	=> $role,
 		'$default_role' => $default_role,
 		'$nickname'     => $nickname,
-		'$submit'       => t('Create'),
-		'$label_email'  => t('Your email address'),
-		'$label_pass1'  => t('Choose a password'),
-		'$label_pass2'  => t('Please re-enter your password'),
-		'$label_tos'    => $label_tos,
-		'$enable_tos'   => $enable_tos,	
+		'$enable_tos'	=> $enable_tos,
+		'$tos'		=> $tos,
 		'$email'        => $email,
 		'$pass1'        => $password,
 		'$pass2'        => $password2,
-		'$submit'       => t('Register')
+		'$submit'       => ((UNO || $auto_create || $registration_is) ? t('Register') : t('Proceed to create your first channel'))
 	));
 
 	return $o;

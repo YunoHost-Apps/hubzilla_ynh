@@ -65,15 +65,22 @@ function get_best_language() {
 	if(isset($langs) && count($langs)) {
 		foreach ($langs as $lang => $v) {
 			$lang = strtolower($lang);
-			if(file_exists("view/$lang") && is_dir("view/$lang")) {
+			if(is_dir("view/$lang")) {
 				$preferred = $lang;
 				break;
 			}
 		}
 	}
 
-	if(isset($preferred))
-		return $preferred;
+	if(! isset($preferred))
+		$preferred = 'unset';
+
+	$arr = array('langs' => $langs, 'preferred' => $preferred);
+
+	call_hooks('get_best_language',$arr);
+
+	if($arr['preferred'] !== 'unset')
+		return $arr['preferred'];
 
 	$a = get_app();
 	return ((isset($a->config['system']['language'])) ? $a->config['system']['language'] : 'en');
@@ -182,7 +189,7 @@ function t($s, $ctx = '') {
 
 function translate_projectname($s) {
 
-	return str_replace(array('$projectname','$Projectname'),array(get_platform_name(),ucfirst(get_platform_name())),$s);
+	return str_replace(array('$projectname','$Projectname'),array(Zotlabs\Project\System::get_platform_name(),ucfirst(Zotlabs\Project\System::get_platform_name())),$s);
 
 }
 

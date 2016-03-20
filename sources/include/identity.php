@@ -410,7 +410,15 @@ function create_identity($arr) {
 			set_pconfig($ret['channel']['channel_id'],'system','photo_path', '%Y-%m');
 			set_pconfig($ret['channel']['channel_id'],'system','attach_path','%Y-%m');
 		}
-
+		
+		// UNO: channel defaults, incl addons (addons specific pconfig will only work after the relevant addon is enabled by the admin). It's located here, so members can modify these defaults after the channel is created.
+		if(UNO) {
+			//diaspora protocol addon
+			set_pconfig($ret['channel']['channel_id'],'system','diaspora_allowed', '1');
+			set_pconfig($ret['channel']['channel_id'],'system','diaspora_public_comments', '1');
+			set_pconfig($ret['channel']['channel_id'],'system','prevent_tag_hijacking', '0');
+		}
+		
 		// auto-follow any of the hub's pre-configured channel choices.
 		// Only do this if it's the first channel for this account;
 		// otherwise it could get annoying. Don't make this list too big
@@ -484,7 +492,7 @@ function identity_basic_export($channel_id, $items = false) {
 
 	// use constants here as otherwise we will have no idea if we can import from a site 
 	// with a non-standard platform and version.
-	$ret['compatibility'] = array('project' => PLATFORM_NAME, 'version' => RED_VERSION, 'database' => DB_UPDATE_VERSION);
+	$ret['compatibility'] = array('project' => PLATFORM_NAME, 'version' => RED_VERSION, 'database' => DB_UPDATE_VERSION, 'server_role' => Zotlabs\Project\System::get_server_role());
 
 	$r = q("select * from channel where channel_id = %d limit 1",
 		intval($channel_id)
@@ -505,8 +513,12 @@ function identity_basic_export($channel_id, $items = false) {
 	if($r) {
 		$ret['abook'] = $r;
 
-		foreach($r as $rr)
-			$xchans[] = $rr['abook_xchan'];
+		for($x = 0; $x < count($ret['abook']); $x ++) {
+			$xchans[] = $ret['abook'][$x]['abook_chan'];
+			$abconfig = load_abconfig($ret['channel']['channel_hash'],$ret['abook'][$x]['abook_xchan']);
+			if($abconfig)
+				$ret['abook'][$x]['abconfig'] = $abconfig;
+		}		 
 		stringify_array_elms($xchans);
 	}
 
@@ -900,6 +912,55 @@ function profile_load(&$a, $nickname, $profile = '') {
 
 }
 
+function profile_edit_menu($uid) {
+
+	$a = get_app();
+	$ret = array();
+
+	$is_owner = (($uid == local_channel()) ? true : false);
+
+	// show edit profile to profile owner
+	if($is_owner) {
+		$ret['menu'] = array(
+			'chg_photo' => t('Change profile photo'),
+			'entries' => array(),
+		);
+
+		$multi_profiles = feature_enabled(local_channel(), 'multi_profiles');
+		if($multi_profiles) {
+			$ret['multi'] = 1;
+			$ret['edit'] = array($a->get_baseurl(). '/profiles', t('Edit Profiles'), '', t('Edit'));
+			$ret['menu']['cr_new'] = t('Create New Profile');
+		}
+		else {
+			$ret['edit'] = array($a->get_baseurl() . '/profiles/' . $uid, t('Edit Profile'), '', t('Edit'));
+		}
+
+		$r = q("SELECT * FROM profile WHERE uid = %d",
+				local_channel()
+		);
+
+		if($r) {
+			foreach($r as $rr) {
+				if(!($multi_profiles || $rr['is_default']))
+					 continue;
+				$ret['menu']['entries'][] = array(
+					'photo'                => $rr['thumb'],
+					'id'                   => $rr['id'],
+					'alt'                  => t('Profile Image'),
+					'profile_name'         => $rr['profile_name'],
+					'isdefault'            => $rr['is_default'],
+					'visible_to_everybody' => t('Visible to everybody'),
+					'edit_visibility'      => t('Edit visibility'),
+				);
+			}
+		}
+	}
+
+	return $ret;
+
+}
+
 /**
  * @brief Formats a profile for display in the sidebar.
  *
@@ -913,7 +974,7 @@ function profile_load(&$a, $nickname, $profile = '') {
  * @return HTML string suitable for sidebar inclusion
  * Exceptions: Returns empty string if passed $profile is wrong type or not populated
  */
-function profile_sidebar($profile, $block = 0, $show_connect = true) {
+function profile_sidebar($profile, $block = 0, $show_connect = true, $zcard = false) {
 
 	$a = get_app();
 
@@ -928,20 +989,13 @@ function profile_sidebar($profile, $block = 0, $show_connect = true) {
 		$block = true;
 	}
 
-	if($block && intval(get_config('system','block_public_blackout')))
-		return $o;
-
 	if((! is_array($profile)) && (! count($profile)))
 		return $o;
 
 	head_set_icon($profile['thumb']);
 
-	$is_owner = (($profile['uid'] == local_channel()) ? true : false);
-
 	if(is_sys_channel($profile['uid']))
 		$show_connect = false;
-
-
 
 	$profile['picdate'] = urlencode($profile['picdate']);
 
@@ -963,42 +1017,6 @@ function profile_sidebar($profile, $block = 0, $show_connect = true) {
 		if($profile['channel_pageflags'] & PAGE_PREMIUM)
 			$connect_url = z_root() . '/connect/' . $profile['channel_address'];
 	}
-
-	// show edit profile to yourself
-	if($is_owner) {
-		$profile['menu'] = array(
-			'chg_photo' => t('Change profile photo'),
-			'entries' => array(),
-		);
-
-		$multi_profiles = feature_enabled(local_channel(), 'multi_profiles');
-		if($multi_profiles) {
-			$profile['edit'] = array($a->get_baseurl(). '/profiles', t('Profiles'),"", t('Manage/edit profiles'));
-			$profile['menu']['cr_new'] = t('Create New Profile');
-		}
-		else
-			$profile['edit'] = array($a->get_baseurl() . '/profiles/' . $profile['id'], t('Edit Profile'),'',t('Edit Profile'));
-
-		$r = q("SELECT * FROM `profile` WHERE `uid` = %d",
-				local_channel());
-
-		if($r) {
-			foreach($r as $rr) {
-				if(!($multi_profiles || $rr['is_default']))
-					 continue;
-				$profile['menu']['entries'][] = array(
-					'photo'                => $rr['thumb'],
-					'id'                   => $rr['id'],
-					'alt'                  => t('Profile Image'),
-					'profile_name'         => $rr['profile_name'],
-					'isdefault'            => $rr['is_default'],
-					'visible_to_everybody' => t('visible to everybody'),
-					'edit_visibility'      => t('Edit visibility'),
-				);
-			}
-		}
-	}
-
 
 	if((x($profile,'address') == 1)
 		|| (x($profile,'locality') == 1)
@@ -1053,14 +1071,18 @@ function profile_sidebar($profile, $block = 0, $show_connect = true) {
 		$channel_menu .= comanche_block($menublock);
 	}
 
-	$tpl = get_markup_template('profile_vcard.tpl');
+	if($zcard)
+		$tpl = get_markup_template('profile_vcard_short.tpl');
+	else
+		$tpl = get_markup_template('profile_vcard.tpl');
 
 	require_once('include/widgets.php');
 
 	if(! feature_enabled($profile['uid'],'hide_rating'))
 		$z = widget_rating(array('target' => $profile['channel_hash']));
-		
+
 	$o .= replace_macros($tpl, array(
+		'$zcard'         => $zcard,
 		'$profile'       => $profile,
 		'$connect'       => $connect,
 		'$connect_url'   => $connect_url,
@@ -1074,6 +1096,7 @@ function profile_sidebar($profile, $block = 0, $show_connect = true) {
 		'$reddress'      => $reddress,
 		'$rating'        => $z,
 		'$contact_block' => $contact_block,
+		'$editmenu'	 => profile_edit_menu($profile['uid'])
 	));
 
 	$arr = array('profile' => &$profile, 'entry' => &$o);
@@ -1236,11 +1259,25 @@ function advanced_profile(&$a) {
 	if(! perm_is_allowed($a->profile['profile_uid'],get_observer_hash(),'view_profile'))
 		return '';
 
-	$o = '';
-
-	$o .= '<h2>' . t('Profile') . '</h2>';
-
 	if($a->profile['name']) {
+
+		$profile_fields_basic    = get_profile_fields_basic();
+		$profile_fields_advanced = get_profile_fields_advanced();
+
+		$advanced = ((feature_enabled($a->profile['profile_uid'],'advanced_profiles')) ? true : false);
+		if($advanced)
+			$fields = $profile_fields_advanced;
+		else
+			$fields = $profile_fields_basic;
+
+		$clean_fields = array();
+		if($fields) {
+			foreach($fields as $k => $v) {
+				$clean_fields[] = trim($k);
+			}
+		}
+
+
 
 		$tpl = get_markup_template('profile_advanced.tpl');
 
@@ -1267,7 +1304,7 @@ function advanced_profile(&$a) {
 		$profile['like_button_label'] = tt('Like','Likes',$profile['like_count'],'noun');
 		if($likers) {
 			foreach($likers as $l)
-				$profile['likers'][] = array('name' => $l['xchan_name'],'url' => zid($l['xchan_url']));
+				$profile['likers'][] = array('name' => $l['xchan_name'],'photo' => zid($l['xchan_photo_s']), 'url' => zid($l['xchan_url']));
 		}
 
 		if(($a->profile['dob']) && ($a->profile['dob'] != '0000-00-00')) {
@@ -1359,6 +1396,8 @@ function advanced_profile(&$a) {
 			'$canlike' => (($profile['canlike'])? true : false),
 			'$likethis' => t('Like this thing'),
 			'$profile' => $profile,
+			'$fields' => $clean_fields,
+			'$editmenu' => profile_edit_menu($a->profile['profile_uid']),
 			'$things' => $things
 		));
 	}
@@ -1779,5 +1818,70 @@ function get_cover_photo($channel_id,$format = 'bbcode', $res = PHOTO_RES_COVER_
 	}
 
 	return $output;  
+		
+}
+
+function get_zcard($channel,$observer_hash = '',$args = array()) {
+
+	logger('get_zcard');
+
+	$maxwidth = (($args['width']) ? intval($args['width']) : 0);
+	$maxheight = (($args['height']) ? intval($args['height']) : 0);
+
+
+	if(($maxwidth > 1200) || ($maxwidth < 1))
+		$maxwidth = 1200;
+
+	if($maxwidth <= 425) {
+		$width = 425;
+		$size = 'hz_small';
+		$cover_size = PHOTO_RES_COVER_425;
+		$pphoto = array('type' => $channel['xchan_photo_mimetype'],  'width' => 80 , 'height' => 80, 'href' => $channel['xchan_photo_m']);
+	}
+	elseif($maxwidth <= 900) {
+		$width = 900;
+		$size = 'hz_medium';
+		$cover_size = PHOTO_RES_COVER_850;
+		$pphoto = array('type' => $channel['xchan_photo_mimetype'],  'width' => 160 , 'height' => 160, 'href' => $channel['xchan_photo_l']);
+	}
+	elseif($maxwidth <= 1200) {
+		$width = 1200;
+		$size = 'hz_large';
+		$cover_size = PHOTO_RES_COVER_1200;
+		$pphoto = array('type' => $channel['xchan_photo_mimetype'],  'width' => 300 , 'height' => 300, 'href' => $channel['xchan_photo_l']);
+	}
+
+//	$scale = (float) $maxwidth / $width;
+//	$translate = intval(($scale / 1.0) * 100);
+
+
+	$channel['channel_addr'] = $channel['channel_address'] . '@' . get_app()->get_hostname();
+	$zcard = array('chan' => $channel);
+
+	$r = q("select height, width, resource_id, scale, type from photo where uid = %d and scale = %d and photo_usage = %d",
+		intval($channel['channel_id']),
+		intval($cover_size),
+		intval(PHOTO_COVER)
+	);
+
+	if($r) {
+		$cover = $r[0];
+		$cover['href'] = z_root() . '/photo/' . $r[0]['resource_id'] . '-' . $r[0]['scale'];
+	}		
+	else {
+		$cover = $pphoto;
+	}
+	
+	$o .= replace_macros(get_markup_template('zcard.tpl'),array(
+		'$maxwidth' => $maxwidth,
+		'$scale' => $scale,
+		'$translate' => $translate,
+		'$size' => $size,
+		'$cover' => $cover,
+		'$pphoto' => $pphoto,
+		'$zcard' => $zcard
+	));		
+	
+	return $o;
 		
 }

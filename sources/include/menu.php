@@ -299,7 +299,7 @@ function menu_add_item($menu_id, $uid, $arr) {
 		$channel = get_app()->get_channel();	
 	}
 
-	$acl = new AccessList($channel);
+	$acl = new Zotlabs\Access\AccessList($channel);
 	$acl->set_from_array($arr);
 	$p = $acl->get();
 
@@ -340,7 +340,7 @@ function menu_edit_item($menu_id, $uid, $arr) {
 		$channel = get_app()->get_channel();	
 	}
 
-	$acl = new AccessList($channel);
+	$acl = new Zotlabs\Access\AccessList($channel);
 	$acl->set_from_array($arr);
 	$p = $acl->get();
 

@@ -6,6 +6,7 @@
  * Version: 0.1
  * Author: Michael Vogel <heluecht@pirati.ca>
  * Maintainer: none
+ * MaxVersion: 1.0
  */
 
 function diaspost_load() {

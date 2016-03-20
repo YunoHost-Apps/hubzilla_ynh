@@ -76,7 +76,7 @@ EOT;
 	if(local_channel()) {
 
 
-		if($chans && count($chans) > 1 && feature_enabled(local_channel(),'nav_channel_select'))
+		if($chans && count($chans) > 1 && feature_enabled(local_channel(),'nav_channel_select') && (! UNO))
 			$nav['channels'] = $chans;
 
 		$nav['logout'] = Array('logout',t('Logout'), "", t('End this session'),'logout_nav_btn');
@@ -84,7 +84,7 @@ EOT;
 		// user menu
 		$nav['usermenu'][] = Array('channel/' . $channel['channel_address'], t('Home'), "", t('Your posts and conversations'),'channel_nav_btn');
 		$nav['usermenu'][] = Array('profile/' . $channel['channel_address'], t('View Profile'), "", t('Your profile page'),'profile_nav_btn');
-		if(feature_enabled(local_channel(),'multi_profiles'))
+		if(feature_enabled(local_channel(),'multi_profiles') && (! UNO))
 			$nav['usermenu'][]   = Array('profiles', t('Edit Profiles'),"", t('Manage/Edit profiles'),'profiles_nav_btn');
 		else
 			$nav['usermenu'][]   = Array('profiles/' . $prof[0]['id'], t('Edit Profile'),"", t('Edit your profile'),'profiles_nav_btn');
@@ -94,16 +94,17 @@ EOT;
 
 		require_once('include/chat.php');
 		$has_chats = chatroom_list_count(local_channel());
-		$nav['usermenu'][] = Array('chat/' . $channel['channel_address'] . (($has_chats) ? '' : '/new'), t('Chat'),"",t('Your chatrooms'),'chat_nav_btn');
+		if(! UNO)
+			$nav['usermenu'][] = Array('chat/' . $channel['channel_address'] . (($has_chats) ? '' : '/new'), t('Chat'),"",t('Your chatrooms'),'chat_nav_btn');
 
 
 		require_once('include/menu.php');
 		$has_bookmarks = menu_list_count(local_channel(),'',MENU_BOOKMARK) + menu_list_count(local_channel(),'',MENU_SYSTEM|MENU_BOOKMARK);
-		if($has_bookmarks) {
+		if(($has_bookmarks) && (! UNO)) {
 			$nav['usermenu'][] = Array('bookmarks', t('Bookmarks'), "", t('Your bookmarks'),'bookmarks_nav_btn');
 		}
 
-		if(feature_enabled($channel['channel_id'],'webpages'))
+		if(feature_enabled($channel['channel_id'],'webpages') && (! UNO))
 			$nav['usermenu'][] = Array('webpages/' . $channel['channel_address'],t('Webpages'),"",t('Your webpages'),'webpages_nav_btn');
 	}
 	else {
@@ -154,7 +155,8 @@ EOT;
 		$nav['help'] = array($help_url, t('Help'), "", t('Help and documentation'),'help_nav_btn');
 
 
-	$nav['apps'] = array('apps', t('Apps'), "", t('Applications, utilities, links, games'),'apps_nav_btn');
+	if(! UNO)
+		$nav['apps'] = array('apps', t('Apps'), "", t('Applications, utilities, links, games'),'apps_nav_btn');
 
 	$nav['search'] = array('search', t('Search'), "", t('Search site @name, #tag, ?docs, content'));
 
@@ -196,8 +198,9 @@ EOT;
 		$nav['all_events'] = array('events', t('Events'), "", t('Event Calendar'),'events_nav_btn');
 		$nav['all_events']['all']=array('events', t('See all events'), "", "");
 		$nav['all_events']['mark'] = array('', t('Mark all events seen'), '','');
-		
-		$nav['manage'] = array('manage', t('Channel Manager'), "", t('Manage Your Channels'),'manage_nav_btn');
+
+		if(! UNO)		
+			$nav['manage'] = array('manage', t('Channel Manager'), "", t('Manage Your Channels'),'manage_nav_btn');
 
 		$nav['settings'] = array('settings', t('Settings'),"", t('Account/Channel Settings'),'settings_nav_btn');
 

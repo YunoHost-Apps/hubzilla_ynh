@@ -24,6 +24,9 @@
 	{{if $info.minphpversion}}
 	<p class="versionlimit">{{$str_minphpversion}}{{$info.minphpversion}}</p>
 	{{/if}}
+	{{if $info.requires}}
+	<p class="versionlimit">{{$str_requires}}{{$info.requires}}</p>
+	{{/if}}
 
 
 	{{foreach $info.maintainer as $a}}

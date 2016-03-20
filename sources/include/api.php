@@ -2106,10 +2106,10 @@ require_once('include/api_auth.php');
 			'private' => $private, 'textlimit' => $textlimit, 'sslserver' => $sslserver, 'ssl' => $ssl,
 			'shorturllength' => '30',
         	'hubzilla' => array(
-				'PLATFORM_NAME' => get_platform_name(),
-				'RED_VERSION' => get_project_version(),
+				'PLATFORM_NAME' => Zotlabs\Project\System::get_platform_name(),
+				'RED_VERSION' => Zotlabs\Project\System::get_project_version(),
 				'ZOT_REVISION' => ZOT_REVISION,
-				'DB_UPDATE_VERSION' => get_update_version()
+				'DB_UPDATE_VERSION' => Zotlabs\Project\System::get_update_version()
 			)
 		));  
 
@@ -2142,12 +2142,12 @@ require_once('include/api_auth.php');
 
 		if($type === 'xml') {
 			header("Content-type: application/xml");
-			echo '<?xml version="1.0" encoding="UTF-8"?>' . "\r\n" . '<version>' . get_project_version() . '</version>' . "\r\n";
+			echo '<?xml version="1.0" encoding="UTF-8"?>' . "\r\n" . '<version>' . Zotlabs\Project\System::get_project_version() . '</version>' . "\r\n";
 			killme();
 		}
 		elseif($type === 'json') {
 			header("Content-type: application/json");
-			echo '"' . get_project_version() . '"';
+			echo '"' . Zotlabs\Project\System::get_project_version() . '"';
 			killme();
 		}
 	}

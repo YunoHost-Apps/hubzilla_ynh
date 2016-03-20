@@ -1,4 +1,5 @@
 <?php /** @file */
+
 if(class_exists('BaseObject'))
 	return;
 

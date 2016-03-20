@@ -12,6 +12,8 @@ $db_pass = '{{$dbpass}}';
 $db_data = '{{$dbdata}}';
 $db_type = '{{$dbtype}}'; // an integer. 0 or unset for mysql, 1 for postgres
 
+define( 'UNO', {{$uno}} );
+
 /*
  * Note: Plusieurs de ces réglages seront disponibles via le panneau d'administration
  * après l'installation. Lorsque des modifications sont apportés à travers le panneau d'administration
@@ -34,6 +36,15 @@ $default_timezone = '{{$timezone}}';
 $a->config['system']['baseurl'] = '{{$siteurl}}';
 $a->config['system']['sitename'] = "Hubzilla";
 $a->config['system']['location_hash'] = '{{$site_id}}';
+
+
+// These lines set additional security headers to be sent with all responses
+// You may wish to set transport_security_header to 0 if your server already sends
+// this header. content_security_policy may need to be disabled if you wish to
+// run the piwik analytics plugin or include other offsite resources on a page
+
+$a->config['system']['transport_security_header'] = 1;
+$a->config['system']['content_security_policy'] = 1;
 
 // Vos choix sont REGISTER_OPEN, REGISTER_APPROVE, ou REGISTER_CLOSED.
 // Soyez certains de créer votre compte personnel avant de déclarer

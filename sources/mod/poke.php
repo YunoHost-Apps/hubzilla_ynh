@@ -158,16 +158,27 @@ function poke_content(&$a) {
 		if($v[1] !== 'NOTRANSLATION')
 			$shortlist[] = array($k,$v[1]);
 
-	$tpl = get_markup_template('poke_content.tpl');
 
-	$o = replace_macros($tpl,array(
-		'$title' => t('Poke/Prod'),
-		'$desc' => t('poke, prod or do other things to somebody'),
+	$poke_basic = get_config('system','poke_basic');
+	if($poke_basic) {
+		$title = t('Poke');
+		$desc = t('Poke somebody');
+	}
+	else {
+		$title = t('Poke/Prod');
+		$desc = t('Poke, prod or do other things to somebody');
+	}
+
+	$o = replace_macros(get_markup_template('poke_content.tpl'),array(
+		'$title' => $title,
+		'$poke_basic' => $poke_basic,
+		'$desc' => $desc,
 		'$clabel' => t('Recipient'),
 		'$choice' => t('Choose what you wish to do to recipient'),
 		'$verbs' => $shortlist,
 		'$parent' => $parent,
 		'$prv_desc' => t('Make this post private'),
+		'$private' => array('private', t('Make this post private'), false, ''),
 		'$submit' => t('Submit'),
 		'$name' => $name,
 		'$id' => $id

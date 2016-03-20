@@ -11,7 +11,18 @@
 
 /* global jQuery */
 
-(function($) {
+(function(factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD
+    define(['jquery'], factory);
+  } else if (typeof exports === 'object') {
+    // CommonJS
+    module.exports = factory(require('jquery'));
+  } else {
+    // Browser globals
+    factory(jQuery);
+  }
+}(function($) {
   'use strict';
 
   var readmore = 'readmore',
@@ -61,20 +72,19 @@
   }
 
   function setBoxHeights(element) {
-    var el = element,
-        expandedHeight = el.outerHeight(true),
+    var el = element.clone().css({
+          height: 'auto',
+          width: element.width(),
+          maxHeight: 'none',
+          overflow: 'hidden'
+        }).insertAfter(element),
+        expandedHeight = el.outerHeight(),
         cssMaxHeight = parseInt(el.css({maxHeight: ''}).css('max-height').replace(/[^-\d\.]/g, ''), 10),
         defaultHeight = element.data('defaultHeight');
 
-console.log("el height: " + expandedHeight);
-    var collapsedHeight = element.data('collapsedHeight') || defaultHeight;
+    el.remove();
 
-    if (!cssMaxHeight) {
-      collapsedHeight = defaultHeight;
-    }
-    else if (cssMaxHeight > collapsedHeight) {
-      collapsedHeight = cssMaxHeight;
-    }
+    var collapsedHeight = cssMaxHeight || element.data('collapsedHeight') || defaultHeight;
 
     // Store our measurements.
     element.data({
@@ -137,69 +147,75 @@ console.log("el height: " + expandedHeight);
   }
 
   function Readmore(element, options) {
-    var $this = this;
-
     this.element = element;
 
     this.options = $.extend({}, defaults, options);
-    $(this.element).data({
-      defaultHeight: this.options.collapsedHeight,
-      heightMargin: this.options.heightMargin
-    });
 
     embedCSS(this.options);
 
     this._defaults = defaults;
     this._name = readmore;
 
-    // Waiting for the page to load doesn't work when there is dynamic content
-    // But usually we already have the content, so no need to wait
-    //window.addEventListener('load', function() {
-      $this.init();
-    //});
+    this.init();
+
+    // IE8 chokes on `window.addEventListener`, so need to test for support.
+    if (window.addEventListener) {
+      // Need to resize boxes when the page has fully loaded.
+      window.addEventListener('load', resizeBoxes);
+      window.addEventListener('resize', resizeBoxes);
+    }
+    else {
+      window.attachEvent('load', resizeBoxes);
+      window.attachEvent('resize', resizeBoxes);
+    }
   }
 
 
   Readmore.prototype = {
     init: function() {
-      var $this = this;
+      var current = $(this.element);
 
-      $(this.element).each(function() {
-        var current = $(this);
-
-        setBoxHeights(current);
-
-        var collapsedHeight = current.data('collapsedHeight'),
-            heightMargin = current.data('heightMargin');
-
-        if (current.outerHeight(true) <= collapsedHeight + heightMargin) {
-          // The block is shorter than the limit, so there's no need to truncate it.
-          return true;
-        }
-        else {
-          var id = current.attr('id') || uniqueId(),
-              useLink = $this.options.startOpen ? $this.options.lessLink : $this.options.moreLink;
-
-          current.attr({
-            'data-readmore': '',
-            'aria-expanded': false,
-            'id': id
-          });
-
-          current.after($(useLink)
-            .on('click', function(event) { $this.toggle(this, current[0], event); })
-            .attr({
-              'data-readmore-toggle': '',
-              'aria-controls': id
-            }));
-
-          if (! $this.options.startOpen) {
-            current.css({
-              height: collapsedHeight
-            });
-          }
-        }
+      current.data({
+        defaultHeight: this.options.collapsedHeight,
+        heightMargin: this.options.heightMargin
       });
+
+      setBoxHeights(current);
+
+      var collapsedHeight = current.data('collapsedHeight'),
+          heightMargin = current.data('heightMargin');
+
+      if (current.outerHeight(true) <= collapsedHeight + heightMargin) {
+        // The block is shorter than the limit, so there's no need to truncate it.
+        return true;
+      }
+      else {
+        var id = current.attr('id') || uniqueId(),
+            useLink = this.options.startOpen ? this.options.lessLink : this.options.moreLink;
+
+        current.attr({
+          'data-readmore': '',
+          'aria-expanded': this.options.startOpen,
+          'id': id
+        });
+
+        current.after($(useLink)
+          .on('click', (function(_this) {
+            return function(event) {
+              _this.toggle(this, current[0], event);
+            };
+          })(this))
+          .attr({
+            'data-readmore-toggle': '',
+            'aria-controls': id
+          }));
+
+        if (! this.options.startOpen) {
+          current.css({
+            height: collapsedHeight
+          });
+        }
+      }
     },
 
     toggle: function(trigger, element, event) {
@@ -208,22 +224,21 @@ console.log("el height: " + expandedHeight);
       }
 
       if (! trigger) {
-        trigger = $('[aria-controls="' + this.element.id + '"]')[0];
+        trigger = $('[aria-controls="' + _this.element.id + '"]')[0];
       }
 
       if (! element) {
-        element = this.element;
+        element = _this.element;
       }
 
-      var $this = this,
-          $element = $(element),
+      var $element = $(element),
           newHeight = '',
           newLink = '',
           expanded = false,
           collapsedHeight = $element.data('collapsedHeight');
 
       if ($element.height() <= collapsedHeight) {
-        newHeight = $element.data('expandedHeight') + 'px';
+        newHeight = 100 + '%';
         newLink = 'lessLink';
         expanded = true;
       }
@@ -235,25 +250,31 @@ console.log("el height: " + expandedHeight);
       // Fire beforeToggle callback
       // Since we determined the new "expanded" state above we're now out of sync
       // with our true current state, so we need to flip the value of `expanded`
-      $this.options.beforeToggle(trigger, element, ! expanded);
+      this.options.beforeToggle(trigger, $element, ! expanded);
 
       $element.css({'height': newHeight});
 
       // Fire afterToggle callback
-      $element.on('transitionend', function() {
-        $this.options.afterToggle(trigger, element, expanded);
+      $element.on('transitionend', (function(_this) {
+        return function() {
+          _this.options.afterToggle(trigger, $element, expanded);
 
-        $(this).attr({
-          'aria-expanded': expanded
-        }).off('transitionend');
-      });
+          $(this).attr({
+            'aria-expanded': expanded
+          }).off('transitionend');
+        }
+      })(this));
 
-      $(trigger).replaceWith($($this.options[newLink])
-          .on('click', function(event) { $this.toggle(this, element, event); })
-          .attr({
-            'data-readmore-toggle': '',
-            'aria-controls': $element.attr('id')
-          }));
+      $(trigger).replaceWith($(this.options[newLink])
+        .on('click', (function(_this) {
+            return function(event) {
+              _this.toggle(this, element, event);
+            };
+          })(this))
+        .attr({
+          'data-readmore-toggle': '',
+          'aria-controls': $element.attr('id')
+        }));
     },
 
     destroy: function() {
@@ -305,6 +326,5 @@ console.log("el height: " + expandedHeight);
     }
   };
 
-})(jQuery);
-
+}));
 

@@ -1,6 +1,6 @@
-# ADDON wppost
+# SOME DESCRIPTIVE TITLE.
 # Copyright (C) 
-# This file is distributed under the same license as the Friendica wppost addon package.
+# This file is distributed under the same license as the PACKAGE package.
 # 
 #
 #, fuzzy
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-02-27 05:01-0500\n"
+"POT-Creation-Date: 2016-02-05 00:13+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,46 +17,54 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: wppost.php:42
-msgid "Post to Wordpress"
+#: wppost.php:46
+msgid "Post to WordPress"
 msgstr ""
 
-#: wppost.php:76
-msgid "WordPress Post Settings"
-msgstr ""
-
-#: wppost.php:78
+#: wppost.php:82
 msgid "Enable WordPress Post Plugin"
 msgstr ""
 
-#: wppost.php:83
+#: wppost.php:82 wppost.php:99 wppost.php:103
+msgid "No"
+msgstr ""
+
+#: wppost.php:82 wppost.php:99 wppost.php:103
+msgid "Yes"
+msgstr ""
+
+#: wppost.php:86
 msgid "WordPress username"
 msgstr ""
 
-#: wppost.php:88
+#: wppost.php:90
 msgid "WordPress password"
 msgstr ""
 
-#: wppost.php:93
+#: wppost.php:94
 msgid "WordPress API URL"
 msgstr ""
 
-#: wppost.php:98
+#: wppost.php:95
+msgid "Typically https://your-blog.tld/xmlrpc.php"
+msgstr ""
+
+#: wppost.php:99
 msgid "Post to WordPress by default"
 msgstr ""
 
 #: wppost.php:103
-msgid "Provide a backlink to the Friendica post"
+msgid "Forward comments (requires hubzilla_wp plugin)"
 msgstr ""
 
-#: wppost.php:110
+#: wppost.php:107
+msgid "WordPress Post Settings"
+msgstr ""
+
+#: wppost.php:107
 msgid "Submit"
 msgstr ""
 
-#: wppost.php:201
-msgid "Post from Friendica"
-msgstr ""
-
-#: wppost.php:207
-msgid "Read the original post and comment stream on Friendica"
+#: wppost.php:122
+msgid "Wordpress Settings saved."
 msgstr ""

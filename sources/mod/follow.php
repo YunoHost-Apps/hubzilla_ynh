@@ -14,7 +14,9 @@ function follow_init(&$a) {
 	$return_url = $_SESSION['return_url'];
 	$confirm = intval($_REQUEST['confirm']);
 
-	$result = new_contact($uid,$url,$a->get_channel(),true,$confirm);
+	$channel = $a->get_channel();
+
+	$result = new_contact($uid,$url,$channel,true,$confirm);
 	
 	if($result['success'] == false) {
 		if($result['message'])
@@ -33,6 +35,10 @@ function follow_init(&$a) {
 	unset($clone['abook_id']);
 	unset($clone['abook_account']);
 	unset($clone['abook_channel']);
+
+	$abconfig = load_abconfig($channel['channel_hash'],$clone['abook_xchan']);
+	if($abconfig)
+		$clone['abconfig'] = $abconfig;
 
 	build_sync_packet(0 /* use the current local_channel */, array('abook' => array($clone)));
 

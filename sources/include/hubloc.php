@@ -134,10 +134,17 @@ function hubloc_change_primary($hubloc) {
 	$r = q("select channel_id, channel_primary from channel where channel_hash = '%s' limit 1",
 		dbesc($hubloc['hubloc_hash'])
 	);
-	if(($r) && (! $r[0]['channel_primary'])) {
-		q("update channel set channel_primary = 1 where channel_id = %d",
-			intval($r[0]['channel_id'])
-		);
+	if($r) {
+		if(! $r[0]['channel_primary']) {
+			q("update channel set channel_primary = 1 where channel_id = %d",
+				intval($r[0]['channel_id'])
+			);
+		}
+		else {
+			q("update channel set channel_primary = 0 where channel_id = %d",
+				intval($r[0]['channel_id'])
+			);
+		}
 	}
 
 	// do we even have an xchan for this hubloc and if so is it already set as primary?

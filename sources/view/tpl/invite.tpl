@@ -1,32 +1,28 @@
-<div class="generic-content-wrapper-styled">
-<form action="invite" method="post" id="invite-form" >
+<div id="invite" class="generic-content-wrapper">
+  <div class="section-title-wrapper">
+    <h2>{{$invite}}</h2>
+  </div>
+  <div class="section-content-wrapper">
 
-<input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
+    <form action="invite" method="post" id="invite-form" >
 
-<div id="invite-wrapper">
+      <input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
 
-<h3>{{$invite}}</h3>
+      <div id="invite-recipient-textarea" class="form-group field custom">
+        <label for="recipients">{{$addr_text}}</label>
+        <textarea id="invite-recipients" name="recipients" rows="6" class="form-control"></textarea>
+      </div>
 
-<div id="invite-recipient-text">
-{{$addr_text}}
-</div>
+      <div id="invite-message-textarea" class="form-group field custom">
+        <label for="message">{{$msg_text}}</label>
+        <textarea id="invite-message" name="message" rows="12" class="form-control">{{$default_message}}</textarea>
+      </div>
 
-<div id="invite-recipient-textarea">
-<textarea id="invite-recipients" name="recipients" rows="8" cols="32" ></textarea>
-</div>
+      <div id="invite-submit-wrapper" class="form-group">
+        <button class="btn btn-primary btn-sm" type="submit" id="invite-submit" name="submit" value="{{$submit}}">{{$submit}}</button>
+      </div>
 
-<div id="invite-message-text">
-{{$msg_text}}
-</div>
+    </form>
 
-<div id="invite-message-textarea">
-<textarea id="invite-message" name="message" rows="10" cols="72" >{{$default_message}}</textarea>
-</div>
-
-<div id="invite-submit-wrapper">
-<input type="submit" name="submit" value="{{$submit}}" />
-</div>
-
-</div>
-</form>
+  </div>
 </div>

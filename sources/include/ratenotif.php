@@ -11,7 +11,6 @@ function ratenotif_run($argv, $argc){
 
 	$a = get_app();
 
-	require_once("session.php");
 	require_once("datetime.php");
 	require_once('include/items.php');
 	require_once('include/Contact.php');

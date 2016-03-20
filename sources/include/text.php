@@ -968,16 +968,24 @@ function get_poke_verbs() {
 	// index is present tense verb
 	// value is array containing past tense verb, translation of present, translation of past
 
-	$arr = array(
-		'poke' => array( 'poked', t('poke'), t('poked')),
-		'ping' => array( 'pinged', t('ping'), t('pinged')),
-		'prod' => array( 'prodded', t('prod'), t('prodded')),
-		'slap' => array( 'slapped', t('slap'), t('slapped')),
-		'finger' => array( 'fingered', t('finger'), t('fingered')),
-		'rebuff' => array( 'rebuffed', t('rebuff'), t('rebuffed')),
-	);
+	if(get_config('system','poke_basic')) {
+		$arr = array(
+			'poke' => array( 'poked', t('poke'), t('poked')),
+		);
+	}
+	else {
+		$arr = array(
+			'poke' => array( 'poked', t('poke'), t('poked')),
+			'ping' => array( 'pinged', t('ping'), t('pinged')),
+			'prod' => array( 'prodded', t('prod'), t('prodded')),
+			'slap' => array( 'slapped', t('slap'), t('slapped')),
+			'finger' => array( 'fingered', t('finger'), t('fingered')),
+			'rebuff' => array( 'rebuffed', t('rebuff'), t('rebuffed')),
+		);
 
-	call_hooks('poke_verbs', $arr);
+		call_hooks('poke_verbs', $arr);
+	}
+
 	return $arr;
 }
 
@@ -1436,7 +1444,7 @@ function prepare_body(&$item,$attach = false) {
 
 	call_hooks('prepare_body_init', $item); 
 
-
+	$s = '';
 	$photo = '';
 	$is_photo = ((($item['verb'] === ACTIVITY_POST) && ($item['obj_type'] === ACTIVITY_OBJ_PHOTO)) ? true : false);
 
@@ -1446,7 +1454,7 @@ function prepare_body(&$item,$attach = false) {
 
 		// if original photo width is <= 640px prepend it to item body
 		if($object['link'][0]['width'] && $object['link'][0]['width'] <= 640) {
-			$s = '<div class="inline-photo-item-wrapper"><a href="' . zid(rawurldecode($object['id'])) . '" target="_blank"><img class="inline-photo-item" style="max-width:' . $object['link'][0]['width'] . 'px; width:100%; height:auto;" src="' . zid(rawurldecode($object['link'][0]['href'])) . '"></a></div>' . $s;
+			$s .= '<div class="inline-photo-item-wrapper"><a href="' . zid(rawurldecode($object['id'])) . '" target="_blank"><img class="inline-photo-item" style="max-width:' . $object['link'][0]['width'] . 'px; width:100%; height:auto;" src="' . zid(rawurldecode($object['link'][0]['href'])) . '"></a></div>' . $s;
 		}
 
 		// if original photo width is > 640px make it a cover photo
@@ -1456,7 +1464,7 @@ function prepare_body(&$item,$attach = false) {
 		}
 	}
 
-	$s = prepare_text($item['body'],$item['mimetype'], false);
+	$s .= prepare_text($item['body'],$item['mimetype'], false);
 
 	$event = (($item['obj_type'] === ACTIVITY_OBJ_EVENT) ? format_event($item['object']) : false);
 
@@ -2719,4 +2727,64 @@ function item_url_replace($channel,&$item,$old,$new) {
 	
 	// @fixme item['plink'] and item['llink']
 
+}
+
+
+/**
+ * @brief Used to wrap ACL elements in angle brackets for storage.
+ *
+ * @param[in,out] array &$item
+ */
+function sanitise_acl(&$item) {
+	if (strlen($item))
+		$item = '<' . notags(trim($item)) . '>';
+	else
+		unset($item);
+}
+
+/**
+ * @brief Convert an ACL array to a storable string.
+ *
+ * @param array $p
+ * @return array
+ */
+function perms2str($p) {
+	$ret = '';
+
+	if (is_array($p))
+		$tmp = $p;
+	else
+		$tmp = explode(',', $p);
+
+	if (is_array($tmp)) {
+		array_walk($tmp, 'sanitise_acl');
+		$ret = implode('', $tmp);
+	}
+
+	return $ret;
+}
+
+
+/**
+ * @brief Turn user/group ACLs stored as angle bracketed text into arrays.
+ *
+ * turn string array of angle-bracketed elements into string array
+ * e.g. "<123xyz><246qyo><sxo33e>" => array(123xyz,246qyo,sxo33e);
+ *
+ * @param string $s
+ * @return array
+ */
+function expand_acl($s) {
+	$ret = array();
+
+	if(strlen($s)) {
+		$t = str_replace('<','',$s);
+		$a = explode('>',$t);
+		foreach($a as $aa) {
+			if($aa)
+				$ret[] = $aa;
+		}
+	}
+
+	return $ret;
 }

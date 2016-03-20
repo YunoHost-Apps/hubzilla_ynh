@@ -119,6 +119,8 @@ function datetime_convert($from = 'UTC', $to = 'UTC', $s = 'now', $fmt = "Y-m-d 
  * @return string
  */
 function dob($dob) {
+	$a = get_app();
+
 	list($year, $month, $day) = sscanf($dob, '%4d-%2d-%2d');
 	$f = get_config('system', 'birthday_input_format');
 	if (! $f)
@@ -129,7 +131,15 @@ function dob($dob) {
 	else
 		$value = (($year) ? datetime_convert('UTC','UTC',$dob,'Y-m-d') : datetime_convert('UTC','UTC',$dob,'m-d'));
 
-	$o = '<input type="text" name="dob" value="' . $value . '" placeholder="' . t('YYYY-MM-DD or MM-DD') . '" />';
+	$o = replace_macros(get_markup_template("field_input.tpl"), array('$field' => array(
+		'dob',
+		t('Birthday'),
+		$value,
+		((intval($value)) ? t('Age: ') . age($value,$a->user['timezone'],$a->user['timezone']) : ''),
+		'',
+		'placeholder="' . t('YYYY-MM-DD or MM-DD') .'"'
+	)));
+
 
 //	if ($dob && $dob != '0000-00-00')
 //		$o = datesel($f,mktime(0,0,0,0,0,1900),mktime(),mktime(0,0,0,$month,$day,$year),'dob');
@@ -269,14 +279,15 @@ function relative_date($posted_date, $format = null) {
 		return t('less than a second ago');
 	}
 
-	$a = array( 12 * 30 * 24 * 60 * 60  =>  array( t('year'),   t('years')),
-				30 * 24 * 60 * 60       =>  array( t('month'),  t('months')),
-				7  * 24 * 60 * 60       =>  array( t('week'),   t('weeks')),
-				24 * 60 * 60            =>  array( t('day'),    t('days')),
-				60 * 60                 =>  array( t('hour'),   t('hours')),
-				60                      =>  array( t('minute'), t('minutes')),
-				1                       =>  array( t('second'), t('seconds'))
+	$a = array( 12 * 30 * 24 * 60 * 60  =>  'y',
+				30 * 24 * 60 * 60       =>  'm',
+				7  * 24 * 60 * 60       =>  'w',
+				24 * 60 * 60            =>  'd',
+				60 * 60                 =>  'h',
+				60                      =>  'i',
+				1                       =>  's'
 	);
+
 
 	foreach ($a as $secs => $str) {
 		$d = $etime / $secs;
@@ -285,10 +296,42 @@ function relative_date($posted_date, $format = null) {
 			if (! $format)
 				$format = t('%1$d %2$s ago', 'e.g. 22 hours ago, 1 minute ago');
 
-			return sprintf($format, $r, (($r == 1) ? $str[0] : $str[1]));
+			return sprintf($format, $r, plural_dates($str,$r));
 		}
 	}
 }
+
+function plural_dates($k,$n) {
+
+	switch($k) {
+		case 'y':
+			return tt('year','years',$n,'relative_date');
+			break;
+		case 'm':
+			return tt('month','months',$n,'relative_date');
+			break;
+		case 'w':
+			return tt('week','weeks',$n,'relative_date');
+			break;
+		case 'd':
+			return tt('day','days',$n,'relative_date');
+			break;
+		case 'h':
+			return tt('hour','hours',$n,'relative_date');
+			break;
+		case 'i':
+			return tt('minute','minutes',$n,'relative_date');
+			break;
+		case 's':
+			return tt('second','seconds',$n,'relative_date');
+			break;
+		default:
+			return;
+	}
+}
+			
+
+
 
 /**
  * @brief Returns timezone correct age in years.
@@ -516,7 +559,7 @@ function update_birthdays() {
 			$ev['event_xchan'] = $rr['xchan_hash'];
 			$ev['start'] = datetime_convert('UTC', 'UTC', $rr['abook_dob']);
 			$ev['finish'] = datetime_convert('UTC', 'UTC', $rr['abook_dob'] . ' + 1 day ');
-			$ev['adjust'] = 1;
+			$ev['adjust'] = intval(feature_enabled($rr['abook_channel'],'smart_birthdays'));
 			$ev['summary'] = sprintf( t('%1$s\'s birthday'), $rr['xchan_name']);
 			$ev['description'] = sprintf( t('Happy Birthday %1$s'), 
 				'[zrl=' . $rr['xchan_url'] . ']' . $rr['xchan_name'] . '[/zrl]') ;

@@ -552,6 +552,8 @@ function statusnet_shortenmsg($b, $max_char) {
 	while (strpos($msg, "  ") !== false)
 		$msg = str_replace("  ", " ", $msg);
 
+	$msg = str_replace('#^http','http', $msg);
+
 	$origmsg = $msg;
 
 	// Removing URLs

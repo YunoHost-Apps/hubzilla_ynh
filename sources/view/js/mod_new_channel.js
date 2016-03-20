@@ -1,20 +1,27 @@
 	$(document).ready(function() {
 //		$("#id_permissions_role").sSelect();
-		$("#newchannel-name").blur(function() {
+		$("#id_name").blur(function() {
 			$("#name-spinner").spin('small');
-			var zreg_name = $("#newchannel-name").val();
+			var zreg_name = $("#id_name").val();
 			$.get("new_channel/autofill.json?f=&name=" + encodeURIComponent(zreg_name),function(data) {
-				$("#newchannel-nickname").val(data);
-				zFormError("#newchannel-name-feedback",data.error);
+				$("#id_nickname").val(data);
+				if(data.error) {
+					$("#help_name").html("");
+					zFormError("#help_name",data.error);
+				}
 				$("#name-spinner").spin(false);
 			});
 		});
-		$("#newchannel-nickname").blur(function() {
+
+		$("#id_nickname").blur(function() {
 			$("#nick-spinner").spin('small');
-			var zreg_nick = $("#newchannel-nickname").val();
+			var zreg_nick = $("#id_nickname").val();
 			$.get("new_channel/checkaddr.json?f=&nick=" + encodeURIComponent(zreg_nick),function(data) {
-				$("#newchannel-nickname").val(data);
-				zFormError("#newchannel-nickname-feedback",data.error);
+				$("#id_nickname").val(data);
+				if(data.error) {
+					$("#help_nickname").html("");
+					zFormError("#help_nickname",data.error);
+				}
 				$("#nick-spinner").spin(false);
 			});
 		});

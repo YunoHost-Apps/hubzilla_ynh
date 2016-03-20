@@ -44,6 +44,7 @@ head_add_js('library/colorbox/jquery.colorbox-min.js');
 
 head_add_js('library/jquery.AreYouSure/jquery.are-you-sure.js');
 head_add_js('library/tableofcontents/jquery.toc.js');
+head_add_js('library/imagesloaded/imagesloaded.pkgd.min.js');
 /**
  * Those who require this feature will know what to do with it.
  * Those who don't, won't.

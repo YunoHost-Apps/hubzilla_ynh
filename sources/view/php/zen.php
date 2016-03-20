@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html prefix="og: http://ogp.me/ns#">
 <head>
   <title><?php if(x($page,'title')) echo $page['title'] ?></title>
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1">

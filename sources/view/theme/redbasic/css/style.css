@@ -128,8 +128,6 @@ pre {
 
 .heart {
 	color: #FF0000;
-	font-size: 100%;
-	margin-right: 5px;
 }
 
 nav,
@@ -174,6 +172,7 @@ header #banner {
 	z-index: 1040;
 	margin-top: 14px;
 	text-align: center;
+	text-shadow: 1px 1px 2px rgba(0,0,0,.5);
 	font-size: 14px;
 	font-family: tahoma, "Lucida Sans", sans;
 	color: $banner_colour;
@@ -259,34 +258,6 @@ footer {
 	clear: both;
 }
 
-#profile-edit-links {
-	padding-top: 15px;
-	padding-bottom: 15px;
-}
-
-#profile-edit-links .btn {
-	margin: 0 10px 15px 0;
-}
-
-.profile-import {
-	vertical-align: top;
-	text-align: left;
-}
-
-.profile-import b {
-	color: $link_colour;
-}
-
-.profile-import input {
-	color: $font_colour;
-	border: none;
-}
-
-#profile-edit-drop-link {
-	color: #FFF;
-	font-weight: normal;
-}
-
 .fn {
 	font-weight: bold;
 	font-size: 16px;
@@ -295,7 +266,7 @@ footer {
 
 .vcard {
 	margin-bottom: 10px;
-	padding: 10px;
+	padding: 0px 10px 10px 10px;
 	background-color: rgba(254,254,254,0.5);
 	border: 1px solid rgba(254,254,254,0.5);
 	-moz-border-radius: $radiuspx;
@@ -341,9 +312,7 @@ footer {
 #profile-photo-wrapper {
 	width: 251px;
 	height: 251px;
-	margin-top: -10px;
 	margin-bottom: 10px;
-	border: 1px solid #ccc;
 	border-radius: $radiuspx;
 }
 
@@ -357,37 +326,6 @@ footer {
 #fsuggest-desc, #fsuggest-submit-wrapper {
 	margin-top: 15px;
 	margin-bottom: 15px;
-}
-
-.profile-listing-photo-wrapper {
-	float: left;
-}
-
-.profile-listing-edit-buttons-wrapper {
-	clear: both;
-}
-.profile-listing-photo-edit-link {
-	float: left;
-	width: 125px;
-}
-.profile-listing-end {
-	clear: both;
-}
-.profile-listing-edit-buttons-wrapper img{
-	border: none;
-	margin-right: 20px;
-}
-.profile-listing {
-	margin-top: 25px;
-}
-.profile-listing-name {
-	float: left;
-	margin-left: 32px;
-	margin-top: 10px;
-	color: #3172BD;
-	font-weight: bold;
-	width: 200px;
-
 }
 
 .app-name {
@@ -962,6 +900,9 @@ a.rconnect:hover, a.rateme:hover, div.rateme:hover {
 	margin-bottom: 18px;
 }
 
+#jot-preview-content {
+	margin-top: 10px;
+}
 .acl-list-item {
 	width: 48%; /* fallback if browser does not support calc() */
 	width: calc(50% - 10px);
@@ -1139,7 +1080,6 @@ img.mail-conv-sender-photo {
 
 .jothidden {
 	font-weight: bold;
-	border-radius: $radiuspx;
 }
 
 .jothidden input::-webkit-input-placeholder {
@@ -1150,29 +1090,25 @@ img.mail-conv-sender-photo {
 	font-weight: bold;
 }
 
-.jothidden > input {
-	border: 1px solid transparent;
-	background-color: transparent;
-}
-.jothidden > input:hover,
-.jothidden > input:focus {
-	border: 1px solid #cccccc;
-	background-color: #fff;
-}
+
 
 #profile-jot-wrapper {
-	background-color: rgba(254,254,254,.5);
-	border: 1px solid rgba(254,254,254,.5);
+	background-color: rgba(254,254,254,1);
+	border: 1px solid #ccc;
 	border-radius: $radiuspx;
 
 }
 
 #profile-jot-text {
-	color:#000;
-	border: 1px solid #cccccc;
-	-moz-border-radius: $radiuspx;
+	resize: none;
+	border-width: 0px;
 	border-radius: $radiuspx;
 }
+
+#profile-jot-text:focus {
+	resize: vertical;
+}
+
 
 #profile-jot-text::-webkit-input-placeholder {
 	font-size:16px;
@@ -1238,6 +1174,11 @@ img.mail-conv-sender-photo {
 
 .wall-item-title {
 	font-size: $font_size;
+}
+
+.wall-item-footer {
+	font-size: $body_font_size;
+	margin-top: 2em;
 }
 
 .wall-item-content-wrapper {
@@ -1507,7 +1448,7 @@ nav .dropdown-menu {
 .section-content-tools-wrapper {
 	padding: 7px 10px;
 	background-color: $comment_item_colour;
-	border-bottom: 3px solid $comment_item_colour;
+	border-bottom: 3px solid comment_item_colour;
 }
 
 .section-content-info-wrapper {
@@ -1541,6 +1482,7 @@ nav .dropdown-menu {
 .section-content-tools-wrapper .section-content-danger-wrapper,
 .section-content-wrapper .section-content-danger-wrapper {
 	margin-bottom: 10px;
+	border-bottom: none;
 	border-radius: $radiuspx;
 }
 
@@ -1700,9 +1642,8 @@ nav .badge.mail-update:hover {
 
 .nav-tabs.nav-justified {
 	background-color: rgba(254,254,254,.5);
-	border: 1px solid rgba(254,254,254,.5);
-	border-top-left-radius: $radiuspx;
-	border-top-right-radius: $radiuspx;
+	border-top-left-radius: 4px;
+	border-top-right-radius: 4px;
 }
 
 .nav-tabs.nav-justified > .active > a,
@@ -1815,23 +1756,18 @@ nav .badge.mail-update:hover {
 
 /* Modified original CSS to match input in Redbasic */
 .jothidden .bootstrap-tagsinput {
-	border-color: $bgcolour;
-	background-color: $bgcolour;
+	border: 0px solid transparent;
+	margin-bottom: 0px;
 	box-shadow: none;
 	display: inline-block;
 	border-radius: $radiuspx;
 	cursor: text;
-	padding: 0px 8px;
+	padding: 0px 10px;
 	width: 100%;
 }
 
 .bootstrap-tagsinput .label {
 	font-size: 100%;
-}
-
-.jothidden .bootstrap-tagsinput:hover, .jothidden .bootstrap-tagsinput:focus {
-	border: 1px solid #ccc;
-	background-color: #fff;
 }
 
 /* Abusing theme-green is less work than makeing a new new one */
