@@ -1,0 +1,36 @@
+<?php
+
+;
+App::$strings["Post to GNU social"] = "Doorplaatsen naar GNU social";
+App::$strings["Please contact your site administrator.<br />The provided API URL is not valid."] = "Neem contact op met jouw hubbeheerder.<br />De verstrekte API-URL is ongeldig.";
+App::$strings["We could not contact the GNU social API with the Path you entered."] = "Wij konden de GNU social-API niet bereiken door middel van het ingevulde pad.";
+App::$strings["GNU social settings updated."] = "GNU social-instellingen bijgewerkt.";
+App::$strings["Globally Available GNU social OAuthKeys"] = "Voor de hele hub te gebruiken GNU social OAuthkeys.";
+App::$strings["There are preconfigured OAuth key pairs for some GNU social servers available. If you are using one of them, please use these credentials.<br />If not feel free to connect to any other GNU social instance (see below)."] = "Er zijn op deze hub enkele voorgeconfigureerde OAuthkey-paren voor GNU social servers beschikbaar. Wanneer je een van deze servers gebruikt, gebruik dan deze voorgeconfigureerde gegevens.<br />Wanneer dit niet het geval is, maak dan gerust met een andere GNU social-server verbinding (zie hieronder).";
+App::$strings["Submit"] = "Opslaan";
+App::$strings["Provide your own OAuth Credentials"] = "Verstrek jouw eigen OAuth-gegevens";
+App::$strings["No consumer key pair for GNU social found. Register your Hubzilla Account as an desktop client on your GNU social account, copy the consumer key pair here and enter the API base root.<br />Before you register your own OAuth key pair ask the administrator if there is already a key pair for this Hubzilla installation at your favourite GNU social installation."] = "Geen consumerkey voor GNU social gevonden. Registreer jouw Hubzilla-account als een desktopclient in jouw GNU-social-account, kopieer en plak hier de consumerkey en de consumersecret, en vul de API-base-root in.<br />Voordat je jouw eigen OAuthkey-paar registreert, vraag dan eerst aan jouw hubbeheerder of er al een key-paar voor deze hub op jouw favoriete GNU social-server bestaat.";
+App::$strings["OAuth Consumer Key"] = "OAuth-consumerkey";
+App::$strings["OAuth Consumer Secret"] = "Oauth-consumersecret";
+App::$strings["Base API Path"] = "Base API-pad";
+App::$strings["Remember the trailing /"] = "Vergeet niet de afsluitende /";
+App::$strings["GNU social application name"] = "Naam GNU social-applicatie";
+App::$strings["To connect to your GNU social account click the button below to get a security code from GNU social which you have to copy into the input box below and submit the form. Only your <strong>public</strong> posts will be posted to GNU social."] = "Om jouw GNU social-account te koppelen klik je op de knop hieronder. Je krijgt dan een veiligheidscode van GNU social die je kan kopiëren en dan hieronder in het invulveld kan plakken. Vervolgens klik je op Opslaan. Alleen jouw  <strong>openbare</strong> berichten kunnen worden doorgeplaatst naar GNU social.";
+App::$strings["Log in with GNU social"] = "Op GNU social inloggen";
+App::$strings["Copy the security code from GNU social here"] = "Plak de veiligheidscode van GNU social hier";
+App::$strings["Cancel Connection Process"] = "Annuleer het koppelingsproces";
+App::$strings["Current GNU social API is"] = "De huidige GNU social-API is";
+App::$strings["Cancel GNU social Connection"] = "Annuleer de GNU social-koppeling";
+App::$strings["No"] = "Nee";
+App::$strings["Yes"] = "Ja";
+App::$strings["Currently connected to: "] = "Momenteel gekoppeld aan: ";
+App::$strings["If enabled your public postings can be posted to the associated GNU-social account"] = "Wanneer dit is ingeschakeld kunnen jouw openbare berichten op het gekoppelde Twitter-account worden geplaatst";
+App::$strings["Post to GNU social by default"] = "Berichten standaard naar GNU social doorplaatsen";
+App::$strings["If enabled your public postings will be posted to the associated GNU-social account by default"] = "Wanneer dit is ingeschakeld worden al jouw openbare berichten standaard op het gekoppelde GNU social-account geplaatst";
+App::$strings["Clear OAuth configuration"] = "OAuth-configuratie wissen";
+App::$strings["GNU social Post Settings"] = "GNU social (berichten doorplaatsen)";
+App::$strings["Site name"] = "Naam server";
+App::$strings["API URL"] = "API-URL";
+App::$strings["Consumer Secret"] = "Consumersecret";
+App::$strings["Consumer Key"] = "Consumerkey";
+App::$strings["Application name"] = "Naam applicatie";

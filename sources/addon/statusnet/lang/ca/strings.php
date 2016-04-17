@@ -1,0 +1,34 @@
+<?php
+
+App::$strings["Post to StatusNet"] = "Publica-ho a StatusNet";
+App::$strings["Please contact your site administrator.<br />The provided API URL is not valid."] = "Si us plau, poseu-vos en contacte amb l'administrador del lloc. <br /> L'adreça URL de l'API proporcionada no és vàlida.";
+App::$strings["We could not contact the StatusNet API with the Path you entered."] = "No hem pogut posar-nos en contacte amb l'API StatusNet amb la ruta que has introduït.";
+App::$strings["StatusNet settings updated."] = "La configuració StatusNet actualitzada.";
+App::$strings["StatusNet Posting Settings"] = "Configuració d'Enviaments per a StatusNet";
+App::$strings["Globally Available StatusNet OAuthKeys"] = "OAuthKeys de StatusNet Globalment Disponible";
+App::$strings["There are preconfigured OAuth key pairs for some StatusNet servers available. If you are useing one of them, please use these credentials. If not feel free to connect to any other StatusNet instance (see below)."] = "Hi ha preconfigurats parells clau OAuth per a alguns servidors StatusNet disponibles. Si està emprant un d'ells, utilitzi aquestes credencials. Si no és així no dubteu a connectar-se a qualsevol altra instància StatusNet (veure a baix).";
+App::$strings["Submit"] = "Enviar";
+App::$strings["Provide your own OAuth Credentials"] = "Proporcioneu les vostres credencials de OAuth";
+App::$strings["No consumer key pair for StatusNet found. Register your Friendica Account as an desktop client on your StatusNet account, copy the consumer key pair here and enter the API base root.<br />Before you register your own OAuth key pair ask the administrator if there is already a key pair for this Friendica installation at your favorited StatusNet installation."] = "no s'ha trobat cap parell \"consumer key\" per StatusNet. Registra el teu compte Friendica com un client d'escriptori en el seu compte StatusNet, copieu el parell de \"consumer key\" aquí i entri a l'arrel de la base de l'API. <br /> Abans de registrar el seu parell de claus OAuth demani a l'administrador si ja hi ha un parell de claus per a aquesta instal·lació de Friendica en la instal·lació del teu favorit StatusNet.";
+App::$strings["OAuth Consumer Key"] = "OAuth Consumer Key";
+App::$strings["OAuth Consumer Secret"] = "OAuth Consumer Secret";
+App::$strings["Base API Path (remember the trailing /)"] = "Base API Path (recorda deixar / al final)";
+App::$strings["To connect to your StatusNet account click the button below to get a security code from StatusNet which you have to copy into the input box below and submit the form. Only your <strong>public</strong> posts will be posted to StatusNet."] = "Per connectar al seu compte StatusNet, feu clic al botó de sota per obtenir un codi de seguretat StatusNet, que has de copiar a la casella de sota, i enviar el formulari. Només els missatges <strong> públics </strong> es publicaran en StatusNet.";
+App::$strings["Log in with StatusNet"] = "Accedeixi com en  StatusNet";
+App::$strings["Copy the security code from StatusNet here"] = "Copieu el codi de seguretat StatusNet aquí";
+App::$strings["Cancel Connection Process"] = "Cancel·lar el procés de connexió";
+App::$strings["Current StatusNet API is"] = "L'Actual StatusNet API és";
+App::$strings["Cancel StatusNet Connection"] = "Cancel·lar la connexió amb StatusNet";
+App::$strings["Currently connected to: "] = "Actualment connectat a: ";
+App::$strings["If enabled all your <strong>public</strong> postings can be posted to the associated StatusNet account. You can choose to do so by default (here) or for every posting separately in the posting options when writing the entry."] = "Si està activat, tots els seus anuncis <strong>públics</strong> poden ser publicats en el compte StatusNet associat. Vostè pot optar per fer-ho per defecte (en aquest cas) o per cada missatge per separat en les opcions de comptabilització en escriure l'entrada.";
+App::$strings["<strong>Note</strong>: Due your privacy settings (<em>Hide your profile details from unknown viewers?</em>) the link potentially included in public postings relayed to StatusNet will lead the visitor to a blank page informing the visitor that the access to your profile has been restricted."] = "<strong>Nota</strong>: A causa de les seves opcions de privacitat (<em>Amaga els detalls del teu perfil dels espectadors desconeguts? </em>)  el vincle potencialment inclòs en anuncis públics transmesos a StatusNet conduirà el visitant a una pàgina en blanc en la que informarà al visitants que l'accés al seu perfil s'ha restringit.";
+App::$strings["Allow posting to StatusNet"] = "Permetre enviaments a StatusNet";
+App::$strings["Send public postings to StatusNet by default"] = "Enviar missatges públics a StatusNet per defecte";
+App::$strings["Mirror all posts from statusnet that are no replies or repeated messages"] = "";
+App::$strings["Shortening method that optimizes the post"] = "";
+App::$strings["Send linked #-tags and @-names to StatusNet"] = "Enviar enllaços #-etiquetes i @-noms a StatusNet";
+App::$strings["Clear OAuth configuration"] = "Esborrar configuració de OAuth";
+App::$strings["Site name"] = "Nom del lloc";
+App::$strings["API URL"] = "API URL";
+App::$strings["Consumer Secret"] = "Consumer Secret";
+App::$strings["Consumer Key"] = "Consumer Key";

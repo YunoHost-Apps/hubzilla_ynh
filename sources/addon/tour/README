@@ -1,0 +1,4 @@
+Hubzilla addon for providing a tour of the user interface. Not really useful currently, more of a proof of concept.
+Supports e.g. clicking on a menu to make sure the element being described is actually visible to the user.
+
+For testing, go to /tour/?reset=1 to show tour again after seeing it.

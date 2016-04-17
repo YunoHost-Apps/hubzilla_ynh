@@ -1,0 +1,105 @@
+____ GNU social Plugin ____
+by Tobias Diekershoff
+   http://diekershoff.homeunix.net/friendika/profile/tobias
+   tobias.diekershoff(at)gmx.net
+   
+Mike, Thomas, Tony and Jeroen adapted this addon to the Hubzilla.
+
+Important Note: GNU Social instances with self signed certificates or CA-certificates are currently not supported. You're welcome to fix this.
+
+With this addon to the Hubzilla you can give your user the possibility to post
+their public messages to any GNU social instance (like loadaverage.org for example). 
+The messages will be strapped their rich context and shortened to to the character
+limit of the GNU social instance in question if necessary. If shortening of the
+message was performed a link will be added to the notice pointing to the
+original message on your hub.
+
+There is a similar plugin to forward public messages to Twitter: Twitter Plugin.
+
+Online version of this document: http://ur1.ca/35mpb
+
+___ Requirements ___
+
+Due to the distributed nature of the GNU social network, each user who wishes to
+forward public messages to a GNU social account has to get the OAuth credentials
+for themselves, which makes this addon a little bit more user unfriendly than
+the Twitter Plugin is. Nothing too geeky though!
+
+The inclusion of a shorturl for the original posting in cases when the message
+was longer than the maximal allowed notice length requires it, that you have
+PHP5+ and curl on your hub.
+
+___ Where to find ___
+
+In the Hubzilla red-addons git repository /addon/statusnet/, this directory contains all
+required PHP files (including the Twitter OAuth library [1] by Abraham Williams,
+MIT licensed and the Slinky library [2] by Beau Lebens, BSD license), a CSS file
+for styling of the user configuration and an image to Sign in with GNU social.
+
+[1] https://github.com/abraham/twitteroauth
+[2] http://dentedreality.com.au/projects/slinky
+
+___ Configuration ___
+
+__ Global Configuration __
+
+If you have configured an admin account, you can configure this plugin from the admin panel. First activate it from the plugin section of the panel.
+
+Afterwards you will have a separate configuration page for the plugin, where
+you can provide a set of globally available OAuth credentials for different
+GNU social pages which will be available for all users of your hub.
+
+__ Alternative Configuration __ 
+
+* Go to the root of your Hubzilla installation and type after the prompt:
+
+     util/config system addon
+
+* Press enter. You get a list of active addons. To activate this addon you have to add GNU social (statusnet) to this list and press enter:
+
+     util/config system addon "plugin 1, plugin 2, etc, statusnet"
+
+
+If you want to provide preconfigured GNU social instances for your user add the
+credentials for them by adding this to .htconfig.php:
+
+App::$config['statusnet']['sites'] = array (
+   array ('sitename' => 'identi.ca', 'apiurl' => 'https://identi.ca/api/',
+     'consumersecret' => 'OAuth Consumer Secret here', 'consumerkey' => 'OAuth
+     Consumer Key here'),
+   array ('sitename' => 'Some other Server', 'apiurl' =>
+     'http://status.example.com/api/', 'consumersecret'  => 'OAuth
+     Consumer Secret here', 'consumerkey' => 'OAuth Consumer Key here')
+);
+
+Regardless of providing global OAuth credentials for your users or not, they
+can always add their own OAuth-Key and -Secret thus enable the relay for any
+GNU social instance they may have an account at.
+
+__ User Configuration __
+
+When the addon is activated the user has to aquire three things in order to
+connect to the GNU social account of choice.
+ * the base URL for the GNU social API, for Load Average this is
+   https://loadaverage.org/api/
+ * OAuth Consumer key & secret
+
+To get the OAuth Consumer key pair the user has to (a) ask their Hubzilla admin
+if a pair already exists or (b) has to register the Hubzilla hub as a
+client application on the GNU social server. This can be done from the account
+settings under "Connect -> Connections -> Register an OAuth client application
+-> Register a new application".
+
+During the registration of the OAuth client remember the following:
+ * there is no callback url
+ * register a desktop client
+ * with read & write access
+ * the Source URL should be the URL of your Hubzilla hub
+
+After the required credentials for the application are stored in the
+configuration you have to actually connect your Hubzilla channel with
+GNU social. To do so follow the Sign in with GNU social button, allow the access
+and copy the security code into the plugin configuration. Hubzilla will then
+try to acquire the final OAuth credentials from the API, if successful the
+plugin settings will allow you to select to post your public messages to your
+GNU social account.

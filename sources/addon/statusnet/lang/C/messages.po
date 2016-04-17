@@ -1,0 +1,180 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 
+# This file is distributed under the same license as the PACKAGE package.
+# 
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-02-04 23:14+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: statusnet.php:143
+msgid "Post to GNU social"
+msgstr ""
+
+#: statusnet.php:195
+msgid ""
+"Please contact your site administrator.<br />The provided API URL is not "
+"valid."
+msgstr ""
+
+#: statusnet.php:232
+msgid "We could not contact the GNU social API with the Path you entered."
+msgstr ""
+
+#: statusnet.php:266
+msgid "GNU social settings updated."
+msgstr ""
+
+#: statusnet.php:310
+msgid "Globally Available GNU social OAuthKeys"
+msgstr ""
+
+#: statusnet.php:312
+msgid ""
+"There are preconfigured OAuth key pairs for some GNU social servers "
+"available. If you are using one of them, please use these credentials.<br /"
+">If not feel free to connect to any other GNU social instance (see below)."
+msgstr ""
+
+#: statusnet.php:322 statusnet.php:380 statusnet.php:432 statusnet.php:897
+msgid "Submit"
+msgstr ""
+
+#: statusnet.php:327
+msgid "Provide your own OAuth Credentials"
+msgstr ""
+
+#: statusnet.php:329
+msgid ""
+"No consumer key pair for GNU social found. Register your Hubzilla Account as "
+"an desktop client on your GNU social account, copy the consumer key pair "
+"here and enter the API base root.<br />Before you register your own OAuth "
+"key pair ask the administrator if there is already a key pair for this "
+"Hubzilla installation at your favourite GNU social installation."
+msgstr ""
+
+#: statusnet.php:333
+msgid "OAuth Consumer Key"
+msgstr ""
+
+#: statusnet.php:337
+msgid "OAuth Consumer Secret"
+msgstr ""
+
+#: statusnet.php:341
+msgid "Base API Path"
+msgstr ""
+
+#: statusnet.php:341
+msgid "Remember the trailing /"
+msgstr ""
+
+#: statusnet.php:345
+msgid "GNU social application name"
+msgstr ""
+
+#: statusnet.php:368
+msgid ""
+"To connect to your GNU social account click the button below to get a "
+"security code from GNU social which you have to copy into the input box "
+"below and submit the form. Only your <strong>public</strong> posts will be "
+"posted to GNU social."
+msgstr ""
+
+#: statusnet.php:370
+msgid "Log in with GNU social"
+msgstr ""
+
+#: statusnet.php:373
+msgid "Copy the security code from GNU social here"
+msgstr ""
+
+#: statusnet.php:383
+msgid "Cancel Connection Process"
+msgstr ""
+
+#: statusnet.php:385
+msgid "Current GNU social API is"
+msgstr ""
+
+#: statusnet.php:389
+msgid "Cancel GNU social Connection"
+msgstr ""
+
+#: statusnet.php:389 statusnet.php:411 statusnet.php:415 statusnet.php:424
+msgid "No"
+msgstr ""
+
+#: statusnet.php:389 statusnet.php:411 statusnet.php:415 statusnet.php:424
+msgid "Yes"
+msgstr ""
+
+#: statusnet.php:401
+msgid "Currently connected to: "
+msgstr ""
+
+#: statusnet.php:406
+msgid ""
+"<strong>Note</strong>: Due your privacy settings (<em>Hide your profile "
+"details from unknown viewers?</em>) the link potentially included in public "
+"postings relayed to GNU social will lead the visitor to a blank page "
+"informing the visitor that the access to your profile has been restricted."
+msgstr ""
+
+#: statusnet.php:411
+msgid "Allow posting to GNU social"
+msgstr ""
+
+#: statusnet.php:411
+msgid ""
+"If enabled your public postings can be posted to the associated GNU-social "
+"account"
+msgstr ""
+
+#: statusnet.php:415
+msgid "Post to GNU social by default"
+msgstr ""
+
+#: statusnet.php:415
+msgid ""
+"If enabled your public postings will be posted to the associated GNU-social "
+"account by default"
+msgstr ""
+
+#: statusnet.php:424
+msgid "Clear OAuth configuration"
+msgstr ""
+
+#: statusnet.php:432
+msgid "GNU social Post Settings"
+msgstr ""
+
+#: statusnet.php:888
+msgid "Site name"
+msgstr ""
+
+#: statusnet.php:889
+msgid "API URL"
+msgstr ""
+
+#: statusnet.php:890
+msgid "Consumer Secret"
+msgstr ""
+
+#: statusnet.php:891
+msgid "Consumer Key"
+msgstr ""
+
+#: statusnet.php:892
+msgid "Application name"
+msgstr ""
