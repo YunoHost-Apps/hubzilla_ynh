@@ -48,95 +48,95 @@ $descriptionN = get_config('metatag','descriptionN');
 $url = $_SERVER['REQUEST_URI'];
 switch($url){
 case "/";
-    $a->page['htmlhead'] .= "$hreflang" . "\r\n";
-    $a->page['htmlhead'] .= "$robots" . "\r\n";
-    $a->page['htmlhead'] .= "$description" . "\r\n";
-    $a->page['htmlhead'] .= "$keywords" . "\r\n";
+    App::$page['htmlhead'] .= "$hreflang" . "\r\n";
+    App::$page['htmlhead'] .= "$robots" . "\r\n";
+    App::$page['htmlhead'] .= "$description" . "\r\n";
+    App::$page['htmlhead'] .= "$keywords" . "\r\n";
 break;
 
 case "/&JS=1";
-    $a->page['htmlhead'] .= "$hreflang" . "\r\n";
-    $a->page['htmlhead'] .= "$robots" . "\r\n";
-    $a->page['htmlhead'] .= "$description" . "\r\n";
-    $a->page['htmlhead'] .= "$keywords" . "\r\n";
+    App::$page['htmlhead'] .= "$hreflang" . "\r\n";
+    App::$page['htmlhead'] .= "$robots" . "\r\n";
+    App::$page['htmlhead'] .= "$description" . "\r\n";
+    App::$page['htmlhead'] .= "$keywords" . "\r\n";
 break;
 
 case "/register";
-    $a->page['htmlhead'] .= "$hreflang" . "\r\n";
-    $a->page['htmlhead'] .= "$robots" . "\r\n";
-$a->page['htmlhead'] .= "$descriptionR" . "\r\n";
-    $a->page['htmlhead'] .= "$keywords" . "\r\n";
+    App::$page['htmlhead'] .= "$hreflang" . "\r\n";
+    App::$page['htmlhead'] .= "$robots" . "\r\n";
+App::$page['htmlhead'] .= "$descriptionR" . "\r\n";
+    App::$page['htmlhead'] .= "$keywords" . "\r\n";
 break;
 
 case "/register&JS=1";
-    $a->page['htmlhead'] .= "$hreflang" . "\r\n";
-    $a->page['htmlhead'] .= "$robots" . "\r\n";
-$a->page['htmlhead'] .= "$descriptionR" . "\r\n";
-    $a->page['htmlhead'] .= "$keywords" . "\r\n";
+    App::$page['htmlhead'] .= "$hreflang" . "\r\n";
+    App::$page['htmlhead'] .= "$robots" . "\r\n";
+App::$page['htmlhead'] .= "$descriptionR" . "\r\n";
+    App::$page['htmlhead'] .= "$keywords" . "\r\n";
 break;
 
 case "/login&JS=1";
-    $a->page['htmlhead'] .= "$hreflang" . "\r\n";
-    $a->page['htmlhead'] .= "$robots" . "\r\n";
-$a->page['htmlhead'] .= "$descriptionL" . "\r\n";
-    $a->page['htmlhead'] .= "$keywords" . "\r\n";
+    App::$page['htmlhead'] .= "$hreflang" . "\r\n";
+    App::$page['htmlhead'] .= "$robots" . "\r\n";
+App::$page['htmlhead'] .= "$descriptionL" . "\r\n";
+    App::$page['htmlhead'] .= "$keywords" . "\r\n";
 break;
 
 case "/login";
-    $a->page['htmlhead'] .= "$hreflang" . "\r\n";
-    $a->page['htmlhead'] .= "$robots" . "\r\n";
-$a->page['htmlhead'] .= "$descriptionL" . "\r\n";
-    $a->page['htmlhead'] .= "$keywords" . "\r\n";
+    App::$page['htmlhead'] .= "$hreflang" . "\r\n";
+    App::$page['htmlhead'] .= "$robots" . "\r\n";
+App::$page['htmlhead'] .= "$descriptionL" . "\r\n";
+    App::$page['htmlhead'] .= "$keywords" . "\r\n";
 break;
 
 case "/pubsites";
-    $a->page['htmlhead'] .= "$hreflang" . "\r\n";
-    $a->page['htmlhead'] .= "$robots" . "\r\n";
-$a->page['htmlhead'] .= "$descriptionP" . "\r\n";
-    $a->page['htmlhead'] .= "$keywords" . "\r\n";
+    App::$page['htmlhead'] .= "$hreflang" . "\r\n";
+    App::$page['htmlhead'] .= "$robots" . "\r\n";
+App::$page['htmlhead'] .= "$descriptionP" . "\r\n";
+    App::$page['htmlhead'] .= "$keywords" . "\r\n";
 break;
 
 case "/pubsub&JS=1";
-    $a->page['htmlhead'] .= "$hreflang" . "\r\n";
-    $a->page['htmlhead'] .= "$robots" . "\r\n";
-$a->page['htmlhead'] .= "$descriptionP" . "\r\n";
-    $a->page['htmlhead'] .= "$keywords" . "\r\n";
+    App::$page['htmlhead'] .= "$hreflang" . "\r\n";
+    App::$page['htmlhead'] .= "$robots" . "\r\n";
+App::$page['htmlhead'] .= "$descriptionP" . "\r\n";
+    App::$page['htmlhead'] .= "$keywords" . "\r\n";
 break;
 
 
 case "/apps";
-    $a->page['htmlhead'] .= "$hreflang" . "\r\n";
-    $a->page['htmlhead'] .= "$robots" . "\r\n";
-$a->page['htmlhead'] .= "$descriptionA" . "\r\n";
-    $a->page['htmlhead'] .= "$keywords" . "\r\n";
+    App::$page['htmlhead'] .= "$hreflang" . "\r\n";
+    App::$page['htmlhead'] .= "$robots" . "\r\n";
+App::$page['htmlhead'] .= "$descriptionA" . "\r\n";
+    App::$page['htmlhead'] .= "$keywords" . "\r\n";
 break;
 
 case "/apps&JS=1";
-    $a->page['htmlhead'] .= "$hreflang" . "\r\n";
-    $a->page['htmlhead'] .= "$robots" . "\r\n";
-$a->page['htmlhead'] .= "$descriptionA" . "\r\n";
-    $a->page['htmlhead'] .= "$keywords" . "\r\n";
+    App::$page['htmlhead'] .= "$hreflang" . "\r\n";
+    App::$page['htmlhead'] .= "$robots" . "\r\n";
+App::$page['htmlhead'] .= "$descriptionA" . "\r\n";
+    App::$page['htmlhead'] .= "$keywords" . "\r\n";
 break;
 
 case "/directory";
-    $a->page['htmlhead'] .= "$hreflang" . "\r\n";
-    $a->page['htmlhead'] .= "$robots" . "\r\n";
-$a->page['htmlhead'] .= "$descriptionD" . "\r\n";
-    $a->page['htmlhead'] .= "$keywords" . "\r\n";
+    App::$page['htmlhead'] .= "$hreflang" . "\r\n";
+    App::$page['htmlhead'] .= "$robots" . "\r\n";
+App::$page['htmlhead'] .= "$descriptionD" . "\r\n";
+    App::$page['htmlhead'] .= "$keywords" . "\r\n";
 break;
 
 case "/directory&JS=1";
-    $a->page['htmlhead'] .= "$hreflang" . "\r\n";
-    $a->page['htmlhead'] .= "$robots" . "\r\n";
-$a->page['htmlhead'] .= "$descriptionD" . "\r\n";
-    $a->page['htmlhead'] .= "$keywords" . "\r\n";
+    App::$page['htmlhead'] .= "$hreflang" . "\r\n";
+    App::$page['htmlhead'] .= "$robots" . "\r\n";
+App::$page['htmlhead'] .= "$descriptionD" . "\r\n";
+    App::$page['htmlhead'] .= "$keywords" . "\r\n";
 break;
 
 case "/news";
-    $a->page['htmlhead'] .= "$hreflang" . "\r\n";
-    $a->page['htmlhead'] .= "$robots" . "\r\n";
-$a->page['htmlhead'] .= "$descriptionN" . "\r\n";
-    $a->page['htmlhead'] .= "$keywords" . "\r\n";
+    App::$page['htmlhead'] .= "$hreflang" . "\r\n";
+    App::$page['htmlhead'] .= "$robots" . "\r\n";
+App::$page['htmlhead'] .= "$descriptionN" . "\r\n";
+    App::$page['htmlhead'] .= "$keywords" . "\r\n";
 break;
 
  }

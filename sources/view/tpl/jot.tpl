@@ -48,6 +48,7 @@
 		{{/if}}
 		<div id="profile-jot-submit-wrapper" class="jothidden">
 			<div id="profile-jot-submit-left" class="btn-toolbar pull-left">
+				{{if $bbcode}}
 				<div class="btn-group">
 					<button id="main-editor-bold" class="btn btn-default btn-sm" title="{{$bold}}" onclick="inserteditortag('b', 'profile-jot-text'); return false;">
 						<i class="icon-bold jot-icons"></i>
@@ -65,6 +66,7 @@
 						<i class="icon-terminal jot-icons"></i>
 					</button>
 				</div>
+				{{/if}}
 				{{if $visitor}}
 				<div class="btn-group hidden-xs">
 					{{if $writefiles}}

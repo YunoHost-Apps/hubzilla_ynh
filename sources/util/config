@@ -20,7 +20,7 @@ if($argc == 3) {
 
 if($argc == 2) {
 	load_config($argv[1]);
-	foreach($a->config[$argv[1]] as $k => $x) {
+	foreach(App::$config[$argv[1]] as $k => $x) {
 		echo "config[{$argv[1]}][{$k}] = " . $x . "\n";
 	}
 }

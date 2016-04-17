@@ -47,7 +47,7 @@ function libertree_settings(&$a,&$s) {
 
 	/* Add our stylesheet to the page so we can make our settings look nice */
 
-	//$a->page['htmlhead'] .= '<link rel="stylesheet"  type="text/css" href="' . $a->get_baseurl() . '/addon/libertree/libertree.css' . '" media="all" />' . "\r\n";
+	//App::$page['htmlhead'] .= '<link rel="stylesheet"  type="text/css" href="' . z_root() . '/addon/libertree/libertree.css' . '" media="all" />' . "\r\n";
 
 	/* Get the current state of our config variables */
 
@@ -152,7 +152,7 @@ function libertree_send(&$a,&$b) {
 	$ltree_api_token = get_pconfig($b['uid'],'libertree','libertree_api_token');
 	$ltree_url = get_pconfig($b['uid'],'libertree','libertree_url');
 	$ltree_blog = "$ltree_url/api/v1/posts/create/?token=$ltree_api_token";
-	$ltree_source = "[".$a->config['system']['sitename']."](".$a->get_baseurl().")";
+	$ltree_source = "[".App::$config['system']['sitename']."](".z_root().")";
 	// $ltree_source = "Hubzilla";
 	logger('sitename: ' . print_r($ltree_source,true));
 	if($ltree_url && $ltree_api_token && $ltree_blog && $ltree_source) {

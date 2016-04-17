@@ -211,6 +211,22 @@ function group_get_members($gid) {
 	return $ret;
 }
 
+function group_get_members_xchan($gid) {
+	$ret = array();
+	if(intval($gid)) {
+		$r = q("SELECT xchan FROM group_member WHERE gid = %d AND uid = %d",
+			intval($gid),
+			intval(local_channel())
+		);
+		if(count($r)) {
+			foreach($r as $rr) {
+				$ret[] = $rr['xchan'];
+			}
+		}
+	}
+	return $ret;
+}
+
 function mini_group_select($uid,$group = '') {
 	
 	$grps = array();

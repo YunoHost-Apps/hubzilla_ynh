@@ -18,7 +18,7 @@ view/php/default.php
 	<html>
 	<head>
 		<title><?php if(x($page,'title')) echo $page['title'] ?></title>
-		<script>var baseurl="<?php echo $a->get_baseurl() ?>";</script>
+		<script>var baseurl="<?php echo z_root() ?>";</script>
 		<?php if(x($page,'htmlhead')) echo $page['htmlhead'] ?>
 	</head>
 	<body>

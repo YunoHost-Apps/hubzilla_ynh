@@ -16,7 +16,10 @@ if(file_exists('.htsite.php'))
 	include('.htsite.php');
 
 // our global App object
-$a = new App;
+
+$a = new miniApp;
+
+App::init();
 
 /*
  * Load the configuration file which contains our DB credentials.
@@ -24,15 +27,17 @@ $a = new App;
  * installation mode.
  */
 
-$a->install = ((file_exists('.htconfig.php') && filesize('.htconfig.php')) ? false : true);
+App::$install = ((file_exists('.htconfig.php') && filesize('.htconfig.php')) ? false : true);
 
 @include('.htconfig.php');
 
 if(! defined('UNO'))
 	define('UNO', 0);
 
-$a->timezone = ((x($default_timezone)) ? $default_timezone : 'UTC');
-date_default_timezone_set($a->timezone);
+$a->convert();
+
+App::$timezone = ((x($default_timezone)) ? $default_timezone : 'UTC');
+date_default_timezone_set(App::$timezone);
 
 
 /*
@@ -41,8 +46,8 @@ date_default_timezone_set($a->timezone);
 
 require_once('include/dba/dba_driver.php');
 
-if(! $a->install) {
-	$db = dba_factory($db_host, $db_port, $db_user, $db_pass, $db_data, $db_type, $a->install);
+if(! App::$install) {
+	$db = dba_factory($db_host, $db_port, $db_user, $db_pass, $db_data, $db_type, App::$install);
 	if(! $db->connected) {
 		system_unavailable();
 	}
@@ -57,15 +62,15 @@ if(! $a->install) {
 	load_config('system');
 	load_config('feature');
 
-	require_once('include/session.php');
+	\Zotlabs\Web\Session::init();
 	load_hooks();
 	call_hooks('init_1');
 
 }
 
 
-	$a->language = get_best_language();
-	load_translation_table($a->language,$a->install);
+	App::$language = get_best_language();
+	load_translation_table(App::$language,App::$install);
 
 
 /**
@@ -79,7 +84,7 @@ if(! $a->install) {
  *
  */
 
-session_start();
+\Zotlabs\Web\Session::start();
 
 /**
  * Language was set earlier, but we can over-ride it in the session.
@@ -93,19 +98,19 @@ if(array_key_exists('system_language',$_POST)) {
 		unset($_SESSION['language']);
 }
 if((x($_SESSION, 'language')) && ($_SESSION['language'] !== $lang)) {
-	$a->language = $_SESSION['language'];
-	load_translation_table($a->language);
+	App::$language = $_SESSION['language'];
+	load_translation_table(App::$language);
 }
 
-if((x($_GET,'zid')) && (! $a->install)) {
-	$a->query_string = strip_zids($a->query_string);
+if((x($_GET,'zid')) && (! App::$install)) {
+	App::$query_string = strip_zids(App::$query_string);
 	if(! local_channel()) {
 		$_SESSION['my_address'] = $_GET['zid'];
 		zid_init($a);
 	}
 }
 
-if((x($_SESSION, 'authenticated')) || (x($_POST, 'auth-params')) || ($a->module === 'login'))
+if((x($_SESSION, 'authenticated')) || (x($_POST, 'auth-params')) || (App::$module === 'login'))
 	require('include/auth.php');
 
 if(! x($_SESSION, 'sysmsg'))
@@ -121,42 +126,31 @@ if(! x($_SESSION, 'sysmsg_info'))
  */
 
 
-if($a->install) {
+if(App::$install) {
 	/* Allow an exception for the view module so that pcss will be interpreted during installation */
-	if($a->module != 'view')
-		$a->module = 'setup';
+	if(App::$module != 'view')
+		App::$module = 'setup';
 }
 else
 	check_config($a);
 
 nav_set_selected('nothing');
 
-$arr = array('app_menu' => $a->get_apps());
+$arr = array('app_menu' => App::get_apps());
 
 call_hooks('app_menu', $arr);
 
-$a->set_apps($arr['app_menu']);
+App::set_apps($arr['app_menu']);
 
 $Router = new Zotlabs\Web\Router($a);
 
 /* initialise content region */
 
-if(! x($a->page, 'content'))
-	$a->page['content'] = '';
+if(! x(App::$page, 'content'))
+	App::$page['content'] = '';
 
+call_hooks('page_content_top', App::$page['content']);
 
-if(! ($a->module === 'setup')) {
-	/* set JS cookie */
-	if($_COOKIE['jsAvailable'] != 1) {
-		$a->page['content'] .= '<script>document.cookie="jsAvailable=1; path=/"; var jsMatch = /\&JS=1/; if (!jsMatch.exec(location.href)) { location.href = location.href + "&JS=1"; }</script>';
-		/* emulate JS cookie if cookies are not accepted */
-		if ($_GET['JS'] == 1) {
-			$_COOKIE['jsAvailable'] = 1;
-		}
-	}
-
-	call_hooks('page_content_top', $a->page['content']);
-}
 
 $Router->Dispatch($a);
 
@@ -166,11 +160,11 @@ $Router->Dispatch($a);
 if(x($_SESSION, 'visitor_home')) {
 	$homebase = $_SESSION['visitor_home'];
 } elseif(local_channel()) {
-	$homebase = $a->get_baseurl() . '/channel/' . $a->channel['channel_address'];
+	$homebase = z_root() . '/channel/' . App::$channel['channel_address'];
 }
 
 if(isset($homebase)) {
-	$a->page['content'] .= '<script>var homebase = "' . $homebase . '";</script>';
+	App::$page['content'] .= '<script>var homebase = "' . $homebase . '";</script>';
 }
 
 // now that we've been through the module content, see if the page reported
@@ -181,9 +175,8 @@ if(stristr(implode("", $_SESSION['sysmsg']), t('Permission denied'))) {
 }
 
 
-call_hooks('page_end', $a->page['content']);
+call_hooks('page_end', App::$page['content']);
 
 construct_page($a);
 
-session_write_close();
 exit;

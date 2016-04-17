@@ -28,7 +28,7 @@ function filestorage_post(&$a) {
 		return;
 	}
 
-	$channel = $a->get_channel();
+	$channel = App::get_channel();
 
 	$acl = new Zotlabs\Access\AccessList($channel);
 	$acl->set_from_array($_REQUEST);
@@ -52,7 +52,7 @@ function filestorage_content(&$a) {
 		$which = argv(1);
 	else {
 		notice( t('Requested profile is not available.') . EOL );
-		$a->error = 404;
+		App::$error = 404;
 		return;
 	}
 
@@ -64,7 +64,7 @@ function filestorage_content(&$a) {
 		$owner = intval($r[0]['channel_id']);
 	}
 
-	$observer = $a->get_observer();
+	$observer = App::get_observer();
 	$ob_hash = (($observer) ? $observer['xchan_hash'] : '');
 
 	$perms = get_all_perms($owner, $ob_hash);
@@ -100,7 +100,7 @@ function filestorage_content(&$a) {
 		}
 
 		$f = $r[0];
-		$channel = $a->get_channel();
+		$channel = App::get_channel();
 
 		$parentpath = get_parent_cloudpath($channel['channel_id'], $channel['channel_address'], $f['hash']);
 
@@ -123,7 +123,7 @@ function filestorage_content(&$a) {
 		);
 
 		$f = $r[0];
-		$channel = $a->get_channel();
+		$channel = App::get_channel();
 
 		$cloudpath = get_cloudpath($f) . (intval($f['is_dir']) ? '?f=&davguest=1' : '');
 		$parentpath = get_parent_cloudpath($channel['channel_id'], $channel['channel_address'], $f['hash']);

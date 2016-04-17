@@ -1,13 +1,13 @@
 <?php
 
-$a->strings["Post to Wordpress"] = "";
-$a->strings["WordPress Post Settings"] = "";
-$a->strings["Enable WordPress Post Plugin"] = "";
-$a->strings["WordPress username"] = "";
-$a->strings["WordPress password"] = "";
-$a->strings["WordPress API URL"] = "";
-$a->strings["Post to WordPress by default"] = "";
-$a->strings["Provide a backlink to the Friendica post"] = "";
-$a->strings["Submit"] = "Lagre";
-$a->strings["Post from Friendica"] = "";
-$a->strings["Read the original post and comment stream on Friendica"] = "";
+App::$strings["Post to Wordpress"] = "";
+App::$strings["WordPress Post Settings"] = "";
+App::$strings["Enable WordPress Post Plugin"] = "";
+App::$strings["WordPress username"] = "";
+App::$strings["WordPress password"] = "";
+App::$strings["WordPress API URL"] = "";
+App::$strings["Post to WordPress by default"] = "";
+App::$strings["Provide a backlink to the Friendica post"] = "";
+App::$strings["Submit"] = "Lagre";
+App::$strings["Post from Friendica"] = "";
+App::$strings["Read the original post and comment stream on Friendica"] = "";

@@ -1,9 +1,9 @@
 <?php
 
-$a->strings["Post to Insanejournal"] = "Doorplaatsen naar InsaneJournal";
-$a->strings["InsaneJournal Post Settings"] = "InsaneJournal (berichten doorplaatsen)";
-$a->strings["Enable InsaneJournal Post Plugin"] = "Doorplaatsen naar InsaneJournal inschakelen";
-$a->strings["InsaneJournal username"] = "Gebruikersnaam InsaneJournal";
-$a->strings["InsaneJournal password"] = "Wachtwoord InsaneJournal";
-$a->strings["Post to InsaneJournal by default"] = "Berichten standaard naar InsaneJournal doorplaatsen";
-$a->strings["Submit"] = "Opslaan";
+App::$strings["Post to Insanejournal"] = "Doorplaatsen naar InsaneJournal";
+App::$strings["InsaneJournal Post Settings"] = "InsaneJournal (berichten doorplaatsen)";
+App::$strings["Enable InsaneJournal Post Plugin"] = "Doorplaatsen naar InsaneJournal inschakelen";
+App::$strings["InsaneJournal username"] = "Gebruikersnaam InsaneJournal";
+App::$strings["InsaneJournal password"] = "Wachtwoord InsaneJournal";
+App::$strings["Post to InsaneJournal by default"] = "Berichten standaard naar InsaneJournal doorplaatsen";
+App::$strings["Submit"] = "Opslaan";

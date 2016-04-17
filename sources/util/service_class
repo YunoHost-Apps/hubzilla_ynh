@@ -90,8 +90,8 @@ if($argc == 2) {
 
 if($argc == 1) {
 	load_config('service_class');
-	if(is_array($a->config['service_class']) && $a->config['service_class']) {
-		foreach($a->config['service_class'] as $class=>$props) {
+	if(is_array(App::$config['service_class']) && App::$config['service_class']) {
+		foreach(App::$config['service_class'] as $class=>$props) {
 			echo "$class:\n";
 			$d = unserialize($props);
 			if(is_array($d) && $d) {

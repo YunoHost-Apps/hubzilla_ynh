@@ -41,9 +41,9 @@ $default_timezone = 'America/Los_Angeles';
 
 // What is your site name? DO NOT ADD A TRAILING SLASH!
 
-$a->config['system']['baseurl'] = 'https://myredsite.example';
-$a->config['system']['sitename'] = "Hubzilla";
-$a->config['system']['location_hash'] = 'if the auto install failed, put a unique random string here';
+App::$config['system']['baseurl'] = 'https://myredsite.example';
+App::$config['system']['sitename'] = "Hubzilla";
+App::$config['system']['location_hash'] = 'if the auto install failed, put a unique random string here';
 
 
 // These lines set additional security headers to be sent with all responses
@@ -51,8 +51,9 @@ $a->config['system']['location_hash'] = 'if the auto install failed, put a uniqu
 // this header. content_security_policy may need to be disabled if you wish to
 // run the piwik analytics plugin or include other offsite resources on a page
 
-$a->config['system']['transport_security_header'] = 1;
-$a->config['system']['content_security_policy'] = 1;
+App::$config['system']['transport_security_header'] = 1;
+App::$config['system']['content_security_policy'] = 1;
+App::$config['system']['ssl_cookie_protection'] = 1;
 
 
 // Your choices are REGISTER_OPEN, REGISTER_APPROVE, or REGISTER_CLOSED.
@@ -65,13 +66,13 @@ $a->config['system']['content_security_policy'] = 1;
 // In order to perform system administration via the admin panel, admin_email
 // must precisely match the email address of the person logged in.
 
-$a->config['system']['register_policy'] = REGISTER_OPEN;
-$a->config['system']['register_text'] = '';
-$a->config['system']['admin_email'] = '';
+App::$config['system']['register_policy'] = REGISTER_OPEN;
+App::$config['system']['register_text'] = '';
+App::$config['system']['admin_email'] = '';
 
 // Location of PHP command line processor
 
-$a->config['system']['php_path'] = 'php';
+App::$config['system']['php_path'] = 'php';
 
 
 // Configure how we communicate with directory servers.
@@ -80,7 +81,7 @@ $a->config['system']['php_path'] = 'php';
 // DIRECTORY_MODE_PRIMARY    = main directory server (you do not want this unless you are operating your own realm. one per realm.)
 // DIRECTORY_MODE_STANDALONE = "off the grid" or private directory services (only local site members in directory)
 
-$a->config['system']['directory_mode']  = DIRECTORY_MODE_NORMAL;
+App::$config['system']['directory_mode']  = DIRECTORY_MODE_NORMAL;
 
 
 // PHP error logging setup

@@ -142,51 +142,53 @@ function diaspora_dispatch($importer,$msg) {
 			$msg['message']);
 
 
-	$parsed_xml = parse_xml_string($msg['message'],false);
+//	$parsed_xml = parse_xml_string($msg['message'],false);
 
-	$xmlbase = $parsed_xml->post;
+	$parsed_xml = xml2array($msg['message'],false,0,'tag');
+
+	$xmlbase = $parsed_xml['post'];
 
 //	logger('diaspora_dispatch: ' . print_r($xmlbase,true), LOGGER_DATA);
 
 
-	if($xmlbase->request) {
-		$ret = diaspora_request($importer,$xmlbase->request);
+	if($xmlbase['request']) {
+		$ret = diaspora_request($importer,$xmlbase['request']);
 	}
-	elseif($xmlbase->status_message) {
-		$ret = diaspora_post($importer,$xmlbase->status_message,$msg);
+	elseif($xmlbase['status_message']) {
+		$ret = diaspora_post($importer,$xmlbase['status_message'],$msg);
 	}
-	elseif($xmlbase->profile) {
-		$ret = diaspora_profile($importer,$xmlbase->profile,$msg);
+	elseif($xmlbase['profile']) {
+		$ret = diaspora_profile($importer,$xmlbase['profile'],$msg);
 	}
-	elseif($xmlbase->comment) {
-		$ret = diaspora_comment($importer,$xmlbase->comment,$msg);
+	elseif($xmlbase['comment']) {
+		$ret = diaspora_comment($importer,$xmlbase['comment'],$msg);
 	}
-	elseif($xmlbase->like) {
-		$ret = diaspora_like($importer,$xmlbase->like,$msg);
+	elseif($xmlbase['like']) {
+		$ret = diaspora_like($importer,$xmlbase['like'],$msg);
 	}
-	elseif($xmlbase->asphoto) {
-		$ret = diaspora_asphoto($importer,$xmlbase->asphoto,$msg);
+	elseif($xmlbase['asphoto']) {
+		$ret = diaspora_asphoto($importer,$xmlbase['asphoto'],$msg);
 	}
-	elseif($xmlbase->reshare) {
-		$ret = diaspora_reshare($importer,$xmlbase->reshare,$msg);
+	elseif($xmlbase['reshare']) {
+		$ret = diaspora_reshare($importer,$xmlbase['reshare'],$msg);
 	}
-	elseif($xmlbase->retraction) {
-		$ret = diaspora_retraction($importer,$xmlbase->retraction,$msg);
+	elseif($xmlbase['retraction']) {
+		$ret = diaspora_retraction($importer,$xmlbase['retraction'],$msg);
 	}
-	elseif($xmlbase->signed_retraction) {
-		$ret = diaspora_signed_retraction($importer,$xmlbase->signed_retraction,$msg);
+	elseif($xmlbase['signed_retraction']) {
+		$ret = diaspora_signed_retraction($importer,$xmlbase['signed_retraction'],$msg);
 	}
-	elseif($xmlbase->relayable_retraction) {
-		$ret = diaspora_signed_retraction($importer,$xmlbase->relayable_retraction,$msg);
+	elseif($xmlbase['relayable_retraction']) {
+		$ret = diaspora_signed_retraction($importer,$xmlbase['relayable_retraction'],$msg);
 	}
-	elseif($xmlbase->photo) {
-		$ret = diaspora_photo($importer,$xmlbase->photo,$msg);
+	elseif($xmlbase['photo']) {
+		$ret = diaspora_photo($importer,$xmlbase['photo'],$msg);
 	}
-	elseif($xmlbase->conversation) {
-		$ret = diaspora_conversation($importer,$xmlbase->conversation,$msg);
+	elseif($xmlbase['conversation']) {
+		$ret = diaspora_conversation($importer,$xmlbase['conversation'],$msg);
 	}
-	elseif($xmlbase->message) {
-		$ret = diaspora_message($importer,$xmlbase->message,$msg);
+	elseif($xmlbase['message']) {
+		$ret = diaspora_message($importer,$xmlbase['message'],$msg);
 	}
 	else {
 		logger('diaspora_dispatch: unknown message type: ' . print_r($xmlbase,true));
@@ -496,7 +498,7 @@ function diaspora_pubmsg_build($msg,$channel,$contact,$prvkey,$pubkey) {
 
 	logger('diaspora_pubmsg_build: ' . $msg, LOGGER_DATA, LOG_DEBUG);
 
-    $handle = $channel['channel_address'] . '@' . get_app()->get_hostname();
+    $handle = $channel['channel_address'] . '@' . App::get_hostname();
 
 
 	$b64url_data = base64url_encode($msg,false);
@@ -561,7 +563,7 @@ function diaspora_msg_build($msg,$channel,$contact,$prvkey,$pubkey,$public = fal
 	$outer_iv = random_string(16);
 	$b_outer_iv = base64_encode($outer_iv);
 
-    $handle = $channel['channel_address'] . '@' . get_app()->get_hostname();
+    $handle = $channel['channel_address'] . '@' . App::get_hostname();
 
 	$padded_data = pkcs5_pad($msg,16);
 	$inner_encrypted = mcrypt_encrypt(MCRYPT_RIJNDAEL_128, $inner_aes_key, $padded_data, MCRYPT_MODE_CBC, $inner_iv);
@@ -797,8 +799,8 @@ function diaspora_request($importer,$xml) {
 
 	$a = get_app();
 
-	$sender_handle = unxmlify($xml->sender_handle);
-	$recipient_handle = unxmlify($xml->recipient_handle);
+	$sender_handle = unxmlify($xml['sender_handle']);
+	$recipient_handle = unxmlify($xml['recipient_handle']);
 
 	if(! $sender_handle || ! $recipient_handle)
 		return;
@@ -845,7 +847,7 @@ function diaspora_request($importer,$xml) {
 //FIXME
 /*
 	if(feature_enabled($channel['channel_id'],'premium_channel')) {
-		$myaddr = $importer['channel_address'] . '@' .  get_app()->get_hostname();
+		$myaddr = $importer['channel_address'] . '@' .  App::get_hostname();
 		$cnv = random_string();
 		$mid = random_string();
 
@@ -996,9 +998,9 @@ function diaspora_request($importer,$xml) {
 function diaspora_post($importer,$xml,$msg) {
 
 	$a = get_app();
-	$guid = notags(unxmlify($xml->guid));
-	$diaspora_handle = notags(unxmlify($xml->diaspora_handle));
-	$app = notags(xmlify($xml->provider_display_name));
+	$guid = notags(unxmlify($xml['guid']));
+	$diaspora_handle = notags(unxmlify($xml['diaspora_handle']));
+	$app = notags(xmlify($xml['provider_display_name']));
 
 
 	if($diaspora_handle != $msg['author']) {
@@ -1033,13 +1035,13 @@ function diaspora_post($importer,$xml,$msg) {
 		return;
 	}
 
-	$created = unxmlify($xml->created_at);
-	$private = ((unxmlify($xml->public) == 'false') ? 1 : 0);
+	$created = unxmlify($xml['created_at']);
+	$private = ((unxmlify($xml['public']) == 'false') ? 1 : 0);
 
-	$body = diaspora2bb($xml->raw_message);
+	$body = diaspora2bb($xml['raw_message']);
 
-	if($xml->photo) {
-		$body = '[img]' . $xml->photo->remote_photo_path . $xml->photo->remote_photo_name . '[/img]' . "\n\n" . $body;
+	if($xml['photo']) {
+		$body = '[img]' . $xml['photo']['remote_photo_path'] . $xml['photo']['remote_photo_name'] . '[/img]' . "\n\n" . $body;
 		$body = scale_external_images($body);
 	}
 
@@ -1164,27 +1166,29 @@ function get_diaspora_reshare_xml($url,$recurse = 0) {
 	}
 	logger('get_diaspora_reshare_xml: source: ' . $x['body'], LOGGER_DEBUG);
 
-	$source_xml = parse_xml_string($x['body'],false);
+//	$source_xml = parse_xml_string($x['body'],false);
+
+	$source_xml = xml2array($x['body'],false,0,'tag');
 
 	if(! $source_xml) {
 		logger('get_diaspora_reshare_xml: unparseable result from ' . $url);
 		return '';
 	}
 
-	if($source_xml->post->status_message) {
+	if($source_xml['post']['status_message']) {
 		return $source_xml;
 	}
 
 	// see if it's a reshare of a reshare
 
-	if($source_xml->post->reshare)
-		$xml = $source_xml->post->reshare;
+	if($source_xml['post']['reshare'])
+		$xml = $source_xml['post']['reshare'];
 	else 
 		return false;
 
-	if($xml->root_diaspora_id && $xml->root_guid && $recurse < 15) {
-		$orig_author = notags(unxmlify($xml->root_diaspora_id));
-		$orig_guid = notags(unxmlify($xml->root_guid));
+	if($xml['root_diaspora_id'] && $xml['root_guid'] && $recurse < 15) {
+		$orig_author = notags(unxmlify($xml['root_diaspora_id']));
+		$orig_guid = notags(unxmlify($xml['root_guid']));
 		$source_url = 'https://' . substr($orig_author,strpos($orig_author,'@')+1) . '/p/' . $orig_guid . '.xml';
 		$y = get_diaspora_reshare_xml($source_url,$recurse+1);
 		if($y)
@@ -1200,8 +1204,8 @@ function diaspora_reshare($importer,$xml,$msg) {
 	logger('diaspora_reshare: init: ' . print_r($xml,true), LOGGER_DATA);
 
 	$a = get_app();
-	$guid = notags(unxmlify($xml->guid));
-	$diaspora_handle = notags(unxmlify($xml->diaspora_handle));
+	$guid = notags(unxmlify($xml['guid']));
+	$diaspora_handle = notags(unxmlify($xml['diaspora_handle']));
 
 
 	if($diaspora_handle != $msg['author']) {
@@ -1223,27 +1227,27 @@ function diaspora_reshare($importer,$xml,$msg) {
 		return;
 	}
 
-	$orig_author = notags(unxmlify($xml->root_diaspora_id));
-	$orig_guid = notags(unxmlify($xml->root_guid));
+	$orig_author = notags(unxmlify($xml['root_diaspora_id']));
+	$orig_guid = notags(unxmlify($xml['root_guid']));
 
 	$source_url = 'https://' . substr($orig_author,strpos($orig_author,'@')+1) . '/p/' . $orig_guid . '.xml';
 	$orig_url = 'https://'.substr($orig_author,strpos($orig_author,'@')+1).'/posts/'.$orig_guid;
 
 	$source_xml = get_diaspora_reshare_xml($source_url);
 
-	if($source_xml->post->status_message) {
-		$body = diaspora2bb($source_xml->post->status_message->raw_message);
+	if($source_xml['post']['status_message']) {
+		$body = diaspora2bb($source_xml['post']['status_message']['raw_message']);
 
-		$orig_author = notags(unxmlify($source_xml->post->status_message->diaspora_handle));
-		$orig_guid = notags(unxmlify($source_xml->post->status_message->guid));
+		$orig_author = notags(unxmlify($source_xml['post']['status_message']['diaspora_handle']));
+		$orig_guid = notags(unxmlify($source_xml['post']['status_message']['guid']));
 
 
 		// Checking for embedded pictures
-		if($source_xml->post->status_message->photo->remote_photo_path &&
-			$source_xml->post->status_message->photo->remote_photo_name) {
+		if($source_xml['post']['status_message']['photo']['remote_photo_path'] &&
+			$source_xml['post']['status_message']['photo']['remote_photo_name']) {
 
-			$remote_photo_path = notags(unxmlify($source_xml->post->status_message->photo->remote_photo_path));
-			$remote_photo_name = notags(unxmlify($source_xml->post->status_message->photo->remote_photo_name));
+			$remote_photo_path = notags(unxmlify($source_xml['post']['status_message']['photo']['remote_photo_path']));
+			$remote_photo_name = notags(unxmlify($source_xml['post']['status_message']['photo']['remote_photo_name']));
 
 			$body = '[img]'.$remote_photo_path.$remote_photo_name.'[/img]'."\n".$body;
 
@@ -1278,8 +1282,8 @@ function diaspora_reshare($importer,$xml,$msg) {
 	}
 
 
-	$created = unxmlify($xml->created_at);
-	$private = ((unxmlify($xml->public) == 'false') ? 1 : 0);
+	$created = unxmlify($xml['created_at']);
+	$private = ((unxmlify($xml['public']) == 'false') ? 1 : 0);
 
 	$datarray = array();
 
@@ -1339,8 +1343,8 @@ function diaspora_reshare($importer,$xml,$msg) {
 		. "' profile='" . $orig_author_link 
 		. "' avatar='" . $orig_author_photo 
 		. "' link='" . $orig_url
-		. "' posted='" . datetime_convert('UTC','UTC',unxmlify($source_xml->post->status_message->created_at))
-		. "' message_id='" . unxmlify($source_xml->post->status_message->guid)
+		. "' posted='" . datetime_convert('UTC','UTC',unxmlify($source_xml['post']['status_message']['created_at']))
+		. "' message_id='" . unxmlify($source_xml['post']['status_message']['guid'])
  		. "']" . $body . "[/share]";
 
 
@@ -1381,8 +1385,8 @@ function diaspora_asphoto($importer,$xml,$msg) {
 	logger('diaspora_asphoto called');
 
 	$a = get_app();
-	$guid = notags(unxmlify($xml->guid));
-	$diaspora_handle = notags(unxmlify($xml->diaspora_handle));
+	$guid = notags(unxmlify($xml['guid']));
+	$diaspora_handle = notags(unxmlify($xml['diaspora_handle']));
 
 	if($diaspora_handle != $msg['author']) {
 		logger('diaspora_post: Potential forgery. Message handle is not the same as envelope sender.');
@@ -1421,15 +1425,15 @@ function diaspora_asphoto($importer,$xml,$msg) {
 		);
 	}
 
-	$created = unxmlify($xml->created_at);
-	$private = ((unxmlify($xml->public) == 'false') ? 1 : 0);
+	$created = unxmlify($xml['created_at']);
+	$private = ((unxmlify($xml['public']) == 'false') ? 1 : 0);
 
-	if(strlen($xml->objectId) && ($xml->objectId != 0) && ($xml->image_url)) {
-		$body = '[url=' . notags(unxmlify($xml->image_url)) . '][img]' . notags(unxmlify($xml->objectId)) . '[/img][/url]' . "\n";
+	if(strlen($xml['objectId']) && ($xml['objectId'] != 0) && ($xml['image_url'])) {
+		$body = '[url=' . notags(unxmlify($xml['image_url'])) . '][img]' . notags(unxmlify($xml['objectId'])) . '[/img][/url]' . "\n";
 		$body = scale_external_images($body,false);
 	}
-	elseif($xml->image_url) {
-		$body = '[img]' . notags(unxmlify($xml->image_url)) . '[/img]' . "\n";
+	elseif($xml['image_url']) {
+		$body = '[img]' . notags(unxmlify($xml['image_url'])) . '[/img]' . "\n";
 		$body = scale_external_images($body);
 	}
 	else {
@@ -1466,7 +1470,7 @@ function diaspora_asphoto($importer,$xml,$msg) {
 
 	//if($message_id) {
 	//	q("update item set plink = '%s' where id = %d",
-	//		dbesc($a->get_baseurl() . '/display/' . $importer['nickname'] . '/' . $message_id),
+	//		dbesc(z_root() . '/display/' . $importer['nickname'] . '/' . $message_id),
 	//		intval($message_id)
 	//	);
 	//}
@@ -1483,14 +1487,14 @@ function diaspora_asphoto($importer,$xml,$msg) {
 function diaspora_comment($importer,$xml,$msg) {
 
 	$a = get_app();
-	$guid = notags(unxmlify($xml->guid));
-	$parent_guid = notags(unxmlify($xml->parent_guid));
-	$diaspora_handle = notags(unxmlify($xml->diaspora_handle));
-	$target_type = notags(unxmlify($xml->target_type));
-	$text = unxmlify($xml->text);
-	$author_signature = notags(unxmlify($xml->author_signature));
+	$guid = notags(unxmlify($xml['guid']));
+	$parent_guid = notags(unxmlify($xml['parent_guid']));
+	$diaspora_handle = notags(unxmlify($xml['diaspora_handle']));
+	$target_type = notags(unxmlify($xml['target_type']));
+	$text = unxmlify($xml['text']);
+	$author_signature = notags(unxmlify($xml['author_signature']));
 
-	$parent_author_signature = (($xml->parent_author_signature) ? notags(unxmlify($xml->parent_author_signature)) : '');
+	$parent_author_signature = (($xml['parent_author_signature']) ? notags(unxmlify($xml['parent_author_signature'])) : '');
 
 	$contact = diaspora_get_contact_by_handle($importer['channel_id'],$msg['author']);
 	if(! $contact) {
@@ -1748,15 +1752,15 @@ function diaspora_conversation($importer,$xml,$msg) {
 
 	$a = get_app();
 
-	$guid = notags(unxmlify($xml->guid));
-	$subject = notags(unxmlify($xml->subject));
-	$diaspora_handle = notags(unxmlify($xml->diaspora_handle));
-	$participant_handles = notags(unxmlify($xml->participant_handles));
-	$created_at = datetime_convert('UTC','UTC',notags(unxmlify($xml->created_at)));
+	$guid = notags(unxmlify($xml['guid']));
+	$subject = notags(unxmlify($xml['subject']));
+	$diaspora_handle = notags(unxmlify($xml['diaspora_handle']));
+	$participant_handles = notags(unxmlify($xml['participant_handles']));
+	$created_at = datetime_convert('UTC','UTC',notags(unxmlify($xml['created_at'])));
 
 	$parent_uri = $guid;
  
-	$messages = $xml->message;
+	$messages = $xml['message'];
 
 	if(! count($messages)) {
 		logger('diaspora_conversation: empty conversation');
@@ -1815,14 +1819,14 @@ function diaspora_conversation($importer,$xml,$msg) {
 
 		$reply = 0;
 
-		$msg_guid = notags(unxmlify($mesg->guid));
-		$msg_parent_guid = notags(unxmlify($mesg->parent_guid));
-		$msg_parent_author_signature = notags(unxmlify($mesg->parent_author_signature));
-		$msg_author_signature = notags(unxmlify($mesg->author_signature));
-		$msg_text = unxmlify($mesg->text);
-		$msg_created_at = datetime_convert('UTC','UTC',notags(unxmlify($mesg->created_at)));
-		$msg_diaspora_handle = notags(unxmlify($mesg->diaspora_handle));
-		$msg_conversation_guid = notags(unxmlify($mesg->conversation_guid));
+		$msg_guid = notags(unxmlify($mesg['guid']));
+		$msg_parent_guid = notags(unxmlify($mesg['parent_guid']));
+		$msg_parent_author_signature = notags(unxmlify($mesg['parent_author_signature']));
+		$msg_author_signature = notags(unxmlify($mesg['author_signature']));
+		$msg_text = unxmlify($mesg['text']);
+		$msg_created_at = datetime_convert('UTC','UTC',notags(unxmlify($mesg['created_at'])));
+		$msg_diaspora_handle = notags(unxmlify($mesg['diaspora_handle']));
+		$msg_conversation_guid = notags(unxmlify($mesg['conversation_guid']));
 		if($msg_conversation_guid != $guid) {
 			logger('diaspora_conversation: message conversation guid does not belong to the current conversation. ' . $xml);
 			continue;
@@ -1839,7 +1843,7 @@ function diaspora_conversation($importer,$xml,$msg) {
 		}
 
 
-		$author_signed_data = $msg_guid . ';' . $msg_parent_guid . ';' . $msg_text . ';' . unxmlify($mesg->created_at) . ';' . $msg_diaspora_handle . ';' . $msg_conversation_guid;
+		$author_signed_data = $msg_guid . ';' . $msg_parent_guid . ';' . $msg_text . ';' . unxmlify($mesg['created_at']) . ';' . $msg_diaspora_handle . ';' . $msg_conversation_guid;
 
 		$author_signature = base64_decode($msg_author_signature);
 
@@ -1864,7 +1868,7 @@ function diaspora_conversation($importer,$xml,$msg) {
 		}
 
 		if($msg_parent_author_signature) {
-			$owner_signed_data = $msg_guid . ';' . $msg_parent_guid . ';' . $msg_text . ';' . unxmlify($mesg->created_at) . ';' . $msg_diaspora_handle . ';' . $msg_conversation_guid;
+			$owner_signed_data = $msg_guid . ';' . $msg_parent_guid . ';' . $msg_text . ';' . unxmlify($mesg['created_at']) . ';' . $msg_diaspora_handle . ';' . $msg_conversation_guid;
 
 			$parent_author_signature = base64_decode($msg_parent_author_signature);
 
@@ -1934,14 +1938,14 @@ function diaspora_message($importer,$xml,$msg) {
 
 	$a = get_app();
 
-	$msg_guid = notags(unxmlify($xml->guid));
-	$msg_parent_guid = notags(unxmlify($xml->parent_guid));
-	$msg_parent_author_signature = notags(unxmlify($xml->parent_author_signature));
-	$msg_author_signature = notags(unxmlify($xml->author_signature));
-	$msg_text = unxmlify($xml->text);
-	$msg_created_at = datetime_convert('UTC','UTC',notags(unxmlify($xml->created_at)));
-	$msg_diaspora_handle = notags(unxmlify($xml->diaspora_handle));
-	$msg_conversation_guid = notags(unxmlify($xml->conversation_guid));
+	$msg_guid = notags(unxmlify($xml['guid']));
+	$msg_parent_guid = notags(unxmlify($xml['parent_guid']));
+	$msg_parent_author_signature = notags(unxmlify($xml['parent_author_signature']));
+	$msg_author_signature = notags(unxmlify($xml['author_signature']));
+	$msg_text = unxmlify($xml['text']);
+	$msg_created_at = datetime_convert('UTC','UTC',notags(unxmlify($xml['created_at'])));
+	$msg_diaspora_handle = notags(unxmlify($xml['diaspora_handle']));
+	$msg_conversation_guid = notags(unxmlify($xml['conversation_guid']));
 
 	$parent_uri = $msg_parent_guid;
  
@@ -1995,7 +1999,7 @@ function diaspora_message($importer,$xml,$msg) {
 	}
 
 
-	$author_signed_data = $msg_guid . ';' . $msg_parent_guid . ';' . $msg_text . ';' . unxmlify($xml->created_at) . ';' . $msg_diaspora_handle . ';' . $msg_conversation_guid;
+	$author_signed_data = $msg_guid . ';' . $msg_parent_guid . ';' . $msg_text . ';' . unxmlify($xml['created_at']) . ';' . $msg_diaspora_handle . ';' . $msg_conversation_guid;
 
 
 	$author_signature = base64_decode($msg_author_signature);
@@ -2074,19 +2078,19 @@ function diaspora_photo($importer,$xml,$msg) {
 
 	logger('diaspora_photo: init',LOGGER_DEBUG);
 
-	$remote_photo_path = notags(unxmlify($xml->remote_photo_path));
+	$remote_photo_path = notags(unxmlify($xml['remote_photo_path']));
 
-	$remote_photo_name = notags(unxmlify($xml->remote_photo_name));
+	$remote_photo_name = notags(unxmlify($xml['remote_photo_name']));
 
-	$status_message_guid = notags(unxmlify($xml->status_message_guid));
+	$status_message_guid = notags(unxmlify($xml['status_message_guid']));
 
-	$guid = notags(unxmlify($xml->guid));
+	$guid = notags(unxmlify($xml['guid']));
 
-	$diaspora_handle = notags(unxmlify($xml->diaspora_handle));
+	$diaspora_handle = notags(unxmlify($xml['diaspora_handle']));
 
-	$public = notags(unxmlify($xml->public));
+	$public = notags(unxmlify($xml['public']));
 
-	$created_at = notags(unxmlify($xml_created_at));
+	$created_at = notags(unxmlify($xml['created_at']));
 
 	logger('diaspora_photo: status_message_guid: ' . $status_message_guid, LOGGER_DEBUG);
 
@@ -2134,14 +2138,14 @@ function diaspora_photo($importer,$xml,$msg) {
 function diaspora_like($importer,$xml,$msg) {
 
 	$a = get_app();
-	$guid = notags(unxmlify($xml->guid));
-	$parent_guid = notags(unxmlify($xml->parent_guid));
-	$diaspora_handle = notags(unxmlify($xml->diaspora_handle));
-	$target_type = notags(unxmlify($xml->target_type));
-	$positive = notags(unxmlify($xml->positive));
-	$author_signature = notags(unxmlify($xml->author_signature));
+	$guid = notags(unxmlify($xml['guid']));
+	$parent_guid = notags(unxmlify($xml['parent_guid']));
+	$diaspora_handle = notags(unxmlify($xml['diaspora_handle']));
+	$target_type = notags(unxmlify($xml['target_type']));
+	$positive = notags(unxmlify($xml['positive']));
+	$author_signature = notags(unxmlify($xml['author_signature']));
 
-	$parent_author_signature = (($xml->parent_author_signature) ? notags(unxmlify($xml->parent_author_signature)) : '');
+	$parent_author_signature = (($xml['parent_author_signature']) ? notags(unxmlify($xml['parent_author_signature'])) : '');
 
 	// likes on comments not supported here and likes on photos not supported by Diaspora
 
@@ -2362,9 +2366,9 @@ function diaspora_like($importer,$xml,$msg) {
 function diaspora_retraction($importer,$xml) {
 
 
-	$guid = notags(unxmlify($xml->guid));
-	$diaspora_handle = notags(unxmlify($xml->diaspora_handle));
-	$type = notags(unxmlify($xml->type));
+	$guid = notags(unxmlify($xml['guid']));
+	$diaspora_handle = notags(unxmlify($xml['diaspora_handle']));
+	$type = notags(unxmlify($xml['type']));
 
 	$contact = diaspora_get_contact_by_handle($importer['channel_id'],$diaspora_handle);
 	if(! $contact)
@@ -2393,12 +2397,12 @@ function diaspora_retraction($importer,$xml) {
 function diaspora_signed_retraction($importer,$xml,$msg) {
 
 
-	$guid = notags(unxmlify($xml->target_guid));
-	$diaspora_handle = notags(unxmlify($xml->sender_handle));
-	$type = notags(unxmlify($xml->target_type));
-	$sig = notags(unxmlify($xml->target_author_signature));
+	$guid = notags(unxmlify($xml['target_guid']));
+	$diaspora_handle = notags(unxmlify($xml['sender_handle']));
+	$type = notags(unxmlify($xml['target_type']));
+	$sig = notags(unxmlify($xml['target_author_signature']));
 
-	$parent_author_signature = (($xml->parent_author_signature) ? notags(unxmlify($xml->parent_author_signature)) : '');
+	$parent_author_signature = (($xml['parent_author_signature']) ? notags(unxmlify($xml['parent_author_signature'])) : '');
 
 	$contact = diaspora_get_contact_by_handle($importer['channel_id'],$diaspora_handle);
 	if(! $contact) {
@@ -2484,7 +2488,7 @@ function diaspora_signed_retraction($importer,$xml,$msg) {
 function diaspora_profile($importer,$xml,$msg) {
 
 	$a = get_app();
-	$diaspora_handle = notags(unxmlify($xml->diaspora_handle));
+	$diaspora_handle = notags(unxmlify($xml['diaspora_handle']));
 
 
 	if($diaspora_handle != $msg['author']) {
@@ -2501,9 +2505,9 @@ function diaspora_profile($importer,$xml,$msg) {
 		return 202;
 	}
 
-	$name = unxmlify($xml->first_name) . ((strlen($xml->last_name)) ? ' ' . unxmlify($xml->last_name) : '');
-	$image_url = unxmlify($xml->image_url);
-	$birthday = unxmlify($xml->birthday);
+	$name = unxmlify($xml['first_name']) . ((strlen($xml['last_name'])) ? ' ' . unxmlify($xml['last_name']) : '');
+	$image_url = unxmlify($xml['image_url']);
+	$birthday = unxmlify($xml['birthday']);
 
 
 	$handle_parts = explode("@", $diaspora_handle);
@@ -2560,7 +2564,7 @@ function diaspora_share($owner,$contact) {
 
 
 
-	$myaddr = $owner['channel_address'] . '@' . substr($a->get_baseurl(), strpos($a->get_baseurl(),'://') + 3);
+	$myaddr = $owner['channel_address'] . '@' . substr(z_root(), strpos(z_root(),'://') + 3);
 
 	if(! array_key_exists('hubloc_hash',$contact)) {
 		$c = q("select * from xchan left join hubloc on xchan_hash = hubloc_hash where xchan_hash = '%s' limit 1",
@@ -2588,11 +2592,11 @@ function diaspora_share($owner,$contact) {
 function diaspora_unshare($owner,$contact) {
 
 	$a = get_app();
-	$myaddr = $owner['channel_address'] . '@' .  substr($a->get_baseurl(), strpos($a->get_baseurl(),'://') + 3);
+	$myaddr = $owner['channel_address'] . '@' .  substr(z_root(), strpos(z_root(),'://') + 3);
 
 	$tpl = get_markup_template('diaspora_retract.tpl','addon/diaspora');
 	$msg = replace_macros($tpl, array(
-		'$guid'   => $owner['channel_guid'] . str_replace('.','',get_app()->get_hostname()),
+		'$guid'   => $owner['channel_guid'] . str_replace('.','',App::get_hostname()),
 		'$type'   => 'Person',
 		'$handle' => $myaddr
 	));
@@ -2606,7 +2610,7 @@ function diaspora_unshare($owner,$contact) {
 function diaspora_send_status($item,$owner,$contact,$public_batch = false) {
 
 	$a = get_app();
-	$myaddr = $owner['channel_address'] . '@' . substr($a->get_baseurl(), strpos($a->get_baseurl(),'://') + 3);
+	$myaddr = $owner['channel_address'] . '@' . substr(z_root(), strpos(z_root(),'://') + 3);
 
 	if(intval($item['id']) != intval($item['parent'])) {
 		logger('attempted to send a comment as a top-level post');
@@ -2769,7 +2773,7 @@ function diaspora_send_images($item,$owner,$contact,$images,$public_batch = fals
 	$a = get_app();
 	if(! count($images))
 		return;
-	$mysite = substr($a->get_baseurl(),strpos($a->get_baseurl(),'://') + 3) . '/photo';
+	$mysite = substr(z_root(),strpos(z_root(),'://') + 3) . '/photo';
 
 	$qi = array();
 
@@ -2810,7 +2814,7 @@ function diaspora_send_images($item,$owner,$contact,$images,$public_batch = fals
 function diaspora_send_followup($item,$owner,$contact,$public_batch = false) {
 
 	$a = get_app();
-	$myaddr = $owner['channel_address'] . '@' . get_app()->get_hostname();
+	$myaddr = $owner['channel_address'] . '@' . App::get_hostname();
 	$theiraddr = $contact['xchan_addr'];
 
 	// Diaspora doesn't support threaded comments, but some
@@ -2902,7 +2906,7 @@ function diaspora_send_relay($item,$owner,$contact,$public_batch = false) {
 
 
 	$a = get_app();
-	$myaddr = $owner['channel_address'] . '@' . get_app()->get_hostname();
+	$myaddr = $owner['channel_address'] . '@' . App::get_hostname();
 
 	$text = bb2diaspora_itembody($item);
 
@@ -2995,7 +2999,7 @@ function diaspora_send_relay($item,$owner,$contact,$public_batch = false) {
 // bug - nomadic identity may/will affect diaspora_handle_from_contact
 	if(! $handle) {
 		if($item['author_xchan'] === $owner['channel_hash']) 
-			$handle = $owner['channel_address'] . '@' . substr($a->get_baseurl(), strpos($a->get_baseurl(),'://') + 3);
+			$handle = $owner['channel_address'] . '@' . substr(z_root(), strpos(z_root(),'://') + 3);
 		else
 			$handle = diaspora_handle_from_contact($item['author_xchan']);
 	}
@@ -3053,7 +3057,7 @@ function diaspora_send_relay($item,$owner,$contact,$public_batch = false) {
 function diaspora_send_retraction($item,$owner,$contact,$public_batch = false) {
 
 	$a = get_app();
-	$myaddr = $owner['channel_address'] . '@' .  get_app()->get_hostname();
+	$myaddr = $owner['channel_address'] . '@' .  App::get_hostname();
 
 	// Check whether the retraction is for a top-level post or whether it's a relayable
 	if( $item['mid'] !== $item['parent_mid'] ) {
@@ -3084,7 +3088,7 @@ function diaspora_send_retraction($item,$owner,$contact,$public_batch = false) {
 function diaspora_send_mail($item,$owner,$contact) {
 
 	$a = get_app();
-	$myaddr = $owner['channel_address'] . '@' .  get_app()->get_hostname();
+	$myaddr = $owner['channel_address'] . '@' .  App::get_hostname();
 
 	$r = q("select * from conv where guid = '%s' and uid = %d limit 1",
 		dbesc($item['conv_guid']),
@@ -3503,7 +3507,7 @@ function diaspora_profile_change($channel,$recip,$public_batch = false) {
 		return;
 	$profile = $r[0];
 
-	$handle = xmlify($channel['channel_address'] . '@' . get_app()->get_hostname());
+	$handle = xmlify($channel['channel_address'] . '@' . App::get_hostname());
 	$first = xmlify(((strpos($profile['channel_name'],' '))
 		? trim(substr($profile['channel_name'],0,strpos($profile['channel_name'],' '))) : $profile['channel_name']));
 	$last = xmlify((($first === $profile['channel_name']) ? '' : trim(substr($profile['channel_name'],strlen($first)))));

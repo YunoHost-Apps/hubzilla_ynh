@@ -5,10 +5,10 @@ function string_plural_select_ru($n){
 	return ($n != 1);;
 }}
 ;
-$a->strings["\"Superblock\" Settings"] = "\"Superblock\" настройки";
-$a->strings["Comma separated profile URLS to block"] = "URLS, которые заблокировать (список через запятую)";
-$a->strings["Submit"] = "Подтвердить";
-$a->strings["SUPERBLOCK Settings saved."] = "Superblock-Настройки сохранены.";
-$a->strings["Block Completely"] = "Полностью блокировать";
-$a->strings["superblock settings updated"] = "\"Superblock\" настройки обновлены";
+App::$strings["\"Superblock\" Settings"] = "\"Superblock\" настройки";
+App::$strings["Comma separated profile URLS to block"] = "URLS, которые заблокировать (список через запятую)";
+App::$strings["Submit"] = "Подтвердить";
+App::$strings["SUPERBLOCK Settings saved."] = "Superblock-Настройки сохранены.";
+App::$strings["Block Completely"] = "Полностью блокировать";
+App::$strings["superblock settings updated"] = "\"Superblock\" настройки обновлены";
 

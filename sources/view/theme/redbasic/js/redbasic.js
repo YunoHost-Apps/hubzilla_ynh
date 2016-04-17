@@ -52,3 +52,18 @@ $(document).ready(function() {
 	}
 	setInterval(function () {checkNotify();}, 10 * 1000);
 });
+
+function makeFullScreen(full) {
+	if(typeof full=='undefined' || full == true) {
+		$('main').css({'transition': 'none'}).addClass('fullscreen');
+		$('#fullscreen-btn, header, nav, aside').css({'display': 'none'});
+		$('#inline-btn').show();
+
+	}
+	else {
+		$('main').removeClass('fullscreen');
+		$('#fullscreen-btn, header, nav, aside').css({'display': ''});
+		$('#inline-btn').hide();
+		$('main').css({'transition': ''});
+	}
+}

@@ -24,7 +24,7 @@ logger('dfedfix: ' . print_r($b,true));
 	$x = str_replace('</Subject>','</Subject>
 <Alias>' . z_root() . '/channel/' . $b['user']['channel_address'] . '</Alias>',$x);
 	$x = str_replace('.AQAB" />','.AQAB "/>
-<Link rel="salmon" href="' . z_root() . '/receive/users/' . $b['user']['channel_guid'] . str_replace('.','',$a->get_hostname()) . '"/>',$x);
+<Link rel="salmon" href="' . z_root() . '/receive/users/' . $b['user']['channel_guid'] . str_replace('.','',App::get_hostname()) . '"/>',$x);
 	$b['xml'] = $x;
 
 }

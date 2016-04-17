@@ -9,7 +9,7 @@ function apps_content(&$a) {
 	else
 		$mode = 'list';
 
-	$_SESSION['return_url'] = $a->cmd;
+	$_SESSION['return_url'] = App::$cmd;
 
 	$apps = array();
 

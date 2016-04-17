@@ -3,4 +3,5 @@ $(document).ready(function() {
 		$("#recip-complete").val(data.xid);
 	});
 	$(".autotime").timeago()
+	$('#prvmail-text').bbco_autocomplete('bbcode');
 }); 

@@ -242,7 +242,7 @@ Befor you register a first user switch off the registration mails.
 Open /var/www/.htconfig.php
 and make sure "0" is set in this line
 [code]
-$a->config['system']['verify_email'] = 0;
+App::$config['system']['verify_email'] = 0;
 [/code]
 You should be able to change the file as "yourself" (instead of using root or www-data).
 

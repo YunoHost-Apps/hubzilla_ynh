@@ -9,28 +9,32 @@ function cli_startup() {
 	global $a, $db, $default_timezone;
 
 	if(is_null($a)) {
-		$a = new App;
+		$a = new miniApp;
 	}
+
+	App::init();
   
 	if(is_null($db)) {
 	    @include(".htconfig.php");
 
+		$a->convert();
+
 		if(! defined('UNO'))
 			define('UNO', 0);
 
-		$a->timezone = ((x($default_timezone)) ? $default_timezone : 'UTC');
-		date_default_timezone_set($a->timezone);
+		App::$timezone = ((x($default_timezone)) ? $default_timezone : 'UTC');
+		date_default_timezone_set(App::$timezone);
 
     	require_once('include/dba/dba_driver.php');
 	    $db = dba_factory($db_host, $db_port, $db_user, $db_pass, $db_data, $db_type);
     	unset($db_host, $db_port, $db_user, $db_pass, $db_data, $db_type);
   	};
 
-	require_once('include/session.php');
+	\Zotlabs\Web\Session::init();
 
 	load_config('system');
 
-	$a->set_baseurl(get_config('system','baseurl'));
+	App::set_baseurl(get_config('system','baseurl'));
 
 	load_hooks();
 

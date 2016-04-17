@@ -5,7 +5,7 @@ function string_plural_select_de($n){
 	return ($n != 1);;
 }}
 ;
-$a->strings["Pageheader Settings"] = "Pageheader-instellingen";
-$a->strings["Message to display on every page on this server"] = "Bericht om weer te geven op elke pagina van deze hub";
-$a->strings["Submit"] = "Opslaan";
-$a->strings["pageheader Settings saved."] = "Pageheader-instellingen opgeslagen.";
+App::$strings["Pageheader Settings"] = "Pageheader-instellingen";
+App::$strings["Message to display on every page on this server"] = "Bericht om weer te geven op elke pagina van deze hub";
+App::$strings["Submit"] = "Opslaan";
+App::$strings["pageheader Settings saved."] = "Pageheader-instellingen opgeslagen.";

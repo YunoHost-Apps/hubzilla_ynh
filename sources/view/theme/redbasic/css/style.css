@@ -915,7 +915,15 @@ a.rconnect:hover, a.rateme:hover, div.rateme:hover {
 	border-radius: $radiuspx;
 }
 
-.acl-list-item img{
+.acl-list-item.grouphide {
+	border: 1px solid red;
+}
+
+.acl-list-item.groupshow {
+	border: 1px solid green;
+}
+
+.acl-list-item img {
 	width: 40px;
 	height: 40px;
 	float: left;
@@ -1255,7 +1263,9 @@ img.mail-conv-sender-photo {
 
 .wall-item-content,
 .mail-conv-body,
-.page-body {
+.page-body,
+.chat-item-text,
+.chat-item-text-self {
 	font-size: $font_size;
 	clear: both;
 }
@@ -1354,13 +1364,19 @@ img.mail-conv-sender-photo {
 	cursor: pointer;
 }
 
-.chat-item-photo {
+.chat-item-photo,
+.chat-item-photo-self {
 	border-radius: $radiuspx;
 }
 
-.chat-item-text {
+.chat-item-title,
+.chat-item-title-self {
 	border-radius: $radiuspx;
-	background-color: #eee;
+	background-color: $item_colour;
+}
+
+#chatMembers img {
+	border-radius: $radiuspx;
 }
 
 /* nav bootstrap */
@@ -1502,6 +1518,36 @@ nav .dropdown-menu {
 	word-wrap: break-word;
 }
 
+main.fullscreen {
+	left: 0px;
+	width: 100%;
+	height: 100%;
+	max-width: none;
+}
+
+main.fullscreen .generic-content-wrapper {
+	position: absolute;
+	width: 100%;
+	top: 0px;
+	left: 0px;
+	border-radius: 0px;
+}
+
+main.fullscreen .section-title-wrapper {
+	border-radius: 0px;
+}
+
+main.fullscreen .section-content-wrapper,
+main.fullscreen .section-content-wrapper-np {
+	border-radius: 0px;
+}
+
+#inline-btn {
+	display: none;
+}
+
+.chatroom-index-row:hover td,
+.locs-index-row:hover td,
 [id^="cloud-index-"]:hover td,
 .cloud-index-active {
 	background-color: $item_colour;
@@ -1683,9 +1729,7 @@ nav .badge.mail-update:hover {
 	}
 
 	main {
-		-webkit-transition: all 0.25s ease-out;
-		-moz-transition: all 0.25s ease-out;
-		transition: all 0.25s ease-out;
+		transition: all 0.25s ease-in-out;
 	}
 
 	main {

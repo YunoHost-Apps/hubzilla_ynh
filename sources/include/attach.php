@@ -864,6 +864,12 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 		// This would've been called already with a success result in photos_upload() if it was a photo.
 		call_hooks('photo_upload_end',$ret);
 	}
+
+	$sync = attach_export_data($channel,$hash);
+
+	if($sync) 
+		build_sync_packet($channel['channel_id'],array('file' => array($sync)));
+
 	return $ret;
 }
 
@@ -1477,7 +1483,7 @@ function file_activity($channel_id, $object, $allow_cid, $allow_gid, $deny_cid, 
 
 	require_once('include/items.php');
 
-	$poster = get_app()->get_observer();
+	$poster = App::get_observer();
 
 	//if we got no object something went wrong
 	if(!$object)
@@ -1696,7 +1702,7 @@ function recursive_activity_recipients($arr_allow_cid, $arr_allow_gid, $arr_deny
 	$ret = array();
 	$parent_arr = array();
 	$count_values = array();
-	$poster = get_app()->get_observer();
+	$poster = App::get_observer();
 
 	//turn allow_gid into allow_cid's
 	foreach($arr_allow_gid as $gid) {
@@ -1814,3 +1820,89 @@ function filepath_macro($s) {
 
 }
 
+function attach_export_data($channel, $resource_id, $deleted = false) {
+
+	$ret = array();
+
+	$paths = array();
+
+	$hash_ptr = $resource_id;
+
+	$ret['fetch_url'] = z_root() . '/getfile';
+	$ret['original_channel'] = $channel['channel_address'];
+
+
+	if($deleted) {
+		$ret['attach'] = array(array('hash' => $resource_id, 'deleted' => 1));
+		return $ret;
+	}
+
+	do {
+		$r = q("select * from attach where hash = '%s' and uid = %d limit 1",
+			dbesc($hash_ptr),
+			intval($channel['channel_id'])
+		);
+		if(! $r)
+			break;
+
+		if($hash_ptr === $resource_id) {
+			$attach_ptr = $r[0];
+		}
+
+		$hash_ptr = $r[0]['folder'];
+		$paths[] = $r[0];
+	} while($hash_ptr);
+
+
+
+
+	$paths = array_reverse($paths);
+
+	$ret['attach'] = $paths;
+
+
+	if($attach_ptr['is_photo']) {
+		$r = q("select * from photo where resource_id = '%s' and uid = %d order by scale asc",
+			dbesc($resource_id),
+			intval($channel['channel_id'])
+		);
+		if($r) {
+			for($x = 0; $x < count($r); $x ++) {
+				$r[$x]['data'] = base64_encode($r[$x]['data']);
+			}
+			$ret['photo'] = $r;
+		}
+
+		$r = q("select * from item where resource_id = '%s' and resource_type = 'photo' and uid = %d ",
+			dbesc($resource_id),
+			intval($channel['channel_id'])
+		);
+		if($r) {
+			$ret['item'] = array();
+			$items = q("select item.*, item.id as item_id from item where item.parent = %d ",
+				intval($r[0]['id'])
+			);
+			if($items) {
+				xchan_query($items);
+				$items = fetch_post_tags($items,true);
+				foreach($items as $rr)
+					$ret['item'][] = encode_item($rr,true);
+			}
+		}
+	}
+
+	return $ret;
+
+}
+
+
+/* strip off 'store/nickname/' from the provided path */
+
+function get_attach_binname($s) {
+	$p = $s;
+	if(strpos($s,'store/') === 0) {
+		$p = substr($s,6);
+		$p = substr($p,strpos($p,'/')+1);
+	}
+	return $p;
+}

@@ -75,12 +75,12 @@ function vcard_from_xchan($xchan, $observer = null, $mode = '') {
 	$a = get_app();
 
 	if(! $xchan) {
-		if($a->poi) {
-			$xchan = $a->poi;
+		if(App::$poi) {
+			$xchan = App::$poi;
 		}
-		elseif(is_array($a->profile) && $a->profile['channel_hash']) {
+		elseif(is_array(App::$profile) && App::$profile['channel_hash']) {
 			$r = q("select * from xchan where xchan_hash = '%s' limit 1",
-				dbesc($a->profile['channel_hash'])
+				dbesc(App::$profile['channel_hash'])
 			);
 			if($r)
 				$xchan = $r[0];
@@ -102,7 +102,7 @@ function vcard_from_xchan($xchan, $observer = null, $mode = '') {
 	}
 
 	if(array_key_exists('channel_id',$xchan))
-		$a->profile_uid = $xchan['channel_id'];
+		App::$profile_uid = $xchan['channel_id'];
 
 	$url = (($observer) 
 		? z_root() . '/magic?f=&dest=' . $xchan['xchan_url'] . '&addr=' . $xchan['xchan_addr'] 
@@ -111,7 +111,7 @@ function vcard_from_xchan($xchan, $observer = null, $mode = '') {
 					
 	return replace_macros(get_markup_template('xchan_vcard.tpl'),array(
 		'$name'    => $xchan['xchan_name'],
-		'$photo'   => ((is_array($a->profile) && array_key_exists('photo',$a->profile)) ? $a->profile['photo'] : $xchan['xchan_photo_l']),
+		'$photo'   => ((is_array(App::$profile) && array_key_exists('photo',App::$profile)) ? App::$profile['photo'] : $xchan['xchan_photo_l']),
 		'$follow'  => $xchan['xchan_addr'],
 		'$link'    => zid($xchan['xchan_url']),
 		'$connect' => $connect,
@@ -235,7 +235,7 @@ function account_remove($account_id,$local = true,$unset_session=true) {
 		unset($_SESSION['authenticated']);
 		unset($_SESSION['uid']);
 		notice( sprintf(t("User '%s' deleted"),$account_email) . EOL);
-		goaway(get_app()->get_baseurl());
+		goaway(z_root());
 	}
 	return $r;
 
@@ -333,19 +333,19 @@ function channel_remove($channel_id, $local = true, $unset_session=false) {
 	);
 
 	// if this was the default channel, set another one as default
-	if($a->account['account_default_channel'] == $channel_id) {
+	if(App::$account['account_default_channel'] == $channel_id) {
 		$r = q("select channel_id from channel where channel_account_id = %d and channel_removed = 0 limit 1",
-            intval($a->account['account_id']),
+            intval(App::$account['account_id']),
             intval(PAGE_REMOVED));
 		if ($r) {
 			$rr = q("update account set account_default_channel = %d where account_id = %d",
 				intval($r[0]['channel_id']),
-				intval($a->account['account_id']));
+				intval(App::$account['account_id']));
 			logger("Default channel deleted, changing default to channel_id " . $r[0]['channel_id']);
 		}
 		else {
 			$rr = q("update account set account_default_channel = 0 where account_id = %d",
-				intval($a->account['account_id'])
+				intval(App::$account['account_id'])
 			);
 		}
 	}
@@ -389,8 +389,8 @@ function channel_remove($channel_id, $local = true, $unset_session=false) {
 	proc_run('php','include/directory.php',$channel_id);
 
 	if($channel_id == local_channel() && $unset_session) {
-		nuke_session();
-		goaway($a->get_baseurl());
+		\Zotlabs\Web\Session::nuke();
+		goaway(z_root());
 	}
 
 }

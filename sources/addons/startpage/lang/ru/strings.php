@@ -1,6 +1,6 @@
 <?php
 
-$a->strings["Startpage Settings"] = "";
-$a->strings["Home page to load after login  - leave blank for profile wall"] = "";
-$a->strings["Examples: &quot;network&quot; or &quot;notifications/system&quot;"] = "";
-$a->strings["Submit"] = "Подтвердить";
+App::$strings["Startpage Settings"] = "";
+App::$strings["Home page to load after login  - leave blank for profile wall"] = "";
+App::$strings["Examples: &quot;network&quot; or &quot;notifications/system&quot;"] = "";
+App::$strings["Submit"] = "Подтвердить";

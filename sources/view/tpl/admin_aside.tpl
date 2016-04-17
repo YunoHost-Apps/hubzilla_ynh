@@ -5,7 +5,7 @@
 		$("nav").bind('nav-update',  function(e,data){
 			var elm = $('#pending-update');
 			var register = $(data).find('register').text();
-			if (register=="0") { reigster=""; elm.hide();} else { elm.show(); }
+			if (register=="0") { register=""; elm.hide();} else { elm.show(); }
 			elm.html(register);
 		});
 	});
@@ -13,16 +13,9 @@
 <div class="widget">
 <h3>{{$admtxt}}</h3>
 <ul class="nav nav-pills nav-stacked">
-	<li><a href='{{$admin.site.0}}'>{{$admin.site.1}}</a></li>
-	<li><a href='{{$admin.users.0}}'>{{$admin.users.1}}<span id='pending-update' title='{{$h_pending}}'></span></a></li>
-	<li><a href='{{$admin.channels.0}}'>{{$admin.channels.1}}</a></li>
-	<li><a href='{{$admin.security.0}}'>{{$admin.security.1}}</a></li>
-	<li><a href='{{$admin.queue.0}}'>{{$admin.queue.1}}</a></li>
-	<li><a href='{{$admin.plugins.0}}'>{{$admin.plugins.1}}</a></li>
-	<li><a href='{{$admin.themes.0}}'>{{$admin.themes.1}}</a></li>
-	<li><a href='{{$admin.features.0}}'>{{$admin.features.1}}</a></li>
-	<li><a href='{{$admin.profs.0}}'>{{$admin.profs.1}}</a></li>
-	<li><a href='{{$admin.dbsync.0}}'>{{$admin.dbsync.1}}</a></li>
+	{{foreach $admin as $link}}
+	<li><a href='{{$link.0}}'>{{$link.1}}{{if $link.3}}<span id='{{$link.3}}' title='{{$link.4}}'></span>{{/if}}</a></li>
+	{{/foreach}}
 </ul>
 </div>
 
@@ -34,11 +27,11 @@
 {{/if}}
 
 
-{{if $admin.plugins_admin}}
+{{if $plugins}}
 <div class="widget">
 <h3>{{$plugadmtxt}}</h3>
 <ul class="nav nav-pills nav-stacked">
-	{{foreach $admin.plugins_admin as $l}}
+	{{foreach $plugins as $l}}
 	<li><a href='{{$l.0}}'>{{$l.1}}</a></li>
 	{{/foreach}}
 </ul>
@@ -48,6 +41,6 @@
 <div class="widget">	
 <h3>{{$logtxt}}</h3>
 <ul class="nav nav-pills nav-stacked">
-	<li><a href='{{$admin.logs.0}}'>{{$admin.logs.1}}</a></li>
+	<li><a href='{{$logs.0}}'>{{$logs.1}}</a></li>
 </ul>
 </div>

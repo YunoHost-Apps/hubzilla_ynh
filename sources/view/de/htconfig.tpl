@@ -32,9 +32,9 @@ $default_timezone = '{{$timezone}}';
 
 // What is your site name?
 
-$a->config['system']['baseurl'] = '{{$siteurl}}';
-$a->config['system']['sitename'] = "Hubzilla";
-$a->config['system']['location_hash'] = '{{$site_id}}';
+App::$config['system']['baseurl'] = '{{$siteurl}}';
+App::$config['system']['sitename'] = "Hubzilla";
+App::$config['system']['location_hash'] = '{{$site_id}}';
 
 
 // These lines set additional security headers to be sent with all responses
@@ -42,8 +42,8 @@ $a->config['system']['location_hash'] = '{{$site_id}}';
 // this header. content_security_policy may need to be disabled if you wish to
 // run the piwik analytics plugin or include other offsite resources on a page
 
-$a->config['system']['transport_security_header'] = 1;
-$a->config['system']['content_security_policy'] = 1;
+App::$config['system']['transport_security_header'] = 1;
+App::$config['system']['content_security_policy'] = 1;
 
 
 // Your choices are REGISTER_OPEN, REGISTER_APPROVE, or REGISTER_CLOSED.
@@ -53,14 +53,14 @@ $a->config['system']['content_security_policy'] = 1;
 // to the email address of an already registered person who can authorise
 // and/or approve/deny the request.
 
-$a->config['system']['register_policy'] = REGISTER_OPEN;
-$a->config['system']['register_text'] = '';
-$a->config['system']['admin_email'] = '{{$adminmail}}';
+App::$config['system']['register_policy'] = REGISTER_OPEN;
+App::$config['system']['register_text'] = '';
+App::$config['system']['admin_email'] = '{{$adminmail}}';
 
 // Recommend you leave this set to 1. Set to 0 to let people register without 
 // proving they own the email address they register with.
 
-$a->config['system']['verify_email'] = 1;
+App::$config['system']['verify_email'] = 1;
 
 
 // Site access restrictions. By default we will create private sites.
@@ -73,22 +73,22 @@ $a->config['system']['verify_email'] = 1;
 // paid, tiered, or free determines how these listings will be presented.  
 
 
-$a->config['system']['access_policy'] = ACCESS_PRIVATE;
+App::$config['system']['access_policy'] = ACCESS_PRIVATE;
 
 // If you operate a public site, you might wish that people are directed
 // to a "sellpage" where you can describe for features or policies or service plans in depth.
 // This must be an absolute URL beginning with http:// or https:// .
 
-$a->config['system']['sellpage'] = '';
+App::$config['system']['sellpage'] = '';
 
 // Maximum size of an imported message, 0 is unlimited
 // FIXME - NOT currently implemented. 
 
-$a->config['system']['max_import_size'] = 200000;
+App::$config['system']['max_import_size'] = 200000;
 
 // Location of PHP command line processor
 
-$a->config['system']['php_path'] = '{{$phpath}}';
+App::$config['system']['php_path'] = '{{$phpath}}';
 
 // Configure how we communicate with directory servers.
 // DIRECTORY_MODE_NORMAL     = directory client, we will find a directory
@@ -96,11 +96,11 @@ $a->config['system']['php_path'] = '{{$phpath}}';
 // DIRECTORY_MODE_PRIMARY    = main directory server
 // DIRECTORY_MODE_STANDALONE = "off the grid" or private directory services
 
-$a->config['system']['directory_mode']  = DIRECTORY_MODE_NORMAL;
+App::$config['system']['directory_mode']  = DIRECTORY_MODE_NORMAL;
 
 // default system theme
 
-$a->config['system']['theme'] = 'redbasic';
+App::$config['system']['theme'] = 'redbasic';
 
 
 // PHP error logging setup

@@ -26,8 +26,8 @@ function fortunate_fetch(&$a,&$b) {
 	if(! $fort_server)
 		return;
 
-	$a->page['htmlhead'] .= '<link rel="stylesheet" type="text/css" href="' 
-		. $a->get_baseurl() . '/addon/fortunate/fortunate.css' . '" media="all" />' . "\r\n";
+	App::$page['htmlhead'] .= '<link rel="stylesheet" type="text/css" href="' 
+		. z_root() . '/addon/fortunate/fortunate.css' . '" media="all" />' . "\r\n";
 
 	$s = z_fetch_url('http://' . $fort_server . '/cookie.php?numlines=4&equal=1&rand=' . mt_rand());
 	if($s['success'])

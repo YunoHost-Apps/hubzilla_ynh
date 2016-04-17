@@ -5,38 +5,39 @@ namespace Zotlabs\Project;
 class System {
 
 	function get_platform_name() {
-		$a = get_app();
-		if(is_array($a->config) && is_array($a->config['system']) && $a->config['system']['platform_name'])
-			return $a->config['system']['platform_name'];
+		if(is_array(\App::$config) && is_array(\App::$config['system']) && \App::$config['system']['platform_name'])
+			return \App::$config['system']['platform_name'];
 		return PLATFORM_NAME;
 	}
 
+	function get_site_name() {
+		if(is_array(\App::$config) && is_array(\App::$config['system']) && \App::$config['system']['sitename'])
+			return \App::$config['system']['sitename'];
+		return '';
+	}
+
 	function get_project_version() {
-		$a = get_app();
-		if(is_array($a->config) && is_array($a->config['system']) && $a->config['system']['hide_version'])
+		if(is_array(\App::$config) && is_array(\App::$config['system']) && \App::$config['system']['hide_version'])
 			return '';
 		return RED_VERSION;
 	}
 
 	function get_update_version() {
-		$a = get_app();
-		if(is_array($a->config) && is_array($a->config['system']) && $a->config['system']['hide_version'])
+		if(is_array(\App::$config) && is_array(\App::$config['system']) && \App::$config['system']['hide_version'])
 			return '';
 		return DB_UPDATE_VERSION;
 	}
 
 
 	function get_notify_icon() {
-		$a = get_app();
-		if(is_array($a->config) && is_array($a->config['system']) && $a->config['system']['email_notify_icon_url'])
-			return $a->config['system']['email_notify_icon_url'];
+		if(is_array(\App::$config) && is_array(\App::$config['system']) && \App::$config['system']['email_notify_icon_url'])
+			return \App::$config['system']['email_notify_icon_url'];
 		return z_root() . '/images/hz-white-32.png';
 	}
 
 	function get_site_icon() {
-		$a = get_app();
-		if(is_array($a->config) && is_array($a->config['system']) && $a->config['system']['site_icon_url'])
-			return $a->config['system']['site_icon_url'];
+		if(is_array(\App::$config) && is_array(\App::$config['system']) && \App::$config['system']['site_icon_url'])
+			return \App::$config['system']['site_icon_url'];
 		return z_root() . '/images/hz-32.png';
 	}
 

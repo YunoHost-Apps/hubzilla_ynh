@@ -63,7 +63,7 @@ function get_perms() {
  */
 function get_all_perms($uid, $observer_xchan, $internal_use = true) {
 
-	$api = get_app()->get_oauth_key();
+	$api = App::get_oauth_key();
 	if($api)
 		return get_all_api_perms($uid,$api);	
 
@@ -270,7 +270,7 @@ function get_all_perms($uid, $observer_xchan, $internal_use = true) {
  */
 function perm_is_allowed($uid, $observer_xchan, $permission) {
 
-	$api = get_app()->get_oauth_key();
+	$api = App::get_oauth_key();
 	if($api)
 		return api_perm_is_allowed($uid,$api,$permission);
 

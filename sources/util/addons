@@ -25,7 +25,7 @@ $a = get_app();
 	if($plugs)
 		$plugins_arr = explode(',', str_replace(' ', '', $plugs));
 
-	$a->plugins = $plugins_arr;
+	App::$plugins = $plugins_arr;
 
 	$plugins = array();
 	$files = glob('addon/*/');
@@ -34,15 +34,15 @@ $a = get_app();
 			if(is_dir($file)){
 				list($tmp, $id) = array_map('trim', explode('/', $file));
 				$info = get_plugin_info($id);
-				$enabled = in_array($id,$a->plugins);
+				$enabled = in_array($id,App::$plugins);
 				$x = check_plugin_versions($info);
 				if($enabled && ! $x) {
 					$enabled = false;
-					$idz = array_search($id, $a->plugins);
+					$idz = array_search($id, App::$plugins);
 					if ($idz !== false) {
-						unset($a->plugins[$idz]);
+						unset(App::$plugins[$idz]);
 						uninstall_plugin($id);
-						set_config("system","addon", implode(", ",$a->plugins));
+						set_config("system","addon", implode(", ",App::$plugins));
 					}
 				}
 				$info['disabled'] = 1-intval($x);
@@ -91,9 +91,9 @@ if($argc == 3 && $argv[1] === 'install') {
 				elseif($p[2]['disabled'])
 					echo $p[0] . ' disabled (version compatibility).' . "\n";
 				else {
-					$a->plugins[] = $p[0];
+					App::$plugins[] = $p[0];
 					install_plugin($p[0]);
-					set_config("system","addon", implode(", ",$a->plugins));
+					set_config("system","addon", implode(", ",App::$plugins));
 					echo $p[0] . ' installed.' . "\n";
 				}
 			}
@@ -115,11 +115,11 @@ if($argc == 3 && $argv[1] === 'uninstall') {
 				elseif($p[2]['disabled'])
 					echo $p[0] . ' disabled (version compatibility).' . "\n";
 				else {
-					$idx = array_search($p[0], $a->plugins);
+					$idx = array_search($p[0], App::$plugins);
 					if ($idx !== false)
-						unset($a->plugins[$idx]);
+						unset(App::$plugins[$idx]);
 					uninstall_plugin($p[0]);
-					set_config("system","addon", implode(", ",$a->plugins));
+					set_config("system","addon", implode(", ",App::$plugins));
 					echo $p[0] . ' uninstalled.' . "\n";
 				}
 			}

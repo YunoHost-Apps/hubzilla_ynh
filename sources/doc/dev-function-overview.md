@@ -21,7 +21,7 @@ Returns the global app structure ($a).
 
 * App::get_observer()
 
-(App:: is usually assigned to the global $a), so $a->get_observer() or get_app()->get_observer() - returns an xchan structure representing the current viewer if authenticated (locally or remotely).
+(App:: is usually assigned to the global $a), so App::get_observer() or App::get_observer() - returns an xchan structure representing the current viewer if authenticated (locally or remotely).
 
 * get_config($family,$key), get_pconfig($uid,$family,$key)
 

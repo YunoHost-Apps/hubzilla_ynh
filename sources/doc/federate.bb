@@ -8,7 +8,7 @@ There are three main components to writing federation plugins. These are:
 
 In addition, federation drivers must handle
 
-[4] differences in privacy policies
+[4] differences in privacy policies (and content formats)
 
 
 [h3]Making connections[/h3]
@@ -36,8 +36,11 @@ Additional information that your plugin requires for communication can be stored
 
 When a connection is made, we generally call the notifier (include/notifier.php) to send a message to the remote channel. This is bound to the hook 'permissions_create'. Your plugin will need to handle this in order to send a "follow" or "make friends" message to the other network.
 
-Note: The first stage zot lookup will be replaced with a webfinger lookup. This work is in progress. A separate lookup was required initially as webfinger does not allow non-SSL connections. We will provide non-SSL zot lookups (usually test and development sites) via the "old" XRD based webfinger to avoid this limitation. 
+Notes: The first stage zot lookup will be replaced with a webfinger lookup. This work is in progress. A separate lookup was required initially as webfinger does not allow non-SSL connections. We will provide non-SSL zot lookups (usually test and development sites) via the "old" XRD based webfinger to avoid this limitation. 
 
+The core application will attempt to create xchan records for projects identified as members of the "open web"; currently Hubzilla, Friendica, Diaspora, GNU-Social and Pump.io. This is so that comments can be passed amongst project sites and the network correctly identified. A federation plugin is required to fully federate with other networks, but comments may be passed to sites without such a plugin installed so that there are no unexplained holes in conversations.
+
+The core application must also provide signing ability for Diaspora comments since they require a special signing format and must be signed by the comment author regardless of whether that channel federates with Diaspora. The owner of the conversation may federate with Diaspora so the comments must be signed. This is unfortunate but necessary.   
 
 
 [h3]Sending Messages[/h3]

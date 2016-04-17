@@ -9,7 +9,7 @@ function layouts_init(&$a) {
 	if(argc() > 1 && argv(1) === 'sys' && is_site_admin()) {
 		$sys = get_sys_channel();
 		if($sys && intval($sys['channel_id'])) {
-			$a->is_sys = true;
+			App::$is_sys = true;
 		}
 	}
 
@@ -25,24 +25,24 @@ function layouts_init(&$a) {
 
 function layouts_content(&$a) {
 
-	if(! $a->profile) {
+	if(! App::$profile) {
 		notice( t('Requested profile is not available.') . EOL );
-		$a->error = 404;
+		App::$error = 404;
 		return;
 	}
 
 	$which = argv(1);
 
-	$_SESSION['return_url'] = $a->query_string;
+	$_SESSION['return_url'] = App::$query_string;
 
 	$uid = local_channel();
 	$owner = 0;
 	$channel = null;
-	$observer = $a->get_observer();
+	$observer = App::get_observer();
 
-	$channel = $a->get_channel();
+	$channel = App::get_channel();
 
-	if($a->is_sys && is_site_admin()) {
+	if(App::$is_sys && is_site_admin()) {
 		$sys = get_sys_channel();
 		if($sys && intval($sys['channel_id'])) {
 			$uid = $owner = intval($sys['channel_id']);
@@ -113,7 +113,7 @@ function layouts_content(&$a) {
 	$x = array(
 		'webpage'     => ITEM_TYPE_PDL,
 		'is_owner'    => true,
-		'nickname'    => $a->profile['channel_address'],
+		'nickname'    => App::$profile['channel_address'],
 		'bang'        => '',
 		'showacl'     => false,
 		'visitor'     => false,
@@ -122,7 +122,8 @@ function layouts_content(&$a) {
 		'profile_uid' => intval($owner),
 		'expanded'    => true,
 		'placeholdertitle' => t('Layout Description (Optional)'),
-		'novoting' => true
+		'novoting' => true,
+		'bbco_autocomplete' => 'comanche'
 	);
 
 	if($_REQUEST['title'])

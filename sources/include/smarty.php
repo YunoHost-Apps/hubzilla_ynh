@@ -16,19 +16,19 @@ class FriendicaSmarty extends Smarty {
 		// setTemplateDir can be set to an array, which Smarty will parse in order.
 		// The order is thus very important here
 		$template_dirs = array('theme' => "view/theme/$theme/tpl/");
-		if( x($a->theme_info,"extends") )
-			$template_dirs = $template_dirs + array('extends' => "view/theme/".$a->theme_info["extends"]."/tpl/");
+		if( x(App::$theme_info,"extends") )
+			$template_dirs = $template_dirs + array('extends' => "view/theme/".App::$theme_info["extends"]."/tpl/");
 		$template_dirs = $template_dirs + array('base' => 'view/tpl/');
 		$this->setTemplateDir($template_dirs);
 
-        $basecompiledir = $a->config['system']['smarty3_folder'];
+        $basecompiledir = App::$config['system']['smarty3_folder'];
         
 		$this->setCompileDir($basecompiledir.'/compiled/');
 		$this->setConfigDir($basecompiledir.'/config/');
 		$this->setCacheDir($basecompiledir.'/cache/');
 
-		$this->left_delimiter = $a->get_template_ldelim('smarty3');
-		$this->right_delimiter = $a->get_template_rdelim('smarty3');
+		$this->left_delimiter = App::get_template_ldelim('smarty3');
+		$this->right_delimiter = App::get_template_rdelim('smarty3');
 
 		// Don't report errors so verbosely
 		$this->error_reporting = E_ALL & ~E_NOTICE;
@@ -53,7 +53,7 @@ class FriendicaSmartyEngine implements ITemplateEngine {
 		// Cannot use get_config() here because it is called during installation when there is no DB.
 		// FIXME: this may leak private information such as system pathnames.
 
-        $basecompiledir = ((array_key_exists('smarty3_folder',$a->config['system'])) ? $a->config['system']['smarty3_folder'] : '');
+        $basecompiledir = ((array_key_exists('smarty3_folder',App::$config['system'])) ? App::$config['system']['smarty3_folder'] : '');
         if (!$basecompiledir) $basecompiledir = dirname(__dir__) . "/" . TEMPLATE_BUILD_PATH;
         if (!is_dir($basecompiledir)) {
             echo "<b>ERROR:</b> folder <tt>$basecompiledir</tt> does not exist."; killme();
@@ -61,7 +61,7 @@ class FriendicaSmartyEngine implements ITemplateEngine {
 		if(!is_writable($basecompiledir)){
 			echo "<b>ERROR:</b> folder <tt>$basecompiledir</tt> must be writable by webserver."; killme();
 		}
-         $a->config['system']['smarty3_folder'] = $basecompiledir;
+         App::$config['system']['smarty3_folder'] = $basecompiledir;
 	}
 	
 	// ITemplateEngine interface
@@ -94,8 +94,8 @@ class FriendicaSmartyEngine implements ITemplateEngine {
 	public function get_intltext_template($file, $root='') {
 		$a = get_app();
     
-		if(file_exists("view/{$a->language}/$file"))
-        	$template_file = "view/{$a->language}/$file";
+		if(file_exists("view/{App::$language}/$file"))
+        	$template_file = "view/{App::$language}/$file";
 	    elseif(file_exists("view/en/$file"))
         	$template_file = "view/en/$file";
     	else

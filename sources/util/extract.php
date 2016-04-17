@@ -45,19 +45,19 @@ function string_plural_select($n){
 		if (is_array($a)){
 			if(substr($a[1],0,1) == '$')
 				continue;
-			$s .= '$a->strings[' . $a[0] . "] = array(\n";
+			$s .= 'App::$strings[' . $a[0] . "] = array(\n";
 			$s .= "\t0 => ". $a[0]. ",\n";
 			$s .= "\t1 => ". $a[1]. ",\n";
 			$s .= ");\n";
 		} else {
 			if(substr($a,0,1) == '$')
 				continue;			
-			$s .= '$a->strings[' . $a . '] = '. $a . ';' . "\n";
+			$s .= 'App::$strings[' . $a . '] = '. $a . ';' . "\n";
 		}
 	}
 
 	$zones = timezone_identifiers_list();
 	foreach($zones as $zone)
-		$s .= '$a->strings[\'' . $zone . '\'] = \'' . $zone . '\';' . "\n";
+		$s .= 'App::$strings[\'' . $zone . '\'] = \'' . $zone . '\';' . "\n";
 	
 	echo $s;

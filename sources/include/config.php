@@ -22,7 +22,7 @@
  * an identifier. This is for example for people who do not have a local account.
  * The storage is of size MEDIUMTEXT.
  * @code{.php}
- * $observer = $a->get_observer_hash();
+ * $observer = App::get_observer_hash();
  * if ($observer) {
  *     $var = get_xconfig($observer, 'category', 'key');
  * }@endcode
@@ -38,7 +38,7 @@
  * @brief Loads the hub's configuration from database to a cached storage.
  *
  * Retrieve a category ($family) of config variables from database to a cached
- * storage in the global $a->config[$family].
+ * storage in the global App::$config[$family].
  *
  * @param string $family
  *  The category of the configuration value
@@ -46,19 +46,19 @@
 function load_config($family) {
 	global $a;
 
-	if(! array_key_exists($family, $a->config))
-		$a->config[$family] = array();
+	if(! array_key_exists($family, App::$config))
+		App::$config[$family] = array();
 
-	if(! array_key_exists('config_loaded', $a->config[$family])) {
+	if(! array_key_exists('config_loaded', App::$config[$family])) {
 		$r = q("SELECT * FROM config WHERE cat = '%s'", dbesc($family));
 		if($r !== false) {
 			if($r) {
 				foreach($r as $rr) {
 					$k = $rr['k'];
-					$a->config[$family][$k] = $rr['v'];
+					App::$config[$family][$k] = $rr['v'];
 				}
 			}
-			$a->config[$family]['config_loaded'] = true;
+			App::$config[$family]['config_loaded'] = true;
 		}
 	} 
 }
@@ -68,7 +68,7 @@ function load_config($family) {
  * and a key.
  *
  * Get a particular config variable from the given category ($family) and the
- * $key from a cached storage in $a->config[$family]. If a key is found in the
+ * $key from a cached storage in App::$config[$family]. If a key is found in the
  * DB but does not exist in local config cache, pull it into the cache so we
  * do not have to hit the DB again for this item.
  * 
@@ -83,16 +83,16 @@ function load_config($family) {
 function get_config($family, $key) {
 	global $a;
 
-	if((! array_key_exists($family, $a->config)) || (! array_key_exists('config_loaded', $a->config[$family])))
+	if((! array_key_exists($family, App::$config)) || (! array_key_exists('config_loaded', App::$config[$family])))
 		load_config($family);
 
-	if(array_key_exists('config_loaded', $a->config[$family])) {
-		if(! array_key_exists($key, $a->config[$family])) {
+	if(array_key_exists('config_loaded', App::$config[$family])) {
+		if(! array_key_exists($key, App::$config[$family])) {
 			return false;		
 		}
-		return ((! is_array($a->config[$family][$key])) && (preg_match('|^a:[0-9]+:{.*}$|s', $a->config[$family][$key])) 
-			? unserialize($a->config[$family][$key])
-			: $a->config[$family][$key]
+		return ((! is_array(App::$config[$family][$key])) && (preg_match('|^a:[0-9]+:{.*}$|s', App::$config[$family][$key])) 
+			? unserialize(App::$config[$family][$key])
+			: App::$config[$family][$key]
 		);
 	}
 	return false;
@@ -148,7 +148,7 @@ function set_config($family, $key, $value) {
 			dbesc($dbvalue)
 		);
 		if($ret) {
-			$a->config[$family][$key] = $value;
+			App::$config[$family][$key] = $value;
 			$ret = $value;
 		}
 		return $ret;
@@ -161,7 +161,7 @@ function set_config($family, $key, $value) {
 	);
 
 	if($ret) {
-		$a->config[$family][$key] = $value;
+		App::$config[$family][$key] = $value;
 		$ret = $value;
 	}
 	return $ret;
@@ -170,7 +170,7 @@ function set_config($family, $key, $value) {
 /**
  * @brief Deletes the given key from the hub's configuration database.
  *
- * Removes the configured value from the stored cache in $a->config[$family]
+ * Removes the configured value from the stored cache in App::$config[$family]
  * and removes it from the database.
  *
  * @param string $family
@@ -183,8 +183,8 @@ function del_config($family, $key) {
 	global $a;
 	$ret = false;
 
-	if(array_key_exists($family, $a->config) && array_key_exists($key, $a->config[$family]))
-		unset($a->config[$family][$key]);
+	if(array_key_exists($family, App::$config) && array_key_exists($key, App::$config[$family]))
+		unset(App::$config[$family][$key]);
 		$ret = q("DELETE FROM config WHERE cat = '%s' AND k = '%s'",
 		dbesc($family),
 		dbesc($key)
@@ -197,7 +197,7 @@ function del_config($family, $key) {
  * @brief Loads all configuration values of a channel into a cached storage.
  *
  * All configuration values of the given channel are stored in global cache
- * which is available under the global variable $a->config[$uid].
+ * which is available under the global variable App::$config[$uid].
  *
  * @param string $uid
  *  The channel_id
@@ -209,8 +209,8 @@ function load_pconfig($uid) {
 	if($uid === false)
 		return false;
 
-	if(! array_key_exists($uid, $a->config))
-		$a->config[$uid] = array();
+	if(! array_key_exists($uid, App::$config))
+		App::$config[$uid] = array();
 
 	$r = q("SELECT * FROM pconfig WHERE uid = %d",
 		intval($uid)
@@ -220,11 +220,11 @@ function load_pconfig($uid) {
 		foreach($r as $rr) {
 			$k = $rr['k'];
 			$c = $rr['cat'];
-			if(! array_key_exists($c, $a->config[$uid])) {
-				$a->config[$uid][$c] = array();
-				$a->config[$uid][$c]['config_loaded'] = true;
+			if(! array_key_exists($c, App::$config[$uid])) {
+				App::$config[$uid][$c] = array();
+				App::$config[$uid][$c]['config_loaded'] = true;
 			}
-			$a->config[$uid][$c][$k] = $rr['v'];
+			App::$config[$uid][$c][$k] = $rr['v'];
 		}
 	}
 }
@@ -234,7 +234,7 @@ function load_pconfig($uid) {
  * ($family) and a key.
  *
  * Get a particular channel's config value from the given category ($family)
- * and the $key from a cached storage in $a->config[$uid].
+ * and the $key from a cached storage in App::$config[$uid].
  *
  * Returns false if not set.
  *
@@ -254,15 +254,15 @@ function get_pconfig($uid, $family, $key, $instore = false) {
 	if($uid === false)
 		return false;
 
-	if(! array_key_exists($uid, $a->config))
+	if(! array_key_exists($uid, App::$config))
 		load_pconfig($uid);
 
-	if((! array_key_exists($family, $a->config[$uid])) || (! array_key_exists($key, $a->config[$uid][$family])))
+	if((! array_key_exists($family, App::$config[$uid])) || (! array_key_exists($key, App::$config[$uid][$family])))
 		return false;
 
-	return ((! is_array($a->config[$uid][$family][$key])) && (preg_match('|^a:[0-9]+:{.*}$|s', $a->config[$uid][$family][$key])) 
-		? unserialize($a->config[$uid][$family][$key])
-		: $a->config[$uid][$family][$key]
+	return ((! is_array(App::$config[$uid][$family][$key])) && (preg_match('|^a:[0-9]+:{.*}$|s', App::$config[$uid][$family][$key])) 
+		? unserialize(App::$config[$uid][$family][$key])
+		: App::$config[$uid][$family][$key]
 	);
 }
 
@@ -287,27 +287,38 @@ function get_pconfig($uid, $family, $key, $instore = false) {
 function set_pconfig($uid, $family, $key, $value) {
 	global $a;
 
+	// this catches subtle errors where this function has been called 
+	// with local_channel() when not logged in (which returns false)
+	// and throws an error in array_key_exists below. 
+	// we provide a function backtrace in the logs so that we can find
+	// and fix the calling function.
+
+	if($uid === false) {
+		btlogger('UID is FALSE!', LOGGER_NORMAL, LOG_ERR);
+		return;
+	}
+
 	// manage array value
 	$dbvalue = ((is_array($value))  ? serialize($value) : $value);
 	$dbvalue = ((is_bool($dbvalue)) ? intval($dbvalue)  : $dbvalue);
 
 	if(get_pconfig($uid, $family, $key) === false) {
-		if(! array_key_exists($uid, $a->config))
-			$a->config[$uid] = array();
-		if(! array_key_exists($family, $a->config[$uid]))
-			$a->config[$uid][$family] = array();
+		if(! array_key_exists($uid, App::$config))
+			App::$config[$uid] = array();
+		if(! array_key_exists($family, App::$config[$uid]))
+			App::$config[$uid][$family] = array();
 
 		// keep a separate copy for all variables which were
 		// set in the life of this page. We need this to
 		// synchronise channel clones.
 
-		if(! array_key_exists('transient', $a->config[$uid]))
-			$a->config[$uid]['transient'] = array();
-		if(! array_key_exists($family, $a->config[$uid]['transient']))
-			$a->config[$uid]['transient'][$family] = array();
+		if(! array_key_exists('transient', App::$config[$uid]))
+			App::$config[$uid]['transient'] = array();
+		if(! array_key_exists($family, App::$config[$uid]['transient']))
+			App::$config[$uid]['transient'][$family] = array();
 
-		$a->config[$uid][$family][$key] = $value;
-		$a->config[$uid]['transient'][$family][$key] = $value;
+		App::$config[$uid][$family][$key] = $value;
+		App::$config[$uid]['transient'][$family][$key] = $value;
 
 		$ret = q("INSERT INTO pconfig ( uid, cat, k, v ) VALUES ( %d, '%s', '%s', '%s' ) ",
 			intval($uid),
@@ -332,13 +343,13 @@ function set_pconfig($uid, $family, $key, $value) {
 	// set in the life of this page. We need this to
 	// synchronise channel clones.
 
-	if(! array_key_exists('transient', $a->config[$uid]))
-		$a->config[$uid]['transient'] = array();
-	if(! array_key_exists($family, $a->config[$uid]['transient']))
-		$a->config[$uid]['transient'][$family] = array();
+	if(! array_key_exists('transient', App::$config[$uid]))
+		App::$config[$uid]['transient'] = array();
+	if(! array_key_exists($family, App::$config[$uid]['transient']))
+		App::$config[$uid]['transient'][$family] = array();
 
-	$a->config[$uid][$family][$key] = $value;
-	$a->config[$uid]['transient'][$family][$key] = $value;
+	App::$config[$uid][$family][$key] = $value;
+	App::$config[$uid]['transient'][$family][$key] = $value;
 
 	if($ret)
 		return $value;
@@ -349,7 +360,7 @@ function set_pconfig($uid, $family, $key, $value) {
 /**
  * @brief Deletes the given key from the channel's configuration.
  *
- * Removes the configured value from the stored cache in $a->config[$uid]
+ * Removes the configured value from the stored cache in App::$config[$uid]
  * and removes it from the database.
  *
  * @param string $uid
@@ -364,8 +375,8 @@ function del_pconfig($uid, $family, $key) {
 	global $a;
 	$ret = false;
 
-	if (x($a->config[$uid][$family], $key))
-		unset($a->config[$uid][$family][$key]);
+	if (x(App::$config[$uid][$family], $key))
+		unset(App::$config[$uid][$family][$key]);
 		$ret = q("DELETE FROM pconfig WHERE uid = %d AND cat = '%s' AND k = '%s'",
 		intval($uid),
 		dbesc($family),
@@ -380,7 +391,7 @@ function del_pconfig($uid, $family, $key) {
  * @brief Loads a full xchan's configuration into a cached storage.
  *
  * All configuration values of the given observer hash are stored in global
- * cache which is available under the global variable $a->config[$xchan].
+ * cache which is available under the global variable App::$config[$xchan].
  *
  * @param string $xchan
  *  The observer's hash
@@ -392,8 +403,8 @@ function load_xconfig($xchan) {
 	if(! $xchan)
 		return false;
 
-	if(! array_key_exists($xchan, $a->config))
-		$a->config[$xchan] = array();
+	if(! array_key_exists($xchan, App::$config))
+		App::$config[$xchan] = array();
 
 	$r = q("SELECT * FROM xconfig WHERE xchan = '%s'",
 		dbesc($xchan)
@@ -403,11 +414,11 @@ function load_xconfig($xchan) {
 		foreach($r as $rr) {
 			$k = $rr['k'];
 			$c = $rr['cat'];
-			if(! array_key_exists($c, $a->config[$xchan])) {
-				$a->config[$xchan][$c] = array();
-				$a->config[$xchan][$c]['config_loaded'] = true;
+			if(! array_key_exists($c, App::$config[$xchan])) {
+				App::$config[$xchan][$c] = array();
+				App::$config[$xchan][$c]['config_loaded'] = true;
 			}
-			$a->config[$xchan][$c][$k] = $rr['v'];
+			App::$config[$xchan][$c][$k] = $rr['v'];
 		}
 	}
 }
@@ -417,7 +428,7 @@ function load_xconfig($xchan) {
  * name ($family) and a key.
  *
  * Get a particular observer's config value from the given category ($family)
- * and the $key from a cached storage in $a->config[$xchan].
+ * and the $key from a cached storage in App::$config[$xchan].
  *
  * Returns false if not set.
  *
@@ -435,15 +446,15 @@ function get_xconfig($xchan, $family, $key) {
 	if(! $xchan)
 		return false;
 
-	if(! array_key_exists($xchan, $a->config))
+	if(! array_key_exists($xchan, App::$config))
 		load_xconfig($xchan);
 
-	if((! array_key_exists($family, $a->config[$xchan])) || (! array_key_exists($key, $a->config[$xchan][$family])))
+	if((! array_key_exists($family, App::$config[$xchan])) || (! array_key_exists($key, App::$config[$xchan][$family])))
 		return false;
 
-	return ((! is_array($a->config[$xchan][$family][$key])) && (preg_match('|^a:[0-9]+:{.*}$|s', $a->config[$xchan][$family][$key])) 
-		? unserialize($a->config[$xchan][$family][$key])
-		: $a->config[$xchan][$family][$key]
+	return ((! is_array(App::$config[$xchan][$family][$key])) && (preg_match('|^a:[0-9]+:{.*}$|s', App::$config[$xchan][$family][$key])) 
+		? unserialize(App::$config[$xchan][$family][$key])
+		: App::$config[$xchan][$family][$key]
 	);
 }
 
@@ -473,12 +484,12 @@ function set_xconfig($xchan, $family, $key, $value) {
 	$dbvalue = ((is_bool($dbvalue)) ? intval($dbvalue)  : $dbvalue);
 
 	if(get_xconfig($xchan, $family, $key) === false) {
-		if(! array_key_exists($xchan, $a->config))
-			$a->config[$xchan] = array();
-		if(! array_key_exists($family, $a->config[$xchan]))
-			$a->config[$xchan][$family] = array();
+		if(! array_key_exists($xchan, App::$config))
+			App::$config[$xchan] = array();
+		if(! array_key_exists($family, App::$config[$xchan]))
+			App::$config[$xchan][$family] = array();
 
-		$a->config[$xchan][$family][$key] = $value;
+		App::$config[$xchan][$family][$key] = $value;
 		$ret = q("INSERT INTO xconfig ( xchan, cat, k, v ) VALUES ( '%s', '%s', '%s', '%s' ) ",
 			dbesc($xchan),
 			dbesc($family),
@@ -497,7 +508,7 @@ function set_xconfig($xchan, $family, $key, $value) {
 		dbesc($key)
 	);
 
-	$a->config[$xchan][$family][$key] = $value;
+	App::$config[$xchan][$family][$key] = $value;
 
 	if($ret)
 		return $value;
@@ -507,7 +518,7 @@ function set_xconfig($xchan, $family, $key, $value) {
 /**
  * @brief Deletes the given key from the observer's config.
  *
- * Removes the configured value from the stored cache in $a->config[$xchan]
+ * Removes the configured value from the stored cache in App::$config[$xchan]
  * and removes it from the database.
  *
  * @param string $xchan
@@ -522,8 +533,8 @@ function del_xconfig($xchan, $family, $key) {
 	global $a;
 	$ret = false;
 
-	if(x($a->config[$xchan][$family], $key))
-		unset($a->config[$xchan][$family][$key]);
+	if(x(App::$config[$xchan][$family], $key))
+		unset(App::$config[$xchan][$family][$key]);
 	$ret = q("DELETE FROM xconfig WHERE xchan = '%s' AND cat = '%s' AND k = '%s'",
 		dbesc($xchan),
 		dbesc($family),

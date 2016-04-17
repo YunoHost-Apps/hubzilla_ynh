@@ -16,7 +16,7 @@ function channel_init(&$a) {
 		$which = argv(1);
 	if(! $which) {
 		if(local_channel()) {
-			$channel = $a->get_channel();
+			$channel = App::get_channel();
 			if($channel && $channel['channel_address'])
 			$which = $channel['channel_address'];
 		}
@@ -27,19 +27,19 @@ function channel_init(&$a) {
 	}
 
 	$profile = 0;
-	$channel = $a->get_channel();
+	$channel = App::get_channel();
 
 	if((local_channel()) && (argc() > 2) && (argv(2) === 'view')) {
 		$which = $channel['channel_address'];
 		$profile = argv(1);		
 	}
 
-	$a->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . $a->get_baseurl() . '/feed/' . $which .'" />' . "\r\n" ;
-
+	App::$page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" title="' . t('Posts and comments') . '" href="' . z_root() . '/feed/' . $which . '" />' . "\r\n" ;
+	App::$page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" title="' . t('Only posts') . '" href="' . z_root() . '/feed/' . $which . '?top=1" />' . "\r\n" ;
 
 // Not yet ready for prime time
-//	$a->page['htmlhead'] .= '<link rel="openid.server" href="' . $a->get_baseurl() . '/id/' . $which .'?f=" />' . "\r\n" ;
-//	$a->page['htmlhead'] .= '<link rel="openid.delegate" href="' . $a->get_baseurl() . '/channel/' . $which .'" />' . "\r\n" ;
+//	App::$page['htmlhead'] .= '<link rel="openid.server" href="' . z_root() . '/id/' . $which .'?f=" />' . "\r\n" ;
+//	App::$page['htmlhead'] .= '<link rel="openid.delegate" href="' . z_root() . '/channel/' . $which .'" />' . "\r\n" ;
 
 	// Run profile_load() here to make sure the theme is set before
 	// we start loading content
@@ -54,6 +54,7 @@ function channel_content(&$a, $update = 0, $load = false) {
 	if($load)
 		$_SESSION['loadtime'] = datetime_convert();
 
+	$checkjs = new Zotlabs\Web\CheckJS();
 
 	$category = $datequery = $datequery2 = '';
 
@@ -75,27 +76,27 @@ function channel_content(&$a, $update = 0, $load = false) {
 
 	if($update) {
 		// Ensure we've got a profile owner if updating.
-		$a->profile['profile_uid'] = $a->profile_uid = $update;
+		App::$profile['profile_uid'] = App::$profile_uid = $update;
 	}
 	else {
-		if($a->profile['profile_uid'] == local_channel()) {
+		if(App::$profile['profile_uid'] == local_channel()) {
 			nav_set_selected('home');
 		}
 	}
 
-	$is_owner = (((local_channel()) && ($a->profile['profile_uid'] == local_channel())) ? true : false);
+	$is_owner = (((local_channel()) && (App::$profile['profile_uid'] == local_channel())) ? true : false);
 
-	$channel = $a->get_channel();
-	$observer = $a->get_observer();
+	$channel = App::get_channel();
+	$observer = App::get_observer();
 	$ob_hash = (($observer) ? $observer['xchan_hash'] : '');
 
-	$perms = get_all_perms($a->profile['profile_uid'],$ob_hash);
+	$perms = get_all_perms(App::$profile['profile_uid'],$ob_hash);
 
 	if(! $perms['view_stream']) {
 			// We may want to make the target of this redirect configurable
 			if($perms['view_profile']) {
 				notice( t('Insufficient permissions.  Request redirected to profile page.') . EOL);
-				goaway (z_root() . "/profile/" . $a->profile['channel_address']);
+				goaway (z_root() . "/profile/" . App::$profile['channel_address']);
 			}
 		notice( t('Permission denied.') . EOL);
 		return;
@@ -104,9 +105,9 @@ function channel_content(&$a, $update = 0, $load = false) {
 
 	if(! $update) {
 
-		$o .= profile_tabs($a, $is_owner, $a->profile['channel_address']);
+		$o .= profile_tabs($a, $is_owner, App::$profile['channel_address']);
 
-		$o .= common_friends_visitor_widget($a->profile['profile_uid']);
+		$o .= common_friends_visitor_widget(App::$profile['profile_uid']);
 
 		if($channel && $is_owner) {
 			$channel_acl = array(
@@ -124,15 +125,18 @@ function channel_content(&$a, $update = 0, $load = false) {
 
 			$x = array(
 				'is_owner' => $is_owner,
-            	'allow_location' => ((($is_owner || $observer) && (intval(get_pconfig($a->profile['profile_uid'],'system','use_browser_location')))) ? true : false),
-	            'default_location' => (($is_owner) ? $a->profile['channel_location'] : ''),
-    	        'nickname' => $a->profile['channel_address'],
-        	    'lockstate' => (((strlen($a->profile['channel_allow_cid'])) || (strlen($a->profile['channel_allow_gid'])) || (strlen($a->profile['channel_deny_cid'])) || (strlen($a->profile['channel_deny_gid']))) ? 'lock' : 'unlock'),
-            	'acl' => (($is_owner) ? populate_acl($channel_acl,true,(($a->profile['channel_r_stream'] & PERMS_PUBLIC) ? t('Public') : '')) : ''),
+				'allow_location' => ((($is_owner || $observer) && (intval(get_pconfig(App::$profile['profile_uid'],'system','use_browser_location')))) ? true : false),
+				'default_location' => (($is_owner) ? App::$profile['channel_location'] : ''),
+				'nickname' => App::$profile['channel_address'],
+				'lockstate' => (((strlen(App::$profile['channel_allow_cid'])) || (strlen(App::$profile['channel_allow_gid'])) || (strlen(App::$profile['channel_deny_cid'])) || (strlen(App::$profile['channel_deny_gid']))) ? 'lock' : 'unlock'),
+				'acl' => (($is_owner) ? populate_acl($channel_acl,true,((App::$profile['channel_r_stream'] & PERMS_PUBLIC) ? t('Public') : '')) : ''),
 				'showacl' => (($is_owner) ? 'yes' : ''),
-	            'bang' => '',
+				'bang' => '',
 				'visitor' => (($is_owner || $observer) ? true : false),
-        	    'profile_uid' => $a->profile['profile_uid']
+				'profile_uid' => App::$profile['profile_uid'],
+				'editor_autocomplete' => true,
+				'bbco_autocomplete' => 'bbcode',
+				'bbcode' => true
         	);
 
         	$o .= status_editor($a,$x);
@@ -146,18 +150,18 @@ function channel_content(&$a, $update = 0, $load = false) {
 	 */
 
 	$item_normal = item_normal();
-	$sql_extra = item_permissions_sql($a->profile['profile_uid']);
+	$sql_extra = item_permissions_sql(App::$profile['profile_uid']);
 
-	if(get_pconfig($a->profile['profile_uid'],'system','channel_list_mode') && (! $mid))
+	if(get_pconfig(App::$profile['profile_uid'],'system','channel_list_mode') && (! $mid))
 		$page_mode = 'list';
 	else
 		$page_mode = 'client';
 
-	$abook_uids = " and abook.abook_channel = " . intval($a->profile['profile_uid']) . " ";
+	$abook_uids = " and abook.abook_channel = " . intval(App::$profile['profile_uid']) . " ";
 
 	$simple_update = (($update) ? " AND item_unseen = 1 " : '');
 
-	$a->page['htmlhead'] .= "\r\n" . '<link rel="alternate" type="application/json+oembed" href="' . z_root() . '/oep?f=&url=' . urlencode(z_root() . '/' . $a->query_string) . '" title="oembed" />' . "\r\n";
+	App::$page['htmlhead'] .= "\r\n" . '<link rel="alternate" type="application/json+oembed" href="' . z_root() . '/oep?f=&url=' . urlencode(z_root() . '/' . App::$query_string) . '" title="oembed" />' . "\r\n";
 		
 	if($update && $_SESSION['loadtime'])
 		$simple_update = " AND (( item_unseen = 1 AND item.changed > '" . datetime_convert('UTC','UTC',$_SESSION['loadtime']) . "' )  OR item.changed > '" . datetime_convert('UTC','UTC',$_SESSION['loadtime']) . "' ) ";
@@ -170,7 +174,7 @@ function channel_content(&$a, $update = 0, $load = false) {
 			$r = q("SELECT parent AS item_id from item where mid like '%s' and uid = %d $item_normal
 				AND item_wall = 1 AND item_unseen = 1 $sql_extra limit 1",
 				dbesc($mid . '%'),
-				intval($a->profile['profile_uid'])
+				intval(App::$profile['profile_uid'])
 			);
 		} else {
 			$r = q("SELECT distinct parent AS `item_id`, created from item
@@ -180,7 +184,7 @@ function channel_content(&$a, $update = 0, $load = false) {
 				AND (abook.abook_blocked = 0 or abook.abook_flags is null)
 				$sql_extra
 				ORDER BY created DESC",
-				intval($a->profile['profile_uid'])
+				intval(App::$profile['profile_uid'])
 			);
 			$_SESSION['loadtime'] = datetime_convert();
 		}
@@ -203,15 +207,15 @@ function channel_content(&$a, $update = 0, $load = false) {
 		}
 
 		$itemspage = get_pconfig(local_channel(),'system','itemspage');
-		$a->set_pager_itemspage(((intval($itemspage)) ? $itemspage : 20));
-		$pager_sql = sprintf(" LIMIT %d OFFSET %d ", intval($a->pager['itemspage']), intval($a->pager['start']));
+		App::set_pager_itemspage(((intval($itemspage)) ? $itemspage : 20));
+		$pager_sql = sprintf(" LIMIT %d OFFSET %d ", intval(App::$pager['itemspage']), intval(App::$pager['start']));
 
-		if($load || ($_COOKIE['jsAvailable'] != 1)) {
+		if($load || ($checkjs->disabled())) {
 			if ($mid) {
 				$r = q("SELECT parent AS item_id from item where mid = '%s' and uid = %d $item_normal
 					AND item_wall = 1 $sql_extra limit 1",
 					dbesc($mid),
-					intval($a->profile['profile_uid'])
+					intval(App::$profile['profile_uid'])
 				);
 				if (! $r) {
 					notice( t('Permission denied.') . EOL);
@@ -225,7 +229,7 @@ function channel_content(&$a, $update = 0, $load = false) {
 					AND (abook_blocked = 0 or abook.abook_flags is null)
 					$sql_extra $sql_extra2
 					ORDER BY created DESC $pager_sql ",
-					intval($a->profile['profile_uid'])
+					intval(App::$profile['profile_uid'])
 				);
 			}
 		}
@@ -243,7 +247,7 @@ function channel_content(&$a, $update = 0, $load = false) {
 			WHERE `item`.`uid` = %d $item_normal
 			AND `item`.`parent` IN ( %s )
 			$sql_extra ",
-			intval($a->profile['profile_uid']),
+			intval(App::$profile['profile_uid']),
 			dbesc($parents_str)
 		);
 
@@ -266,19 +270,19 @@ function channel_content(&$a, $update = 0, $load = false) {
 		// This is ugly, but we can't pass the profile_uid through the session to the ajax updater,
 		// because browser prefetching might change it on us. We have to deliver it with the page.
 
-		$maxheight = get_pconfig($a->profile['profile_uid'],'system','channel_divmore_height');
+		$maxheight = get_pconfig(App::$profile['profile_uid'],'system','channel_divmore_height');
 		if(! $maxheight)
 			$maxheight = 400;
 
 		$o .= '<div id="live-channel"></div>' . "\r\n";
-		$o .= "<script> var profile_uid = " . $a->profile['profile_uid'] 
-			. "; var netargs = '?f='; var profile_page = " . $a->pager['page']
+		$o .= "<script> var profile_uid = " . App::$profile['profile_uid'] 
+			. "; var netargs = '?f='; var profile_page = " . App::$pager['page']
 			. "; divmore_height = " . intval($maxheight) . "; </script>\r\n";
 
-		$a->page['htmlhead'] .= replace_macros(get_markup_template("build_query.tpl"),array(
+		App::$page['htmlhead'] .= replace_macros(get_markup_template("build_query.tpl"),array(
 			'$baseurl' => z_root(),
 			'$pgtype' => 'channel',
-			'$uid' => (($a->profile['profile_uid']) ? $a->profile['profile_uid'] : '0'),
+			'$uid' => ((App::$profile['profile_uid']) ? App::$profile['profile_uid'] : '0'),
 			'$gid' => '0',
 			'$cid' => '0',
 			'$cmin' => '0',
@@ -290,7 +294,7 @@ function channel_content(&$a, $update = 0, $load = false) {
 			'$nouveau' => '0',
 			'$wall' => '1',
 			'$fh' => '0',
-			'$page' => (($a->pager['page'] != 1) ? $a->pager['page'] : 1),
+			'$page' => ((App::$pager['page'] != 1) ? App::$pager['page'] : 1),
 			'$search' => '',
 			'$order' => '',
 			'$list' => ((x($_REQUEST,'list')) ? intval($_REQUEST['list']) : 0),
@@ -335,16 +339,16 @@ function channel_content(&$a, $update = 0, $load = false) {
 	}
 
 
-	if($_COOKIE['jsAvailable'] == 1) {
-		$o .= conversation($a,$items,'channel',$update,$page_mode);
-	} else {
+	if($checkjs->disabled()) {
 		$o .= conversation($a,$items,'channel',$update,'traditional');
+	} else {
+		$o .= conversation($a,$items,'channel',$update,$page_mode);
 	}
 
-	if((! $update) || ($_COOKIE['jsAvailable'] != 1)) {
+	if((! $update) || ($checkjs->disabled())) {
 		$o .= alt_pager($a,count($items));
 		if ($mid && $items[0]['title'])
-			$a->page['title'] = $items[0]['title'] . " - " . $a->page['title'];
+			App::$page['title'] = $items[0]['title'] . " - " . App::$page['title'];
 	}
 
 	if($mid) 

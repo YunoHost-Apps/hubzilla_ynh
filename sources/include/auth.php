@@ -97,11 +97,11 @@ if((isset($_SESSION)) && (x($_SESSION, 'authenticated')) &&
 
 	// process a logout request
 
-	if(((x($_POST, 'auth-params')) && ($_POST['auth-params'] === 'logout')) || ($a->module === 'logout')) {
+	if(((x($_POST, 'auth-params')) && ($_POST['auth-params'] === 'logout')) || (App::$module === 'logout')) {
 		// process logout request
 		$args = array('channel_id' => local_channel());
 		call_hooks('logging_out', $args);
-		nuke_session();
+		\Zotlabs\Web\Session::nuke();
 		info( t('Logged out.') . EOL);
 		goaway(z_root());
 	}
@@ -117,7 +117,7 @@ if((isset($_SESSION)) && (x($_SESSION, 'authenticated')) &&
 				intval(ACCOUNT_ROLE_ADMIN)
 			);
 			if($x) {
-				new_cookie(60 * 60 * 24); // one day
+				\Zotlabs\Web\Session::new_cookie(60 * 60 * 24); // one day
 				$_SESSION['last_login_date'] = datetime_convert();
 				unset($_SESSION['visitor_id']); // no longer a visitor
 				authenticate_success($x[0], true, true);
@@ -128,75 +128,41 @@ if((isset($_SESSION)) && (x($_SESSION, 'authenticated')) &&
 			dbesc($_SESSION['visitor_id'])
 		);
 		if($r) {
-			get_app()->set_observer($r[0]);
+			App::set_observer($r[0]);
 		}
 		else {
 			unset($_SESSION['visitor_id']);
 			unset($_SESSION['authenticated']);
 		}
-		$a->set_groups(init_groups_visitor($_SESSION['visitor_id']));
+		App::set_groups(init_groups_visitor($_SESSION['visitor_id']));
 	}
 
 	// already logged in user returning
 
 	if(x($_SESSION, 'uid') || x($_SESSION, 'account_id')) {
 
-		// first check if we're enforcing that sessions can't change IP address
-		// @todo what to do with IPv6 addresses
-		if($_SESSION['addr'] && $_SESSION['addr'] != $_SERVER['REMOTE_ADDR']) {
-			logger('SECURITY: Session IP address changed: ' . $_SESSION['addr'] . ' != ' . $_SERVER['REMOTE_ADDR']);
-
-			$partial1 = substr($_SESSION['addr'], 0, strrpos($_SESSION['addr'], '.')); 
-			$partial2 = substr($_SERVER['REMOTE_ADDR'], 0, strrpos($_SERVER['REMOTE_ADDR'], '.')); 
-
-			$paranoia = intval(get_pconfig($_SESSION['uid'], 'system', 'paranoia'));
-			if(! $paranoia)
-				$paranoia = intval(get_config('system', 'paranoia'));
-
-			switch($paranoia) {
-				case 0:
-					// no IP checking
-					break;
-				case 2:
-					// check 2 octets
-					$partial1 = substr($partial1, 0, strrpos($partial1, '.'));
-					$partial2 = substr($partial2, 0, strrpos($partial2, '.'));
-					if($partial1 == $partial2)
-						break;
-				case 1:
-					// check 3 octets
-					if($partial1 == $partial2)
-						break;
-				case 3:
-				default:
-					// check any difference at all
-					logger('Session address changed. Paranoid setting in effect, blocking session. '
-					. $_SESSION['addr'] . ' != ' . $_SERVER['REMOTE_ADDR']);
-					nuke_session();
-					goaway(z_root());
-					break;
-			}
-		}
+		Zotlabs\Web\Session::return_check();
 
 		$r = q("select * from account where account_id = %d limit 1",
 			intval($_SESSION['account_id'])
 		);
 
 		if(($r) && (($r[0]['account_flags'] == ACCOUNT_OK) || ($r[0]['account_flags'] == ACCOUNT_UNVERIFIED))) {
-			get_app()->account = $r[0];
+			App::$account = $r[0];
 			$login_refresh = false;
 			if(! x($_SESSION,'last_login_date')) {
 				$_SESSION['last_login_date'] = datetime_convert('UTC','UTC');
 			}
 			if(strcmp(datetime_convert('UTC','UTC','now - 12 hours'), $_SESSION['last_login_date']) > 0 ) {
 				$_SESSION['last_login_date'] = datetime_convert();
+				Zotlabs\Web\Session::extend_cookie();
 				$login_refresh = true;
 			}
 			authenticate_success($r[0], false, false, false, $login_refresh);
 		}
 		else {
 			$_SESSION['account_id'] = 0;
-			nuke_session();
+			\Zotlabs\Web\Session::nuke();
 			goaway(z_root());
 		}
 	} // end logged in user returning
@@ -204,7 +170,7 @@ if((isset($_SESSION)) && (x($_SESSION, 'authenticated')) &&
 else {
 
 	if(isset($_SESSION)) {
-		nuke_session();
+		\Zotlabs\Web\Session::nuke();
 	}
 
 	// handle a fresh login request
@@ -237,16 +203,16 @@ else {
 			$record = $addon_auth['user_record'];
 		}
 		else {
-			$record = get_app()->account = account_verify_password($_POST['username'], $_POST['password']);
+			$record = App::$account = account_verify_password($_POST['username'], $_POST['password']);
 
-			if(get_app()->account) {
-				$_SESSION['account_id'] = get_app()->account['account_id'];
+			if(App::$account) {
+				$_SESSION['account_id'] = App::$account['account_id'];
 			}
 			else {
 				notice( t('Failed authentication') . EOL);
 			}
 
-			logger('authenticate: ' . print_r(get_app()->account, true), LOGGER_DEBUG);
+			logger('authenticate: ' . print_r(App::$account, true), LOGGER_ALL);
 		}
 
 		if((! $record) || (! count($record))) {
@@ -274,11 +240,13 @@ else {
 		// (i.e. expire when the browser is closed), even when there's a time expiration
 		// on the cookie
 
-		if($_POST['remember']) {
-			new_cookie(31449600); // one year
+		if($_POST['remember_me']) {
+			$_SESSION['remember_me'] = 1;
+			\Zotlabs\Web\Session::new_cookie(31449600); // one year
 		}
 		else {
-			new_cookie(0); // 0 means delete on browser exit
+			$_SESSION['remember_me'] = 0;
+			\Zotlabs\Web\Session::new_cookie(0); // 0 means delete on browser exit
 		}
 
 		// if we haven't failed up this point, log them in.

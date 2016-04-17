@@ -274,7 +274,7 @@ function can_comment_on_post($observer_xchan, $item) {
 		return true;
 	if(strstr($item['comment_policy'],'network:') && strstr($item['comment_policy'],'diaspora'))
 		return true;
-	if(strstr($item['comment_policy'],'site:') && strstr($item['comment_policy'],get_app()->get_hostname()))
+	if(strstr($item['comment_policy'],'site:') && strstr($item['comment_policy'],App::get_hostname()))
 		return true;
 
 	return false;
@@ -413,8 +413,8 @@ function post_activity_item($arr) {
 	if(! array_key_exists('item_thread_top',$arr) && (! $is_comment))
 		$arr['item_thread_top'] = 1;
 
-	$channel  = get_app()->get_channel();
-	$observer = get_app()->get_observer();
+	$channel  = App::get_channel();
+	$observer = App::get_observer();
 
 	$arr['aid'] = ((x($arr,'aid')) ? $arr['aid'] : $channel['channel_account_id']);
 	$arr['uid'] = ((x($arr,'uid')) ? $arr['uid'] : $channel['channel_id']);
@@ -602,7 +602,7 @@ function get_feed_for($channel, $observer_hash, $params) {
 		'order' => 'post',
 		'top'   => $params['top'],
 		'cat'   => $params['cat']
-		), $channel, $observer_hash, CLIENT_MODE_NORMAL, get_app()->module);
+		), $channel, $observer_hash, CLIENT_MODE_NORMAL, App::$module);
 	
 
 	$feed_template = get_markup_template('atom_feed.tpl');
@@ -1362,7 +1362,7 @@ function map_scope($scope, $strip = false) {
 		case PERMS_AUTHED:
 			return 'authenticated';
 		case PERMS_SITE:
-			return 'site: ' . get_app()->get_hostname();
+			return 'site: ' . App::get_hostname();
 		case PERMS_PENDING:
 			return 'any connections';
 		case PERMS_CONTACTS:
@@ -2265,7 +2265,7 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 		$arr['body'] = trim(z_input_filter($arr['uid'],$arr['body'],$arr['mimetype']));
 
 		if(local_channel() && (! $arr['sig'])) {
-			$channel = get_app()->get_channel();
+			$channel = App::get_channel();
 			if($channel['channel_hash'] === $arr['author_xchan']) {
 				$arr['sig'] = base64url_encode(rsa_sign($arr['body'],$channel['channel_prvkey']));
 				$arr['item_verified'] = 1;
@@ -2661,7 +2661,7 @@ function item_store_update($arr,$allow_exec = false, $deliver = true) {
         $arr['body'] = trim(z_input_filter($arr['uid'],$arr['body'],$arr['mimetype']));
 
         if(local_channel() && (! $arr['sig'])) {
-            $channel = get_app()->get_channel();
+            $channel = App::get_channel();
             if($channel['channel_hash'] === $arr['author_xchan']) {
                 $arr['sig'] = base64url_encode(rsa_sign($arr['body'],$channel['channel_prvkey']));
                 $arr['item_verified'] = 1;
@@ -2887,7 +2887,7 @@ function store_diaspora_comment_sig($datarray, $channel, $parent_item, $post_id,
 
 	logger('storing diaspora comment signature',LOGGER_DEBUG);
 
-	$diaspora_handle = $channel['channel_address'] . '@' . get_app()->get_hostname();
+	$diaspora_handle = $channel['channel_address'] . '@' . App::get_hostname();
 
 	$signed_text = $datarray['mid'] . ';' . $parent_item['mid'] . ';' . $signed_body . ';' . $diaspora_handle;
 
@@ -2966,7 +2966,7 @@ function send_status_notifications($post_id,$item) {
 	if($unfollowed)
 		return;
 
-	$link =  get_app()->get_baseurl() . '/display/' . $item['mid'];
+	$link =  z_root() . '/display/' . $item['mid'];
 
 	$y = q("select id from notify where link = '%s' and uid = %d limit 1",
 		dbesc($link),
@@ -3848,8 +3848,8 @@ function consume_feed($xml, $importer, &$contact, $pass = 0) {
 				$datarray = get_atom_elements($feed,$item,$author);
 
 				if($contact['xchan_network'] === 'rss') {
-					$res['public_policy'] = 'specific';
-					$res['comment_policy'] = 'none';
+					$datarray['public_policy'] = 'specific';
+					$datarray['comment_policy'] = 'none';
 				}
 
 				if((! x($author,'author_name')) || ($author['author_is_feed']))
@@ -3911,8 +3911,8 @@ function consume_feed($xml, $importer, &$contact, $pass = 0) {
 				$datarray = get_atom_elements($feed,$item,$author);
 
 				if($contact['xchan_network'] === 'rss') {
-					$res['public_policy'] = 'specific';
-					$res['comment_policy'] = 'none';
+					$datarray['public_policy'] = 'specific';
+					$datarray['comment_policy'] = 'none';
 				}
 
 
@@ -3931,6 +3931,16 @@ function consume_feed($xml, $importer, &$contact, $pass = 0) {
 				}
 
 				$datarray['author_xchan'] = '';
+
+				if(activity_match($datarray['verb'],ACTIVITY_FOLLOW) && $datarray['obj_type'] === ACTIVITY_OBJ_PERSON) {
+					$cb = array('item' => $datarray,'channel' => $importer, 'xchan' => null, 'author' => $author, 'caught' => false);
+					call_hooks('follow_from_feed',$cb);
+					if($cb['caught']) {
+						if($cb['return_code'])
+							http_status_exit($cb['return_code']);
+						continue;
+					}
+				}
 
 				if($author['author_link'] != $contact['xchan_url']) {
 					$x = import_author_unknown(array('name' => $author['author_name'],'url' => $author['author_link'],'photo' => array('src' => $author['author_photo'])));
@@ -4108,21 +4118,25 @@ function feed_meta($xml) {
     	$rawauthor = $feed->get_feed_tags(SIMPLEPIE_NAMESPACE_ATOM_10,'author');
 		logger('rawauthor: ' . print_r($rawauthor,true));
 
-	    if($rawauthor && $rawauthor[0]['child'][SIMPLEPIE_NAMESPACE_ATOM_10]['link']) {
-    	    $base = $rawauthor[0]['child'][SIMPLEPIE_NAMESPACE_ATOM_10]['link'];
-        	foreach($base as $link) {
-            	if(!x($author, 'author_photo') || ! $author['author_photo']) {
-                	if($link['attribs']['']['rel'] === 'photo' || $link['attribs']['']['rel'] === 'avatar') {
-                    	$author['author_photo'] = unxmlify($link['attribs']['']['href']);
-						break;
-					}
-            	}
-        	}
+	    if($rawauthor) {
+			if($rawauthor[0]['child'][SIMPLEPIE_NAMESPACE_ATOM_10]['link']) {
+	    	    $base = $rawauthor[0]['child'][SIMPLEPIE_NAMESPACE_ATOM_10]['link'];
+    	    	foreach($base as $link) {
+        	    	if(!x($author, 'author_photo') || ! $author['author_photo']) {
+            	    	if($link['attribs']['']['rel'] === 'photo' || $link['attribs']['']['rel'] === 'avatar') {
+                	    	$author['author_photo'] = unxmlify($link['attribs']['']['href']);
+							break;
+						}
+    	        	}
+        		}
+			}
 			if($rawauthor[0]['child'][NAMESPACE_POCO]['displayName'][0]['data'])
 				$author['full_name'] = unxmlify($rawauthor[0]['child'][NAMESPACE_POCO]['displayName'][0]['data']);
+			if($rawauthor[0]['child'][SIMPLEPIE_NAMESPACE_ATOM_10]['uri'][0]['data'])
+				$author['author_uri'] = unxmlify($rawauthor[0]['child'][SIMPLEPIE_NAMESPACE_ATOM_10]['uri'][0]['data']);
+			
 		}
     }
-
 
     if(substr($author['author_link'],-1,1) == '/')
         $author['author_link'] = substr($author['author_link'],0,-1);
@@ -4214,7 +4228,7 @@ function atom_entry($item,$type,$author,$owner,$comment = false,$cid = 0) {
 
 	if(($item['parent'] != $item['id']) || ($item['parent_mid'] !== $item['mid']) || (($item['thr_parent'] !== '') && ($item['thr_parent'] !== $item['mid']))) {
 		$parent_item = (($item['thr_parent']) ? $item['thr_parent'] : $item['parent_mid']);
-		$o .= '<thr:in-reply-to ref="' . xmlify($parent_item) . '" type="text/html" href="' .  xmlify($item['plink']) . '" />' . "\r\n";
+		$o .= '<thr:in-reply-to ref="' . z_root() . '/display/' . xmlify($parent_item) . '" type="text/html" href="' .  xmlify($item['plink']) . '" />' . "\r\n";
 	}
 
 	if(activity_match($item['obj_type'],ACTIVITY_OBJ_EVENT) && activity_match($item['verb'],ACTIVITY_POST)) {
@@ -4232,7 +4246,7 @@ function atom_entry($item,$type,$author,$owner,$comment = false,$cid = 0) {
 		$o .= '<content type="' . $type . '" >' . xmlify(prepare_text($body,$item['mimetype'])) . '</content>' . "\r\n";
 	}
 
-	$o .= '<id>' . xmlify($item['mid']) . '</id>' . "\r\n";
+	$o .= '<id>' . z_root() . '/display/' . xmlify($item['mid']) . '</id>' . "\r\n";
 	$o .= '<published>' . xmlify(datetime_convert('UTC','UTC',$item['created'] . '+00:00',ATOM_TIME)) . '</published>' . "\r\n";
 	$o .= '<updated>' . xmlify(datetime_convert('UTC','UTC',$item['edited'] . '+00:00',ATOM_TIME)) . '</updated>' . "\r\n";
 
@@ -4284,10 +4298,9 @@ function atom_entry($item,$type,$author,$owner,$comment = false,$cid = 0) {
 }
 
 function fix_private_photos($s, $uid, $item = null, $cid = 0) {
-	$a = get_app();
 
 	logger('fix_private_photos', LOGGER_DEBUG);
-	$site = substr($a->get_baseurl(),strpos($a->get_baseurl(),'://'));
+	$site = substr(z_root(),strpos(z_root(),'://'));
 
 	$orig_body = $s;
 	$new_body = '';
@@ -4567,8 +4580,6 @@ function drop_items($items) {
 
 function drop_item($id,$interactive = true,$stage = DROPITEM_NORMAL,$force = false) {
 
-	$a = get_app();
-
 	// locate item to be deleted
 
 	$r = q("SELECT * FROM item WHERE id = %d LIMIT 1",
@@ -4579,7 +4590,7 @@ function drop_item($id,$interactive = true,$stage = DROPITEM_NORMAL,$force = fal
 		if(! $interactive)
 			return 0;
 		notice( t('Item not found.') . EOL);
-		goaway($a->get_baseurl() . '/' . $_SESSION['return_url']);
+		goaway(z_root() . '/' . $_SESSION['return_url']);
 	}
 
 	$item = $r[0];
@@ -4602,7 +4613,7 @@ function drop_item($id,$interactive = true,$stage = DROPITEM_NORMAL,$force = fal
 		$ok_to_delete = true;
 
 	// author deletion
-	$observer = $a->get_observer();
+	$observer = App::get_observer();
 	if($observer && $observer['xchan_hash'] && ($observer['xchan_hash'] === $item['author_xchan']))
 		$ok_to_delete = true;
 
@@ -4652,13 +4663,13 @@ function drop_item($id,$interactive = true,$stage = DROPITEM_NORMAL,$force = fal
 		if((intval($item['item_wall']) && ($stage != DROPITEM_PHASE2)) || ($stage == DROPITEM_PHASE1))
 			proc_run('php','include/notifier.php','drop',$notify_id);
 
-		goaway($a->get_baseurl() . '/' . $_SESSION['return_url']);
+		goaway(z_root() . '/' . $_SESSION['return_url']);
 	}
 	else {
 		if(! $interactive)
 			return 0;
 		notice( t('Permission denied.') . EOL);
-		goaway($a->get_baseurl() . '/' . $_SESSION['return_url']);
+		goaway(z_root() . '/' . $_SESSION['return_url']);
 	}
 }
 
@@ -5067,8 +5078,6 @@ function items_fetch($arr,$channel = null,$observer_hash = null,$client_mode = C
 
 	$result = array('success' => false);
 
-	$a = get_app();
-
 	$sql_extra = '';
 	$sql_nets = '';
 	$sql_options = '';
@@ -5191,8 +5200,8 @@ function items_fetch($arr,$channel = null,$observer_hash = null,$client_mode = C
 		$pager_sql = '';
 	} else {
 		$itemspage = (($channel) ? get_pconfig($uid,'system','itemspage') : 20);
-		$a->set_pager_itemspage(((intval($itemspage)) ? $itemspage : 20));
-		$pager_sql = sprintf(" LIMIT %d OFFSET %d ", intval(get_app()->pager['itemspage']), intval(get_app()->pager['start']));
+		App::set_pager_itemspage(((intval($itemspage)) ? $itemspage : 20));
+		$pager_sql = sprintf(" LIMIT %d OFFSET %d ", intval(App::$pager['itemspage']), intval(App::$pager['start']));
 	}
 
 	if (isset($arr['start']) && isset($arr['records']))
@@ -5462,7 +5471,7 @@ function set_linkified_perms($linkified, &$str_contact_allow, &$str_group_allow,
  * @return boolean
  */
 function comment_local_origin($item) {
-	if(stripos($item['mid'], get_app()->get_hostname()) && ($item['parent'] != $item['id']))
+	if(stripos($item['mid'], App::get_hostname()) && ($item['parent'] != $item['id']))
 		return true;
 
 	return false;

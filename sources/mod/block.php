@@ -10,15 +10,15 @@ function block_init(&$a) {
 	$profile = 0;
 	profile_load($a,$which,$profile);
 
-	if($a->profile['profile_uid'])
-		head_set_icon($a->profile['thumb']);
+	if(App::$profile['profile_uid'])
+		head_set_icon(App::$profile['thumb']);
 
 }
 
 
 function block_content(&$a) {
 
-	if(! perm_is_allowed($a->profile['profile_uid'],get_observer_hash(),'view_pages')) {
+	if(! perm_is_allowed(App::$profile['profile_uid'],get_observer_hash(),'view_pages')) {
 		notice( t('Permission denied.') . EOL);
 		return;
 	}

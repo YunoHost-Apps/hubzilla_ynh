@@ -5,7 +5,7 @@
 		<div id="login-input" class="form-group">
 			{{include file="field_input.tpl" field=$lname}}
 			{{include file="field_password.tpl" field=$lpassword}}
-			{{include file="field_checkbox.tpl" field=$remember}}
+			{{include file="field_checkbox.tpl" field=$remember_me}}
 			<button type="submit" name="submit" class="btn btn-block btn-primary">{{$login}}</button>
 		</div>
 		<div id="login-extra-links">

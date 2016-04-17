@@ -1,3 +1,3 @@
 <?php
 
-$a->strings["Submit"] = "Spara";
+App::$strings["Submit"] = "Spara";

@@ -67,7 +67,10 @@ function push_notifier_process(&$a,&$b) {
 	if(! $b['normal_mode'])
 		return;
 
-	if($b['private'])
+	if($b['private'] || $b['packet_type'] || $b['mail'])
+		return;
+
+	if(! $b['top_level_post'])
 		return;
 
 	// find push_subscribers following this $owner
@@ -148,7 +151,7 @@ function push_queue_deliver(&$a,&$b) {
 		else {
 			logger('push_deliver: queue post returned ' . $result['return_code']
 				. ' from ' . $outq['outq_posturl'],LOGGER_DEBUG);
-				update_queue_item($outq['outq_posturl']);
+				update_queue_item($outq['outq_hash']);
 		}
 		return;
 	}
@@ -295,15 +298,20 @@ function pubsubhubbub_init(&$a) {
 }
 
 
-function pubsubhubbub_subscribe($url,$channel,$xchan,$hubmode = 'subscribe') {
+function pubsubhubbub_subscribe($url,$channel,$xchan,$feed,$hubmode = 'subscribe') {
 
 	$push_url = z_root() . '/pubsub/' . $channel['channel_address'] . '/' . $xchan['abook_id'];
 
 	$verify = get_abconfig($channel['channel_hash'],$xchan['xchan_hash'],'pubsubhubbub','verify_token');
 	if(! $verify)
 		$verify = set_abconfig($channel['channel_hash'],$xchan['xchan_hash'],'pubsubhubbub','verify_token',random_string(16));
+	if($feed)
+		set_xconfig($xchan['xchan_hash'],'system','feed_url',$feed);
+	else
+		$feed = get_xconfig($xchan['xchan_hash'],'system','feed_url');
 
-	$params= 'hub.mode=' . $hubmode . '&hub.callback=' . urlencode($push_url) . '&hub.topic=' . urlencode($contact['poll']) . '&hub.verify=async&hub.verify_token=' . $verify;
+
+	$params= 'hub.mode=' . $hubmode . '&hub.callback=' . urlencode($push_url) . '&hub.topic=' . urlencode($feed) . '&hub.verify=async&hub.verify_token=' . $verify;
 
 	logger('subscribe_to_hub: ' . $hubmode . ' ' . $xchan['xchan_name'] . ' to hub ' . $url . ' endpoint: '  . $push_url . ' with verifier ' . $verify);
 

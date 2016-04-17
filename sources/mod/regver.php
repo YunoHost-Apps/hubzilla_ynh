@@ -4,7 +4,7 @@ function regver_content(&$a) {
 
 	global $lang;
 
-	$_SESSION['return_url'] = $a->cmd;
+	$_SESSION['return_url'] = App::$cmd;
 
 	if(argc() != 3)
 		killme();

@@ -8,7 +8,7 @@ function editwebpage_init(&$a) {
 	if(argc() > 1 && argv(1) === 'sys' && is_site_admin()) {
 		$sys = get_sys_channel();
 		if($sys && intval($sys['channel_id'])) {
-			$a->is_sys = true;
+			App::$is_sys = true;
 		}
 	}
 
@@ -24,9 +24,9 @@ function editwebpage_init(&$a) {
 
 function editwebpage_content(&$a) {
 
-	if(! $a->profile) {
+	if(! App::$profile) {
 		notice( t('Requested profile is not available.') . EOL );
-		$a->error = 404;
+		App::$error = 404;
 		return;
 	}
 
@@ -35,11 +35,11 @@ function editwebpage_content(&$a) {
 	$uid = local_channel();
 	$owner = 0;
 	$channel = null;
-	$observer = $a->get_observer();
+	$observer = App::get_observer();
 
-	$channel = $a->get_channel();
+	$channel = App::get_channel();
 
-	if($a->is_sys && is_site_admin()) {
+	if(App::$is_sys && is_site_admin()) {
 		$sys = get_sys_channel();
 		if($sys && intval($sys['channel_id'])) {
 			$uid = $owner = intval($sys['channel_id']);
@@ -143,14 +143,15 @@ function editwebpage_content(&$a) {
 	else
 		$layoutselect = layout_select($itm[0]['uid'],$itm[0]['layout_mid']);
 
-	$a->page['htmlhead'] .= replace_macros(get_markup_template('jot-header.tpl'), array(
-		'$baseurl' => $a->get_baseurl(),
+	App::$page['htmlhead'] .= replace_macros(get_markup_template('jot-header.tpl'), array(
+		'$baseurl' => z_root(),
 		'$editselect' =>  (($plaintext) ? 'none' : '/(profile-jot-text|prvmail-text)/'),
 		'$pretext'  => '',
 		'$ispublic' => '&nbsp;', // t('Visible to <strong>everybody</strong>'),
 		'$geotag' => $geotag,
 		'$nickname' => $channel['channel_address'],
-		'$confirmdelete' => t('Delete webpage?')
+		'$confirmdelete' => t('Delete webpage?'),
+		'$bbco_autocomplete'=> (($mimetype  == 'text/bbcode') ? 'bbcode' : '')
 	));
 
 	$tpl = get_markup_template("jot.tpl");
@@ -192,7 +193,7 @@ function editwebpage_content(&$a) {
 		'$ptyp' => $itm[0]['type'],
 		'$content' => undo_post_tagging($itm[0]['body']),
 		'$post_id' => $post_id,
-		'$baseurl' => $a->get_baseurl(),
+		'$baseurl' => z_root(),
 		'$defloc' => $itm[0]['location'],
 		'$visitor' => ($is_owner) ? true : false,
 		'$acl' => populate_acl($itm[0],false),
@@ -211,11 +212,11 @@ function editwebpage_content(&$a) {
 		'$profile_uid' => (intval($owner)),
 		'$preview' => t('Preview'),
 		'$jotplugins' => $jotplugins,
-		'$sourceapp' => $a->sourcename,
+		'$sourceapp' => App::$sourcename,
 		'$defexpire' => '',
 		'$feature_expire' => false,
 		'$expires' => t('Set expiration date'),
-
+		'$bbcode' => (($mimetype  == 'text/bbcode') ? true : false)
 	));
 
 	$o .= replace_macros(get_markup_template('edpost_head.tpl'), array(

@@ -47,7 +47,7 @@ function pumpio_content(&$a) {
 				$o = pumpio_connect($a);
 				break;
 			default:
-				$o = print_r($a->argv, true);
+				$o = print_r(App::$argv, true);
 				break;
 		}
 	}
@@ -66,7 +66,7 @@ function pumpio_registerclient($a, $host) {
 	$application_name  = get_config('pumpio', 'application_name');
 
 	if (! $application_name)
-		$application_name = $a->get_hostname();
+		$application_name = App::get_hostname();
 
 	$params['type']             = 'client_associate';
 	$params['contacts']         = get_config('system','admin_email');
@@ -173,7 +173,7 @@ function pumpio_settings(&$a,&$s) {
 
 	/* Add our stylesheet to the page so we can make our settings look nice */
 
-	//$a->page['htmlhead'] .= '<link rel="stylesheet"  type="text/css" href="' . $a->get_baseurl() . '/addon/pumpio/pumpio.css' . '" media="all" />' . "\r\n";
+	//App::$page['htmlhead'] .= '<link rel="stylesheet"  type="text/css" href="' . z_root() . '/addon/pumpio/pumpio.css' . '" media="all" />' . "\r\n";
 
 	/* Get the current state of our config variables */
 
@@ -212,7 +212,7 @@ function pumpio_settings(&$a,&$s) {
 			$sc .= '<div class="section-content-danger-wrapper">';
 			$sc .= '<strong>' . t("You are not authenticated to pumpio") . '</strong>';
 			$sc .= '</div>';
-			$sc .= '<a href="'.$a->get_baseurl().'/pumpio/connect" class="btn btn-primary btn-xs">'.t("(Re-)Authenticate your pump.io connection").'</a>';
+			$sc .= '<a href="'.z_root().'/pumpio/connect" class="btn btn-primary btn-xs">'.t("(Re-)Authenticate your pump.io connection").'</a>';
 		}
 
 		$sc .= replace_macros(get_markup_template('field_checkbox.tpl'), array(
@@ -418,7 +418,7 @@ function pumpio_fetchtimeline($a, $uid) {
 	$application_name  = get_config('pumpio', 'application_name');
 
 	if ($application_name == "")
-		$application_name = $a->get_hostname();
+		$application_name = App::get_hostname();
 
 	$first_time = ($lastdate == "");
 

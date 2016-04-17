@@ -26,7 +26,7 @@
  * The required configuration options for this module may be set in the .htconfig.php file
  * e.g.:
  *
- * $a->config['ldapauth']['ldap_server'] = 'host.example.com';
+ * App::$config['ldapauth']['ldap_server'] = 'host.example.com';
  *
  * Parameters:
  * ldap_server = DNS hostname of LDAP service, or URL e.g. ldaps://example.com

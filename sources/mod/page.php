@@ -13,21 +13,21 @@ function page_init(&$a) {
 
 
 
-	if($a->profile['profile_uid'])
-		head_set_icon($a->profile['thumb']);
+	if(App::$profile['profile_uid'])
+		head_set_icon(App::$profile['thumb']);
 	
 	// load the item here in the init function because we need to extract
 	// the page layout and initialise the correct theme.
 
 
-	$observer = $a->get_observer();
+	$observer = App::get_observer();
 	$ob_hash = (($observer) ? $observer['xchan_hash'] : '');
 
 
 	// perm_is_allowed is denied unconditionally when 'site blocked to unauthenticated members'. 
 	// This bypasses that restriction for sys channel (public) content
 
-	if((! perm_is_allowed($a->profile['profile_uid'],$ob_hash,'view_pages')) && (! is_sys_channel($a->profile['profile_uid']))) {
+	if((! perm_is_allowed(App::$profile['profile_uid'],$ob_hash,'view_pages')) && (! is_sys_channel(App::$profile['profile_uid']))) {
 		notice( t('Permission denied.') . EOL);
 		return;
 	}
@@ -91,10 +91,13 @@ function page_init(&$a) {
 		return;
 	}
 
+	if($r[0]['title'])
+		App::$page['title'] = escape_tags($r[0]['title']);
+
 	if($r[0]['item_type'] == ITEM_TYPE_PDL) {
 		require_once('include/comanche.php');
 		comanche_parser(get_app(),$r[0]['body']);
-			get_app()->pdl = $r[0]['body'];
+			App::$pdl = $r[0]['body'];
 	}
 	elseif($r[0]['layout_mid']) {
 		$l = q("select body from item where mid = '%s' and uid = %d limit 1",
@@ -105,11 +108,11 @@ function page_init(&$a) {
 		if($l) {
 			require_once('include/comanche.php');
 			comanche_parser(get_app(),$l[0]['body']);
-			get_app()->pdl = $l[0]['body'];
+			App::$pdl = $l[0]['body'];
 		}
 	}
 
-	$a->data['webpage'] = $r;
+	App::$data['webpage'] = $r;
 
 }
 
@@ -118,7 +121,7 @@ function page_init(&$a) {
 
 function page_content(&$a) {
 
-	$r = $a->data['webpage'];
+	$r = App::$data['webpage'];
 	if(! $r)
 		return;
 
@@ -133,7 +136,7 @@ function page_content(&$a) {
 	$r = fetch_post_tags($r,true);
 
 	if($r[0]['mimetype'] === 'application/x-pdl')
-		$a->page['pdl_content'] = true;
+		App::$page['pdl_content'] = true;
 
 	$o .= prepare_page($r[0]);
 	return $o;

@@ -1,9 +1,9 @@
 <?php
 
-$a->strings["Post to libertree"] = "";
-$a->strings["libertree Post Settings"] = "";
-$a->strings["Enable Libertree Post Plugin"] = "";
-$a->strings["Libertree API token"] = "";
-$a->strings["Libertree site URL"] = "";
-$a->strings["Post to Libertree by default"] = "";
-$a->strings["Submit"] = "Invia";
+App::$strings["Post to libertree"] = "";
+App::$strings["libertree Post Settings"] = "";
+App::$strings["Enable Libertree Post Plugin"] = "";
+App::$strings["Libertree API token"] = "";
+App::$strings["Libertree site URL"] = "";
+App::$strings["Post to Libertree by default"] = "";
+App::$strings["Submit"] = "Invia";

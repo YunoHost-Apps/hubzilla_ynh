@@ -85,7 +85,7 @@ function oembed_fetch_url($embedurl){
 
 // logger('fetch: ' . $embedurl);
 
-	$txt = Cache::get($a->videowidth . $embedurl);
+	$txt = Cache::get(App::$videowidth . $embedurl);
 
 	if(strstr($txt,'youtu') && strstr(z_root(),'https:')) {
 		$txt = str_replace('http:','https:',$txt);
@@ -124,7 +124,7 @@ function oembed_fetch_url($embedurl){
 					$entries = $xpath->query("//link[@type='application/json+oembed']");
 					foreach($entries as $e){
 						$href = $e->getAttributeNode("href")->nodeValue;
-						$x = z_fetch_url($href . '&maxwidth=' . $a->videowidth);
+						$x = z_fetch_url($href . '&maxwidth=' . App::$videowidth);
 						$txt = $x['body'];
 						break;
 					}
@@ -133,7 +133,7 @@ function oembed_fetch_url($embedurl){
 					$entries = $xpath->query("//link[@type='text/json+oembed']");
 					foreach($entries as $e){
 						$href = $e->getAttributeNode("href")->nodeValue;
-						$x = z_fetch_url($href . '&maxwidth=' . $a->videowidth);
+						$x = z_fetch_url($href . '&maxwidth=' . App::$videowidth);
 						$txt = $x['body'];
 						break;
 					}
@@ -142,7 +142,7 @@ function oembed_fetch_url($embedurl){
 		}
 		
 		if ($txt==false || $txt=="") {
-			$x = array('url' => $embedurl,'videowidth' => $a->videowidth);
+			$x = array('url' => $embedurl,'videowidth' => App::$videowidth);
 			call_hooks('oembed_probe',$x);
 			if(array_key_exists('embed',$x))
 				$txt = $x['embed'];
@@ -154,7 +154,7 @@ function oembed_fetch_url($embedurl){
 		//save in cache
 
 		if(! get_config('system','oembed_cache_disable'))
-			Cache::set($a->videowidth . $embedurl,$txt);
+			Cache::set(App::$videowidth . $embedurl,$txt);
 
 	}
 
@@ -195,7 +195,7 @@ function oembed_format_object($j){
 				
 				}
 				$ret.=replace_macros($tpl, array(
-                    '$baseurl' => $a->get_baseurl(),
+                    '$baseurl' => z_root(),
 					'$embedurl'=>$embedurl,
 					'$escapedhtml'=>base64_encode($jhtml),
 					'$tw'=>$tw,

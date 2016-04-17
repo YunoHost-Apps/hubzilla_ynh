@@ -108,14 +108,14 @@ function xmpp_converse(&$a,&$s) {
 	if ($_GET["mode"] == "minimal")
 		return;
 
-	if ($a->is_mobile || $a->is_tablet)
+	if (App::$is_mobile || App::$is_tablet)
 		return;
 
 	if (!get_pconfig(local_channel(),"xmpp","enabled"))
 		return;
 
-	$a->page['htmlhead'] .= '<link type="text/css" rel="stylesheet" media="screen" href="addon/xmpp/converse/css/converse.css" />'."\n";
-	$a->page['htmlhead'] .= '<script src="addon/xmpp/converse/builds/converse.min.js"></script>'."\n";
+	App::$page['htmlhead'] .= '<link type="text/css" rel="stylesheet" media="screen" href="addon/xmpp/converse/css/converse.css" />'."\n";
+	App::$page['htmlhead'] .= '<script src="addon/xmpp/converse/builds/converse.min.js"></script>'."\n";
 
 	if (get_config("xmpp", "central_userbase") && !get_pconfig(local_channel(),"xmpp","individual")) {
 		$bosh_proxy = get_config("xmpp", "bosh_proxy");
@@ -126,9 +126,9 @@ function xmpp_converse(&$a,&$s) {
 			$password = substr(random_string(),0,16);
 			set_pconfig(local_channel(), "xmpp", "password", $password);
 		}
-		$channel = $a->get_channel();
+		$channel = App::get_channel();
 
-		$jid = $channel["channel_address"]."@".$a->get_hostname()."/converse-".substr(random_string(),0,5);;
+		$jid = $channel["channel_address"]."@".App::get_hostname()."/converse-".substr(random_string(),0,5);;
 
 		$auto_login = "auto_login: true,
 			authentication: 'login',
@@ -174,7 +174,7 @@ function xmpp_converse(&$a,&$s) {
 					xhr_user_search: false
 				});\n";
 
-	$a->page['htmlhead'] .= "<script>
+	App::$page['htmlhead'] .= "<script>
 					require(['converse'], function (converse) {
 						$initialize
 						converse.listen.on('ready', function (event) {

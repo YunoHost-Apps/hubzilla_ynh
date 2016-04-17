@@ -46,12 +46,12 @@ function id_init(&$a) {
 	if(argc() > 1) {
 		$which = argv(1);
 	} else {
-		$a->error = 404;
+		App::$error = 404;
 		return;
 	}
 
 	$profile = '';
-	$channel = $a->get_channel();
+	$channel = App::get_channel();
 	profile_load($a,$which,$profile);
 
 	$op = new MysqlProvider;
@@ -69,7 +69,7 @@ function id_init(&$a) {
 function getUserData($handle = null) {
 	if (! local_channel()) {
 		notice( t('Permission denied.') . EOL);
-		get_app()->page['content'] =  login();
+		App::$page['content'] =  login();
 
 		return false;
 	}
@@ -235,7 +235,7 @@ class MysqlProvider extends LightOpenIDProvider {
            . '<button name="cancel">cancel</button> '
            . '</form>';
 
-		get_app()->page['content'] .= $o;
+		App::$page['content'] .= $o;
 	}
 
 	function checkid($realm, &$attributes) {
@@ -279,7 +279,7 @@ class MysqlProvider extends LightOpenIDProvider {
 
 	function assoc_handle() {
 		logger('assoc_handle');
-		$channel = get_app()->get_channel();
+		$channel = App::get_channel();
 
 		return z_root() . '/channel/' . $channel['channel_address']; 
 	}

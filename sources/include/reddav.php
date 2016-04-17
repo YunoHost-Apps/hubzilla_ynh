@@ -23,9 +23,6 @@ use Zotlabs\Storage;
 
 require_once('vendor/autoload.php');
 require_once('include/attach.php');
-//require_once('Zotlabs/Storage/File.php');
-//require_once('Zotlabs/Storage/Directory.php');
-//require_once('Zotlabs/Storage/BasicAuth.php');
 
 /**
  * @brief Returns an array with viewable channels.

@@ -6,8 +6,18 @@ function notes_init(&$a) {
 		return;
 
 	$ret = array('success' => true);
-	if($_REQUEST['note_text'] || $_REQUEST['note_text'] == '') {
+	if(array_key_exists('note_text',$_REQUEST)) {
 		$body = escape_tags($_REQUEST['note_text']);
+
+		// I've had my notes vanish into thin air twice in four years.
+		// Provide a backup copy if there were contents previously 
+		// and there are none being saved now.
+
+		if(! $body) {
+			$old_text = get_pconfig(local_channel(),'notes','text');
+			if($old_text)
+				set_pconfig(local_channel(),'notes','text.bak',$old_text);
+		}
 		set_pconfig(local_channel(),'notes','text',$body);
 	}
 

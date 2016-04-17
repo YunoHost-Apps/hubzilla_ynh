@@ -22,7 +22,7 @@ function impel_init(&$a) {
 	if(! $j)
 		json_return_and_die($ret);
 
-	$channel = $a->get_channel();
+	$channel = App::get_channel();
 
 	$arr = array();
 	$is_menu = false;

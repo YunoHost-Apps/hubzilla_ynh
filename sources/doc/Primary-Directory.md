@@ -12,7 +12,7 @@ There are certain scenarios where you might want your own directory-server that 
 
 *   On the hub that will be the Directory Server, open the .htconfig.php file and set:
 
-    `$a->config['system']['directory_mode'] = DIRECTORY_MODE_PRIMARY;`
+    `App::$config['system']['directory_mode'] = DIRECTORY_MODE_PRIMARY;`
 
 
     By default it should already be set as **DIRECTORY_MODE_NORMAL**, so just edit that line to say **DIRECTORY_MODE_PRIMARY**

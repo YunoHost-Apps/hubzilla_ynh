@@ -1,5 +1,5 @@
 <?php
 
-$a->strings["\"pageheader\" Settings"] = "Configurações do \"pageheader\"";
-$a->strings["Submit"] = "Enviar";
-$a->strings["pageheader Settings saved."] = "Configurações do pageheader armazenadas.";
+App::$strings["\"pageheader\" Settings"] = "Configurações do \"pageheader\"";
+App::$strings["Submit"] = "Enviar";
+App::$strings["pageheader Settings saved."] = "Configurações do pageheader armazenadas.";

@@ -1,9 +1,9 @@
 <?php
 
-$a->strings["Post to Dreamwidth"] = "Poster vers Dreamwidth";
-$a->strings["Dreamwidth Post Settings"] = "Réglages Dreamwidth";
-$a->strings["Enable dreamwidth Post Plugin"] = "Activer \"Poster vers Dreamwidth\"";
-$a->strings["dreamwidth username"] = "Nom d'utilisateur Dreamwidth";
-$a->strings["dreamwidth password"] = "Mot de passe";
-$a->strings["Post to dreamwidth by default"] = "Poster vers Dreamwidth par défaut";
-$a->strings["Submit"] = "Envoyer";
+App::$strings["Post to Dreamwidth"] = "Poster vers Dreamwidth";
+App::$strings["Dreamwidth Post Settings"] = "Réglages Dreamwidth";
+App::$strings["Enable dreamwidth Post Plugin"] = "Activer \"Poster vers Dreamwidth\"";
+App::$strings["dreamwidth username"] = "Nom d'utilisateur Dreamwidth";
+App::$strings["dreamwidth password"] = "Mot de passe";
+App::$strings["Post to dreamwidth by default"] = "Poster vers Dreamwidth par défaut";
+App::$strings["Submit"] = "Envoyer";

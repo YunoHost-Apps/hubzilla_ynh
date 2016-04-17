@@ -7,10 +7,10 @@ function fsuggest_post(&$a) {
 		return;
 	}
 
-	if($a->argc != 2)
+	if(App::$argc != 2)
 		return;
 
-	$contact_id = intval($a->argv[1]);
+	$contact_id = intval(App::$argv[1]);
 
 	$r = q("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 		intval($contact_id),
@@ -79,10 +79,10 @@ function fsuggest_content(&$a) {
 		return;
 	}
 
-	if($a->argc != 2)
+	if(App::$argc != 2)
 		return;
 
-	$contact_id = intval($a->argv[1]);
+	$contact_id = intval(App::$argv[1]);
 
 	$r = q("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 		intval($contact_id),

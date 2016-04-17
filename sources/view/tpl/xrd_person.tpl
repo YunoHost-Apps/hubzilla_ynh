@@ -2,7 +2,10 @@
 <XRD xmlns="http://docs.oasis-open.org/ns/xri/xrd-1.0">
  
     <Subject>{{$accturi}}</Subject>
- 
+	{{if $aliases}}{{foreach $aliases as $a}}
+	<Alias>{{$a}}</Alias>   
+	{{/foreach}}{{/if}}
+
     <Link rel="http://schemas.google.com/g/2010#updates-from" 
           type="application/atom+xml" 
           href="{{$atom}}" />

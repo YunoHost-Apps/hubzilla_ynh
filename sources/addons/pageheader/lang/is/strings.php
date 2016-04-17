@@ -1,5 +1,5 @@
 <?php
 
-$a->strings["\"pageheader\" Settings"] = "Stillingar \"pageheader\"";
-$a->strings["Submit"] = "Senda inn";
-$a->strings["pageheader Settings saved."] = "Stillingar pageheader vistaðar.";
+App::$strings["\"pageheader\" Settings"] = "Stillingar \"pageheader\"";
+App::$strings["Submit"] = "Senda inn";
+App::$strings["pageheader Settings saved."] = "Stillingar pageheader vistaðar.";

@@ -29,12 +29,12 @@ function rainbowtag_unload() {
 
 function rainbowtag_construct_page(&$a,&$b) {
 
-	if(! $a->profile_uid)
+	if(! App::$profile_uid)
 		return;
-	if(! intval(get_pconfig($a->profile_uid,'rainbowtag','enable')))
+	if(! intval(get_pconfig(App::$profile_uid,'rainbowtag','enable')))
 		return;
 
-	$c = get_pconfig($a->profile_uid,'rainbowtag','colors');
+	$c = get_pconfig(App::$profile_uid,'rainbowtag','colors');
 	$color1 = ((is_array($c) && $c[0]) ? $c[0] : 'DarkGray');
 	$color2 = ((is_array($c) && $c[1]) ? $c[1] : 'LawnGreen');
 	$color3 = ((is_array($c) && $c[2]) ? $c[2] : 'DarkOrange');
@@ -61,7 +61,7 @@ function rainbowtag_construct_page(&$a,&$b) {
 	$o .= '.tag10 { color: ' . $color10 . ' !important; }' . "\r\n";
 	$o .= '</style>';
 
-	$a->page['htmlhead'] .= $o;
+	App::$page['htmlhead'] .= $o;
 
 }
 

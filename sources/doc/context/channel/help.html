@@ -1,0 +1,24 @@
+<script>
+    var contextualHelp1 = function (target, openSidePanel) {
+        $("#help-content").removeClass('help-content-open');  // Close the help panel
+        $("#navbar-collapse-1").removeClass('in');  // Collapse the navbar for small screens
+        if (openSidePanel) {
+            $("main").addClass('region_1-on');  // Open the side panel to highlight element 
+        } else {
+            $("main").removeClass('region_1-on');
+        }
+        // Animate the page scroll to the element and then pulse the element to direct attention
+        $('html,body').animate({scrollTop: $(target).offset().top - $('#navbar-collapse-1').height() - 20}, 'slow');
+        for (i = 0; i < 3; i++) {
+            $(target).fadeTo('slow', 0.1).fadeTo('slow', 1.0);
+        }
+    }
+</script>
+<dl class="dl-horizontal">
+  <dt>General</dt>
+  <dd>This is the home page of a channel. It is similar to someone's profile "wall" in a social network context. Posts created by the channel are displayed according to the observer's viewing permissions.</dd>
+  <dt>Create a Post</dt>
+  <dd>If you have permission to create posts on the channel page, then you will see the post editor at the top.</dd>
+  <dt><a href='#' onclick='contextualHelp1("#tabs-collapse-1", 0); return false;' title="Click to highlight element...">Channel Content Tabs</a></dt>
+  <dd>The channel content tabs are links to other content published by the channel. The <b>About</b> tab links to the channel profile. The <b>Photos</b> tab links to the channel photo galleries. The <b>Files</b> tab links to the general shared files published by the channel.</dd>
+</dl>

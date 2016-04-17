@@ -20,9 +20,9 @@ function api_login(&$a){
 		if (!is_null($token)){
 			$oauth->loginUser($token->uid);
 
-			$a->set_oauth_key($consumer->key);
+			App::set_oauth_key($consumer->key);
 
-			call_hooks('logged_in', $a->user);
+			call_hooks('logged_in', App::$user);
 			return;
 		}
 		killme();

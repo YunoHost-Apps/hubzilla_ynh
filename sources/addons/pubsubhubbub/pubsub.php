@@ -5,6 +5,7 @@ require_once('include/Contact.php');
 
 function pubsub_init(&$a) {
 
+
 	$nick = ((argc() > 1) ? escape_tags(trim(argv(1))) : '');
 	$contact_id = ((argc() > 2) ? intval(argv(2)) : 0 );
 
@@ -18,6 +19,8 @@ function pubsub_init(&$a) {
 
 		logger('pubsub: Subscription from ' . $_SERVER['REMOTE_ADDR']);
 		logger('pubsub: data: ' . print_r($_GET,true), LOGGER_DATA);
+
+
 
 		$subscribe = (($hub_mode === 'subscribe') ? 1 : 0);
 
@@ -75,9 +78,20 @@ function pubsub_init(&$a) {
 
 function pubsub_post(&$a) {
 
+	$sys_disabled = true;
+
+    if(! get_config('system','disable_discover_tab')) {
+       	$sys_disabled = get_config('system','disable_diaspora_discover_tab');
+   	}
+   	$sys = (($sys_disabled) ? null : get_sys_channel());
+	if($sys)
+		$sys['system'] = true;
+
+
+
 	$xml = file_get_contents('php://input');
 
-	logger('pubsub: feed arrived from ' . $_SERVER['REMOTE_ADDR'] . ' for ' .  $a->cmd );
+	logger('pubsub: feed arrived from ' . $_SERVER['REMOTE_ADDR'] . ' for ' .  App::$cmd );
 	logger('pubsub: user-agent: ' . $_SERVER['HTTP_USER_AGENT'] );
 	logger('pubsub: data: ' . $xml, LOGGER_DATA);
 
@@ -89,21 +103,38 @@ function pubsub_post(&$a) {
 	if(! $channel)
 		http_status_exit(200,'OK');
 
-	$connections = abook_connections($channel['channel_id'], ' and abook_id = ' . $contact_id);
-	if($connections)
-		$xchan = $connections[0];
-	else {
-		logger('connection ' . $contact_id . ' not found.');
-		http_status_exit(200,'OK');
-	}
 
-	if(! perm_is_allowed($channel['channel_id'],$xchan['xchan_hash'],'send_stream')) {
-		logger('permission denied.');
-		http_status_exit(200,'OK');
-	}
+	$importer_arr = array($channel);
+	if($sys)
+		$importer_arr[] = $sys;
 
-	consume_feed($xml,$channel,$xchan,1);
-	consume_feed($xml,$channel,$xchan,2);
+
+
+	foreach($importer_arr as $channel) {
+		if(! $channel['system']) {
+			$connections = abook_connections($channel['channel_id'], ' and abook_id = ' . $contact_id);
+		}
+		else {
+			$connections = q("select * from abook left join xchan on abook_xchan = xchan_hash where abook_id = %d",
+				intval($contact_id)
+			);
+		}
+		if($connections)
+			$xchan = $connections[0];
+		else {
+			logger('connection ' . $contact_id . ' not found.');
+			continue;
+		}
+
+		if((! perm_is_allowed($channel['channel_id'],$xchan['xchan_hash'],'send_stream')) && (! $channel['system'])) {
+			logger('permission denied.');
+			continue;
+		}
+
+		consume_feed($xml,$channel,$xchan,1);
+		consume_feed($xml,$channel,$xchan,2);
+
+	}
 
 	http_status_exit(200,'OK');
 

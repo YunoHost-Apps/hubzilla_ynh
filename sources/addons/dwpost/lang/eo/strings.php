@@ -1,9 +1,9 @@
 <?php
 
-$a->strings["Post to Dreamwidth"] = "Afiŝi al Dreamwidth";
-$a->strings["Dreamwidth Post Settings"] = "Agordoj por Afiŝoj al Dreamwidth";
-$a->strings["Enable dreamwidth Post Plugin"] = "Ŝalti la Dreamwidth Kromprogramon";
-$a->strings["dreamwidth username"] = "Dreamwidth salutnomo";
-$a->strings["dreamwidth password"] = "Dreamwidth pasvorto";
-$a->strings["Post to dreamwidth by default"] = "Defaŭlte afiŝi al Dreamwidth";
-$a->strings["Submit"] = "Sendi";
+App::$strings["Post to Dreamwidth"] = "Afiŝi al Dreamwidth";
+App::$strings["Dreamwidth Post Settings"] = "Agordoj por Afiŝoj al Dreamwidth";
+App::$strings["Enable dreamwidth Post Plugin"] = "Ŝalti la Dreamwidth Kromprogramon";
+App::$strings["dreamwidth username"] = "Dreamwidth salutnomo";
+App::$strings["dreamwidth password"] = "Dreamwidth pasvorto";
+App::$strings["Post to dreamwidth by default"] = "Defaŭlte afiŝi al Dreamwidth";
+App::$strings["Submit"] = "Sendi";

@@ -35,16 +35,16 @@ function tictac_content(&$a) {
 	$o = '';
 
   if($_POST['move']) {
-    $handicap = $a->argv[1];
-    $mefirst = $a->argv[2];
-    $dimen = $a->argv[3];
-    $yours = $a->argv[4];
-    $mine  = $a->argv[5];
+    $handicap = App::$argv[1];
+    $mefirst = App::$argv[2];
+    $dimen = App::$argv[3];
+    $yours = App::$argv[4];
+    $mine  = App::$argv[5];
     
     $yours .= $_POST['move'];
   }
-  elseif($a->argc > 1) {
-    $handicap = $a->argv[1];
+  elseif(App::$argc > 1) {
+    $handicap = App::$argv[1];
     $dimen = 3;
   }
   else {

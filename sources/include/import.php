@@ -636,6 +636,7 @@ function sync_events($channel,$events) {
 
 function import_menus($channel,$menus) {
 
+
 	if($channel && $menus) {
 		foreach($menus as $menu) {
 			$m = array();
@@ -681,6 +682,8 @@ function import_menus($channel,$menus) {
 			}
 		}
 	}
+
+
 }
 
 
@@ -867,6 +870,257 @@ function import_mail($channel,$mails) {
 
 
 
+function sync_files($channel,$files) {
 
+	require_once('include/attach.php');
+
+	if($channel && $files) {
+		foreach($files as $f) {
+			if(! $f)
+				continue;
+
+			$fetch_url = $f['fetch_url'];
+			$oldbase = dirname($fetch_url);
+			$original_channel = $f['original_channel'];
+
+			if(! ($fetch_url && $original_channel))
+				continue;		
+
+			if($f['attach']) {
+				$attachment_stored = false;
+				foreach($f['attach'] as $att) {
+
+					if($att['deleted']) {
+						attach_delete($channel,$att['hash']);
+						continue;
+					}
+
+					$attach_exists = false;
+					$x = attach_by_hash($att['hash']);
+
+					if($x) {
+						$attach_exists = true;
+						$attach_id = $x[0]['id'];
+					}
+
+					$newfname = 'store/' . $channel['channel_address'] . '/' . get_attach_binname($att['data']);
+
+ 					unset($att['id']);
+					$att['aid'] = $channel['channel_account_id'];
+					$att['uid'] = $channel['channel_id'];
+
+
+					// check for duplicate folder names with the same parent. 
+					// If we have a duplicate that doesn't match this hash value
+					// change the name so that the contents won't be "covered over" 
+					// by the existing directory. Use the same logic we use for 
+					// duplicate files. 
+
+					if(strpos($att['filename'],'.') !== false) {
+						$basename = substr($att['filename'],0,strrpos($att['filename'],'.'));
+						$ext = substr($att['filename'],strrpos($att['filename'],'.'));
+					}
+					else {
+						$basename = $att['filename'];
+						$ext = '';
+					}
+
+					$r = q("select filename from attach where ( filename = '%s' OR filename like '%s' ) and folder = '%s' and hash != '%s' ",
+						dbesc($basename . $ext),
+						dbesc($basename . '(%)' . $ext),
+						dbesc($att['folder']),
+						dbesc($att['hash'])
+					);
+
+					if($r) {
+						$x = 1;
+
+						do {
+							$found = false;
+							foreach($r as $rr) {
+								if($rr['filename'] === $basename . '(' . $x . ')' . $ext) {
+									$found = true;
+									break;
+								}
+							}
+							if($found)
+								$x++;
+						}			
+						while($found);
+						$att['filename'] = $basename . '(' . $x . ')' . $ext;
+					}
+					else
+						$att['filename'] = $basename . $ext;
+
+					// end duplicate detection
+
+// @fixme - update attachment structures if they are modified rather than created
+
+					$att['data'] = $newfname;
+
+					// Note: we use $att['hash'] below after it has been escaped to
+					// fetch the file contents. 
+					// If the hash ever contains any escapable chars this could cause
+					// problems. Currently it does not. 
+
+					dbesc_array($att);
+
+
+					if($attach_exists) {
+					    $str = '';
+    					foreach($att as $k => $v) {
+				        	if($str)
+            					$str .= ",";
+        					$str .= " `" . $k . "` = '" . $v . "' ";
+    					}
+					    $r = dbq("update `attach` set " . $str . " where id = " . intval($attach_id) );
+					}
+					else {
+						$r = dbq("INSERT INTO attach (`" 
+							. implode("`, `", array_keys($att)) 
+							. "`) VALUES ('" 
+							. implode("', '", array_values($att)) 
+							. "')" );
+					}
+
+
+					// is this a directory?
+
+					if($att['filetype'] === 'multipart/mixed' && $att['is_dir']) {
+						os_mkdir($newfname, STORAGE_DEFAULT_PERMISSIONS,true);
+						continue;
+					}
+					else {
+
+						// it's a file
+						// for the sync version of this algorithm (as opposed to 'offline import')
+						// we will fetch the actual file from the source server so it can be 
+						// streamed directly to disk and avoid consuming PHP memory if it's a huge
+						// audio/video file or something. 
+
+						$time = datetime_convert();
+
+						$parr = array('hash' => $channel['channel_hash'], 
+							'time' => $time, 
+							'resource' => $att['hash'],
+							'revision' => 0,
+							'signature' => base64url_encode(rsa_sign($channel['channel_hash'] . '.' . $time, $channel['channel_prvkey']))
+						);
+
+						$store_path = $newfname;
+
+						$fp = fopen($newfname,'w');
+						if(! $fp) {
+							logger('failed to open storage file.',LOGGER_NORMAL,LOG_ERR);
+							continue;
+						}
+						$redirects = 0;
+						$x = z_post_url($fetch_url,$parr,$redirects,array('filep' => $fp));
+						fclose($fp);
+
+						if($x['success']) {
+							$attachment_stored = true;
+						}
+						continue;
+					}
+				}
+			}
+			if(! $attachment_stored) {
+				// @TODO should we queue this and retry or delete everything or what? 
+				logger('attachment store failed',LOGGER_NORMAL,LOG_ERR);
+			}
+			if($f['photo']) {
+				foreach($f['photo'] as $p) {
+ 					unset($p['id']);
+					$p['aid'] = $channel['channel_account_id'];
+					$p['uid'] = $channel['channel_id'];
+
+					// if this is a profile photo, undo the profile photo bit
+					// for any other photo which previously held it.
+
+					if($p['photo_usage'] == PHOTO_PROFILE) {
+						$e = q("update photo set photo_usage = %d where photo_usage = %d
+							and resource_id != '%s' and uid = %d ",
+							intval(PHOTO_NORMAL),
+							intval(PHOTO_PROFILE),
+							dbesc($p['resource_id']),
+							intval($channel['channel_id'])
+						);
+					}
+
+					// same for cover photos
+
+					if($p['photo_usage'] == PHOTO_COVER) {
+						$e = q("update photo set photo_usage = %d where photo_usage = %d
+							and resource_id != '%s' and uid = %d ",
+							intval(PHOTO_NORMAL),
+							intval(PHOTO_COVER),
+							dbesc($p['resource_id']),
+							intval($channel['channel_id'])
+						);
+					}
+
+					if($p['scale'] === 0 && $p['os_storage'])
+						$p['data'] = $store_path;
+					else
+						$p['data'] = base64_decode($p['data']);
+
+
+					$exists = q("select * from photo where resource_id = '%s' and scale = %d and uid = %d limit 1",
+						dbesc($p['resource_id']),
+						intval($p['scale']),
+						intval($channel['channel_id'])
+					);
+
+					dbesc_array($p);
+
+					if($exists) {
+					    $str = '';
+    					foreach($p as $k => $v) {
+				        	if($str)
+            					$str .= ",";
+        					$str .= " `" . $k . "` = '" . $v . "' ";
+    					}
+					    $r = dbq("update `photo` set " . $str . " where id = " . intval($exists[0]['id']) );
+					}
+					else {
+						$r = dbq("INSERT INTO photo (`" 
+							. implode("`, `", array_keys($p)) 
+							. "`) VALUES ('" 
+							. implode("', '", array_values($p)) 
+							. "')" );
+					}
+				}
+			}
+			if($f['item']) {
+				sync_items($channel,$f['item']);
+				foreach($f['item'] as $i) {
+					if($i['message_id'] !== $i['message_parent'])
+						continue;
+					$r = q("select * from item where mid = '%s' and uid = %d limit 1",
+						dbesc($i['message_id']),
+						intval($channel['channel_id'])
+					);
+					if($r) {
+						$item = $r[0];
+						item_url_replace($channel,$item,$oldbase,z_root(),$original_channel);
+
+						dbesc_array($item);
+						$item_id = $item['id'];
+						unset($item['id']);
+					    $str = '';
+    					foreach($item as $k => $v) {
+				        	if($str)
+            					$str .= ",";
+        					$str .= " `" . $k . "` = '" . $v . "' ";
+    					}
+
+					    $r = dbq("update `item` set " . $str . " where id = " . $item_id );
+					}
+				}
+			}
+		}
+	}
+}
 
 

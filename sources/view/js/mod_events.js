@@ -3,9 +3,8 @@
  */
 
 $(document).ready( function() {
-
 	enableDisableFinishDate();
-
+	$('#comment-edit-text-desc, #comment-edit-text-loc').bbco_autocomplete('bbcode');
 });
 
 function enableDisableFinishDate() {

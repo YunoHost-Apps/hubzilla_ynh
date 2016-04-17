@@ -132,7 +132,7 @@ class Auth {
 			// tell them to logout if they're logged in locally as anything but the target remote account
 			// in which case just shut up because they don't need to be doing this at all.
 
-			if (get_app()->channel['channel_hash'] == $hubloc['xchan_hash']) {
+			if (\App::$channel['channel_hash'] == $hubloc['xchan_hash']) {
 				return true;
 			}
 			else {
@@ -242,9 +242,9 @@ class Auth {
 
 		$arr = array('xchan' => $hubloc, 'url' => $this->desturl, 'session' => $_SESSION);
 		call_hooks('magic_auth_success',$arr);
-		get_app()->set_observer($hubloc);
+		\App::set_observer($hubloc);
 		require_once('include/security.php');
-		get_app()->set_groups(init_groups_visitor($_SESSION['visitor_id']));
+		\App::set_groups(init_groups_visitor($_SESSION['visitor_id']));
 		info(sprintf( t('Welcome %s. Remote authentication successful.'),$hubloc['xchan_name']));
 		logger('mod_zot: auth success from ' . $hubloc['xchan_addr']);
 		$this->success = true;
@@ -341,5 +341,5 @@ class Auth {
  * Service_class can be used by cooperating sites to provide different access rights based on account rights and subscription plans. It is 
  * a string whose contents are not defined by protocol. Example: "basic" or "gold".
  *
- * @param[in,out] App &$a
+ * @param[in,out] \App &$a
  */

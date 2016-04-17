@@ -11,7 +11,7 @@ function connect_init(&$a) {
 		$which = argv(1);
 	else {
 		notice( t('Requested profile is not available.') . EOL );
-		$a->error = 404;
+		App::$error = 404;
 		return;
 	}
 
@@ -20,20 +20,20 @@ function connect_init(&$a) {
 	);
 
 	if($r)
-		$a->data['channel'] = $r[0];
+		App::$data['channel'] = $r[0];
 
 	profile_load($a,$which,'');
 }
 
 function connect_post(&$a) {
 
-	if(! array_key_exists('channel', $a->data))
+	if(! array_key_exists('channel', App::$data))
 		return;
 
-	$edit = ((local_channel() && (local_channel() == $a->data['channel']['channel_id'])) ? true : false);
+	$edit = ((local_channel() && (local_channel() == App::$data['channel']['channel_id'])) ? true : false);
 
 	if($edit) {
-		$has_premium = (($a->data['channel']['channel_pageflags'] & PAGE_PREMIUM) ? 1 : 0);
+		$has_premium = ((App::$data['channel']['channel_pageflags'] & PAGE_PREMIUM) ? 1 : 0);
 		$premium = (($_POST['premium']) ? intval($_POST['premium']) : 0);
 		$text = escape_tags($_POST['text']);
 		
@@ -43,25 +43,25 @@ function connect_post(&$a) {
 				intval(PAGE_PREMIUM),
 				intval(local_channel()) 
 			);
-			proc_run('php','include/notifier.php','refresh_all',$a->data['channel']['channel_id']);
+			proc_run('php','include/notifier.php','refresh_all',App::$data['channel']['channel_id']);
 		}
-		set_pconfig($a->data['channel']['channel_id'],'system','selltext',$text);
+		set_pconfig(App::$data['channel']['channel_id'],'system','selltext',$text);
 		// reload the page completely to get fresh data
-		goaway(z_root() . '/' . $a->query_string);
+		goaway(z_root() . '/' . App::$query_string);
 
 	}
 
 	$url = '';
-	$observer = $a->get_observer();
+	$observer = App::get_observer();
 	if(($observer) && ($_POST['submit'] === t('Continue'))) {
 		if($observer['xchan_follow'])
-			$url = sprintf($observer['xchan_follow'],urlencode($a->data['channel']['channel_address'] . '@' . $a->get_hostname())); 
+			$url = sprintf($observer['xchan_follow'],urlencode(App::$data['channel']['channel_address'] . '@' . App::get_hostname())); 
 		if(! $url) {
 			$r = q("select * from hubloc where hubloc_hash = '%s' order by hubloc_id desc limit 1",
 				dbesc($observer['xchan_hash'])
 			);
 			if($r)
-				$url = $r[0]['hubloc_url'] . '/follow?f=&url=' . urlencode($a->data['channel']['channel_address'] . '@' . $a->get_hostname()); 
+				$url = $r[0]['hubloc_url'] . '/follow?f=&url=' . urlencode(App::$data['channel']['channel_address'] . '@' . App::get_hostname()); 
 		}
 	}
 	if($url)
@@ -75,16 +75,16 @@ function connect_post(&$a) {
 
 function connect_content(&$a) {
 
-	$edit = ((local_channel() && (local_channel() == $a->data['channel']['channel_id'])) ? true : false);
+	$edit = ((local_channel() && (local_channel() == App::$data['channel']['channel_id'])) ? true : false);
 
-	$text = get_pconfig($a->data['channel']['channel_id'],'system','selltext');
+	$text = get_pconfig(App::$data['channel']['channel_id'],'system','selltext');
 
 	if($edit) {
 
 		$o = replace_macros(get_markup_template('sellpage_edit.tpl'),array(
 			'$header' => t('Premium Channel Setup'),
-			'$address' => $a->data['channel']['channel_address'],
-			'$premium' => array('premium', t('Enable premium channel connection restrictions'),(($a->data['channel']['channel_pageflags'] & PAGE_PREMIUM) ? '1' : ''),''),
+			'$address' => App::$data['channel']['channel_address'],
+			'$premium' => array('premium', t('Enable premium channel connection restrictions'),((App::$data['channel']['channel_pageflags'] & PAGE_PREMIUM) ? '1' : ''),''),
 			'$lbl_about' => t('Please enter your restrictions or conditions, such as paypal receipt, usage guidelines, etc.'),
  			'$text' => $text,
 			'$desc' => t('This channel may require additional steps or acknowledgement of the following conditions prior to connecting:'),
@@ -102,7 +102,7 @@ function connect_content(&$a) {
 
 		$submit = replace_macros(get_markup_template('sellpage_submit.tpl'), array(
 			'$continue' => t('Continue'),			
-			'$address' => $a->data['channel']['channel_address']
+			'$address' => App::$data['channel']['channel_address']
 		));
 
 		$o = replace_macros(get_markup_template('sellpage_view.tpl'),array(
@@ -115,7 +115,7 @@ function connect_content(&$a) {
 
 		));
 
-		$arr = array('channel' => $a->data['channel'],'observer' => $a->get_observer(), 'sellpage' => $o, 'submit' => $submit);
+		$arr = array('channel' => App::$data['channel'],'observer' => App::get_observer(), 'sellpage' => $o, 'submit' => $submit);
 		call_hooks('connect_premium', $arr);
 		$o = $arr['sellpage'];
 

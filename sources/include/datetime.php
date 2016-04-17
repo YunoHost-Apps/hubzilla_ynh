@@ -135,7 +135,7 @@ function dob($dob) {
 		'dob',
 		t('Birthday'),
 		$value,
-		((intval($value)) ? t('Age: ') . age($value,$a->user['timezone'],$a->user['timezone']) : ''),
+		((intval($value)) ? t('Age: ') . age($value,App::$user['timezone'],App::$user['timezone']) : ''),
 		'',
 		'placeholder="' . t('YYYY-MM-DD or MM-DD') .'"'
 	)));

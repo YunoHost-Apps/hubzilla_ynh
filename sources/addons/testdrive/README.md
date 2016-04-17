@@ -8,7 +8,7 @@ test bed.
 When an account is created on the site, it is given a hard expiration date of 
 
 
-$a->config['testdrive']['expiredays'] = 30;
+App::$config['testdrive']['expiredays'] = 30;
 
 Set this in your .htconfig.php file to allow a 30 day test drive period. By default no expiration period is defined 
 in case the plugin is activated accidentally. 

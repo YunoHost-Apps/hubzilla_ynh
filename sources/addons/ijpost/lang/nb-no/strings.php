@@ -1,9 +1,9 @@
 <?php
 
-$a->strings["Post to Insanejournal"] = "";
-$a->strings["InsaneJournal Post Settings"] = "";
-$a->strings["Enable InsaneJournal Post Plugin"] = "";
-$a->strings["InsaneJournal username"] = "";
-$a->strings["InsaneJournal password"] = "";
-$a->strings["Post to InsaneJournal by default"] = "";
-$a->strings["Submit"] = "Lagre";
+App::$strings["Post to Insanejournal"] = "";
+App::$strings["InsaneJournal Post Settings"] = "";
+App::$strings["Enable InsaneJournal Post Plugin"] = "";
+App::$strings["InsaneJournal username"] = "";
+App::$strings["InsaneJournal password"] = "";
+App::$strings["Post to InsaneJournal by default"] = "";
+App::$strings["Submit"] = "Lagre";

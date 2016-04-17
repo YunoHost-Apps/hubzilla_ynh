@@ -248,7 +248,7 @@ function verify_email_address($arr) {
 
 	$res = mail($arr['email'], email_header_encode(sprintf( t('Registration confirmation for %s'), get_config('system','sitename'))),
 		$email_msg,
-		'From: ' . 'Administrator' . '@' . get_app()->get_hostname() . "\n"
+		'From: ' . 'Administrator' . '@' . App::get_hostname() . "\n"
 		. 'Content-type: text/plain; charset=UTF-8' . "\n"
 		. 'Content-transfer-encoding: 8bit' 
 	);
@@ -314,7 +314,7 @@ function send_reg_approval_email($arr) {
 
 		$res = mail($admin['email'], sprintf( t('Registration request at %s'), get_config('system','sitename')),
 			$email_msg,
-			'From: ' . t('Administrator') . '@' . get_app()->get_hostname() . "\n"
+			'From: ' . t('Administrator') . '@' . App::get_hostname() . "\n"
 			. 'Content-type: text/plain; charset=UTF-8' . "\n"
 			. 'Content-transfer-encoding: 8bit' 
 		);
@@ -341,7 +341,7 @@ function send_register_success_email($email,$password) {
 
 	$res = mail($email, sprintf( t('Registration details for %s'), get_config('system','sitename')),
 		$email_msg, 
-		'From: ' . t('Administrator') . '@' . get_app()->get_hostname() . "\n"
+		'From: ' . t('Administrator') . '@' . App::get_hostname() . "\n"
 		. 'Content-type: text/plain; charset=UTF-8' . "\n"
 		. 'Content-transfer-encoding: 8bit' 
 	);
@@ -655,7 +655,7 @@ function account_service_class_allows($aid, $property, $usage = false) {
 function service_class_fetch($uid, $property) {
 	$a = get_app();
 	if($uid == local_channel()) {
-		$service_class = $a->account['account_service_class'];
+		$service_class = App::$account['account_service_class'];
 	}
 	else {
 		$r = q("select account_service_class as service_class 

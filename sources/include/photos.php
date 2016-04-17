@@ -194,7 +194,7 @@ function photo_upload($channel, $observer, $args) {
 	$link[0] = array(
 		'rel'  => 'alternate',
 		'type' => 'text/html',
-		'href' => $url = rawurlencode(z_root() . '/photo/' . $photo_hash . '-0.' . $ph->getExt()),
+		'href' => z_root() . '/photo/' . $photo_hash . '-0.' . $ph->getExt(),
 		'width' => $ph->getWidth(),
 		'height' => $ph->getHeight()
 	);
@@ -212,7 +212,7 @@ function photo_upload($channel, $observer, $args) {
 	$link[1] = array(
 		'rel'  => 'alternate',
 		'type' => 'text/html',
-		'href' => $url = rawurlencode(z_root() . '/photo/' . $photo_hash . '-1.' . $ph->getExt()),
+		'href' => z_root() . '/photo/' . $photo_hash . '-1.' . $ph->getExt(),
 		'width' => $ph->getWidth(),
 		'height' => $ph->getHeight()
 	);
@@ -227,7 +227,7 @@ function photo_upload($channel, $observer, $args) {
 	$link[2] = array(
 		'rel'  => 'alternate',
 		'type' => 'text/html',
-		'href' => $url = rawurlencode(z_root() . '/photo/' . $photo_hash . '-2.' . $ph->getExt()),
+		'href' => z_root() . '/photo/' . $photo_hash . '-2.' . $ph->getExt(),
 		'width' => $ph->getWidth(),
 		'height' => $ph->getHeight()
 	);
@@ -242,7 +242,7 @@ function photo_upload($channel, $observer, $args) {
 	$link[3] = array(
 		'rel'  => 'alternate',
 		'type' => 'text/html',
-		'href' => $url = rawurlencode(z_root() . '/photo/' . $photo_hash . '-3.' . $ph->getExt()),
+		'href' => z_root() . '/photo/' . $photo_hash . '-3.' . $ph->getExt(),
 		'width' => $ph->getWidth(),
 		'height' => $ph->getHeight()
 	);
@@ -312,7 +312,7 @@ function photo_upload($channel, $observer, $args) {
 		'title'   => $title,
 		'created' => $p['created'],
 		'edited'  => $p['edited'],
-		'id'      => rawurlencode(z_root() . '/photos/' . $channel['channel_address'] . '/image/' . $photo_hash),
+		'id'      => z_root() . '/photos/' . $channel['channel_address'] . '/image/' . $photo_hash,
 		'link'    => $link,
 		'body'    => $obj_body
 	);
@@ -320,7 +320,7 @@ function photo_upload($channel, $observer, $args) {
 	$target = array(
 		'type'    => ACTIVITY_OBJ_ALBUM,
 		'title'   => (($album) ? $album : '/'),
-		'id'      => rawurlencode(z_root() . '/photos/' . $channel['channel_address'] . '/album/' . bin2hex($album))
+		'id'      => z_root() . '/photos/' . $channel['channel_address'] . '/album/' . bin2hex($album)
 	);
 
 	// Create item container
@@ -490,12 +490,12 @@ function photos_album_widget($channelx,$observer,$albums = null) {
 	$o = '';
 
 	// If we weren't passed an album list, see if the photos module
-	// dropped one for us to find in $a->data['albums']. 
+	// dropped one for us to find in App::$data['albums']. 
 	// If all else fails, load it.
 
 	if(! $albums) {
-		if(array_key_exists('albums', get_app()->data))
-			$albums = get_app()->data['albums'];
+		if(array_key_exists('albums', App::$data))
+			$albums = App::$data['albums'];
 		else
 			$albums = photos_albums_list($channelx,$observer);
 	}

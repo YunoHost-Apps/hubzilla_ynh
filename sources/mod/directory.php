@@ -6,7 +6,7 @@ require_once('include/widgets.php');
 require_once('include/bbcode.php');
 
 function directory_init(&$a) {
-	$a->set_pager_itemspage(60);
+	App::set_pager_itemspage(60);
 
 	if(x($_GET,'ignore')) {
 		q("insert into xign ( uid, xchan ) values ( %d, '%s' ) ",
@@ -158,7 +158,7 @@ function directory_content(&$a) {
 			$query .= '&t=' . $token;
 
 		if(! $globaldir)
-			$query .= '&hub=' . get_app()->get_hostname();
+			$query .= '&hub=' . App::get_hostname();
 
 		if($search)
 			$query .= '&name=' . urlencode($search) . '&keywords=' . urlencode($search);
@@ -180,8 +180,8 @@ function directory_content(&$a) {
 		if($sort_order)
 			$query .= '&order=' . urlencode($sort_order);
 			
-		if($a->pager['page'] != 1)
-			$query .= '&p=' . $a->pager['page'];
+		if(App::$pager['page'] != 1)
+			$query .= '&p=' . App::$pager['page'];
 
 		logger('mod_directory: query: ' . $query);
 
@@ -324,7 +324,7 @@ function directory_content(&$a) {
 							'online' => $online,
 							'kw' => (($out) ? t('Keywords: ') : ''),
 							'keywords' => $out,
-							'ignlink' => $suggest ? $a->get_baseurl() . '/directory?ignore=' . $rr['hash'] : '',
+							'ignlink' => $suggest ? z_root() . '/directory?ignore=' . $rr['hash'] : '',
 							'ignore_label' => t('Don\'t suggest'),
 							'common_friends' => (($common[$rr['address']]) ? intval($common[$rr['address']]) : ''),
 							'common_label' => t('Common connections:'),
@@ -355,7 +355,7 @@ function directory_content(&$a) {
 					ksort($entries); // Sort array by key so that foreach-constructs work as expected
 
 					if($j['keywords']) {
-						$a->data['directory_keywords'] = $j['keywords'];
+						App::$data['directory_keywords'] = $j['keywords'];
 					}
 
 					logger('mod_directory: entries: ' . print_r($entries,true), LOGGER_DATA);
@@ -406,7 +406,7 @@ function directory_content(&$a) {
 						echo $o;
 						killme();
 					}
-					if($a->pager['page'] == 1 && $j['records'] == 0 && strpos($search,'@')) {
+					if(App::$pager['page'] == 1 && $j['records'] == 0 && strpos($search,'@')) {
 						goaway(z_root() . '/chanview/?f=&address=' . $search);
 					}
 					info( t("No entries (some entries may be hidden).") . EOL);

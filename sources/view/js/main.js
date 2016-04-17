@@ -491,6 +491,7 @@ function updateConvItems(mode,data) {
 				if(isVisible)
 					showHideComments(itmId);
 				$("> .wall-item-outside-wrapper .autotime, > .thread-wrapper .autotime",this).timeago();
+				$("> .shared_header .autotime",this).timeago();
 			}
 			else {
 				$('img',this).each(function() {
@@ -502,6 +503,7 @@ function updateConvItems(mode,data) {
 				if(isVisible)
 					showHideComments(itmId);
 				$("> .wall-item-outside-wrapper .autotime, > .thread-wrapper .autotime",this).timeago();
+				$("> .shared_header .autotime",this).timeago();
 			}
 			prev = ident;
 		});
@@ -529,6 +531,7 @@ function updateConvItems(mode,data) {
 				if(isVisible)
 					showHideComments(itmId);
 				$("> .wall-item-outside-wrapper .autotime, > .thread-wrapper .autotime",this).timeago();
+				$("> .shared_header .autotime",this).timeago();
 			}
 			else {
 				$('img',this).each(function() {
@@ -540,6 +543,7 @@ function updateConvItems(mode,data) {
 				if(isVisible)
 					showHideComments(itmId);
 				$("> .wall-item-outside-wrapper .autotime, > .thread-wrapper .autotime",this).timeago();
+				$("> .shared_header .autotime",this).timeago();
 			}
 		});
 
@@ -573,6 +577,7 @@ function updateConvItems(mode,data) {
 				if(isVisible)
 					showHideComments(itmId);
 				$("> .wall-item-outside-wrapper .autotime, > .thread-wrapper .autotime",this).timeago();
+				$("> .shared_header .autotime",this).timeago();
 			}
 			prev = ident;
 		});
@@ -617,6 +622,8 @@ function updateConvItems(mode,data) {
 
 	/* autocomplete @nicknames */
 	$(".comment-edit-form  textarea").editor_autocomplete(baseurl+"/acl?f=&n=1");
+	/* autocomplete bbcode */
+	$(".comment-edit-form  textarea").bbco_autocomplete('bbcode');
 
 	var bimgs = ((preloadImages) ? false : $(".wall-item-body img").not(function() { return this.complete; }));
 	var bimgcount = bimgs.length;
@@ -1046,6 +1053,7 @@ function preview_comment(id) {
 		function(data) {
 			if(data.preview) {
 				$("#comment-edit-preview-" + id).html(data.preview);
+				$("#comment-edit-preview-" + id + " .autotime").timeago();
 				$("#comment-edit-preview-" + id + " a").click(function() { return false; });
 			}
 		},
@@ -1076,6 +1084,7 @@ function preview_post() {
 		function(data) {
 			if(data.preview) {
 				$("#jot-preview-content").html(data.preview);
+				$("#jot-preview-content .autotime").timeago();
 				$("#jot-preview-content" + " a").click(function() { return false; });
 			}
 		},

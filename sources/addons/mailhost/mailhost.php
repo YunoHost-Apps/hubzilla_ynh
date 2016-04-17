@@ -30,7 +30,7 @@ function mailhost_addon_settings(&$a,&$s) {
 
 	$mailhost = get_pconfig(local_channel(),'system','email_notify_host');
 	if(! $mailhost)
-		$mailhost = $a->get_hostname();
+		$mailhost = App::get_hostname();
 
 	$sc .= replace_macros(get_markup_template('field_input.tpl'), array(
 		'$field'	=> array('mailhost-mailhost', t('Email notification hub'), $mailhost, t('Hostname'))

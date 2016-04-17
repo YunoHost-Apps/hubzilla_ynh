@@ -1,5 +1,7 @@
 [region=aside]
-[widget=profile][/widget]
+[widget=vcard][/widget]
+[widget=chatroom_list][/widget]
 [widget=bookmarkedchats][/widget]
 [widget=suggestedchats][/widget]
+[widget=chatroom_members][/widget]
 [/region]

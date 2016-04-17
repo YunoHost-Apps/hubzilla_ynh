@@ -409,7 +409,7 @@ function poco($a,$extended = false) {
 		http_status_exit(401);
 	}
 
-	$observer = $a->get_observer();
+	$observer = App::get_observer();
 
 	if(argc() > 1) {
 		$user = notags(trim(argv(1)));

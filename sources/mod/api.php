@@ -27,7 +27,7 @@ function api_post(&$a) {
 		return;
 	}
 
-	if(count($a->user) && x($a->user,'uid') && $a->user['uid'] != local_channel()) {
+	if(count(App::$user) && x(App::$user,'uid') && App::$user['uid'] != local_channel()) {
 		notice( t('Permission denied.') . EOL);
 		return;
 	}
@@ -35,13 +35,13 @@ function api_post(&$a) {
 }
 
 function api_content(&$a) {
-	if($a->cmd=='api/oauth/authorize'){
+	if(App::$cmd=='api/oauth/authorize'){
 
 		/* 
 		 * api/oauth/authorize interact with the user. return a standard page
 		 */
 		
-		$a->page['template'] = "minimal";
+		App::$page['template'] = "minimal";
 				
 		// get consumer/client from request token
 		try {

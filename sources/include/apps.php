@@ -48,12 +48,12 @@ function parse_app_description($f) {
 	$ret = array();
 
 	$baseurl = z_root();
-	$channel = get_app()->get_channel();
+	$channel = App::get_channel();
 	$address = (($channel) ? $channel['channel_address'] : '');
 		
 	//future expansion
 
-	$observer = get_app()->get_observer();
+	$observer = App::get_observer();
 	
 
 	$lines = @file($f);
@@ -217,7 +217,7 @@ function app_render($papp,$mode = 'view') {
 							return '';
 						break;
 					case 'observer':
-						$observer = get_app()->get_observer();
+						$observer = App::get_observer();
 						if(! $observer)
 							return '';
 						break;
@@ -239,7 +239,7 @@ function app_render($papp,$mode = 'view') {
 		$hosturl = z_root() . '/';
 	}
 	elseif(remote_channel()) {
-		$observer = get_app()->get_observer();
+		$observer = App::get_observer();
 		if($observer && $observer['xchan_network'] === 'zot') {
 			// some folks might have xchan_url redirected offsite, use the connurl
 			$x = parse_url($observer['xchan_connurl']);
@@ -354,7 +354,7 @@ function app_store($arr) {
 	}
 
 
-	$darray['app_id']       = ((x($arr,'guid'))     ? $arr['guid'] : random_string(). '.' . get_app()->get_hostname());
+	$darray['app_id']       = ((x($arr,'guid'))     ? $arr['guid'] : random_string(). '.' . App::get_hostname());
 	$darray['app_sig']      = ((x($arr,'sig'))      ? $arr['sig'] : '');
 	$darray['app_author']   = ((x($arr,'author'))   ? $arr['author'] : get_observer_hash());
 	$darray['app_name']     = ((x($arr,'name'))     ? escape_tags($arr['name']) : t('Unknown'));

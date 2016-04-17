@@ -95,28 +95,28 @@ function show_button($a, &$b) {
 	);
 
 	$icons = array(
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-heart.gif" alt="<3" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-brokenheart.gif" alt="</3" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-smile.gif" alt=":-)" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-wink.gif" alt=";-)" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-frown.gif" alt=":-(" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-tongue-out.gif" alt=":-P" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-kiss.gif" alt=":-X" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-laughing.gif" alt=":-D" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-surprised.gif" alt=":-O" />',                
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-thumbsup.gif" alt="\\o/" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-Oo.gif" alt="O_o" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-cry.gif" alt=":\'(" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-foot-in-mouth.gif" alt=":-!" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-undecided.gif" alt=":-/" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-embarassed.gif" alt=":-[" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-cool.gif" alt="8-)" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/beer_mug.gif" alt=":beer" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/coffee.gif" alt=":coffee" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-facepalm.gif" alt=":facepalm" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/like.gif" alt=":like" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/dislike.gif" alt=":dislike" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/rhash-16.png" alt="red" />'
+		'<img class="smiley" src="' . z_root() . '/images/smiley-heart.gif" alt="<3" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-brokenheart.gif" alt="</3" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-smile.gif" alt=":-)" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-wink.gif" alt=";-)" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-frown.gif" alt=":-(" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-tongue-out.gif" alt=":-P" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-kiss.gif" alt=":-X" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-laughing.gif" alt=":-D" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-surprised.gif" alt=":-O" />',                
+		'<img class="smiley" src="' . z_root() . '/images/smiley-thumbsup.gif" alt="\\o/" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-Oo.gif" alt="O_o" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-cry.gif" alt=":\'(" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-foot-in-mouth.gif" alt=":-!" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-undecided.gif" alt=":-/" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-embarassed.gif" alt=":-[" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-cool.gif" alt="8-)" />',
+		'<img class="smiley" src="' . z_root() . '/images/beer_mug.gif" alt=":beer" />',
+		'<img class="smiley" src="' . z_root() . '/images/coffee.gif" alt=":coffee" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-facepalm.gif" alt=":facepalm" />',
+		'<img class="smiley" src="' . z_root() . '/images/like.gif" alt=":like" />',
+		'<img class="smiley" src="' . z_root() . '/images/dislike.gif" alt=":dislike" />',
+		'<img class="smiley" src="' . z_root() . '/images/rhash-16.png" alt="red" />'
 	);
 	
 	/**
@@ -152,7 +152,7 @@ function show_button($a, &$b) {
 	 *
 	 */	
 
-	$a->page['htmlhead'] .= '<link rel="stylesheet"  type="text/css" href="' . $a->get_baseurl() . '/addon/smileybutton/smileybutton.css' . '" media="all" />' . "\r\n";
+	App::$page['htmlhead'] .= '<link rel="stylesheet"  type="text/css" href="' . z_root() . '/addon/smileybutton/smileybutton.css' . '" media="all" />' . "\r\n";
 
 	/**
 	 *
@@ -161,7 +161,7 @@ function show_button($a, &$b) {
 	 */	
 	if (! $nobutton and ! $deactivated) {
 		$b .= "<div id=\"profile-smiley-wrapper\"  >\n";
-		//$b .= "\t<img src=\"" . $a->get_baseurl() . "/addon/smileybutton/icon.gif\" onclick=\"toggle_smileybutton(); return false;\" alt=\"smiley\">\n";
+		//$b .= "\t<img src=\"" . z_root() . "/addon/smileybutton/icon.gif\" onclick=\"toggle_smileybutton(); return false;\" alt=\"smiley\">\n";
 		$b .= "\t<button class=\"btn btn-default btn-sm\" onclick=\"toggle_smileybutton(); return false;\"><i id=\"profile-smiley-button\" class=\"icon-smile jot-icons\" ></i></button>\n";
 		$b .= "\t</div>\n";
 	}
@@ -262,7 +262,7 @@ function smileybutton_settings(&$a,&$s) {
 
 	/* Add our stylesheet to the page so we can make our settings look nice */
 
-	//$a->page['htmlhead'] .= '<link rel="stylesheet"  type="text/css" href="' . $a->get_baseurl() . '/addon/smileybutton/smileybutton.css' . '" media="all" />' . "\r\n";
+	//App::$page['htmlhead'] .= '<link rel="stylesheet"  type="text/css" href="' . z_root() . '/addon/smileybutton/smileybutton.css' . '" media="all" />' . "\r\n";
 
 	/* Get the current state of our config variable */
 

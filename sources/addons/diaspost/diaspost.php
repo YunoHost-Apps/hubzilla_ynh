@@ -40,7 +40,7 @@ function diaspost_jot_nets(&$a,&$b) {
 }
 
 function diaspost_queue_hook(&$a,&$b) {
-	$hostname = $a->get_hostname();
+	$hostname = App::get_hostname();
 
 	$qi = q("SELECT * FROM `queue` WHERE `network` = '%s'",
 		dbesc(NETWORK_DIASPORA2)
@@ -115,7 +115,7 @@ function diaspost_settings(&$a,&$s) {
 
 	/* Add our stylesheet to the page so we can make our settings look nice */
 
-	//$a->page['htmlhead'] .= '<link rel="stylesheet"  type="text/css" href="' . $a->get_baseurl() . '/addon/diaspost/diaspost.css' . '" media="all" />' . "\r\n";
+	//App::$page['htmlhead'] .= '<link rel="stylesheet"  type="text/css" href="' . z_root() . '/addon/diaspost/diaspost.css' . '" media="all" />' . "\r\n";
 
 	/* Get the current state of our config variables */
 
@@ -228,7 +228,7 @@ function diaspost_post_local(&$a,&$b) {
 
 
 function diaspost_send(&$a,&$b) {
-	$hostname = 'hubzilla ' . '(' . $a->get_hostname() . ')';
+	$hostname = 'hubzilla ' . '(' . App::get_hostname() . ')';
 
 	logger('diaspost_send: invoked',LOGGER_DEBUG);
 
@@ -328,11 +328,11 @@ function diaspost_send(&$a,&$b) {
 
 //			$r = q("SELECT `id` FROM `contact` WHERE `uid` = %d AND `self`", $b['uid']);
 //			if (count($r))
-//				$a->contact = $r[0]["id"];
+//				App::$contact = $r[0]["id"];
 
 //			$s = serialize(array('url' => $url, 'item' => $b['id'], 'post' => $body));
 //			require_once('include/queue_fn.php');
-//			add_to_queue($a->contact,NETWORK_DIASPORA2,$s);
+//			add_to_queue(App::$contact,NETWORK_DIASPORA2,$s);
 //			notice(t('Diaspost post failed. Queued for retry.').EOL);
 		}
 	}

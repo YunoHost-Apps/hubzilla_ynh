@@ -97,7 +97,7 @@ class Item extends BaseObject {
 		$mode = $conv->get_mode();
 
 		if(local_channel() && $observer['xchan_hash'] === $item['author_xchan'])
-			$edpost = array($a->get_baseurl($ssl_state)."/editpost/".$item['id'], t("Edit"));
+			$edpost = array(z_root()."/editpost/".$item['id'], t("Edit"));
 		else
 			$edpost = false;
 
@@ -714,7 +714,7 @@ class Item extends BaseObject {
 			'$feature_encrypt' => ((feature_enabled($conv->get_profile_owner(),'content_encrypt')) ? true : false),
 			'$encrypt' => t('Encrypt text'),
 			'$cipher' => $conv->get_cipher(),
-			'$sourceapp' => get_app()->sourcename
+			'$sourceapp' => App::$sourcename
 
 		));
 

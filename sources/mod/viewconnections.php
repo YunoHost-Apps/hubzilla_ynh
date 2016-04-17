@@ -18,21 +18,21 @@ function viewconnections_content(&$a) {
 		return;
 	}
 
-	if(((! count($a->profile)) || ($a->profile['hide_friends']))) {
+	if(((! count(App::$profile)) || (App::$profile['hide_friends']))) {
 		notice( t('Permission denied.') . EOL);
 		return;
 	} 
 
-	if(! perm_is_allowed($a->profile['uid'], get_observer_hash(),'view_contacts')) {
+	if(! perm_is_allowed(App::$profile['uid'], get_observer_hash(),'view_contacts')) {
 		notice( t('Permission denied.') . EOL);
 		return;
 	} 
 
 	if(! $_REQUEST['aj'])
-		$_SESSION['return_url'] = $a->query_string;
+		$_SESSION['return_url'] = App::$query_string;
 
 
-	$is_owner = ((local_channel() && local_channel() == $a->profile['uid']) ? true : false);
+	$is_owner = ((local_channel() && local_channel() == App::$profile['uid']) ? true : false);
 
 	$abook_flags = " and abook_pending = 0 and abook_self = 0 ";
 	$sql_extra = '';
@@ -43,16 +43,16 @@ function viewconnections_content(&$a) {
 	}
 
 	$r = q("SELECT count(*) as total FROM abook left join xchan on abook_xchan = xchan_hash where abook_channel = %d $abook_flags and xchan_orphan = 0 and xchan_deleted = 0 $sql_extra ",
-		intval($a->profile['uid'])
+		intval(App::$profile['uid'])
 	);
 	if($r) {
-		$a->set_pager_total($r[0]['total']);
+		App::set_pager_total($r[0]['total']);
 	}
 
 	$r = q("SELECT * FROM abook left join xchan on abook_xchan = xchan_hash where abook_channel = %d $abook_flags and xchan_orphan = 0 and xchan_deleted = 0 $sql_extra order by xchan_name LIMIT %d OFFSET %d ",
-		intval($a->profile['uid']),
-		intval($a->pager['itemspage']),
-		intval($a->pager['start'])
+		intval(App::$profile['uid']),
+		intval(App::$pager['itemspage']),
+		intval(App::$pager['start'])
 	);
 
 	if((! $r) && (! $_REQUEST['aj'])) {

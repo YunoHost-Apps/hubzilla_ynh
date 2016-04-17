@@ -219,7 +219,7 @@ function unregister_hook($hook, $file, $function) {
 
 
 //
-// It might not be obvious but themes can manually add hooks to the $a->hooks
+// It might not be obvious but themes can manually add hooks to the App::$hooks
 // array in their theme_init() and use this to customise the app behaviour.  
 // UPDATE: use insert_hook($hookname,$function_name) to do this
 //
@@ -227,19 +227,19 @@ function unregister_hook($hook, $file, $function) {
 
 function load_hooks() {
 	$a = get_app();
-//	if(! is_array($a->hooks))
-		$a->hooks = array();
+//	if(! is_array(App::$hooks))
+		App::$hooks = array();
 
 	$r = q("SELECT * FROM hook WHERE true ORDER BY priority DESC");
 	if($r) {
 		foreach($r as $rr) {
-			if(! array_key_exists($rr['hook'],$a->hooks))
-				$a->hooks[$rr['hook']] = array();
+			if(! array_key_exists($rr['hook'],App::$hooks))
+				App::$hooks[$rr['hook']] = array();
 
-			$a->hooks[$rr['hook']][] = array($rr['file'],$rr['function']);
+			App::$hooks[$rr['hook']][] = array($rr['file'],$rr['function']);
 		}
 	}
-//logger('hooks: ' . print_r($a->hooks,true));
+//logger('hooks: ' . print_r(App::$hooks,true));
 }
 
 /**
@@ -261,13 +261,13 @@ function load_hooks() {
  */ 
 function insert_hook($hook, $fn) {
 	$a = get_app();
-	if(! is_array($a->hooks))
-		$a->hooks = array();
+	if(! is_array(App::$hooks))
+		App::$hooks = array();
 
-	if(! array_key_exists($hook, $a->hooks))
-		$a->hooks[$hook] = array();
+	if(! array_key_exists($hook, App::$hooks))
+		App::$hooks[$hook] = array();
 
-	$a->hooks[$hook][] = array('', $fn);
+	App::$hooks[$hook][] = array('', $fn);
 }
 
 /**
@@ -282,8 +282,8 @@ function insert_hook($hook, $fn) {
 function call_hooks($name, &$data = null) {
 	$a = get_app();
 
-	if((is_array($a->hooks)) && (array_key_exists($name, $a->hooks))) {
-		foreach($a->hooks[$name] as $hook) {
+	if((is_array(App::$hooks)) && (array_key_exists($name, App::$hooks))) {
+		foreach(App::$hooks[$name] as $hook) {
 			if($hook[0])
 				@include_once($hook[0]);
 
@@ -392,7 +392,7 @@ function check_plugin_versions($info) {
 				$test = trim($test);
 				if(! $test)
 					continue;
-				if(! in_array($test,get_app()->plugins))
+				if(! in_array($test,App::$plugins))
 					$found = false;				
 			}
 		}
@@ -495,10 +495,10 @@ function get_theme_screenshot($theme) {
 	$exts = array('.png', '.jpg');
 	foreach($exts as $ext) {
 		if(file_exists('view/theme/' . $theme . '/img/screenshot' . $ext))
-			return($a->get_baseurl() . '/view/theme/' . $theme . '/img/screenshot' . $ext);
+			return(z_root() . '/view/theme/' . $theme . '/img/screenshot' . $ext);
 	}
 
-	return($a->get_baseurl() . '/images/blank.png');
+	return(z_root() . '/images/blank.png');
 }
 
 /**
@@ -508,19 +508,19 @@ function get_theme_screenshot($theme) {
  * @param string $media change media attribute (default to 'screen')
  */
 function head_add_css($src, $media = 'screen') {
-	get_app()->css_sources[] = array($src, $media);
+	App::$css_sources[] = array($src, $media);
 }
 
 function head_remove_css($src, $media = 'screen') {
 	$a = get_app();
-	$index = array_search(array($src, $media), $a->css_sources);
+	$index = array_search(array($src, $media), App::$css_sources);
 	if ($index !== false)
-		unset($a->css_sources[$index]);
+		unset(App::$css_sources[$index]);
 }
 
 function head_get_css() {
 	$str = '';
-	$sources = get_app()->css_sources;
+	$sources = App::$css_sources;
 	if (count($sources)) {
 		foreach ($sources as $source)
 			$str .= format_css_if_exists($source);
@@ -560,7 +560,7 @@ function script_path() {
 	
 	// Some proxy setups may require using http_host
 
-	if(intval(get_app()->config['system']['script_path_use_http_host']))
+	if(intval(App::$config['system']['script_path_use_http_host']))
 		$server_var = 'HTTP_HOST';
 	else
 		$server_var = 'SERVER_NAME';
@@ -576,19 +576,19 @@ function script_path() {
 }
 
 function head_add_js($src) {
-	get_app()->js_sources[] = $src;
+	App::$js_sources[] = $src;
 }
 
 function head_remove_js($src) {
 	$a = get_app();
-	$index = array_search($src, $a->js_sources);
+	$index = array_search($src, App::$js_sources);
 	if($index !== false)
-		unset($a->js_sources[$index]);
+		unset(App::$js_sources[$index]);
 }
 
 function head_get_js() {
 	$str = '';
-	$sources = get_app()->js_sources;
+	$sources = App::$js_sources;
 	if(count($sources)) 
 		foreach($sources as $source) {
 			if($source === 'main.js')
@@ -624,7 +624,7 @@ function theme_include($file, $root = '') {
 	if($root !== '' && $root[strlen($root)-1] !== '/')
 		$root = $root . '/';
 
-	$theme_info = $a->theme_info;
+	$theme_info = App::$theme_info;
 
 	if(array_key_exists('extends',$theme_info))
 		$parent = $theme_info['extends'];
@@ -656,7 +656,7 @@ function theme_include($file, $root = '') {
 
 function get_intltext_template($s, $root = '') {
 	$a = get_app();
-	$t = $a->template_engine();
+	$t = App::template_engine();
 
 	$template = $t->get_intltext_template($s, $root);
 	return $template;
@@ -665,7 +665,7 @@ function get_intltext_template($s, $root = '') {
 
 function get_markup_template($s, $root = '') {
 	$a = get_app();
-	$t = $a->template_engine();
+	$t = App::template_engine();
 	$template = $t->get_markup_template($s, $root);
 	return $template;
 }

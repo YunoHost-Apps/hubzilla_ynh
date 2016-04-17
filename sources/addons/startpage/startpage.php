@@ -29,7 +29,7 @@ function startpage_home_init($a, $b) {
 	if(! local_channel())
 		return;
 
-	$channel = $a->get_channel();
+	$channel = App::get_channel();
 	$page = $channel['channel_startpage'];
 	if(! $page)
 		$page = get_pconfig(local_channel(),'system','startpage');
@@ -42,7 +42,7 @@ function startpage_home_init($a, $b) {
 
 		if(stristr($page,'://'))
 			goaway(z_root() . '/' . $page);
-		goaway($a->get_baseurl() . (($slash) ? '' : '/') . $page);
+		goaway(z_root() . (($slash) ? '' : '/') . $page);
 	}
 	return;
 }
@@ -59,7 +59,7 @@ function startpage_home_init($a, $b) {
 function startpage_settings_post($a,$post) {
 	if(! local_channel())
 		return;
-	$channel = $a->get_channel();
+	$channel = App::get_channel();
 
 	if($_POST['startpage-submit']) {
 		$page = strip_tags(trim($_POST['startpage']));
@@ -106,7 +106,7 @@ function startpage_settings(&$a,&$s) {
 	$page = get_pconfig(local_channel(),'system','startpage');
 
 	$sc .= replace_macros(get_markup_template('field_input.tpl'), array(
-		'$field'	=> array('startpage', t('Page to load after login'), $page, t('Examples: &quot;network&quot; or &quot;channel&quot; or &quot;notifications/system&quot; (leave blank for default apps page).'))
+		'$field'	=> array('startpage', t('Page to load after login'), $page, t('Examples: &quot;apps&quot;, &quot;network?f=&gid=37&quot; (privacy collection), &quot;channel&quot; or &quot;notifications/system&quot; (leave blank for default network page (grid).'))
 	));
 
 	$s .= replace_macros(get_markup_template('generic_addon_settings.tpl'), array(

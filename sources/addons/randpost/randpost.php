@@ -61,7 +61,7 @@ function randpost_enotify_store(&$a,&$b) {
 		$my_conversation = true;
 	elseif($p[0]['term']) {
 		$v = get_terms_oftype($p[0]['term'],TERM_MENTION);
-		$link = normalise_link($a->get_baseurl() . '/channel/' . $c[0]['channel_address']);
+		$link = normalise_link(z_root() . '/channel/' . $c[0]['channel_address']);
 		if($v) {
 			foreach($v as $vv) {
 				if(link_compare($vv['url'],$link)) {			

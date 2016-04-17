@@ -22,7 +22,7 @@ function redphotos_init(&$a) {
 //	if(intval(get_pconfig(local_channel(),'redphotos','complete')))
 //		return;
 
-	$channel = $a->get_channel();
+	$channel = App::get_channel();
 	
 	$fr_server = $_REQUEST['fr_server'];
 	$fr_username = $_REQUEST['fr_username'];

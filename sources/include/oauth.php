@@ -27,7 +27,7 @@ class ZotOAuth1DataStore extends OAuth1DataStore {
 		);
 
 		if($r) {
-			get_app()->set_oauth_key($consumer_key);
+			App::set_oauth_key($consumer_key);
 			return new OAuth1Consumer($r[0]['client_id'],$r[0]['pw'],$r[0]['redirect_uri']);
 		}
 		return null;

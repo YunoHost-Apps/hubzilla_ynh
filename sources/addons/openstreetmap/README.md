@@ -49,14 +49,14 @@ If you prefer to use a configuration file instead of the admin panel or the CLI
 open the .htconfig.php file and add "openstreetmap" to the list of activated
 addons.
 
-    $a->config['system']['addon'] = "openstreetmap, ..."
+    App::$config['system']['addon'] = "openstreetmap, ..."
 
 You can configure the addon with these variables:
 
-    $a->config['openstreetmap']['tmsserver'] = 'http://www.openstreetmap.org/';
-    $a->config['openstreetmap']['nomserver'] = 'http://nominatim.openstreetmap.org/search.php';
-    $a->config['openstreetmap']['zoom'] = '16';
-    $a->config['openstreetmap']['marker'] = '0';
+    App::$config['openstreetmap']['tmsserver'] = 'http://www.openstreetmap.org/';
+    App::$config['openstreetmap']['nomserver'] = 'http://nominatim.openstreetmap.org/search.php';
+    App::$config['openstreetmap']['zoom'] = '16';
+    App::$config['openstreetmap']['marker'] = '0';
 
 The *tmsserver* points to the tile server you want to use. Use the full URL,
 with protocol (http/s) and trailing slash. You can configure the default zoom 

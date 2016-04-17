@@ -35,11 +35,11 @@ function menu_element($menu) {
 	$arr['edited'] = $menu['menu']['menu_edited'];
 
 	$arr['baseurl'] = z_root();
-	if($menu['menu_flags']) {
+	if($menu['menu']['menu_flags']) {
 		$arr['flags'] = array();
-		if($menu['menu_flags'] & MENU_BOOKMARK)
+		if($menu['menu']['menu_flags'] & MENU_BOOKMARK)
 			$arr['flags'][] = 'bookmark';
-		if($menu['menu_flags'] & MENU_SYSTEM)
+		if($menu['menu']['menu_flags'] & MENU_SYSTEM)
 			$arr['flags'][] = 'system';
 	}
 	if($menu['items']) {
@@ -72,7 +72,7 @@ function menu_render($menu, $class='', $edit = false, $var = array()) {
 	if(! $menu)
 		return '';
 
-	$channel_id = ((is_array(get_app()->profile)) ? get_app()->profile['profile_uid'] : 0);
+	$channel_id = ((is_array(App::$profile)) ? App::$profile['profile_uid'] : 0);
 	if ((! $channel_id) && (local_channel()))
 		$channel_id = local_channel();
 
@@ -296,7 +296,7 @@ function menu_add_item($menu_id, $uid, $arr) {
 	$mitem_flags = intval($arr['mitem_flags']);
 
 	if(local_channel() == $uid) {
-		$channel = get_app()->get_channel();	
+		$channel = App::get_channel();	
 	}
 
 	$acl = new Zotlabs\Access\AccessList($channel);
@@ -337,7 +337,7 @@ function menu_edit_item($menu_id, $uid, $arr) {
 
 
 	if(local_channel() == $uid) {
-		$channel = get_app()->get_channel();	
+		$channel = App::get_channel();	
 	}
 
 	$acl = new Zotlabs\Access\AccessList($channel);

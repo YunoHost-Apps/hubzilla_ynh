@@ -27,11 +27,12 @@ function get_capath() {
  *  * \b http_auth => username:password
  *  * \b novalidate => do not validate SSL certs, default is to validate using our CA list
  *  * \b nobody => only return the header
+ *  * \b filep => stream resource to write body to. header and body are not returned when using this option.
  *
  * @return array an assoziative array with:
  *  * \e int \b return_code => HTTP return code or 0 if timeout or failure
  *  * \e boolean \b success => boolean true (if HTTP 2xx result) or false
- *  * \e string \b header => HTTP headers
+ *  * \e string \b header => HTTP headers 
  *  * \e string \b body => fetched content
  */
 function z_fetch_url($url, $binary = false, $redirects = 0, $opts = array()) {
@@ -52,6 +53,11 @@ function z_fetch_url($url, $binary = false, $redirects = 0, $opts = array()) {
 	$ciphers = @get_config('system','curl_ssl_ciphers');
 	if($ciphers)
 		@curl_setopt($ch, CURLOPT_SSL_CIPHER_LIST, $ciphers);
+
+	if(x($opts,'filep')) {
+		@curl_setopt($ch, CURLOPT_FILE, $opts['filep']);
+		@curl_setopt($ch, CURLOPT_HEADER, $false);
+	}
 
 	if(x($opts,'headers'))
 		@curl_setopt($ch, CURLOPT_HTTPHEADER, $opts['headers']);
@@ -158,6 +164,7 @@ function z_fetch_url($url, $binary = false, $redirects = 0, $opts = array()) {
  *    'timeout' => int seconds, default system config value or 60 seconds
  *    'http_auth' => username:password
  *    'novalidate' => do not validate SSL certs, default is to validate using our CA list
+ *    'filep' => stream resource to write body to. header and body are not returned when using this option.
  * @return array an assoziative array with:
  *  * \e int \b return_code => HTTP return code or 0 if timeout or failure
  *  * \e boolean \b success => boolean true (if HTTP 2xx result) or false
@@ -185,9 +192,16 @@ function z_post_url($url,$params, $redirects = 0, $opts = array()) {
 	if($ciphers)
 		@curl_setopt($ch, CURLOPT_SSL_CIPHER_LIST, $ciphers);
 
-	if(x($opts,'headers'))
-		@curl_setopt($ch, CURLOPT_HTTPHEADER, $opts['headers']);
+	if(x($opts,'filep')) {
+		@curl_setopt($ch, CURLOPT_FILE, $opts['filep']);
+		@curl_setopt($ch, CURLOPT_HEADER, $false);
+	}
 
+	if(x($opts,'headers')) {
+		@curl_setopt($ch, CURLOPT_HTTPHEADER, $opts['headers']);
+logger('headers: ' . print_r($opts['headers'],true) . 'redir: ' . $redirects);
+	}
+ 
 	if(x($opts,'nobody'))
 		@curl_setopt($ch, CURLOPT_NOBODY, $opts['nobody']);
 
@@ -234,6 +248,21 @@ function z_post_url($url,$params, $redirects = 0, $opts = array()) {
 		$chunk = substr($base,0,strpos($base,"\r\n\r\n")+4);
 		$header .= $chunk;
 		$base = substr($base,strlen($chunk));
+	}
+
+	// would somebody take lighttpd and just shoot it?
+
+	if($http_code == 417) {
+		curl_close($ch);
+		if($opts) {
+			if($opts['headers'])
+				$opts['headers'][] = 'Expect:';
+			else
+				$opts['headers'] = array('Expect:');
+		}
+		else
+			$opts = array('headers' => array('Expect:'));
+		return z_post_url($url,$params,++$redirects,$opts);
 	}
 
 	if($http_code == 301 || $http_code == 302 || $http_code == 303 || $http_code == 307 || $http_code == 308) {
@@ -585,7 +614,7 @@ function scale_external_images($s, $include_link = true, $scale_replace = false)
 					continue;
 			}
 
-			$hostname = str_replace('www.','',substr($a->get_baseurl(),strpos($a->get_baseurl(),'://')+3));
+			$hostname = str_replace('www.','',substr(z_root(),strpos(z_root(),'://')+3));
 			if(stristr($mtch[3],$hostname))
 				continue;
 
@@ -1044,32 +1073,16 @@ function discover_by_url($url,$arr = null) {
 }
 
 
-function convert_salmon_key($key) {
-
-	if(strstr($key,','))
-		$rawkey = substr($key,strpos($key,',')+1);
-	else
-		$rawkey = substr($key,5);
-
-	$key_info = explode('.',$rawkey);
-
-	$m = base64url_decode($key_info[1]);
-	$e = base64url_decode($key_info[2]);
-
-	logger('key details: ' . print_r($key_info,true), LOGGER_DEBUG);
-	$salmon_key = metopem($m,$e);
-	return $salmon_key;
-
-}
-
-
 function discover_by_webbie($webbie) {
 	require_once('library/HTML5/Parser.php');
 
-	$result = array();
-	$network = null;
+	$result   = array();
+
+	$network  = null;
+
 	$diaspora = false;
-	$gnusoc = false;
+	$gnusoc   = false;
+	$dfrn     = false;
 	
 	$has_salmon = false;
 	$salmon_key = false;
@@ -1077,7 +1090,6 @@ function discover_by_webbie($webbie) {
 	$diaspora_base = '';
 	$diaspora_guid = '';
 	$diaspora_key = '';
-	$dfrn = false;
 
 	$webbie = strtolower($webbie);
 
@@ -1085,7 +1097,11 @@ function discover_by_webbie($webbie) {
 	if($x && array_key_exists('links',$x) && $x['links']) {
 		foreach($x['links'] as $link) {
 			if(array_key_exists('rel',$link)) {
-				if($link['rel'] == 'http://purl.org/zot/protocol') {
+
+				// If we discover zot - don't search further; grab the info and get out of
+				// here. 
+
+				if($link['rel'] === PROTOCOL_ZOT) {
 					logger('discover_by_webbie: zot found for ' . $webbie, LOGGER_DEBUG);
 					if(array_key_exists('zot',$x) && $x['zot']['success'])
 						$i = import_xchan($x['zot']);
@@ -1098,6 +1114,9 @@ function discover_by_webbie($webbie) {
 						}
 					}
 				}
+				if($link['rel'] == NAMESPACE_DFRN) {
+					 $dfrn = $link['href'];
+				}
 				if($link['rel'] == 'magic-public-key') {
         			if(substr($link['href'],0,5) === 'data:') {
 						$salmon_key = convert_salmon_key($link['href']);
@@ -1105,6 +1124,7 @@ function discover_by_webbie($webbie) {
 				}
 				if($link['rel'] == 'salmon') {
 					$has_salmon = true;
+					$salmon = $link['href'];
 				}
 				if($link['rel'] == 'http://schemas.google.com/g/2010#updates-from') {
 					$atom_feed = $link['href'];
@@ -1113,86 +1133,46 @@ function discover_by_webbie($webbie) {
 		}
 	}
 
-
-	logger('webfing: ' . print_r($x,true));
+	logger('webfinger: ' . print_r($x,true), LOGGER_DATA, LOG_INFO);
 
 	$arr = array('address' => $webbie, 'success' => false, 'webfinger' => $x);
 	call_hooks('discover_channel_webfinger', $arr);
 	if($arr['success'])
 		return true;
 
-	if($salmon_key && $has_salmon && $atom_feed) {
-		
-		$gnusoc = true;
-		$addr = $x['address'];
+	$aliases = array();
 
-		$m = parse_url($x['location']);
+	// Now let's make some decisions on what we may need
+	// to obtain further info
 
-		$k = z_fetch_url($atom_feed);
-		if($k['success'])
-			$feed_meta = feed_meta($k['body']);
-		if($feed_meta && $feed_meta['author']) {
-			$r = q("select * from xchan where xchan_hash = '%s' limit 1",
-				dbesc($addr)
-			);
-			if($r) {
-				$r = q("update xchan set xchan_name = '%s', xchan_network = '%s', xchan_name_date = '%s' where xchan_hash = '%s' limit 1",
-					dbesc(($feed_meta['author']['author_name']) ? $feed_meta['author']['author_name'] : $x['nickname']),
-					dbesc('gnusoc'),
-					dbesc(datetime_convert()),
-					dbesc($addr)
-				);
-			}
-			else {
+	$probe_atom  = false;
+	$probe_old   = false;
+	$probe_hcard = false;
 
-				$r = q("insert into xchan ( xchan_hash, xchan_guid, xchan_pubkey, xchan_addr, xchan_url, xchan_name, xchan_network, xchan_name_date ) values ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s') ",
-					dbesc($addr),
-					dbesc($x['location']),
-					dbesc($salmon_key),
-					dbesc($addr),
-					dbesc($x['location']),
-					dbesc(($feed_meta['author']['author_name']) ? $feed_meta['author']['author_name'] : $x['nickname']),
-					dbesc('gnusoc'),
-					dbescdate(datetime_convert())
-				);
-			}
+	$address  = '';
+	$location = '';
+	$nickname = '';
+	$fullname = '';
+	$avatar   = '';
+	$pubkey   = '';
 
-			$r = q("select * from hubloc where hubloc_hash = '%s' limit 1",
-				dbesc($addr)
-			);
-
-			if(! $r) {
-
-				$r = q("insert into hubloc ( hubloc_guid, hubloc_hash, hubloc_addr, hubloc_network, hubloc_url, hubloc_host, hubloc_callback, hubloc_updated, hubloc_primary ) values ('%s','%s','%s','%s','%s','%s','%s','%s', 1)",
-					dbesc($x['location']),
-					dbesc($addr),
-					dbesc($addr),
-					dbesc('gnusoc'),
-					dbesc($m['scheme'] . '://' . $m['host']),
-					dbesc($m['host']),
-					dbesc($salmon),
-					dbescdate(datetime_convert())
-				);
-			}
-			$photos = import_xchan_photo($feed_meta['author']['author_photo'],$addr);
-			$r = q("update xchan set xchan_photo_date = '%s', xchan_photo_l = '%s', xchan_photo_m = '%s', xchan_photo_s = '%s', xchan_photo_mimetype = '%s' where xchan_hash = '%s'",
-				dbescdate(datetime_convert()),
-				dbesc($photos[0]),
-				dbesc($photos[1]),
-				dbesc($photos[2]),
-				dbesc($photos[3]),
-				dbesc($addr)
-			);
-			return true;
-
-		}
+	if(is_array($x)) {
+		if(array_key_exists('address',$x)) 
+			$address = $x['address'];
+		if(array_key_exists('location',$x)) 
+			$location = $x['location'];
+		if(array_key_exists('nickname',$x)) 
+			$nickname = $x['nickname'];
 	}
-	else {
 
-		$x = old_webfinger($webbie);			
-		if($x) {
+	if(! $x)
+		$probe_old = true;
+
+	if($probe_old) {
+		$y = old_webfinger($webbie);			
+		if($y) {
 			logger('old_webfinger: ' . print_r($x,true));
-			foreach($x as $link) {
+			foreach($y as $link) {
 				if($link['@attributes']['rel'] === NAMESPACE_DFRN)
 					$dfrn = unamp($link['@attributes']['href']);				
 				if($link['@attributes']['rel'] === 'salmon')
@@ -1221,172 +1201,199 @@ function discover_by_webbie($webbie) {
 						$pubkey = $diaspora_key;
 					$diaspora = true;
 				}
+				if($link['@attributes']['rel'] == 'magic-public-key') {
+        			if(substr($link['@attributes']['href'],0,5) === 'data:') {
+						$salmon_key = convert_salmon_key($link['@attributes']['href']);
+					}
+				}
+				if($link['@attributes']['rel'] == 'salmon') {
+					$has_salmon = true;
+					$salmon = $link['@attributes']['href'];
+				}
+
+				if($link['@attributes']['rel'] == 'http://schemas.google.com/g/2010#updates-from') {
+					$atom_feed = $link['@attributes']['href'];
+				}
+				if($link['@attributes']['rel'] === 'alias') {
+					$aliases[] = $link['@attributes']['href'];
+				}
+				if($link['@attributes']['rel'] === 'subject') {
+					$subject = $link['@attributes']['href'];
+				}
 			}
-		}
-
-		if($diaspora && $diaspora_base && $diaspora_guid) {
-			$guid = $diaspora_guid;
-			$diaspora_base = trim($diaspora_base,'/');
-
-			$notify = $diaspora_base . '/receive';
-
-			if(strpos($webbie,'@')) {
-				$addr = str_replace('acct:', '', $webbie);
-				$hostname = substr($webbie,strpos($webbie,'@')+1);
-			}
-			$network = 'diaspora';
-			// until we get a dfrn layer, we'll use diaspora protocols for Friendica,
-			// but give it a different network so we can go back and fix these when we get proper support. 
-			// It really should be just 'friendica' but we also want to distinguish
-			// between Friendica sites that we can use D* protocols with and those we can't.
-			// Some Friendica sites will have Diaspora disabled. 
-			if($dfrn)
-				$network = 'friendica-over-diaspora';
-			if($hcard) {
-				$vcard = scrape_vcard($hcard);
-				$vcard['nick'] = substr($webbie,0,strpos($webbie,'@'));
-				if(! $vcard['fn'])
-					$vcard['fn'] = $webbie;
-			} 
-
-			$r = q("select * from xchan where xchan_hash = '%s' limit 1",
-				dbesc($addr)
-			);
-
-			// fix relative urls
-			if($vcard['photo'] && (strpos($vcard['photo'],'http') !== 0))
-				$vcard['photo'] = $diaspora_base . '/' . $vcard['photo'];			
-
-			/**
-			 *
-			 * Diaspora communications are notoriously unreliable and receiving profile update messages (indeed any messages) 
-			 * are pretty much random luck. We'll check the timestamp of the xchan_name_date at a higher level and refresh
-			 * this record once a month; because if you miss a profile update message and they update their profile photo or name 
-			 * you're otherwise stuck with stale info until they change their profile again - which could be years from now. 
-			 *
-			 */  			
-
-			if($r) {
-				$r = q("update xchan set xchan_name = '%s', xchan_network = '%s', xchan_name_date = '%s' where xchan_hash = '%s' limit 1",
-					dbesc($vcard['fn']),
-					dbesc($network),
-					dbesc(datetime_convert()),
-					dbesc($addr)
-				);
-			}
-			else {
-
-				$r = q("insert into xchan ( xchan_hash, xchan_guid, xchan_pubkey, xchan_addr, xchan_url, xchan_name, xchan_network, xchan_name_date ) values ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s') ",
-					dbesc($addr),
-					dbesc($guid),
-					dbesc($pubkey),
-					dbesc($addr),
-					dbesc($profile),
-					dbesc($vcard['fn']),
-					dbesc($network),
-					dbescdate(datetime_convert())
-				);
-			}
-
-			$r = q("select * from hubloc where hubloc_hash = '%s' limit 1",
-				dbesc($webbie)
-			);
-
-			if(! $r) {
-
-				$r = q("insert into hubloc ( hubloc_guid, hubloc_hash, hubloc_addr, hubloc_network, hubloc_url, hubloc_host, hubloc_callback, hubloc_updated, hubloc_primary ) values ('%s','%s','%s','%s','%s','%s','%s','%s', 1)",
-					dbesc($guid),
-					dbesc($addr),
-					dbesc($addr),
-					dbesc($network),
-					dbesc(trim($diaspora_base,'/')),
-					dbesc($hostname),
-					dbesc($notify),
-					dbescdate(datetime_convert())
-				);
-			}
-			$photos = import_xchan_photo($vcard['photo'],$addr);
-			$r = q("update xchan set xchan_photo_date = '%s', xchan_photo_l = '%s', xchan_photo_m = '%s', xchan_photo_s = '%s', xchan_photo_mimetype = '%s' where xchan_hash = '%s'",
-				dbescdate(datetime_convert()),
-				dbesc($photos[0]),
-				dbesc($photos[1]),
-				dbesc($photos[2]),
-				dbesc($photos[3]),
-				dbesc($addr)
-			);
-			return true;
-
 		}
 	}
+
+	if($subject || $aliases) {
+		if(strpos($webbie,'@')) {
+			$rhs = substr($webbie,strpos($webbie,'@')+1);
+		}
+		else {
+			$m = parse_url($webbie);
+			if($m) {
+				$rhs = $m['host'] . (($m['port']) ? ':' . $m['port'] : '');
+			}
+		}
+
+		$v = array('subject' => $subject,'aliases' => $aliases);
+		$address = find_webfinger_address($v,$rhs);
+		$location = find_webfinger_location($v,$rhs);
+		if($address)
+			$nickname = substr($address,0,strpos($address,'@'));
+
+	}
+
+	if($salmon_key && $has_salmon && $atom_feed && (! $dfrn) && (! $diaspora)) {
+		$gnusoc = true;
+		$probe_atom = true;
+	}
+
+	if(! $pubkey)
+		$pubkey = $salmon_key;
+
+	if(($dfrn || $diaspora) && $hcard)
+		$probe_hcard = true;
+
+	if(! $fullname)
+		$fullname = $nickname;
+
+	if($probe_atom) {
+		$k = z_fetch_url($atom_feed);
+		if($k['success'])
+			$feed_meta = feed_meta($k['body']);
+		if($feed_meta) {
+
+			// stash any discovered pubsubhubbub hubs in case we need to follow them
+			// this will save an expensive lookup later
+
+			if($feed_meta['hubs'] && $address) {
+				set_xconfig($address,'system','push_hubs',$feed_meta['hubs']);
+				set_xconfig($address,'system','feed_url',$atom_feed);
+			}
+			if($feed_meta['author']['author_name']) {
+				$fullname = $feed_meta['author']['author_name'];
+			}
+			if(! $avatar) {
+				if($feed_meta['author']['author_photo'])
+					$avatar = $feed_meta['author']['author_photo'];
+			}
+
+			// for GNU-social over-ride any url aliases we may have picked up in webfinger
+			// The author.uri element in the feed is likely to be more accurate
+
+			if($gnusoc && $feed_meta['author']['author_uri'])
+				$location = $feed_meta['author']['author_uri'];
+		}
+	}
+	else {
+		if($probe_hcard) {
+			$vcard = scrape_vcard($hcard);
+			if($vcard) {
+				logger('vcard: ' . print_r($vcard,true), LOGGER_DATA);
+				if($vcard['fn'])
+					$fullname = $vcard['fn'];
+				if($vcard['photo'] && (strpos($vcard['photo'],'http') !== 0))
+					$vcard['photo'] = $diaspora_base . '/' . $vcard['photo'];			
+				if(! $avatar)
+					$avatar = $vcard['photo'];
+
+			}
+		}
+	}
+
+	if(($profile) && (! $location))
+		$location = $profile;
+
+	if($location) { 
+		$m = parse_url($location);
+		$base = $m['scheme'] . '://' . $m['host'];
+		$host = $m['host'];
+	}
+
+
+	if($diaspora && $diaspora_base && $diaspora_guid) {
+		if($dfrn)
+			$network = 'friendica-over-diaspora';
+		else
+			$network = 'diaspora';
+
+		$base = trim($diaspora_base,'/');
+		$notify = $base . '/receive';
+
+	}
+	else {
+		if($gnusoc) {
+			$network = 'gnusoc';
+			$notify = $salmon;
+		}
+	}
+
+
+	logger('network: ' . $network);
+	logger('address: ' . $address);
+	logger('fullname: ' . $fullname);
+	logger('pubkey: ' . $pubkey);
+	logger('location: ' . $location);
+
+
+
+	// if we have everything we need, let's create the records
+
+	if($network && $address && $fullname && $pubkey && $location) {	
+		$r = q("select * from xchan where xchan_hash = '%s' limit 1",
+			dbesc($address)
+		);
+		if($r) {
+			$r = q("update xchan set xchan_name = '%s', xchan_network = '%s', xchan_name_date = '%s' where xchan_hash = '%s' limit 1",
+				dbesc($fullname),
+				dbesc($network),
+				dbesc(datetime_convert()),
+				dbesc($address)
+			);
+		}
+		else {
+			$r = q("insert into xchan ( xchan_hash, xchan_guid, xchan_pubkey, xchan_addr, xchan_url, xchan_name, xchan_network, xchan_name_date ) values ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s') ",
+				dbesc($address),
+				dbesc(($diaspora_guid) ? $diaspora_guid : $location),
+				dbesc($pubkey),
+				dbesc($address),
+				dbesc($location),
+				dbesc($fullname),
+				dbesc($network),
+				dbescdate(datetime_convert())
+			);
+		}
+
+		$r = q("select * from hubloc where hubloc_hash = '%s' limit 1",
+			dbesc($address)
+		);
+
+		if(! $r) {
+			$r = q("insert into hubloc ( hubloc_guid, hubloc_hash, hubloc_addr, hubloc_network, hubloc_url, hubloc_host, hubloc_callback, hubloc_updated, hubloc_primary ) values ('%s','%s','%s','%s','%s','%s','%s','%s', 1)",
+				dbesc(($diaspora_guid) ? $diaspora_guid : $location),
+				dbesc($address),
+				dbesc($address),
+				dbesc($network),
+				dbesc($base),
+				dbesc($host),
+				dbesc($notify),
+				dbescdate(datetime_convert())
+			);
+		}
+		$photos = import_xchan_photo($avatar,$address);
+		$r = q("update xchan set xchan_photo_date = '%s', xchan_photo_l = '%s', xchan_photo_m = '%s', xchan_photo_s = '%s', xchan_photo_mimetype = '%s' where xchan_hash = '%s'",
+			dbescdate(datetime_convert()),
+			dbesc($photos[0]),
+			dbesc($photos[1]),
+			dbesc($photos[2]),
+			dbesc($photos[3]),
+			dbesc($address)
+		);
+		return true;
+	}
 	return false;
-
-/*
-	$vcard['fn'] = notags($vcard['fn']);
-	$vcard['nick'] = str_replace(' ','',notags($vcard['nick']));
-
-	$result['name'] = $vcard['fn'];
-	$result['nick'] = $vcard['nick'];
-	$result['guid'] = $guid;
-	$result['url'] = $profile;
-	$result['hostname'] = $hostname;
-	$result['addr'] = $addr;
-	$result['batch'] = $batch;
-	$result['notify'] = $notify;
-	$result['poll'] = $poll;
-	$result['request'] = $request;
-	$result['confirm'] = $confirm;
-	$result['poco'] = $poco;
-	$result['photo'] = $vcard['photo'];
-	$result['priority'] = $priority;
-	$result['network'] = $network;
-	$result['alias'] = $alias;
-	$result['pubkey'] = $pubkey;
-
-	logger('probe_url: ' . print_r($result,true), LOGGER_DEBUG);
-
-	return $result;
-
-*/
-
-/* Sample Diaspora result.
-
-Array
-(
-	[name] => Mike Macgirvin
-	[nick] => macgirvin
-	[guid] => a9174a618f8d269a
-	[url] => https://joindiaspora.com/u/macgirvin
-	[hostname] => joindiaspora.com
-	[addr] => macgirvin@joindiaspora.com
-	[batch] => 
-	[notify] => https://joindiaspora.com/receive
-	[poll] => https://joindiaspora.com/public/macgirvin.atom
-	[request] => 
-	[confirm] => 
-	[poco] => 
-	[photo] => https://joindiaspora.s3.amazonaws.com/uploads/images/thumb_large_fec4e6eef13ae5e56207.jpg
-	[priority] => 
-	[network] => diaspora
-	[alias] => 
-	[pubkey] => -----BEGIN PUBLIC KEY-----
-MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAtihtyIuRDWkDpCA+I1UaQ
-jI4S7k625+A7EEJm+pL2ZVSJxeCKiFeEgHBQENjLMNNm8l8F6blxgQqE6ZJ9Spa7f
-tlaXYTRCrfxKzh02L3hR7sNA+JS/nXJaUAIo+IwpIEspmcIRbD9GB7Wv/rr+M28uH
-31EeYyDz8QL6InU/bJmnCdFvmEMBQxJOw1ih9tQp7UNJAbUMCje0WYFzBz7sfcaHL
-OyYcCOqOCBLdGucUoJzTQ9iDBVzB8j1r1JkIHoEb2moUoKUp+tkCylNfd/3IVELF9
-7w1Qjmit3m50OrJk2DQOXvCW9KQxaQNdpRPSwhvemIt98zXSeyZ1q/YjjOwG0DWDq
-AF8aLj3/oQaZndTPy/6tMiZogKaijoxj8xFLuPYDTw5VpKquriVC0z8oxyRbv4t9v
-8JZZ9BXqzmayvY3xZGGp8NulrfjW+me2bKh0/df1aHaBwpZdDTXQ6kqAiS2FfsuPN
-vg57fhfHbL1yJ4oDbNNNeI0kJTGchXqerr8C20khU/cQ2Xt31VyEZtnTB665Ceugv
-kp3t2qd8UpAVKl430S5Quqx2ymfUIdxdW08CEjnoRNEL3aOWOXfbf4gSVaXmPCR4i
-LSIeXnd14lQYK/uxW/8cTFjcmddsKxeXysoQxbSa9VdDK+KkpZdgYXYrTTofXs6v+
-4afAEhRaaY+MCAwEAAQ==
------END PUBLIC KEY-----
-
-)
-*/
-
 }
+
 
 
 function webfinger_rfc7033($webbie,$zot = false) {
@@ -1473,8 +1480,8 @@ function find_webfinger_location($j,$rhs) {
 
 function match_webfinger_location($s,$h) {
 
-	// GNU-social and the older StatusNet
-	if(preg_match('|' . $h . '/user/([0-9]*?)$|',$s))
+	// GNU-social and the older StatusNet - the $host/user/123 form doesn't work
+	if(preg_match('|' . $h . '/index.php/user/([0-9]*?)$|',$s))
 		return $s;
 	// Redmatrix / hubzilla
 	if(preg_match('|' . $h . '/channel/|',$s))
@@ -1549,7 +1556,7 @@ function fetch_lrdd_template($host) {
 
 function fetch_xrd_links($url) {
 
-logger('fetch_xrd_links: ' . $url);
+	logger('fetch_xrd_links: ' . $url, LOGGER_DEBUG);
 
 	$redirects = 0;
 	$x = z_fetch_url($url,false,$redirects,array('timeout' => 20));
@@ -1593,6 +1600,10 @@ logger('fetch_xrd_links: ' . $url);
 				$links[]['@attributes'] = array('rel' => 'alias' , 'href' => $alias);
 			}
 		}
+	}
+
+	if(isset($arr['xrd']['subject'])) {
+		$links[]['@attributes'] = array('rel' => 'subject' , 'href' => $arr['xrd']['subject']);
 	}
 
 	logger('fetch_xrd_links: ' . print_r($links,true), LOGGER_DATA);
@@ -1863,7 +1874,7 @@ function format_and_send_email($sender,$xchan,$item) {
 
 		$sender_name = t('Administrator');
 		
-  		$hostname = get_app()->get_hostname();
+  		$hostname = App::get_hostname();
 	    if(strpos($hostname,':'))
     	    $hostname = substr($hostname,0,strpos($hostname,':'));
 		$sender_email = 'noreply' . '@' . $hostname;
@@ -1937,11 +1948,11 @@ function get_site_info() {
 		$admin = array();
 		foreach($r as $rr) {
 			if($rr['channel_pageflags'] & PAGE_HUBADMIN)
-				$admin[] = array( 'name' => $rr['channel_name'], 'address' => $rr['channel_address'] . '@' . get_app()->get_hostname(), 'channel' => z_root() . '/channel/' . $rr['channel_address']);
+				$admin[] = array( 'name' => $rr['channel_name'], 'address' => $rr['channel_address'] . '@' . App::get_hostname(), 'channel' => z_root() . '/channel/' . $rr['channel_address']);
 		}
 		if(! $admin) {
 			foreach($r as $rr) {
-				$admin[] = array( 'name' => $rr['channel_name'], 'address' => $rr['channel_address'] . '@' . get_app()->get_hostname(), 'channel' => z_root() . '/channel/' . $rr['channel_address']);
+				$admin[] = array( 'name' => $rr['channel_name'], 'address' => $rr['channel_address'] . '@' . App::get_hostname(), 'channel' => z_root() . '/channel/' . $rr['channel_address']);
 			}
 		}
 	}
@@ -1956,7 +1967,7 @@ function get_site_info() {
 		$service_class = false;
 
 	$visible_plugins = array();
-	if(is_array($a->plugins) && count($a->plugins)) {
+	if(is_array(App::$plugins) && count(App::$plugins)) {
 		$r = q("select * from addon where hidden = 0");
 		if(count($r))
 			foreach($r as $rr)
@@ -1996,8 +2007,8 @@ function get_site_info() {
 
 	load_config('feature_lock');
 	$locked_features = array();
-	if(is_array($a->config['feature_lock']) && count($a->config['feature_lock'])) {
-		foreach($a->config['feature_lock'] as $k => $v) {
+	if(is_array(App::$config['feature_lock']) && count(App::$config['feature_lock'])) {
+		foreach(App::$config['feature_lock'] as $k => $v) {
 			if($k === 'config_loaded')
 				continue;
 			$locked_features[$k] = intval($v);

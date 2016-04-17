@@ -75,7 +75,7 @@ function pageheader_fetch($a,&$b) {
 		$s = file_get_contents('pageheader.html');
 	} else {
 		$s = get_config('pageheader', 'text');
-		$a->page['htmlhead'] .= '<link rel="stylesheet" type="text/css" href="' . $a->get_baseurl() . '/addon/pageheader/pageheader.css' . '" media="all" />' . "\r\n";
+		App::$page['htmlhead'] .= '<link rel="stylesheet" type="text/css" href="' . z_root() . '/addon/pageheader/pageheader.css' . '" media="all" />' . "\r\n";
 	}
 
 	if($s)

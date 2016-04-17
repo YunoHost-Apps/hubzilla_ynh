@@ -1,3 +1,3 @@
 <?php
 
-$a->strings["Administrator"] = "Admin";
+App::$strings["Administrator"] = "Admin";

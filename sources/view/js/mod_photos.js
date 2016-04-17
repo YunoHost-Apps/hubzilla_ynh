@@ -11,6 +11,8 @@ $(document).ready(function() {
 		$("#photo-edit-newtag").val('@' + data.name);
 	});
 
+	$('#id_body').bbco_autocomplete('bbcode');
+
 	$('#contact_allow, #contact_deny, #group_allow, #group_deny').change(function() {
 		var selstr;
 		$('#contact_allow option:selected, #contact_deny option:selected, #group_allow option:selected, #group_deny option:selected').each( function() {

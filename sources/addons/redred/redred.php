@@ -53,7 +53,7 @@ function redred_settings_post ($a,$post) {
 	if (! x($_POST,'redred-submit'))
 		return;
 
-	$channel = $a->get_channel();
+	$channel = App::get_channel();
 	// Don't let somebody post to their self channel. Since we aren't passing message-id this would be very very bad.
 
 	if(! trim($_POST['redred_channel'])) {

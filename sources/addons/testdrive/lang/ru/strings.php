@@ -1,5 +1,5 @@
 <?php
 
-$a->strings["Administrator"] = "Администратор";
-$a->strings["Your account on %s will expire in a few days."] = "";
-$a->strings["Your Friendica test account is about to expire."] = "";
+App::$strings["Administrator"] = "Администратор";
+App::$strings["Your account on %s will expire in a few days."] = "";
+App::$strings["Your Friendica test account is about to expire."] = "";

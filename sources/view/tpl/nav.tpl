@@ -1,4 +1,45 @@
-	<div class="container-fluid">
+<script>
+    $(document).mouseup(function (e)
+    {
+        var container = $("#help-content");
+
+        if (!container.is(e.target) // if the target of the click isn't the container...
+                && container.has(e.target).length === 0 // ... nor a descendant of the container
+                && container.hasClass('help-content-open'))
+        {
+            container.removeClass('help-content-open');
+        }
+    });
+</script>
+<style>
+.help-content {
+	background: rgba(255, 255, 255, 0.9);
+	color: #333333;
+	position: fixed;
+	top: 50px;
+	left: -80%;
+	width: 80%;
+        height: 60%;
+	padding: 20px;
+	transition: left 300ms cubic-bezier(0.17, 0.04, 0.03, 0.94);
+	box-sizing: border-box;
+	border: #CCC thin solid;
+        overflow: auto;
+}
+
+.help-content-open {
+	left: 0px;
+	-moz-box-shadow: 3px 3px 3px #ccc;
+	-webkit-box-shadow: 3px 3px 3px #ccc;
+	box-shadow: 3px 3px 3px #ccc;
+}
+
+.help-content dd {
+    margin-bottom: 1em;
+}
+</style>
+
+<div class="container-fluid">
 		<div class="navbar-header">
 			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse-1">
 				<span class="icon-bar"></span>
@@ -189,8 +230,13 @@
 
 			{{if $nav.help}}
 				<li class="{{$sel.help}}">
-					<a class="{{$nav.help.2}}" target="hubzilla-help" href="{{$nav.help.0}}" title="{{$nav.help.3}}" id="{{$nav.help.4}}"><i class="icon-question"></i></a>
+					<a class="{{$nav.help.2}}" target="hubzilla-help" href="{{$nav.help.0}}" title="{{$nav.help.3}}" id="{{$nav.help.4}}" onclick="$('#help-content').toggleClass('help-content-open'); return false;"><i class="icon-question"></i></a>
 				</li>
+                                
+			<div id="help-content" class="help-content">
+                            {{$nav.help.5}}
+                            <p class="pull-right"><a href="{{$nav.help.0}}">Click here for more documentation...</a></p>
+			</div>
 			{{/if}}
 			</ul>
 		</div>

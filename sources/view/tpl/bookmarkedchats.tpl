@@ -1,5 +1,5 @@
 {{if $rooms}}
-<div class="widget">
+<div id="chatroom_bookmarks" class="widget">
 <h3>{{$header}}</h3>
 <ul class="bookmarkchat nav nav-pills nav-stacked">
 {{foreach $rooms as $room}}

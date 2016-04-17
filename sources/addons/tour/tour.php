@@ -25,7 +25,7 @@ function tour_unload() {
 
 function tour_alterheader($a, &$navHtml) {
 	// Add tourbus CSS
-	$a->page['htmlhead'] .= '<link href="addon/tour/jquery-tourbus.min.css" rel="stylesheet">';
+	App::$page['htmlhead'] .= '<link href="addon/tour/jquery-tourbus.min.css" rel="stylesheet">';
 }
 
 function tour_content(&$a) {
@@ -61,8 +61,8 @@ function tour_addfooter($a,&$navHtml) {
 	if(get_pconfig(local_channel(),'tour','showtour') != 1)
 		return;
 
-	$content = '<script type="text/javascript" src="' . $a->get_baseurl() . '/addon/tour/jquery-tourbus.min.js"></script>' . "\r\n";
-	$content .= '<script type="text/javascript" src="' . $a->get_baseurl() . '/addon/tour/jquery.scrollTo.min.js"></script>' . "\r\n";
+	$content = '<script type="text/javascript" src="' . z_root() . '/addon/tour/jquery-tourbus.min.js"></script>' . "\r\n";
+	$content .= '<script type="text/javascript" src="' . z_root() . '/addon/tour/jquery.scrollTo.min.js"></script>' . "\r\n";
 
 	$seen = explode(',',get_pconfig(local_channel(),'tour','seen'));
 

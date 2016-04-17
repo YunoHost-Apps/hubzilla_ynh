@@ -15,14 +15,11 @@
 					<div class="clear"></div>
 				</div>
 				{{/if}}
-
 				<div id="acl-wrapper">
 					<button id="acl-showall" class="btn btn-block btn-default"><i class="icon-globe"></i> {{$showall}}</button>
 					<input type="text" id="acl-search" placeholder="&#xf002;">
-
 					<div id="acl-list">
 						<div id="acl-list-content"></div>
-
 					</div>
 					<span id="acl-fields"></span>
 				</div>

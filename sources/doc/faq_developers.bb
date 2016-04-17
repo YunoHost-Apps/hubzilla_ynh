@@ -8,22 +8,22 @@ $a is a class defined in boot.php and passed all around $Projectname as a global
 
 We don't ever create more than one instance and always modify the elements of the single instance. The mechanics of this are somewhat tricky. If you have a function that is passed $a and needs to modify $a you need to declare it as a reference with '&' e.g. 
 
-[code]function foo(&$a) { $a->something = 'x'; // whatever };
+[code]function foo(&$a) { App::$something = 'x'; // whatever };
 
 *or* access it within your function  as a global variable via get_app()
 
 function foo() {
     $a = get_app();
-    $a->something = 'x';
+    App::$something = 'x';
 }
 
 
-function foo($a) { $a->something = 'x'; }; 
+function foo($a) { App::$something = 'x'; }; 
 
 will *not* change the global app state. 
 
 function foo() {
-   get_app()->something = 'x';
+   App::$something = 'x';
 }
 [/code]
 

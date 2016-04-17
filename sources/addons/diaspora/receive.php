@@ -12,7 +12,7 @@ function receive_post(&$a) {
 
 	$public = false;
 
-	logger('diaspora_receive: ' . print_r($a->argv, true), LOGGER_DEBUG);
+	logger('diaspora_receive: ' . print_r(App::$argv, true), LOGGER_DEBUG);
 
 	if((argc() == 2) && (argv(1) === 'public')) {
 		$public = true;
@@ -23,7 +23,7 @@ function receive_post(&$a) {
 			http_status_exit(500);
 
 		$guid = argv(2);
-		$hn = str_replace('.','',$a->get_hostname());
+		$hn = str_replace('.','',App::get_hostname());
 		if(($x = strpos($guid,$hn)) > 0)
 			$guid = substr($guid,0,$x);
 

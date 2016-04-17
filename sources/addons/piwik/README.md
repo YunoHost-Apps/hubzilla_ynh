@@ -23,11 +23,11 @@ Configuration
 Activate the analytics addon in your admin panel and then open the
 .htconfig.php file in you fav editor to add the following lines:
 
-    $a->config['piwik']['baseurl'] = 'example.com/piwik/';
-    $a->config['piwik']['sideid'] = '1';
-    $a->config['piwik']['optout'] = true;
-    $a->config['piwik']['async'] = false;
-    $a->config['piwik']['trackjserror'] = false;
+    App::$config['piwik']['baseurl'] = 'example.com/piwik/';
+    App::$config['piwik']['sideid'] = '1';
+    App::$config['piwik']['optout'] = true;
+    App::$config['piwik']['async'] = false;
+    App::$config['piwik']['trackjserror'] = false;
 You can also use the CLI config utility:
     `$ ./util/config piwik baseurl "www.example.com/piwik/"`
 

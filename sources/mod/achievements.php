@@ -23,7 +23,7 @@ function achievements_content(&$a) {
 		$owner = intval($r[0]['channel_id']);
 		}
 
-	$observer = $a->get_observer();
+	$observer = App::get_observer();
 	$ob_hash = (($observer) ? $observer['xchan_hash'] : '');
 	$perms = get_all_perms($owner,$ob_hash);
 	if(! $perms['view_profile']) {

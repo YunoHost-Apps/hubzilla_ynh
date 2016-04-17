@@ -1,6 +1,6 @@
 <?php /** @file */
 
-require_once('acl_selectors.php');
+require_once('include/acl_selectors.php');
 require_once('include/crypto.php');
 require_once('include/items.php');
 require_once('include/taxonomy.php');
@@ -30,7 +30,7 @@ function rbmark_post(&$a) {
 
 	logger('rbmark_post: ' . print_r($_REQUEST,true));
 
-	$channel = $a->get_channel();
+	$channel = App::get_channel();
 
 	$t = array('url' => escape_tags($_REQUEST['url']),'term' => escape_tags($_REQUEST['title']));
 	bookmark_add($channel,$channel,$t,((x($_REQUEST,'private')) ? intval($_REQUEST['private']) : 0),
@@ -75,7 +75,7 @@ function rbmark_content(&$a) {
 		goaway(z_root() . '/bookmarks');
 	}
 
-	$channel = $a->get_channel();
+	$channel = App::get_channel();
 
 
 	$m = menu_list($channel['channel_id'],'',MENU_BOOKMARK);

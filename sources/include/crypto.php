@@ -25,16 +25,7 @@ function rsa_verify($data,$sig,$key,$alg = 'sha256') {
 	if(! $verify) {
 		while($msg = openssl_error_string())
 			logger('openssl_verify: ' . $msg,LOGGER_NORMAL,LOG_ERR);
-		logger('openssl_verify: key: ' . $key, LOGGER_DEBUG, LOG_ERR); 
-		// provide a backtrace so that we can debug key issues
-		if(version_compare(PHP_VERSION, '5.4.0') >= 0) {
-        	$stack = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-			if($stack) {
-				foreach($stack as $s) {
-					logger('stack: ' . basename($s['file']) . ':' . $s['line'] . ':' . $s['function'] . '()',LOGGER_DEBUG,LOG_ERR);
-			    }
-			}
-		}
+		btlogger('openssl_verify: key: ' . $key, LOGGER_DEBUG, LOG_ERR); 
 	}
 
 	return $verify;
@@ -308,10 +299,32 @@ function metorsa($m,$e) {
 	return $key;
 }	
 
+
+
 function salmon_key($pubkey) {
 	pemtome($pubkey,$m,$e);
 	return 'RSA' . '.' . base64url_encode($m,true) . '.' . base64url_encode($e,true) ;
 }
+
+
+function convert_salmon_key($key) {
+
+	if(strstr($key,','))
+		$rawkey = substr($key,strpos($key,',')+1);
+	else
+		$rawkey = substr($key,5);
+
+	$key_info = explode('.',$rawkey);
+
+	$m = base64url_decode($key_info[1]);
+	$e = base64url_decode($key_info[2]);
+
+	logger('key details: ' . print_r($key_info,true), LOGGER_DATA);
+	$salmon_key = metopem($m,$e);
+	return $salmon_key;
+
+}
+
 
 function z_obscure($s) {
 	return json_encode(crypto_encapsulate($s,get_config('system','pubkey')));
@@ -322,3 +335,4 @@ function z_unobscure($s) {
 		return $s;
 	return crypto_unencapsulate(json_decode($s,true),get_config('system','prvkey'));
 }
+

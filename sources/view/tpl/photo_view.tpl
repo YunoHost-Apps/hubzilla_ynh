@@ -2,23 +2,41 @@
 <div class="generic-content-wrapper">
 	<div class="section-title-wrapper">
 		<div class="pull-right">
-			{{if $tools}}
-			<a class="btn btn-default btn-xs" title="{{$tools.profile.1}}" href="{{$tools.profile.0}}"><i class="icon-user"></i></a>
-			{{/if}}
-			{{if $map}}
-			<div class="btn-group btn-group">
-				<i class="icon-globe btn btn-default btn-xs" title="{{$map_text}}" onclick="var pos = $('#photo-map').css('position'); if(pos === 'absolute') { $('#photo-map').css( { position: 'relative', left: 'auto', top: 'auto' }); } else { $('#photo-map').css( { position: 'absolute', left: '-9999px', top: '-9999px' }); }" ></i>
+			{{if $tools || $map || $edit}}
+			<div class="btn-group">
+				<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
+					<i class="icon-caret-down"></i>
+				</button>
+				<ul class="dropdown-menu">
+					{{if $tools}}
+					<li class="nav-item">
+						<a class="nav-link" href="{{$tools.profile.0}}"><i class="icon-user"></i>&nbsp;{{$tools.profile.1}}</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="{{$tools.cover.0}}"><i class="icon-picture"></i>&nbsp;{{$tools.cover.1}}</a>
+					</li>
+					{{/if}}
+					{{if $map}}
+					<li class="nav-item">
+						<a class="nav-link" href="#" onclick="var pos = $('#photo-map').css('position'); if(pos === 'absolute') { $('#photo-map').css( { position: 'relative', left: 'auto', top: 'auto' }); } else { $('#photo-map').css( { position: 'absolute', left: '-9999px', top: '-9999px' }); } return false; " ><i class="icon-globe"></i>&nbsp;{{$map_text}}</a>
+					</li>
+					{{/if}}
+					{{if $edit}}
+					<li class="nav-item">
+						<a class="nav-link" href="#"  title="" onclick="openClose('photo-edit'); return false;"><i class="icon-pencil"></i>&nbsp;{{$edit.edit}}</a>
+					</li>
+					{{/if}}
+				</ul>
 			</div>
 			{{/if}}
-			<div class="btn-group btn-group dropdown">
-				{{if $edit}}
-				<i class="icon-pencil btn btn-default btn-xs" title="{{$edit.edit}}" onclick="openClose('photo-edit');"></i>
-				{{/if}}
-				{{if $lock}}
-				<i id="lockview" class="icon-lock btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" title="{{$lock}}" onclick="lockview('photo',{{$id}});" ></i><ul id="panel-{{$id}}" class="lockview-panel dropdown-menu"></ul>
-				{{/if}}
+			{{if $lock}}
+			<div class="btn-group">
+				<button id="lockview" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" title="{{$lock}}" onclick="lockview('photo',{{$id}});" ><i class="icon-lock"></i></button>
+				<ul id="panel-{{$id}}" class="lockview-panel dropdown-menu"></ul>
 			</div>
-			<div class="btn-group btn-group">
+			{{/if}}
+			{{if $prevlink || $nextlink}}
+			<div class="btn-group">
 				{{if $prevlink}}
 				<a href="{{$prevlink.0}}" class="btn btn-default btn-xs" title="{{$prevlink.1}}"><i class="icon-backward"></i></a>
 				{{/if}}
@@ -26,6 +44,7 @@
 				<a href="{{$nextlink.0}}" class="btn btn-default btn-xs" title="{{$nextlink.1}}"><i class="icon-forward"></i></a>
 				{{/if}}
 			</div>
+			{{/if}}
 		</div>
 		<h2>{{if $desc}}{{$desc}}{{elseif $filename}}{{$filename}}{{else}}{{$unknown}}{{/if}}</h2>
 		<div class="clear"></div>

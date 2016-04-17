@@ -30,7 +30,7 @@ To configure this, please look in your .htconfig.php file for the following text
 // DIRECTORY_MODE_PRIMARY    = main directory server
 // DIRECTORY_MODE_STANDALONE = "off the grid" or private directory services
 
-$a->config['system']['directory_mode']  = DIRECTORY_MODE_STANDALONE;
+App::$config['system']['directory_mode']  = DIRECTORY_MODE_STANDALONE;
 [/code]
 
 

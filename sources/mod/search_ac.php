@@ -50,7 +50,7 @@ function search_ac_init(&$a){
 	if(count($r)) {
 		foreach($r as $g) {
 			$results[] = array(
-				"photo"    => $a->get_baseurl() . '/images/hashtag.png',
+				"photo"    => z_root() . '/images/hashtag.png',
 				"name"     => '#'.$g['term'],
 				"id"       => $g['tid'],
 				"link"     => $g['url'],

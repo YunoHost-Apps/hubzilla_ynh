@@ -19,7 +19,7 @@ function notify_init(&$a) {
 			);
 			goaway($r[0]['link']);
 		}
-		goaway($a->get_baseurl(true));
+		goaway(z_root());
 	}
 
 
@@ -42,7 +42,7 @@ function notify_content(&$a) {
 	if($r) {
 		foreach ($r as $it) {
 			$notif_content .= replace_macros($not_tpl,array(
-				'$item_link' => $a->get_baseurl(true).'/notify/view/'. $it['id'],
+				'$item_link' => z_root().'/notify/view/'. $it['id'],
 				'$item_image' => $it['photo'],
 				'$item_text' => strip_tags(bbcode($it['msg'])),
 				'$item_when' => relative_date($it['date'])

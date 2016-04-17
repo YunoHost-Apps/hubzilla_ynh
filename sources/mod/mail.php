@@ -26,7 +26,7 @@ function mail_post(&$a) {
 	// finger them and find out before we try and send it.
 
 	if(! $recipient) {
-		$channel = $a->get_channel();
+		$channel = App::get_channel();
 
 		$ret = zot_finger($rstr,$channel);
 
@@ -96,8 +96,8 @@ function mail_post(&$a) {
 
 	if(! $recipient) {
 		notice('No recipient found.');
-		$a->argc = 2;
-		$a->argv[1] = 'new';
+		App::$argc = 2;
+		App::$argv[1] = 'new';
 		return;
 	}
 
@@ -127,7 +127,7 @@ function mail_content(&$a) {
 		return login();
 	}
 
-	$channel = $a->get_channel();
+	$channel = App::get_channel();
 
 	head_set_icon($channel['xchan_photo_s']);
 
@@ -149,7 +149,7 @@ function mail_content(&$a) {
 		if($r) {
 			//info( t('Message deleted.') . EOL );
 		}
-		goaway($a->get_baseurl(true) . '/mail/' . $mailbox);
+		goaway(z_root() . '/mail/' . $mailbox);
 	}
 
 	if((argc() == 4) && (argv(2) === 'recall')) {
@@ -174,7 +174,7 @@ function mail_content(&$a) {
 		if($r) {
 				info( t('Message recalled.') . EOL );
 		}
-		goaway($a->get_baseurl(true) . '/mail/' . $mailbox . '/' . argv(3));
+		goaway(z_root() . '/mail/' . $mailbox . '/' . argv(3));
 
 	}
 
@@ -186,7 +186,7 @@ function mail_content(&$a) {
 		$r = private_messages_drop(local_channel(), argv(3), true);
 		if($r)
 			info( t('Conversation removed.') . EOL );
-		goaway($a->get_baseurl(true) . '/mail/' . $mailbox);
+		goaway(z_root() . '/mail/' . $mailbox);
 	}
 
 	if((argc() > 1) && (argv(1) === 'new')) {
@@ -196,14 +196,14 @@ function mail_content(&$a) {
 		$tpl = get_markup_template('msg-header.tpl');
 
 		$header = replace_macros($tpl, array(
-			'$baseurl' => $a->get_baseurl(true),
+			'$baseurl' => z_root(),
 			'$editselect' => (($plaintext) ? 'none' : '/(profile-jot-text|prvmail-text)/'),
 			'$nickname' => $channel['channel_address'],
 			'$linkurl' => t('Please enter a link URL:'),
 			'$expireswhen' => t('Expires YYYY-MM-DD HH:MM')
 		));
 
-		$a->page['htmlhead'] .= $header;
+		App::$page['htmlhead'] .= $header;
 
 		$prename = '';
 		$preid = '';
@@ -298,20 +298,20 @@ function mail_content(&$a) {
 	}
 
 	if($messages[0]['to_xchan'] === $channel['channel_hash'])
-		$a->poi = $messages[0]['from'];
+		App::$poi = $messages[0]['from'];
 	else
-		$a->poi = $messages[0]['to'];
+		App::$poi = $messages[0]['to'];
 
 //	require_once('include/Contact.php');
 
-//	$a->set_widget('mail_conversant',vcard_from_xchan($a->poi,$get_observer_hash,'mail'));
+//	App::set_widget('mail_conversant',vcard_from_xchan(App::$poi,$get_observer_hash,'mail'));
 
 
 	$tpl = get_markup_template('msg-header.tpl');
 	
-	$a->page['htmlhead'] .= replace_macros($tpl, array(
+	App::$page['htmlhead'] .= replace_macros($tpl, array(
 		'$nickname' => $channel['channel_address'],
-		'$baseurl' => $a->get_baseurl(true),
+		'$baseurl' => z_root(),
 		'$editselect' => (($plaintext) ? 'none' : '/(profile-jot-text|prvmail-text)/'),
 		'$linkurl' => t('Please enter a link URL:'),
 		'$expireswhen' => t('Expires YYYY-MM-DD HH:MM')

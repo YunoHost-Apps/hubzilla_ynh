@@ -181,7 +181,7 @@ function zot_finger($webbie, $channel = null, $autofallback = true) {
 
 	if (strpos($webbie,'@') === false) {
 		$address = $webbie;
-		$host = get_app()->get_hostname();
+		$host = App::get_hostname();
 	} else {
 		$address = substr($webbie,0,strpos($webbie,'@'));
 		$host = substr($webbie,strpos($webbie,'@')+1);
@@ -941,7 +941,7 @@ function import_xchan($arr,$ud_flags = UPDATE_FLAGS_UPDATED, $ud_arr = null) {
 	}
 
 	if(($changed) || ($ud_flags == UPDATE_FLAGS_FORCED)) {
-		$guid = random_string() . '@' . get_app()->get_hostname();
+		$guid = random_string() . '@' . App::get_hostname();
 		update_modtime($xchan_hash,$guid,$address,$ud_flags);
 		logger('import_xchan: changed: ' . $what,LOGGER_DEBUG);
 	}
@@ -1527,7 +1527,7 @@ function allowed_public_recips($msg) {
 		return $recips;
 
 	if(strpos($scope,'site:') === 0) {
-		if(($scope === 'site: ' . get_app()->get_hostname()) && ($msg['notify']['sender']['url'] === z_root()))
+		if(($scope === 'site: ' . App::get_hostname()) && ($msg['notify']['sender']['url'] === z_root()))
 			return $recips;
 		else
 			return array();
@@ -1606,7 +1606,7 @@ function process_delivery($sender, $arr, $deliveries, $relay, $public = false, $
 		}
 
 		$channel = $r[0];
-		$DR->addto_recipient($channel['channel_name'] . ' <' . $channel['channel_address'] . '@' . get_app()->get_hostname() . '>');
+		$DR->addto_recipient($channel['channel_name'] . ' <' . $channel['channel_address'] . '@' . App::get_hostname() . '>');
 
 		/* blacklisted channels get a permission denied, no special message to tip them off */
 
@@ -2085,7 +2085,7 @@ function process_mail_delivery($sender, $arr, $deliveries) {
 		}
 
 		$channel = $r[0];
-		$DR->addto_recipient($channel['channel_name'] . ' <' . $channel['channel_address'] . '@' . get_app()->get_hostname() . '>');
+		$DR->addto_recipient($channel['channel_name'] . ' <' . $channel['channel_address'] . '@' . App::get_hostname() . '>');
 
 		/* blacklisted channels get a permission denied, no special message to tip them off */
 
@@ -2227,7 +2227,7 @@ function process_location_delivery($sender,$arr,$deliveries) {
 		$x = sync_locations($sender,$arr,true);
 		logger('process_location_delivery: results: ' . print_r($x,true), LOGGER_DEBUG);
 		if($x['changed']) {
-			$guid = random_string() . '@' . get_app()->get_hostname();
+			$guid = random_string() . '@' . App::get_hostname();
 			update_modtime($sender['hash'],$sender['guid'],$arr['locations'][0]['address'],UPDATE_FLAGS_UPDATED);
 		}
 	}
@@ -2277,6 +2277,12 @@ function check_location_move($sender_hash,$locations) {
 			dbesc($loc['url']),
 			dbesc($sender_hash)
 		);
+
+		// federation plugins may wish to notify connections 
+		// of the move on singleton networks
+
+		$arr = array('channel' => $r[0],'locations' => $locations);
+		call_hooks('location_move',$arr);
 
 	}		
 
@@ -2684,7 +2690,7 @@ function import_directory_profile($hash, $profile, $addr, $ud_flags = UPDATE_FLA
 	call_hooks('import_directory_profile', $d);
 
 	if (($d['update']) && (! $suppress_update))
-		update_modtime($arr['xprof_hash'],random_string() . '@' . get_app()->get_hostname(), $addr, $ud_flags);
+		update_modtime($arr['xprof_hash'],random_string() . '@' . App::get_hostname(), $addr, $ud_flags);
 
 	return $d['update'];
 }
@@ -2963,7 +2969,7 @@ function build_sync_packet($uid = 0, $packet = null, $groups_changed = false) {
 	$synchubs = array();
 
 	foreach($h as $x) {
-		if($x['hubloc_host'] == $a->get_hostname())
+		if($x['hubloc_host'] == App::get_hostname())
 			continue;
 
 		$synchubs[] = $x;
@@ -2985,8 +2991,8 @@ function build_sync_packet($uid = 0, $packet = null, $groups_changed = false) {
 	$info['type'] = 'channel_sync';
 	$info['encoding'] = 'red'; // note: not zot, this packet is very red specific
 
-	if(array_key_exists($uid,$a->config) && array_key_exists('transient',$a->config[$uid])) {
-		$settings = $a->config[$uid]['transient'];
+	if(array_key_exists($uid,App::$config) && array_key_exists('transient',App::$config[$uid])) {
+		$settings = App::$config[$uid]['transient'];
 		if($settings) {
 			$info['config'] = $settings;
 		}
@@ -3131,6 +3137,9 @@ function process_channel_sync_delivery($sender, $arr, $deliveries) {
 
 		if(array_key_exists('menu',$arr) && $arr['menu'])
 			sync_menus($channel,$arr['menu']);
+
+		if(array_key_exists('file',$arr) && $arr['file'])
+			sync_files($channel,$arr['file']);
 
 		if(array_key_exists('channel',$arr) && is_array($arr['channel']) && count($arr['channel'])) {
 
@@ -3484,7 +3493,7 @@ function process_channel_sync_delivery($sender, $arr, $deliveries) {
 
 		if(array_key_exists('item',$arr) && is_array($arr['item'][0])) {
 			$DR = new Zotlabs\Zot\DReport(z_root(),$d['hash'],$d['hash'],$arr['item'][0]['message_id'],'channel sync processed');
-			$DR->addto_recipient($channel['channel_name'] . ' <' . $channel['channel_address'] . '@' . get_app()->get_hostname() . '>');
+			$DR->addto_recipient($channel['channel_name'] . ' <' . $channel['channel_address'] . '@' . App::get_hostname() . '>');
 		}
 		else
 			$DR = new Zotlabs\Zot\DReport(z_root(),$d['hash'],$d['hash'],'sync packet','channel sync delivered');
@@ -3912,7 +3921,7 @@ function zotinfo($arr) {
 		$a = get_app();
 
 		$visible_plugins = array();
-		if(is_array($a->plugins) && count($a->plugins)) {
+		if(is_array(App::$plugins) && count(App::$plugins)) {
 			$r = q("select * from addon where hidden = 0");
 			if($r)
 				foreach($r as $rr)
@@ -3977,11 +3986,11 @@ function check_zotinfo($channel,$locations,&$ret) {
 				dbesc($channel['channel_guid']),
 				dbesc($channel['channel_guid_sig']),
 				dbesc($channel['channel_hash']),
-				dbesc($channel['channel_address'] . '@' . get_app()->get_hostname()),
+				dbesc($channel['channel_address'] . '@' . App::get_hostname()),
 				intval(1),
 				dbesc(z_root()),
 				dbesc(base64url_encode(rsa_sign(z_root(),$channel['channel_prvkey']))),
-				dbesc(get_app()->get_hostname()),
+				dbesc(App::get_hostname()),
 				dbesc(z_root() . '/post'),
 				dbesc(get_config('system','pubkey')),
 				dbesc('zot')
@@ -4280,9 +4289,7 @@ function zot_reply_auth_check($data,$encrypted_packet) {
 	// the web server. We should probably convert this to webserver time rather than DB time so 
 	// that the different clocks won't affect it and allow us to keep the time short. 
 
-	q("delete from verify where type = 'auth' and created < %s - INTERVAL %s",
-		db_utcnow(), db_quoteinterval('30 MINUTE')
-	);
+	Zotlabs\Zot\Verify::purge('auth','30 MINUTE');
 
 	$y = q("select xchan_pubkey from xchan where xchan_hash = '%s' limit 1",
 		dbesc($sender_hash)
@@ -4321,19 +4328,13 @@ function zot_reply_auth_check($data,$encrypted_packet) {
 		// This additionally checks for forged sites since we already stored the expected result in meta
 		// and we've already verified that this is them via zot_gethub() and that their key signed our token
 
-		$z = q("select id from verify where channel = %d and type = 'auth' and token = '%s' and meta = '%s' limit 1",
-			intval($c[0]['channel_id']),
-			dbesc($data['secret']),
-			dbesc($data['sender']['url'])
-		);
+
+		$z = Zotlabs\Zot\Verify::match('auth',$c[0]['channel_id'],$data['secret'],$data['sender']['url']);
 		if (! $z) {
 			logger('mod_zot: auth_check: verification key not found.');
 			$ret['message'] .= 'verification key not found' . EOL;
 			json_return_and_die($ret);
 		}
-		$r = q("delete from verify where id = %d",
-			intval($z[0]['id'])
-		);
 
 		$u = q("select account_service_class from account where account_id = %d limit 1",
 			intval($c[0]['channel_account_id'])

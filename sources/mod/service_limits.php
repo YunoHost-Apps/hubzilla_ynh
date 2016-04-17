@@ -8,7 +8,7 @@ function service_limits_content(&$a) {
 		return;
 	}
 
-	$account = $a->get_account();
+	$account = App::get_account();
 	if($account['account_service_class']) {
 		$x =  get_config('service_class',$account['account_service_class']);
 		if($x) {

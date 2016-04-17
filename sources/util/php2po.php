@@ -34,10 +34,10 @@
 			$ink = False;
 			$v = '""';
 			//echo "DBG: k:'$k'\n";
-			if (isset($a->strings[$k])) {
-				$v= '"'.$a->strings[$k].'"';
+			if (isset(App::$strings[$k])) {
+				$v= '"'.App::$strings[$k].'"';
 				//echo "DBG\n";
-				//var_dump($k, $v, $a->strings[$k], $v);
+				//var_dump($k, $v, App::$strings[$k], $v);
 				//echo "/DBG\n";
 				
 			}

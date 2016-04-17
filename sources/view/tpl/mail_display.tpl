@@ -1,8 +1,12 @@
 <div class="generic-content-wrapper">
 	<div class="section-title-wrapper">
-		{{if $mailbox == 'combined'}}
-		<a class="btn btn-xs btn-danger pull-right" href="mail/{{$mailbox}}/dropconv/{{$thread_id}}" onclick="return confirmDelete();"><i class="icon-trash"></i> {{$delete}}</a>
-		{{/if}}
+		<div class="pull-right">
+			<button id="fullscreen-btn" type="button" class="btn btn-default btn-xs" onclick="makeFullScreen();"><i class="icon-resize-full"></i></button>
+			<button id="inline-btn" type="button" class="btn btn-default btn-xs" onclick="makeFullScreen(false);"><i class="icon-resize-small"></i></button>
+			{{if $mailbox == 'combined'}}
+			<a class="btn btn-xs btn-danger" href="mail/{{$mailbox}}/dropconv/{{$thread_id}}" onclick="return confirmDelete();"><i class="icon-trash"></i> {{$delete}}</a>
+			{{/if}}
+		</div>
 		<h2>{{$prvmsg_header}}</h2>
 		<div class="clear"></div>
 	</div>

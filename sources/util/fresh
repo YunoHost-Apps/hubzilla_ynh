@@ -48,9 +48,9 @@ function process_command($line) {
 
 	// split args
 
-	$a->cmd = $line;
-	$a->argv = explode(' ',$line);
-	$a->argc = count($a->argv);
+	App::$cmd = $line;
+	App::$argv = explode(' ',$line);
+	App::$argc = count(App::$argv);
 
 	$authenticated = false;
 	$channel = null;
@@ -82,14 +82,14 @@ function process_command($line) {
 				exec('/bin/stty echo');
 				echo "\n";
 				require_once('include/auth.php');
-				$record = get_app()->account = account_verify_password(argv(1),trim($x,"\n"));
+				$record = App::$account = account_verify_password(argv(1),trim($x,"\n"));
 
 				if($record) {
-					$_SESSION['account_id'] = get_app()->account['account_id'];
+					$_SESSION['account_id'] = App::$account['account_id'];
 					$_SESSION['last_login_date'] = datetime_convert();
 					authenticate_success($record, true, true);
 					echo 'logged in';
-					$channel = $a->get_channel();
+					$channel = App::get_channel();
 					if($channel)
 						echo ' as ' . $channel['channel_name'];					
 				}
@@ -108,7 +108,7 @@ function process_command($line) {
 				);
 				if($r) {
 					change_channel($r[0]['channel_id']);
-					$channel = $a->get_channel();
+					$channel = App::get_channel();
 					echo 'Logged in as ' . $channel['channel_name'];
 				}
 				else

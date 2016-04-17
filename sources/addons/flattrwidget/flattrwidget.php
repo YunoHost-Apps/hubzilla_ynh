@@ -25,11 +25,11 @@ function flattrwidget_unload() {
 function flattrwidget_construct_page(&$a,&$b) {
     if (! $b['module']=='channel')
 	return;
-    $id = $a->profile['profile_uid'];
+    $id = App::$profile['profile_uid'];
     $enable = intval(get_pconfig($id,'flattrwidget','enable'));
     if (! $enable)
 	return;
-    $a->page['htmlhead'] .= '<link rel="stylesheet" href="'.$a->get_baseurl().'/addon/flattrwidget/style.css'.'" media="all" />';
+    App::$page['htmlhead'] .= '<link rel="stylesheet" href="'.z_root().'/addon/flattrwidget/style.css'.'" media="all" />';
     //  get alignment and static/dynamic from the settings
     //  align is either "aside" or "right_aside"
     //  sd is either static or dynamic
@@ -47,7 +47,7 @@ function flattrwidget_construct_page(&$a,&$b) {
     $link = 'https://flattr.com/submit/auto?user_id='.$user.'&url=' . rawurlencode($thing).'&title='.rawurlencode($ftitle);
     if ($sd == 'static') {
 	//  static button graphic from the img folder
-	$img = $a->get_baseurl() .'/addon/flattrwidget/img/flattr-badge-large.png';
+	$img = z_root() .'/addon/flattrwidget/img/flattr-badge-large.png';
 	$code = '<a href="'.$link.'" target="_blank"><img src="'.$img.'" alt="'.$title.'" title="'.$title.'" border="0"></a>';
     } else {
 	$code = '<script id=\'fbdu5zs\'>(function(i){var f,s=document.getElementById(i);f=document.createElement(\'iframe\');f.src=\'//api.flattr.com/button/view/?uid='.$user.'&url='.rawurlencode($thing).'&title='.rawurlencode($ftitle).'\';f.title=\''.$title.'\';f.height=72;f.width=65;f.style.borderWidth=0;s.parentNode.insertBefore(f,s);})(\'fbdu5zs\');</script>';
@@ -65,12 +65,12 @@ function flattrwidget_construct_page(&$a,&$b) {
 function flattrwidget_settings_post($a,$s) {
     if(! local_channel() || (! x($_POST,'flattrwidget-submit')))
 	return;
-    $c = $a->get_channel();
+    $c = App::get_channel();
     set_pconfig( local_channel(), 'flattrwidget', 'align', $_POST['flattrwidget-align'] );
     set_pconfig( local_channel(), 'flattrwidget', 'sd', $_POST['flattrwidget-static'] );
     $thing = $_POST['flattrwidget-thing'];
     if ($thing == '') {
-	$thing = $a->get_baseurl().'/channel/'.$c['channel_address'];
+	$thing = z_root().'/channel/'.$c['channel_address'];
     }
     set_pconfig( local_channel(), 'flattrwidget', 'thing', $thing);
     set_pconfig( local_channel(), 'flattrwidget', 'user', $_POST['flattrwidget-user']);
@@ -87,7 +87,7 @@ function flattrwidget_settings(&$a,&$s) {
 	if (! $id)
 		return;
 
-	//$a->page['htmlhead'] .= '<link rel="stylesheet" href="'.$a->get_baseurl().'/addon/flattrwidget/style.css'.'" media="all" />';
+	//App::$page['htmlhead'] .= '<link rel="stylesheet" href="'.z_root().'/addon/flattrwidget/style.css'.'" media="all" />';
 	$lr = get_pconfig( $id, 'flattrwidget', 'align');
 	$sd = get_pconfig( $id, 'flattrwidget', 'sd');
 	$thing = get_pconfig( $id, 'flattrwidget', 'thing');

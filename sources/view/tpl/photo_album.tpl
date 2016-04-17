@@ -1,6 +1,8 @@
 <div class="generic-content-wrapper">
 	<div class="section-title-wrapper">
 		<div class="pull-right">
+			<button id="fullscreen-btn" type="button" class="btn btn-default btn-xs" onclick="makeFullScreen();"><i class="icon-resize-full"></i></button>
+			<button id="inline-btn" type="button" class="btn btn-default btn-xs" onclick="makeFullScreen(false);"><i class="icon-resize-small"></i></button>
 			{{if $order}}
 			<a class="btn btn-default btn-xs" href="{{$order.1}}" title="{{$order.0}}"><i class="icon-sort"></i></a>
 			{{/if}}
@@ -13,9 +15,7 @@
 				{{/if}}
 			</div>
 		</div>
-
 		<h2>{{$album}}</h2>
-
 		<div class="clear"></div>
 	</div>
 	{{$upload_form}}

@@ -1,2 +1,2 @@
 <?php
-$a->page['template'] = 'full';
+App::$page['template'] = 'full';

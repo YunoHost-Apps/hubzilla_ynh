@@ -54,7 +54,7 @@ function item_redir_and_replace_images($body, $images, $cid) {
 	$origbody = $body;
 	$newbody = '';
 
-	$observer = get_app()->get_observer();
+	$observer = App::get_observer();
 	$obhash = (($observer) ? $observer['xchan_hash'] : '');
 	$obaddr = (($observer) ? $observer['xchan_addr'] : '');
 
@@ -489,7 +489,7 @@ function conversation(&$a, $items, $mode, $update, $page_mode = 'traditional', $
 
 			$live_update_div = '<div id="live-network"></div>' . "\r\n"
 				. "<script> var profile_uid = " . $_SESSION['uid']
-				. "; var netargs = '" . substr($a->cmd,8)
+				. "; var netargs = '" . substr(App::$cmd,8)
 				. '?f='
 				. ((x($_GET,'cid'))    ? '&cid='    . $_GET['cid']    : '')
 				. ((x($_GET,'search')) ? '&search=' . $_GET['search'] : '')
@@ -504,12 +504,12 @@ function conversation(&$a, $items, $mode, $update, $page_mode = 'traditional', $
 				. ((x($_GET,'cmax'))   ? '&cmax='   . $_GET['cmax']   : '')
 				. ((x($_GET,'file'))   ? '&file='   . $_GET['file']   : '')
 				. ((x($_GET,'uri'))    ? '&uri='    . $_GET['uri']   : '')
-				. "'; var profile_page = " . $a->pager['page'] . "; </script>\r\n";
+				. "'; var profile_page = " . App::$pager['page'] . "; </script>\r\n";
 		}
 	}
 
 	elseif ($mode === 'channel') {
-		$profile_owner = $a->profile['profile_uid'];
+		$profile_owner = App::$profile['profile_uid'];
 		$page_writeable = ($profile_owner == local_channel());
 
 		if (!$update) {
@@ -519,8 +519,8 @@ function conversation(&$a, $items, $mode, $update, $page_mode = 'traditional', $
 				// because browser prefetching might change it on us. We have to deliver it with the page.
 
 				$live_update_div = '<div id="live-channel"></div>' . "\r\n"
-					. "<script> var profile_uid = " . $a->profile['profile_uid']
-					. "; var netargs = '?f='; var profile_page = " . $a->pager['page'] . "; </script>\r\n";
+					. "<script> var profile_uid = " . App::$profile['profile_uid']
+					. "; var netargs = '?f='; var profile_page = " . App::$pager['page'] . "; </script>\r\n";
 			}
 		}
 	}
@@ -532,7 +532,7 @@ function conversation(&$a, $items, $mode, $update, $page_mode = 'traditional', $
 	}
 
 	elseif ($mode === 'page') {
-		$profile_owner = $a->profile['uid'];
+		$profile_owner = App::$profile['uid'];
 		$page_writeable = ($profile_owner == local_channel());
 		$live_update_div = '<div id="live-page"></div>' . "\r\n";
 	}
@@ -542,11 +542,11 @@ function conversation(&$a, $items, $mode, $update, $page_mode = 'traditional', $
 	}
 
 	elseif ($mode === 'photos') {
-		$profile_onwer = $a->profile['profile_uid'];
+		$profile_onwer = App::$profile['profile_uid'];
 		$page_writeable = ($profile_owner == local_channel());
 		$live_update_div = '<div id="live-photos"></div>' . "\r\n";
 		// for photos we've already formatted the top-level item (the photo)
-		$content_html = $a->data['photo_html'];
+		$content_html = App::$data['photo_html'];
 	}
 
 	$page_dropping = ((local_channel() && local_channel() == $profile_owner) ? true : false);
@@ -555,13 +555,13 @@ function conversation(&$a, $items, $mode, $update, $page_mode = 'traditional', $
 		$page_dropping = false;
 
 
-	$channel = $a->get_channel();
-	$observer = $a->get_observer();
+	$channel = App::get_channel();
+	$observer = App::get_observer();
 
 	if($update)
 		$return_url = $_SESSION['return_url'];
 	else
-		$return_url = $_SESSION['return_url'] = $a->query_string;
+		$return_url = $_SESSION['return_url'] = App::$query_string;
 
 	load_contact_links(local_channel());
 
@@ -623,7 +623,7 @@ function conversation(&$a, $items, $mode, $update, $page_mode = 'traditional', $
 					$nickname = $item['nickname'];
 				}
 				else
-					$nickname = $a->user['nickname'];
+					$nickname = App::$user['nickname'];
 
 				$profile_name   = ((strlen($item['author-name']))   ? $item['author-name']   : $item['name']);
 				if($item['author-link'] && (! $item['author-name']))
@@ -844,12 +844,12 @@ function conversation(&$a, $items, $mode, $update, $page_mode = 'traditional', $
 
 
 	$o .= replace_macros($page_template, array(
-		'$baseurl' => $a->get_baseurl($ssl_state),
+		'$baseurl' => z_root(),
 		'$photo_item' => $content_html,
 		'$live_update' => $live_update_div,
 		'$remove' => t('remove'),
 		'$mode' => $mode,
-		'$user' => $a->user,
+		'$user' => App::$user,
 		'$threads' => $threads,
 		'$wait' => t('Loading...'),
 		'$dropping' => ($page_dropping?t('Delete Selected Items'):False),
@@ -869,13 +869,13 @@ function best_link_url($item) {
 	$clean_url = normalise_link($item['author-link']);
 
 	if((local_channel()) && (local_channel() == $item['uid'])) {
-		if(isset($a->contacts) && x($a->contacts,$clean_url)) {
-			if($a->contacts[$clean_url]['network'] === NETWORK_DFRN) {
-				$best_url = $a->get_baseurl($ssl_state) . '/redir/' . $a->contacts[$clean_url]['id'];
+		if(isset(App::$contacts) && x(App::$contacts,$clean_url)) {
+			if(App::$contacts[$clean_url]['network'] === NETWORK_DFRN) {
+				$best_url = z_root() . '/redir/' . App::$contacts[$clean_url]['id'];
 				$sparkle = true;
 			}
 			else
-				$best_url = $a->contacts[$clean_url]['url'];
+				$best_url = App::$contacts[$clean_url]['url'];
 		}
 	}
 	if(! $best_url) {
@@ -907,9 +907,9 @@ function item_photo_menu($item){
 
 	if($local_channel) {
 		$ssl_state = true;
-		if(! count($a->contacts))
+		if(! count(App::$contacts))
 			load_contact_links($local_channel);
-		$channel = $a->get_channel();
+		$channel = App::get_channel();
 		$channel_hash = (($channel) ? $channel['channel_hash'] : '');
 	}
 
@@ -925,19 +925,19 @@ function item_photo_menu($item){
 
 	$profile_link = chanlink_hash($item['author_xchan']);
 	if($item['uid'] > 0)
-		$pm_url = $a->get_baseurl($ssl_state) . '/mail/new/?f=&hash=' . $item['author_xchan'];
+		$pm_url = z_root() . '/mail/new/?f=&hash=' . $item['author_xchan'];
 
-	if($a->contacts && array_key_exists($item['author_xchan'],$a->contacts))
-		$contact = $a->contacts[$item['author_xchan']];
+	if(App::$contacts && array_key_exists($item['author_xchan'],App::$contacts))
+		$contact = App::$contacts[$item['author_xchan']];
 	else
 		if($local_channel && $item['author']['xchan_addr'])
 			$follow_url = z_root() . '/follow/?f=&url=' . $item['author']['xchan_addr'];
 
 	if($contact) {
-		$poke_link = $a->get_baseurl($ssl_state) . '/poke/?f=&c=' . $contact['abook_id'];
+		$poke_link = z_root() . '/poke/?f=&c=' . $contact['abook_id'];
 		if (! intval($contact['abook_self']))  
-			$contact_url = $a->get_baseurl($ssl_state) . '/connedit/' . $contact['abook_id'];
-		$posts_link = $a->get_baseurl($ssl_state) . '/network/?cid=' . $contact['abook_id'];
+			$contact_url = z_root() . '/connedit/' . $contact['abook_id'];
+		$posts_link = z_root() . '/network/?cid=' . $contact['abook_id'];
 
 		$clean_url = normalise_link($item['author-link']);
 	}
@@ -1159,9 +1159,9 @@ function status_editor($a, $x, $popup = false) {
 
 	$tpl = get_markup_template('jot-header.tpl');
 
-	$a->page['htmlhead'] .= replace_macros($tpl, array(
+	App::$page['htmlhead'] .= replace_macros($tpl, array(
 		'$newpost' => 'true',
-		'$baseurl' => $a->get_baseurl(true),
+		'$baseurl' => z_root(),
 		'$editselect' => (($plaintext) ? 'none' : '/(profile-jot-text|prvmail-text)/'),
 		'$pretext' => ((x($x,'pretext')) ? $x['pretext'] : ''),
 		'$geotag' => $geotag,
@@ -1173,7 +1173,9 @@ function status_editor($a, $x, $popup = false) {
 		'$term' => t('Tag term:'),
 		'$fileas' => t('Save to Folder:'),
 		'$whereareu' => t('Where are you right now?'),
-		'$expireswhen' => t('Expires YYYY-MM-DD HH:MM')
+		'$expireswhen' => t('Expires YYYY-MM-DD HH:MM'),
+		'$editor_autocomplete'=> ((x($x,'editor_autocomplete')) ? $x['editor_autocomplete'] : ''),
+		'$bbco_autocomplete'=> ((x($x,'bbco_autocomplete')) ? $x['bbco_autocomplete'] : ''),
 	));
 
 	$tpl = get_markup_template('jot.tpl');
@@ -1202,8 +1204,8 @@ function status_editor($a, $x, $popup = false) {
 	call_hooks('jot_networks', $jotnets);
 
 	$o .= replace_macros($tpl, array(
-		'$return_path' => ((x($x, 'return_path')) ? $x['return_path'] : $a->query_string),
-		'$action' =>  $a->get_baseurl(true) . '/item',
+		'$return_path' => ((x($x, 'return_path')) ? $x['return_path'] : App::$query_string),
+		'$action' =>  z_root() . '/item',
 		'$share' => (x($x,'button') ? $x['button'] : t('Share')),
 		'$webpage' => $webpage,
 		'$placeholdpagetitle' => ((x($x,'ptlabel')) ? $x['ptlabel'] : t('Page link name')),
@@ -1246,7 +1248,7 @@ function status_editor($a, $x, $popup = false) {
 		'$content' => ((x($x,'body')) ? htmlspecialchars($x['body'], ENT_COMPAT,'UTF-8') : ''),
 		'$attachment' => ((x($x, 'attachment')) ? $x['attachment'] : ''),
 		'$post_id' => '',
-		'$baseurl' => $a->get_baseurl(true),
+		'$baseurl' => z_root(),
 		'$defloc' => $x['default_location'],
 		'$visitor' => $x['visitor'],
 		'$public' => t('Public post'),
@@ -1274,6 +1276,7 @@ function status_editor($a, $x, $popup = false) {
 		'$expiryModalOK' => t('OK'),
 		'$expiryModalCANCEL' => t('Cancel'),
 		'$expanded' => ((x($x, 'expanded')) ? $x['expanded'] : false),
+		'$bbcode' => ((x($x, 'bbcode')) ? $x['bbcode'] : false)
 	));
 
 	if ($popup === true) {
@@ -1424,12 +1427,12 @@ function prepare_page($item) {
 	$a = get_app();
 	$naked = 1;
 //	$naked = ((get_pconfig($item['uid'],'system','nakedpage')) ? 1 : 0);
-	$observer = $a->get_observer();
+	$observer = App::get_observer();
 	//240 chars is the longest we can have before we start hitting problems with suhosin sites
 	$preview = substr(urlencode($item['body']), 0, 240);
-	$link = z_root() . '/' . $a->cmd;
-	if(array_key_exists('webpage',$a->layout) && array_key_exists('authored',$a->layout['webpage'])) {
-		if($a->layout['webpage']['authored'] === 'none')
+	$link = z_root() . '/' . App::$cmd;
+	if(array_key_exists('webpage',App::$layout) && array_key_exists('authored',App::$layout['webpage'])) {
+		if(App::$layout['webpage']['authored'] === 'none')
 			$naked = 1;
 		// ... other possible options
 	}
@@ -1508,7 +1511,7 @@ function network_tabs() {
 
 	if ($no_active=='active') $all_active='active';
 
-	$cmd = $a->cmd;
+	$cmd = App::$cmd;
 
 	// tabs
 	$tabs = array();
@@ -1592,16 +1595,17 @@ function network_tabs() {
 function profile_tabs($a, $is_owner = false, $nickname = null){
 
 	// Don't provide any profile tabs if we're running as the sys channel
-	if ($a->is_sys)
+
+	if (App::$is_sys)
 		return;
 
-	$channel = $a->get_channel();
+	$channel = App::get_channel();
 
 	if (is_null($nickname))
 		$nickname  = $channel['channel_address'];
 
 
-	$uid = (($a->profile['profile_uid']) ? $a->profile['profile_uid'] : local_channel());
+	$uid = ((App::$profile['profile_uid']) ? App::$profile['profile_uid'] : local_channel());
 
 	if($uid == local_channel()) {
 		$cal_link = '';
@@ -1617,8 +1621,8 @@ function profile_tabs($a, $is_owner = false, $nickname = null){
 	if (x($_GET, 'tab'))
 		$tab = notags(trim($_GET['tab']));
 
-	$url = $a->get_baseurl() . '/channel/' . $nickname;
-	$pr  = $a->get_baseurl() . '/profile/' . $nickname;
+	$url = z_root() . '/channel/' . $nickname;
+	$pr  = z_root() . '/profile/' . $nickname;
 
 	$tabs = array(
 		array(
@@ -1644,14 +1648,14 @@ function profile_tabs($a, $is_owner = false, $nickname = null){
 	if ($p['view_storage']) {
 		$tabs[] = array(
 			'label' => t('Photos'),
-			'url'   => $a->get_baseurl() . '/photos/' . $nickname,
+			'url'   => z_root() . '/photos/' . $nickname,
 			'sel'   => ((argv(0) == 'photos') ? 'active' : ''),
 			'title' => t('Photo Albums'),
 			'id'    => 'photo-tab',
 		);
 		$tabs[] = array(
 			'label' => t('Files'),
-			'url'   => $a->get_baseurl() . '/cloud/' . $nickname,
+			'url'   => z_root() . '/cloud/' . $nickname,
 			'sel'   => ((argv(0) == 'cloud' || argv(0) == 'sharedwithme') ? 'active' : ''),
 			'title' => t('Files and Storage'),
 			'id'    => 'files-tab',
@@ -1661,7 +1665,7 @@ function profile_tabs($a, $is_owner = false, $nickname = null){
 	if($p['view_stream'] && $cal_link) {
 		$tabs[] = array(
 			'label' => t('Events'),
-			'url'   => $a->get_baseurl() . $cal_link,
+			'url'   => z_root() . $cal_link,
 			'sel'   => ((argv(0) == 'cal' || argv(0) == 'events') ? 'active' : ''),
 			'title' => t('Events'),
 			'id'    => 'event-tab',
@@ -1669,13 +1673,13 @@ function profile_tabs($a, $is_owner = false, $nickname = null){
 	}
 
 
-	if ($p['chat']) {
+	if ($p['chat'] && feature_enabled($uid,'ajaxchat')) {
 		require_once('include/chat.php');
 		$has_chats = chatroom_list_count($uid);
 		if ($has_chats) {
 			$tabs[] = array(
 				'label' => t('Chatrooms'),
-				'url'   => $a->get_baseurl() . '/chat/' . $nickname,
+				'url'   => z_root() . '/chat/' . $nickname,
 				'sel'   => ((argv(0) == 'chat') ? 'active' : '' ),
 				'title' => t('Chatrooms'),
 				'id'    => 'chat-tab',
@@ -1688,7 +1692,7 @@ function profile_tabs($a, $is_owner = false, $nickname = null){
 	if ($is_owner && $has_bookmarks) {
 		$tabs[] = array(
 			'label' => t('Bookmarks'),
-			'url'   => $a->get_baseurl() . '/bookmarks',
+			'url'   => z_root() . '/bookmarks',
 			'sel'   => ((argv(0) == 'bookmarks') ? 'active' : ''),
 			'title' => t('Saved Bookmarks'),
 			'id'    => 'bookmarks-tab',
@@ -1698,7 +1702,7 @@ function profile_tabs($a, $is_owner = false, $nickname = null){
 	if ($p['write_pages'] && feature_enabled($uid,'webpages')) {
 		$tabs[] = array(
 			'label' => t('Webpages'),
-			'url'   => $a->get_baseurl() . '/webpages/' . $nickname,
+			'url'   => z_root() . '/webpages/' . $nickname,
 			'sel'   => ((argv(0) == 'webpages') ? 'active' : ''),
 			'title' => t('Manage Webpages'),
 			'id'    => 'webpages-tab',

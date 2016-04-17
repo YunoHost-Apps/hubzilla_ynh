@@ -53,6 +53,6 @@ head_add_js('library/imagesloaded/imagesloaded.pkgd.min.js');
  * more of a proof of concept; but sufficient for our immediate needs.
  */
 
-$channel = get_app()->get_channel();
+$channel = App::get_channel();
 if($channel && file_exists($channel['channel_address'] . '.js'))
 	head_add_js('/' . $channel['channel_address'] . '.js');

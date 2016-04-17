@@ -7,7 +7,7 @@ function hostxrd_init(&$a) {
 
 	$tpl = get_markup_template('xrd_host.tpl');
 	$x = replace_macros(get_markup_template('xrd_host.tpl'), array(
-		'$zhost' => $a->get_hostname(),
+		'$zhost' => App::get_hostname(),
 		'$zroot' => z_root()
 	));
 	$arr = array('xrd' => $x);

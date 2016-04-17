@@ -37,7 +37,7 @@ function subthread_content(&$a) {
 	$item = $r[0];
 
 	$owner_uid = $item['uid'];
-	$observer = $a->get_observer();
+	$observer = App::get_observer();
 	$ob_hash = (($observer) ? $observer['xchan_hash'] : '');
 
 	if(! perm_is_allowed($owner_uid,$ob_hash,'post_comments'))
@@ -134,7 +134,7 @@ function subthread_content(&$a) {
 
 	$ulink = '[zrl=' . $item_author['xchan_url'] . ']' . $item_author['xchan_name'] . '[/zrl]';
 	$alink = '[zrl=' . $observer['xchan_url'] . ']' . $observer['xchan_name'] . '[/zrl]';
-	$plink = '[zrl=' . $a->get_baseurl() . '/display/' . $item['mid'] . ']' . $post_type . '[/zrl]';
+	$plink = '[zrl=' . z_root() . '/display/' . $item['mid'] . ']' . $post_type . '[/zrl]';
 	
 	$arr['body']          =  sprintf( $bodyverb, $alink, $ulink, $plink );
 

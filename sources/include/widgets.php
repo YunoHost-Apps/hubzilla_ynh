@@ -11,15 +11,15 @@ require_once('include/attach.php');
 require_once('include/Contact.php');
 
 function widget_profile($args) {
-	$a = get_app();
+
 	$block = (((get_config('system', 'block_public')) && (! local_channel()) && (! remote_channel())) ? true : false);
-	return profile_sidebar($a->profile, $block, true);
+	return profile_sidebar(App::$profile, $block, true);
 }
 
 function widget_zcard($args) {
-	$a = get_app();
+
 	$block = (((get_config('system', 'block_public')) && (! local_channel()) && (! remote_channel())) ? true : false);
-	$channel = channelx_by_n($a->profile_uid);
+	$channel = channelx_by_n(App::$profile_uid);
 	return get_zcard($channel,get_observer_hash(),array('width' => 875));
 }
 
@@ -33,8 +33,8 @@ function widget_tagcloud($args) {
 
 	$o = '';
 	//$tab = 0;
-	$a = get_app();
-	$uid = $a->profile_uid;
+
+	$uid = App::$profile_uid;
 	$count = ((x($args,'count')) ? intval($args['count']) : 24);
 	$flags = 0;
 	$type = TERM_CATEGORY;
@@ -85,7 +85,7 @@ function widget_collections($args) {
 				$each = 'group';
 				$edit = false;
 				$current = 0;
-				$abook_id = get_app()->poi['abook_xchan'];
+				$abook_id = App::$poi['abook_xchan'];
 				$wmode = 1;
 				break;
 		default:
@@ -164,8 +164,7 @@ function widget_follow($args) {
 	if(! local_channel())
 		return '';
 
-	$a = get_app();
-	$uid =$a->channel['channel_id'];
+	$uid = App::$channel['channel_id'];
 	$r = q("select count(*) as total from abook where abook_channel = %d and abook_self = 0 ",
 		intval($uid)
 	);
@@ -210,8 +209,6 @@ function widget_savedsearch($arr) {
 	if((! local_channel()) || (! feature_enabled(local_channel(),'savedsearch')))
 		return '';
 
-	$a = get_app();
-
 	$search = ((x($_GET,'search')) ? $_GET['search'] : '');
 	
 	if(x($_GET,'searchsave') && $search) {
@@ -238,7 +235,7 @@ function widget_savedsearch($arr) {
 		$search = '';
 	}
 
-	$srchurl = $a->query_string;
+	$srchurl = App::$query_string;
 
 	$srchurl =  rtrim(preg_replace('/searchsave\=[^\&].*?(\&|$)/is','',$srchurl),'&');
 	$hasq = ((strpos($srchurl,'?') !== false) ? true : false);
@@ -295,7 +292,6 @@ function widget_filer($arr) {
 	if(! local_channel())
 		return '';
 
-	$a = get_app();
 
 	$selected = ((x($_REQUEST,'file')) ? $_REQUEST['file'] : '');
 
@@ -316,20 +312,19 @@ function widget_filer($arr) {
 		'$sel_all' => (($selected == '') ? 'selected' : ''),
 		'$all' => t('Everything'),
 		'$terms' => $terms,
-		'$base' => z_root() . '/' . $a->cmd
+		'$base' => z_root() . '/' . App::$cmd
 	));
 }
 
 function widget_archive($arr) {
 
 	$o = '';
-	$a = get_app();
 
-	if(! $a->profile_uid) {
+	if(! App::$profile_uid) {
 		return '';
 	}
 
-	$uid = $a->profile_uid;
+	$uid = App::$profile_uid;
 
 	if(! feature_enabled($uid,'archives'))
 		return '';
@@ -345,7 +340,7 @@ function widget_archive($arr) {
 	if(! $visible_years)
 		$visible_years = 5;
 
-	$url = z_root() . '/' . $a->cmd;
+	$url = z_root() . '/' . App::$cmd;
 
 	$ret = list_post_dates($uid,$wall,$mindate);
 
@@ -370,34 +365,34 @@ function widget_archive($arr) {
 
 
 function widget_fullprofile($arr) {
-	$a = get_app();
-	if(! $a->profile['profile_uid'])
+
+	if(! App::$profile['profile_uid'])
 		return;
 
 	$block = (((get_config('system', 'block_public')) && (! local_channel()) && (! remote_channel())) ? true : false);
 
-	return profile_sidebar($a->profile, $block);
+	return profile_sidebar(App::$profile, $block);
 }
 
 function widget_shortprofile($arr) {
-	$a = get_app();
-	if(! $a->profile['profile_uid'])
+
+	if(! App::$profile['profile_uid'])
 		return;
 
 	$block = (((get_config('system', 'block_public')) && (! local_channel()) && (! remote_channel())) ? true : false);
 
-	return profile_sidebar($a->profile, $block, true, true);
+	return profile_sidebar(App::$profile, $block, true, true);
 }
 
 
 function widget_categories($arr) {
-	$a = get_app();
 
-	if($a->profile['profile_uid'] && (! perm_is_allowed($a->profile['profile_uid'],get_observer_hash(),'view_stream')))
+
+	if(App::$profile['profile_uid'] && (! perm_is_allowed(App::$profile['profile_uid'],get_observer_hash(),'view_stream')))
 		return '';
 
 	$cat = ((x($_REQUEST,'cat')) ? htmlspecialchars($_REQUEST['cat'],ENT_COMPAT,'UTF-8') : '');
-	$srchurl = $a->query_string;
+	$srchurl = App::$query_string;
 	$srchurl =  rtrim(preg_replace('/cat\=[^\&].*?(\&|$)/is','',$srchurl),'&');
 	$srchurl = str_replace(array('?f=','&f='),array('',''),$srchurl);
 
@@ -406,31 +401,31 @@ function widget_categories($arr) {
 }
 
 function widget_tagcloud_wall($arr) {
-	$a = get_app();
 
-	if((! $a->profile['profile_uid']) || (! $a->profile['channel_hash']))
+
+	if((! App::$profile['profile_uid']) || (! App::$profile['channel_hash']))
 		return '';
-	if(! perm_is_allowed($a->profile['profile_uid'], get_observer_hash(), 'view_stream'))
+	if(! perm_is_allowed(App::$profile['profile_uid'], get_observer_hash(), 'view_stream'))
 		return '';
 
 	$limit = ((array_key_exists('limit', $arr)) ? intval($arr['limit']) : 50);
-	if(feature_enabled($a->profile['profile_uid'], 'tagadelic'))
-		return wtagblock($a->profile['profile_uid'], $limit, '', $a->profile['channel_hash'], 'wall');
+	if(feature_enabled(App::$profile['profile_uid'], 'tagadelic'))
+		return wtagblock(App::$profile['profile_uid'], $limit, '', App::$profile['channel_hash'], 'wall');
 
 	return '';
 }
 
 function widget_catcloud_wall($arr) {
-	$a = get_app();
 
-	if((! $a->profile['profile_uid']) || (! $a->profile['channel_hash']))
+
+	if((! App::$profile['profile_uid']) || (! App::$profile['channel_hash']))
 		return '';
-	if(! perm_is_allowed($a->profile['profile_uid'], get_observer_hash(), 'view_stream'))
+	if(! perm_is_allowed(App::$profile['profile_uid'], get_observer_hash(), 'view_stream'))
 		return '';
 
 	$limit = ((array_key_exists('limit',$arr)) ? intval($arr['limit']) : 50);
 
-	return catblock($a->profile['profile_uid'], $limit, '', $a->profile['channel_hash'], 'wall');
+	return catblock(App::$profile['profile_uid'], $limit, '', App::$profile['channel_hash'], 'wall');
 }
 
 
@@ -486,8 +481,8 @@ function widget_settings_menu($arr) {
 	if(! local_channel())
 		return;
 
-	$a = get_app();
-	$channel = $a->get_channel();
+
+	$channel = App::get_channel();
 
 	$abook_self_id = 0;
 
@@ -501,16 +496,22 @@ function widget_settings_menu($arr) {
 	if($abk)
 		$abook_self_id = $abk[0]['abook_id'];
 
+	$hublocs = q("select count(*) as total from hubloc where hubloc_hash = '%s'",
+		dbesc($channel['channel_hash'])
+	);
+
+	$hublocs = (($hublocs[0]['total'] > 1) ? true : false);
+
 	$tabs = array(
 		array(
 			'label'	=> t('Account settings'),
-			'url' 	=> $a->get_baseurl(true).'/settings/account',
+			'url' 	=> z_root().'/settings/account',
 			'selected'	=> ((argv(1) === 'account') ? 'active' : ''),
 		),
 
 		array(
 			'label'	=> t('Channel settings'),
-			'url' 	=> $a->get_baseurl(true).'/settings/channel',
+			'url' 	=> z_root().'/settings/channel',
 			'selected'	=> ((argv(1) === 'channel') ? 'active' : ''),
 		),
 
@@ -519,42 +520,50 @@ function widget_settings_menu($arr) {
 	if(get_features()) {
 		$tabs[] = 	array(
 				'label'	=> t('Additional features'),
-				'url' 	=> $a->get_baseurl(true).'/settings/features',
+				'url' 	=> z_root().'/settings/features',
 				'selected'	=> ((argv(1) === 'features') ? 'active' : ''),
 		);
 	}
 
 	$tabs[] =	array(
 		'label'	=> t('Feature/Addon settings'),
-		'url' 	=> $a->get_baseurl(true).'/settings/featured',
+		'url' 	=> z_root().'/settings/featured',
 		'selected'	=> ((argv(1) === 'featured') ? 'active' : ''),
 	);
 
 	$tabs[] =	array(
 		'label'	=> t('Display settings'),
-		'url' 	=> $a->get_baseurl(true).'/settings/display',
+		'url' 	=> z_root().'/settings/display',
 		'selected'	=> ((argv(1) === 'display') ? 'active' : ''),
-	);	
-
-	$tabs[] =	array(
-		'label' => t('Connected apps'),
-		'url' => $a->get_baseurl(true) . '/settings/oauth',
-		'selected' => ((argv(1) === 'oauth') ? 'active' : ''),
 	);
+
+	if($hublocs) {
+		$tabs[] = array(
+			'label' => t('Manage locations'),
+			'url' => z_root() . '/locs',
+			'selected' => ((argv(1) === 'locs') ? 'active' : ''),
+		);
+	}
 
 	// IF can go away when UNO export and import is fully functional
 	if(! UNO) {
 		$tabs[] =	array(
 			'label' => t('Export channel'),
-			'url' => $a->get_baseurl(true) . '/uexport',
+			'url' => z_root() . '/uexport',
 			'selected' => ''
 		);
 	}
 
+	$tabs[] =	array(
+		'label' => t('Connected apps'),
+		'url' => z_root() . '/settings/oauth',
+		'selected' => ((argv(1) === 'oauth') ? 'active' : ''),
+	);
+
 	if($role === false || $role === 'custom') {
 		$tabs[] = array(
 			'label' => t('Connection Default Permissions'),
-			'url' => $a->get_baseurl(true) . '/connedit/' . $abook_self_id,
+			'url' => z_root() . '/connedit/' . $abook_self_id,
 			'selected' => ''
 		);
 	}
@@ -562,7 +571,7 @@ function widget_settings_menu($arr) {
 	if(feature_enabled(local_channel(),'premium_channel')) {
 		$tabs[] = array(
 			'label' => t('Premium Channel Settings'),
-			'url' => $a->get_baseurl(true) . '/connect/' . $channel['channel_address'],
+			'url' => z_root() . '/connect/' . $channel['channel_address'],
 			'selected' => ''
 		);
 	}
@@ -570,7 +579,7 @@ function widget_settings_menu($arr) {
 	if(feature_enabled(local_channel(),'channel_sources')) {
 		$tabs[] = array(
 			'label' => t('Channel Sources'),
-			'url' => $a->get_baseurl(true) . '/sources',
+			'url' => z_root() . '/sources',
 			'selected' => ''
 		);
 	}
@@ -588,28 +597,27 @@ function widget_mailmenu($arr) {
 	if (! local_channel())
 		return;
 
-	$a = get_app();
 
 	return replace_macros(get_markup_template('message_side.tpl'), array(
 		'$title' => t('Private Mail Menu'),
 		'$combined'=>array(
 			'label' => t('Combined View'),
-			'url' => $a->get_baseurl(true) . '/mail/combined',
+			'url' => z_root() . '/mail/combined',
 			'sel' => (argv(1) == 'combined'),
 		),
 		'$inbox'=>array(
 			'label' => t('Inbox'),
-			'url' => $a->get_baseurl(true) . '/mail/inbox',
+			'url' => z_root() . '/mail/inbox',
 			'sel' => (argv(1) == 'inbox'),
 		),
 		'$outbox'=>array(
 			'label' => t('Outbox'),
-			'url' => $a->get_baseurl(true) . '/mail/outbox',
+			'url' => z_root() . '/mail/outbox',
 			'sel' => (argv(1) == 'outbox'),
 		),
 		'$new'=>array(
 			'label' => t('New Message'),
-			'url' => $a->get_baseurl(true) . '/mail/new',
+			'url' => z_root() . '/mail/new',
 			'sel'=> (argv(1) == 'new'),
 		)
 	));
@@ -619,8 +627,6 @@ function widget_mailmenu($arr) {
 function widget_conversations($arr) {
 	if (! local_channel())
 		return;
-
-	$a = get_app();
 
 	if(argc() > 1) {
 
@@ -646,7 +652,7 @@ function widget_conversations($arr) {
 		require_once('include/message.php');
 
 		// private_messages_list() can do other more complicated stuff, for now keep it simple
-		$r = private_messages_list(local_channel(), $mailbox, $a->pager['start'], $a->pager['itemspage']);
+		$r = private_messages_list(local_channel(), $mailbox, App::$pager['start'], App::$pager['itemspage']);
 
 		if(! $r) {
 			info( t('No messages.') . EOL);
@@ -721,8 +727,8 @@ function widget_design_tools($arr) {
 	// mod menu doesn't load a profile. For any modules which load a profile, check it.
 	// otherwise local_channel() is sufficient for permissions.
 
-	if($a->profile['profile_uid']) 
-		if(($a->profile['profile_uid'] != local_channel()) && (! $a->is_sys))
+	if(App::$profile['profile_uid']) 
+		if((App::$profile['profile_uid'] != local_channel()) && (! App::$is_sys))
 			return '';
  
 	if(! local_channel())
@@ -738,22 +744,21 @@ function widget_findpeople($arr) {
 
 
 function widget_photo_albums($arr) {
-	$a = get_app();
 
-	if(! $a->profile['profile_uid'])
+	if(! App::$profile['profile_uid'])
 		return '';
-	$channelx = channelx_by_n($a->profile['profile_uid']);
-	if((! $channelx) || (! perm_is_allowed($a->profile['profile_uid'], get_observer_hash(), 'view_storage')))
+	$channelx = channelx_by_n(App::$profile['profile_uid']);
+	if((! $channelx) || (! perm_is_allowed(App::$profile['profile_uid'], get_observer_hash(), 'view_storage')))
 		return '';
 	require_once('include/photos.php');
 
-	return photos_album_widget($channelx, $a->get_observer());
+	return photos_album_widget($channelx, App::get_observer());
 }
 
 
 function widget_vcard($arr) {
 	require_once ('include/Contact.php');
-	return vcard_from_xchan('', get_app()->get_observer());
+	return vcard_from_xchan('', App::get_observer());
 }
 
 
@@ -771,27 +776,43 @@ function widget_dirtags($arr) {
 }
 
 function widget_menu_preview($arr) {
-	if(! get_app()->data['menu_item'])
+	if(! App::$data['menu_item'])
 		return;
 	require_once('include/menu.php');
 
-	return menu_render(get_app()->data['menu_item']);
+	return menu_render(App::$data['menu_item']);
 }
 
 function widget_chatroom_list($arr) {
-	$a = get_app();
+
 
 	require_once("include/chat.php");
-	$r = chatroom_list($a->profile['profile_uid']);
-	return replace_macros(get_markup_template('chatroomlist.tpl'), array(
-		'$header' => t('Chat Rooms'),
-		'$baseurl' => z_root(),
-		'$nickname' => $a->profile['channel_address'],
-		'$items' => $r,
+	$r = chatroom_list(App::$profile['profile_uid']);
+
+	if($r) {
+		return replace_macros(get_markup_template('chatroomlist.tpl'), array(
+			'$header' => t('Chatrooms'),
+			'$baseurl' => z_root(),
+			'$nickname' => App::$profile['channel_address'],
+			'$items' => $r,
+			'$overview' => t('Overview')
+		));
+	}
+}
+
+function widget_chatroom_members() {
+	$o = replace_macros(get_markup_template('chatroom_members.tpl'), array(
+		'$header' => t('Chat Members')
 	));
+
+	return $o;
 }
 
 function widget_bookmarkedchats($arr) {
+
+	if(! feature_enabled(App::$profile['profile_uid'],'ajaxchat'))
+		return '';
+
 	$h = get_observer_hash();
 	if(! $h)
 		return;
@@ -810,6 +831,9 @@ function widget_bookmarkedchats($arr) {
 }
 
 function widget_suggestedchats($arr) {
+
+	if(! feature_enabled(App::$profile['profile_uid'],'ajaxchat'))
+		return '';
 
 	// probably should restrict this to your friends, but then the widget will only work
 	// if you are logged in locally.
@@ -835,7 +859,7 @@ function widget_item($arr) {
 	if(array_key_exists('channel_id',$arr) && intval($arr['channel_id']))
 		$channel_id = intval($arr['channel_id']);
 	if(! $channel_id)
-		$channel_id = get_app()->profile_uid;
+		$channel_id = App::$profile_uid;
 	if(! $channel_id)
 		return '';
 
@@ -981,17 +1005,15 @@ function widget_cover_photo($arr) {
 
 	require_once('include/identity.php');
 	$o = '';
-
-	$a = get_app();
 	
-	if($a->module == 'channel' && $_REQUEST['mid'])
+	if(App::$module == 'channel' && $_REQUEST['mid'])
 		return '';
 
 	$channel_id = 0;
 	if(array_key_exists('channel_id', $arr) && intval($arr['channel_id']))
 		$channel_id = intval($arr['channel_id']);
 	if(! $channel_id)
-		$channel_id = $a->profile_uid;
+		$channel_id = App::$profile_uid;
 	if(! $channel_id)
 		return '';
 
@@ -1047,13 +1069,13 @@ function widget_photo_rand($arr) {
 	if(array_key_exists('channel_id', $arr) && intval($arr['channel_id']))
 		$channel_id = intval($arr['channel_id']);
 	if(! $channel_id)
-		$channel_id = get_app()->profile_uid;
+		$channel_id = App::$profile_uid;
 	if(! $channel_id)
 		return '';
 
 	$scale = ((array_key_exists('scale',$arr)) ? intval($arr['scale']) : 0);
 
-	$ret = photos_list_photos(array('channel_id' => $channel_id),get_app()->get_observer(),$album);
+	$ret = photos_list_photos(array('channel_id' => $channel_id),App::get_observer(),$album);
 
 	$filtered = array();
 	if($ret['success'] && $ret['photos'])
@@ -1097,7 +1119,7 @@ function widget_random_block($arr) {
 	if(array_key_exists('channel_id',$arr) && intval($arr['channel_id']))
 		$channel_id = intval($arr['channel_id']);
 	if(! $channel_id)
-		$channel_id = get_app()->profile_uid;
+		$channel_id = App::$profile_uid;
 	if(! $channel_id)
 		return '';
 
@@ -1133,7 +1155,7 @@ function widget_random_block($arr) {
 
 
 function widget_rating($arr) {
-	$a = get_app();
+
 
 	$poco_rating = get_config('system','poco_rating_enable');
 	if((! $poco_rating) && ($poco_rating !== false)) {
@@ -1143,7 +1165,7 @@ function widget_rating($arr) {
 	if($arr['target'])
 		$hash = $arr['target'];
 	else
-		$hash = $a->poi['xchan_hash'];
+		$hash = App::$poi['xchan_hash'];
 
 	if(! $hash)
 		return;
@@ -1152,7 +1174,7 @@ function widget_rating($arr) {
 	$remote = false;
 
 	if(remote_channel() && ! local_channel()) {
-		$ob = $a->get_observer();
+		$ob = App::get_observer();
 		if($ob && $ob['xchan_url']) {
 			$p = parse_url($ob['xchan_url']);
 			if($p) {
@@ -1166,7 +1188,7 @@ function widget_rating($arr) {
 	$self = false;
 
 	if(local_channel()) {
-		$channel = $a->get_channel();
+		$channel = App::get_channel();
 
 		if($hash == $channel['channel_hash'])
 			$self = true;
@@ -1195,15 +1217,13 @@ function widget_rating($arr) {
 
 // used by site ratings pages to provide a return link
 function widget_pubsites($arr) {
-	if(get_app()->poi)
+	if(App::$poi)
 		return;
 	return '<div class="widget"><ul class="nav nav-pills"><li><a href="pubsites">' . t('Public Hubs') . '</a></li></ul></div>';
 }
 
 
 function widget_forums($arr) {
-
-	$a = get_app();
 
 	if(! local_channel())
 		return '';
@@ -1306,15 +1326,13 @@ function widget_admin($arr) {
 		return login(false);
 	}
 
-
-	$a = get_app();
 	$o = '';
 
 	// array( url, name, extra css classes )
 
 	$aside = array(
 		'site'      => array(z_root() . '/admin/site/',     t('Site'),           'site'),
-		'users'     => array(z_root() . '/admin/users/',    t('Accounts'),       'users'),
+		'users'     => array(z_root() . '/admin/users/',    t('Accounts'),       'users', 'pending-update', t('Member registrations waiting for confirmation')),
 		'channels'  => array(z_root() . '/admin/channels/', t('Channels'),       'channels'),
 		'security'  => array(z_root() . '/admin/security/', t('Security'),       'security'),
 		'features'  => array(z_root() . '/admin/features/', t('Features'),       'features'),
@@ -1330,24 +1348,29 @@ function widget_admin($arr) {
 
 	$r = q("SELECT * FROM addon WHERE plugin_admin = 1");
 
-	$aside['plugins_admin'] = array();
+	$plugins = array();
 	if($r) {
 		foreach ($r as $h){
 			$plugin = $h['name'];
-			$aside['plugins_admin'][] = array(z_root() . '/admin/plugins/' . $plugin, $plugin, 'plugin');
+			$plugins[] = array(z_root() . '/admin/plugins/' . $plugin, $plugin, 'plugin');
 			// temp plugins with admin
-			$a->plugins_admin[] = $plugin;
+			App::$plugins_admin[] = $plugin;
 		}
 	}
 
-	$aside['logs'] = array(z_root() . '/admin/logs/', t('Logs'), 'logs');
+	$logs = array(z_root() . '/admin/logs/', t('Logs'), 'logs');
+
+	$arr = array('links' => $aside,'plugins' => $plugins,'logs' => $logs);
+	call_hooks('admin_aside',$arr);
 
 	$o .= replace_macros(get_markup_template('admin_aside.tpl'), array(
 			'$admin' => $aside, 
 			'$admtxt' => t('Admin'),
 			'$plugadmtxt' => t('Plugin Features'),
+			'$plugins' => $plugins,
 			'$logtxt' => t('Logs'),
-			'$h_pending' => t('User registrations waiting for confirmation'),
+			'$logs' => $logs,
+			'$h_pending' => t('Member registrations waiting for confirmation'),
 			'$admurl'=> z_root() . '/admin/'
 	));
 
@@ -1359,7 +1382,7 @@ function widget_admin($arr) {
 
 function widget_album($args) {
 
-	$owner_uid = get_app()->profile_uid;
+	$owner_uid = App::$profile_uid;
 	$sql_extra = permissions_sql($owner_uid);
 
 
@@ -1418,7 +1441,7 @@ function widget_album($args) {
 			$imgalt_e = $rr['filename'];
 			$desc_e = $rr['description'];
 
-			$imagelink = (z_root() . '/photos/' . get_app()->profile['channel_address'] . '/image/' . $rr['resource_id']);
+			$imagelink = (z_root() . '/photos/' . App::$profile['channel_address'] . '/image/' . $rr['resource_id']);
 
 
 			$photos[] = array(
@@ -1444,7 +1467,7 @@ function widget_album($args) {
 		'$album_id' => rand(),
 		'$album_edit' => array(t('Edit Album'), $album_edit),
 		'$can_post' => false,
-		'$upload' => array(t('Upload'), z_root() . '/photos/' . get_app()->profile['channel_address'] . '/upload/' . bin2hex($album)),
+		'$upload' => array(t('Upload'), z_root() . '/photos/' . App::$profile['channel_address'] . '/upload/' . bin2hex($album)),
 		'$order' => false,
 		'$upload_form' => $upload_form,
 		'$usage' => $usage_message

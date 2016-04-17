@@ -28,7 +28,7 @@ function morechoice_unload() {
 // We aren't going to bother translating these to other languages. 
 
 function morechoice_gender_selector($a,&$b) {
-	if($a->config['system']['language'] == 'en') {
+	if(App::$config['system']['language'] == 'en') {
 		$b[] = 'Androgyne';
 		$b[] = 'Bear';	
 		$b[] = 'Bigender';	
@@ -56,7 +56,7 @@ function morechoice_gender_selector($a,&$b) {
 }
 
 function morechoice_sexpref_selector($a,&$b) {
-	if($a->config['system']['language'] == 'en') {
+	if(App::$config['system']['language'] == 'en') {
 		$b[] = 'Girls with big tits';
 		$b[] = 'Millionaires';
 		$b[] = 'Guys with big schlongs';
@@ -111,7 +111,7 @@ function morechoice_sexpref_selector($a,&$b) {
 }
 
 function morechoice_marital_selector($a,&$b) {
-	if($a->config['system']['language'] == 'en') {
+	if(App::$config['system']['language'] == 'en') {
 		$b[] = 'Married to my job';
 		$b[] = 'Polygamist';
 		$b[] = 'Half married';

@@ -243,7 +243,7 @@ class Browser extends DAV\Browser\Plugin {
 			));
 
 		$a = get_app();
-		$a->page['content'] = $html;
+		\App::$page['content'] = $html;
 		load_pdl($a);
 
 		$theme_info_file = "view/theme/" . current_theme() . "/php/theme.php";

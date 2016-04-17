@@ -3,15 +3,26 @@
 /**
  *
  * Name: Hubwall
- * Description: Send admin email message to all account holders
+ * Description: Send admin email message to all account holders. <b>-><a href=/hubwall TARGET = "_blank">send now!</a><-</b>
  * Version: 1.0
  * Author: Mike Macgirvin
  * Maintainer: none
  */
 
+
+
+
 require_once('include/enotify.php');
 
 function hubwall_module() {}
+
+
+
+function hubwall_plugin_admin(&$a, &$o) {
+
+	$o = '<div></div>&nbsp;&nbsp;&nbsp;&nbsp;<a href="' . z_root() . '/hubwall">' . t('Send email to all members') . '</a></br/>';
+
+}
 
 
 
@@ -24,7 +35,7 @@ function hubwall_post(&$a) {
 		return;
 
 	$sender_name = t('Hub Administrator');
-	$sender_email = 'sys@' . $a->get_hostname();
+	$sender_email = 'sys@' . App::get_hostname();
 
 	$subject = $_REQUEST['subject'];
 
@@ -44,7 +55,7 @@ function hubwall_post(&$a) {
 		notice( t('No recipients found.') . EOL);
 		return;
 	}
-	
+
 	foreach($recips as $recip) {
 
 

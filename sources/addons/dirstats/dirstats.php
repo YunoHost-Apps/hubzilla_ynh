@@ -46,7 +46,7 @@ function dirstats_content(&$a) {
 	$chatrooms = get_config('dirstats','chatrooms');
 	$tags = get_config('dirstats','tags');
 
-		$ob = $a->get_observer();
+		$ob = App::get_observer();
 		$observer = $ob['xchan_hash'];
 		// Requested by Martin
 		$fountainofyouth = get_xconfig($observer, 'dirstats', 'averageage');

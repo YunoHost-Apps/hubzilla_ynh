@@ -196,7 +196,7 @@ function statusnet_settings_post ($a,$post) {
 					}
 				}
 			}
-			goaway($a->get_baseurl().'/settings/featured');
+			goaway(z_root().'/settings/featured');
 		} 
 		else {
 
@@ -232,7 +232,7 @@ function statusnet_settings_post ($a,$post) {
 						notice( t('We could not contact the GNU social API with the Path you entered.').EOL );
 					}
 				}
-				goaway($a->get_baseurl().'/settings/featured');
+				goaway(z_root().'/settings/featured');
 			} 
 			else {
 
@@ -253,7 +253,7 @@ function statusnet_settings_post ($a,$post) {
 										set_pconfig(local_channel(),'statusnet', 'post', 1);
 										set_pconfig(local_channel(),'statusnet', 'post_taglinks', 1);
 					//  reload the Addon Settings page, if we don't do it see Bug #42
-					goaway($a->get_baseurl().'/settings/featured');
+					goaway(z_root().'/settings/featured');
 				} 
 				else {
 					//  if no PIN is supplied in the POST variables, the user has changed the setting
@@ -274,7 +274,7 @@ function statusnet_settings(&$a,&$s) {
 	if(! local_channel())
 		return;
 
-	$a->page['htmlhead'] .= '<link rel="stylesheet"  type="text/css" href="' . $a->get_baseurl() . '/addon/statusnet/statusnet.css' . '" media="all" />' . "\r\n";
+	App::$page['htmlhead'] .= '<link rel="stylesheet"  type="text/css" href="' . z_root() . '/addon/statusnet/statusnet.css' . '" media="all" />' . "\r\n";
 
 	/***
 	 * 1) Check that we have a base api url and a consumer key & secret
@@ -401,7 +401,7 @@ function statusnet_settings(&$a,&$s) {
 			$sc .= '<div id="statusnet-info" ><img id="statusnet-avatar" src="'.$details->profile_image_url.'" /><p id="statusnet-info-block">'. t('Currently connected to: ') .'<a href="'.$details->statusnet_profile_url.'" target="_statusnet">'.$details->screen_name.'</a><br /><em>'.$details->description.'</em></p></div>';
 			$sc .= '<div class="clear"></div>';
 
-			if ($a->user['hidewall']) {
+			if (App::$user['hidewall']) {
 				$sc .= '<div class="section-content-info-wrapper">';
 				$sc .= t('<strong>Note</strong>: Due your privacy settings (<em>Hide your profile details from unknown viewers?</em>) the link potentially included in public postings relayed to GNU social will lead the visitor to a blank page informing the visitor that the access to your profile has been restricted.');
 				$sc .= '</div>';
@@ -947,7 +947,7 @@ function statusnet_fetchtimeline($a, $uid) {
 		if ($application_name == "")
 			$application_name  = get_config('statusnet', 'application_name');
 	if ($application_name == "")
-		$application_name = $a->get_hostname();
+		$application_name = App::get_hostname();
 
 	$connection = new StatusNetOAuth($api, $ckey,$csecret,$otoken,$osecret);
 

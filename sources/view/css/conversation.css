@@ -296,3 +296,9 @@ a.wall-item-name-link {
 .event-label {
 	font-weight: bold;
 }
+
+/* bb-code */
+
+.overline {
+	text-decoration: overline;
+}

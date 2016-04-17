@@ -16,7 +16,7 @@ function zotfeed_init(&$a) {
 		json_return_and_die($result);
 	}
 
-	$observer = $a->get_observer();
+	$observer = App::get_observer();
 
 
 	$channel_address = ((argc() > 1) ? argv(1) : '');

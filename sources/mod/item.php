@@ -119,7 +119,7 @@ function item_post(&$a) {
 		if (!$ret['success']) { 
 			notice( t($ret['message']) . EOL) ;
 			if(x($_REQUEST,'return')) 
-				goaway($a->get_baseurl() . "/" . $return_path );
+				goaway(z_root() . "/" . $return_path );
 			killme();
 		}
 	}
@@ -173,7 +173,7 @@ function item_post(&$a) {
 		if(($r === false) || (! count($r))) {
 			notice( t('Unable to locate original post.') . EOL);
 			if(x($_REQUEST,'return')) 
-				goaway($a->get_baseurl() . "/" . $return_path );
+				goaway(z_root() . "/" . $return_path );
 			killme();
 		}
 
@@ -192,7 +192,7 @@ function item_post(&$a) {
 	}
 
 	if(! $observer)
-		$observer = $a->get_observer();
+		$observer = App::get_observer();
 
 	if($parent) {
 		logger('mod_item: item_post parent=' . $parent);
@@ -205,7 +205,7 @@ function item_post(&$a) {
 		if(! $can_comment) {
 			notice( t('Permission denied.') . EOL) ;
 			if(x($_REQUEST,'return')) 
-				goaway($a->get_baseurl() . "/" . $return_path );
+				goaway(z_root() . "/" . $return_path );
 			killme();
 		}
 	}
@@ -213,7 +213,7 @@ function item_post(&$a) {
 		if(! perm_is_allowed($profile_uid,$observer['xchan_hash'],($webpage) ? 'write_pages' : 'post_wall')) {
 			notice( t('Permission denied.') . EOL) ;
 			if(x($_REQUEST,'return')) 
-				goaway($a->get_baseurl() . "/" . $return_path );
+				goaway(z_root() . "/" . $return_path );
 			killme();
 		}
 	}
@@ -251,7 +251,7 @@ function item_post(&$a) {
 
 	if(! $channel) {
 		if($uid && $uid == $profile_uid) {
-			$channel = $a->get_channel();
+			$channel = App::get_channel();
 		}
 		else {
 			// posting as yourself but not necessarily to a channel you control
@@ -267,7 +267,7 @@ function item_post(&$a) {
 	if(! $channel) {
 		logger("mod_item: no channel.");
 		if(x($_REQUEST,'return')) 
-			goaway($a->get_baseurl() . "/" . $return_path );
+			goaway(z_root() . "/" . $return_path );
 		killme();
 	}
 
@@ -282,7 +282,7 @@ function item_post(&$a) {
 	else {
 		logger("mod_item: no owner.");
 		if(x($_REQUEST,'return')) 
-			goaway($a->get_baseurl() . "/" . $return_path );
+			goaway(z_root() . "/" . $return_path );
 		killme();
 	}
 
@@ -422,7 +422,7 @@ function item_post(&$a) {
 				killme();
 			info( t('Empty post discarded.') . EOL );
 			if(x($_REQUEST,'return')) 
-				goaway($a->get_baseurl() . "/" . $return_path );
+				goaway(z_root() . "/" . $return_path );
 			killme();
 		}
 	}
@@ -462,7 +462,7 @@ function item_post(&$a) {
 			else {
 				notice( t('Executable content type not permitted to this channel.') . EOL);
 				if(x($_REQUEST,'return')) 
-					goaway($a->get_baseurl() . "/" . $return_path );
+					goaway(z_root() . "/" . $return_path );
 				killme();
 			}
 		}
@@ -636,7 +636,7 @@ function item_post(&$a) {
 				$r = attach_by_hash_nodata($hash,$rev);
 				if($r['success']) {
 					$attachments[] = array(
-						'href'     => $a->get_baseurl() . '/attach/' . $r['data']['hash'],
+						'href'     => z_root() . '/attach/' . $r['data']['hash'],
 						'length'   => $r['data']['filesize'],
 						'type'     => $r['data']['filetype'],
 						'title'    => urlencode($r['data']['filename']),
@@ -852,10 +852,10 @@ function item_post(&$a) {
 	if(x($datarray,'cancel')) {
 		logger('mod_item: post cancelled by plugin or duplicate suppressed.');
 		if($return_path)
-			goaway($a->get_baseurl() . "/" . $return_path);
+			goaway(z_root() . "/" . $return_path);
 
 		$json = array('cancel' => 1);
-		$json['reload'] = $a->get_baseurl() . '/' . $_REQUEST['jsreload'];
+		$json['reload'] = z_root() . '/' . $_REQUEST['jsreload'];
 		echo json_encode($json);
 		killme();
 	}
@@ -901,7 +901,7 @@ function item_post(&$a) {
 
 		if((x($_REQUEST,'return')) && strlen($return_path)) {
 			logger('return: ' . $return_path);
-			goaway($a->get_baseurl() . "/" . $return_path );
+			goaway(z_root() . "/" . $return_path );
 		}
 		killme();
 	}
@@ -926,7 +926,7 @@ function item_post(&$a) {
 					'from_xchan'   => $datarray['author_xchan'],
 					'to_xchan'     => $datarray['owner_xchan'],
 					'item'         => $datarray,
-					'link'		   => $a->get_baseurl() . '/display/' . $datarray['mid'],
+					'link'		   => z_root() . '/display/' . $datarray['mid'],
 					'verb'         => ACTIVITY_POST,
 					'otype'        => 'item',
 					'parent'       => $parent,
@@ -944,7 +944,7 @@ function item_post(&$a) {
 					'from_xchan'   => $datarray['author_xchan'],
 					'to_xchan'     => $datarray['owner_xchan'],
 					'item'         => $datarray,
-					'link'		   => $a->get_baseurl() . '/display/' . $datarray['mid'],
+					'link'		   => z_root() . '/display/' . $datarray['mid'],
 					'verb'         => ACTIVITY_POST,
 					'otype'        => 'item'
 				));
@@ -971,7 +971,7 @@ function item_post(&$a) {
 	else {
 		logger('mod_item: unable to retrieve post that was just stored.');
 		notice( t('System error. Post not saved.') . EOL);
-		goaway($a->get_baseurl() . "/" . $return_path );
+		goaway(z_root() . "/" . $return_path );
 		// NOTREACHED
 	}
 
@@ -999,7 +999,7 @@ function item_post(&$a) {
 	}
 
 	$datarray['id']    = $post_id;
-	$datarray['llink'] = $a->get_baseurl() . '/display/' . $channel['channel_address'] . '/' . $post_id;
+	$datarray['llink'] = z_root() . '/display/' . $channel['channel_address'] . '/' . $post_id;
 
 	call_hooks('post_local_end', $datarray);
 
@@ -1019,12 +1019,12 @@ function item_post(&$a) {
 		return $post;
 
 	if($return_path) {
-		goaway($a->get_baseurl() . "/" . $return_path);
+		goaway(z_root() . "/" . $return_path);
 	}
 
 	$json = array('success' => 1);
 	if(x($_REQUEST,'jsreload') && strlen($_REQUEST['jsreload']))
-		$json['reload'] = $a->get_baseurl() . '/' . $_REQUEST['jsreload'];
+		$json['reload'] = z_root() . '/' . $_REQUEST['jsreload'];
 
 	logger('post_json: ' . print_r($json,true), LOGGER_DEBUG);
 
@@ -1099,7 +1099,7 @@ function fix_attached_photo_permissions($uid,$xchan_hash,$body,
 		$images = $match[2];
 		if($images) {
 			foreach($images as $image) {
-				if(! stristr($image,get_app()->get_baseurl() . '/photo/'))
+				if(! stristr($image,z_root() . '/photo/'))
 					continue;
 				$image_uri = substr($image,strrpos($image,'/') + 1);
 				if(strpos($image_uri,'-') !== false)

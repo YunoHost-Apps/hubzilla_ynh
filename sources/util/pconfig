@@ -20,7 +20,7 @@ if($argc == 4) {
 
 if($argc == 3) {
 	load_pconfig($argv[1],$argv[2]);
-	foreach($a->config[$argv[1]][$argv[2]] as $k => $x) {
+	foreach(App::$config[$argv[1]][$argv[2]] as $k => $x) {
 		echo "pconfig[{$argv[1]}][{$argv[2]}][{$k}] = " . $x . "\n";
 	}
 }

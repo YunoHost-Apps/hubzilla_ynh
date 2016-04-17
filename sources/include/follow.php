@@ -134,26 +134,29 @@ function new_contact($uid,$url,$channel,$interactive = false, $confirm = false) 
 		$their_perms = 0;
 		$xchan_hash = '';
 
-
 		$r = q("select * from xchan where xchan_hash = '%s' or xchan_url = '%s' limit 1",
 			dbesc($url),
 			dbesc($url)
 		);
 
-
 		if(! $r) {
 			// attempt network auto-discovery
-			if(strpos($url,'@') && (! $is_http)) {
-				$d = discover_by_webbie($url);
-			}
-			elseif($is_http) {
-				if(get_config('system','feed_contacts'))
+
+			$d = discover_by_webbie($url);
+
+			if((! $d) && ($is_http)) {
+
+				// try RSS discovery
+
+				if(get_config('system','feed_contacts')) {
 					$d = discover_by_url($url);
+				}
 				else {
 					$result['message'] = t('Protocol disabled.');
 					return $result;
 				}
 			}
+
 			if($d) {
 				$r = q("select * from xchan where xchan_hash = '%s' or xchan_url = '%s' limit 1",
 					dbesc($url),
@@ -161,6 +164,9 @@ function new_contact($uid,$url,$channel,$interactive = false, $confirm = false) 
 				);
 			}
 		}
+
+		// if discovery was a success we should have an xchan record in $r
+
 		if($r) {
 			$xchan = $r[0];
 			$xchan_hash = $r[0]['xchan_hash'];
@@ -187,28 +193,13 @@ function new_contact($uid,$url,$channel,$interactive = false, $confirm = false) 
 	}
 	$singleton = intval($x['singleton']);
 
-	if((local_channel()) && $uid == local_channel()) {
-		$aid = get_account_id();
-		$hash = get_observer_hash();
-		$ch = $a->get_channel();
-		$default_group = $ch['channel_default_group'];
-	}
-	else {
-		$r = q("select * from channel where channel_id = %d limit 1",
-			intval($uid)
-		);
-		if(! $r) {
-			$result['message'] = t('local account not found.');
-			return $result;
-		}
-		$aid = $r[0]['channel_account_id'];
-		$hash = $r[0]['channel_hash'];			
-		$default_group = $r[0]['channel_default_group'];
-	}
+	$aid = $channel['channel_account_id'];
+	$hash = get_observer_hash();
+	$default_group = $channel['channel_default_group'];
 
+	if($xchan['xchan_network'] === 'rss') {
 
-	if($is_http) {
-
+		// check service class feed limits
 
 		$r = q("select count(*) as total from abook where abook_account = %d and abook_feed = 1 ",
 			intval($aid)
@@ -231,7 +222,6 @@ function new_contact($uid,$url,$channel,$interactive = false, $confirm = false) 
 		dbesc($xchan_hash),
 		intval($uid)
 	);
-
 
 	if($r) {
 		$abook_instance = $r[0]['abook_instance'];
@@ -282,7 +272,7 @@ function new_contact($uid,$url,$channel,$interactive = false, $confirm = false) 
 		proc_run('php', 'include/notifier.php', 'permission_create', $result['abook']['abook_id']);
 	}
 
-	$arr = array('channel_id' => $uid, 'abook' => $result['abook']);
+	$arr = array('channel_id' => $uid, 'channel' => $channel, 'abook' => $result['abook']);
 
 	call_hooks('follow', $arr);
 

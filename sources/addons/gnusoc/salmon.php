@@ -1,32 +1,41 @@
 <?php
 
-require_once('include/salmon.php');
 require_once('include/crypto.php');
 require_once('include/items.php');
 require_once('include/follow.php');
 require_once('include/Contact.php');
 
-function salmon_return($val) {
-
-	if($val >= 400)
-		$err = 'Error';
-	if($val >= 200 && $val < 300)
-		$err = 'OK';
-
-	logger('mod-salmon returns ' . $val);
-	header($_SERVER["SERVER_PROTOCOL"] . ' ' . $val . ' ' . $err);
-	killme();
-
+if(defined('SALMON_TEST')) {
+	function salmon_init(&$a) {
+		$testing = ((argc() > 1 && argv(1) === 'test') ? true : false);
+		if($testing) {
+			App::$data['salmon_test'] = true;
+			salmon_post($a);
+		}
+	}
 }
 
 function salmon_post(&$a) {
 
-	$xml = file_get_contents('php://input');
+    $sys_disabled = true;
 
+    if(! get_config('system','disable_discover_tab')) {
+        $sys_disabled = get_config('system','disable_diaspora_discover_tab');
+    }
+    $sys = (($sys_disabled) ? null : get_sys_channel());
+
+	if(App::$data['salmon_test']) {
+		$xml = file_get_contents('test.xml');
+		App::$argv[1] = 'gnusoc';
+	}
+	else {
+		$xml = file_get_contents('php://input');
+	}
+	
 	logger('mod-salmon: new salmon ' . $xml, LOGGER_DATA);
 
 	$nick       = ((argc() > 1) ? trim(argv(1)) : '');
-//	$mentions   = (($a->argc > 2 && $a->argv[2] === 'mention') ? true : false);
+//	$mentions   = ((App::$argc > 2 && App::$argv[2] === 'mention') ? true : false);
 
 	
 	$importer = channelx_by_nick($nick);
@@ -59,8 +68,12 @@ function salmon_post(&$a) {
 
 	// Stash the signature away for now. We have to find their key or it won't be good for anything.
 
+	logger('sig: ' . $base->sig);
 
 	$signature = base64url_decode($base->sig);
+
+	logger('sig: ' . $base->sig . ' decoded length: ' . strlen($signature));
+
 
 	// unpack the  data
 
@@ -80,7 +93,7 @@ function salmon_post(&$a) {
 
 	$stnet_signed_data = $data;
 
-	$signed_data = $data  . '.' . base64url_encode($type) . '.' . base64url_encode($encoding) . '.' . base64url_encode($alg);
+	$signed_data = $data  . '.' . base64url_encode($type, false) . '.' . base64url_encode($encoding, false) . '.' . base64url_encode($alg, false);
 
 	$compliant_format = str_replace('=','',$signed_data);
 
@@ -102,6 +115,7 @@ function salmon_post(&$a) {
 	$datarray = process_salmon_feed($data,$importer);
 
 	$author_link = $datarray['author']['author_link'];
+	$item = $datarray['item'];
 
 	if(! $author_link) {
 		logger('mod-salmon: Could not retrieve author URI.');
@@ -121,30 +135,26 @@ function salmon_post(&$a) {
 
 		logger('mod-salmon: Fetching key for ' . $author_link);
 
-		$key = get_salmon_key($author_link,$keyhash);
+		$pubkey = get_salmon_key($author_link,$keyhash);
 
-		if(! $key) {
+		if(! $pubkey) {
 			logger('mod-salmon: Could not retrieve author key.');
 			http_status_exit(400);
 		}
 
-		$key_info = explode('.',$key);
+		logger('mod-salmon: key details: ' . print_r($pubkey,true), LOGGER_DEBUG);
 
-		$m = base64url_decode($key_info[1]);
-		$e = base64url_decode($key_info[2]);
-
-		logger('mod-salmon: key details: ' . print_r($key_info,true), LOGGER_DEBUG);
-
-		$pubkey = metopem($m,$e);
 	}
+
+	$pubkey = rtrim($pubkey);
 
 	// We should have everything we need now. Let's see if it verifies.
 
-	$verify = rsa_verify($compliant_format,$signature,$pubkey);
+	$verify = rsa_verify($signed_data,$signature,$pubkey);
 
 	if(! $verify) {
 		logger('mod-salmon: message did not verify using protocol. Trying padding hack.');
-		$verify = rsa_verify($signed_data,$signature,$pubkey);
+		$verify = rsa_verify($compliant_format,$signature,$pubkey);
 	}
 
 	if(! $verify) {
@@ -159,10 +169,9 @@ function salmon_post(&$a) {
 
 	logger('mod-salmon: Message verified.');
 
-
 	/* lookup the author */
 
-	if(! $datarray['author']['author_link'])
+	if(! $datarray['author']['author_link']) {
 		logger('unable to probe - no author identifier');
 		http_status_exit(400);
 	}
@@ -172,12 +181,13 @@ function salmon_post(&$a) {
 	);
 	if(! $r) {
 		if(discover_by_webbie($datarray['author']['author_link'])) {
-		$r = q("select xchan_hash from xchan where xchan_guid = '%s' limit 1",
-			dbesc($datarray['author']['author_link'])
-	   	);
-		if(! $r) {
-			logger('discovery failed');
-			http_status_exit(400);
+			$r = q("select * from xchan where xchan_guid = '%s' limit 1",
+				dbesc($datarray['author']['author_link'])
+	   		);
+			if(! $r) {
+				logger('discovery failed');
+				http_status_exit(400);
+			}
 		}
 	}
 
@@ -192,196 +202,135 @@ function salmon_post(&$a) {
 
 	// First check for and process follow activity
 
-	if(activity_match($datarray['verb'],ACTIVITY_FOLLOW) && $datarray['obj_type'] === ACTIVITY_OBJ_PERSON) {
+	if(activity_match($item['verb'],ACTIVITY_FOLLOW) && $item['obj_type'] === ACTIVITY_OBJ_PERSON) {
 
-		$r = q("select * from abook where abook_channel = %d and abook_hash = '%s' limit 1",
-			intval($importer['channel_id']),
-			dbesc($xchan['xchan_hash'])
-		);
-
-		if($r) {
-			$contact = $r[0];
-			$newperms = PERMS_R_STREAM|PERMS_R_PROFILE|PERMS_R_PHOTOS|PERMS_R_ABOOK|PERMS_W_STREAM|PERMS_W_COMMENT|PERMS_W_MAIL|PERMS_W_CHAT|PERMS_R_STORAGE|PERMS_R_PAGES;
-
-			$abook_instance = $contact['abook_instance'];
-			if($abook_instance)
-				$abook_instance .= ',';
-			$abook_instance .= z_root();
-
-
-			$r = q("update abook set abook_their_perms = %d, abook_instance = '%s' where abook_id = %d and abook_channel = %d",
-				intval($newperms),
-				dbesc($abook_instance),
-				intval($contact['abook_id']),
-				intval($importer['channel_id'])
-			);
-		}
-		else {
-			$role = get_pconfig($importer['channel_id'],'system','permissions_role');
-			if($role) {
-				$x = get_role_perms($role);
-				if($x['perms_auto'])
-					$default_perms = $x['perms_accept'];
-			}
-			if(! $default_perms)
-				$default_perms = intval(get_pconfig($importer['channel_id'],'system','autoperms'));
-
-			$their_perms = PERMS_R_STREAM|PERMS_R_PROFILE|PERMS_R_PHOTOS|PERMS_R_ABOOK|PERMS_W_STREAM|PERMS_W_COMMENT|PERMS_W_MAIL|PERMS_W_CHAT|PERMS_R_STORAGE|PERMS_R_PAGES;
-
-
-			$closeness = get_pconfig($importer['channel_id'],'system','new_abook_closeness');
-			if($closeness === false)
-				$closeness = 80;
-		
-
-			$r = q("insert into abook ( abook_account, abook_channel, abook_xchan, abook_my_perms, abook_their_perms, abook_closeness, abook_created, abook_updated, abook_connected, abook_dob, abook_pending, abook_instance ) values ( %d, %d, '%s', %d, %d, %d, '%s', '%s', '%s', '%s', %d, '%s' )",
-				intval($importer['channel_account_id']),
-				intval($importer['channel_id']),
-				dbesc($contact['xchan_hash']),
-				intval($default_perms),
-				intval($their_perms),
-				intval($closeness),
-				dbesc(datetime_convert()),
-				dbesc(datetime_convert()),
-				dbesc(datetime_convert()),
-				dbesc(NULL_DATE),
-				intval(($default_perms) ? 0 : 1),
-				dbesc(z_root())
-			);
-			if($r) {
-				logger("New GNU-Social follower received for {$importer['channel_name']}");
-
-				$new_connection = q("select * from abook left join xchan on abook_xchan = xchan_hash left join hubloc on hubloc_hash = xchan_hash where abook_channel = %d and abook_xchan = '%s' order by abook_created desc limit 1",
-					intval($importer['channel_id']),
-					dbesc($xchan['xchan_hash'])
-				);
-		
-				if($new_connection) {
-					require_once('include/enotify.php');
-					notification(array(
-						'type'       => NOTIFY_INTRO,
-						'from_xchan'   => $xchan['xchan_hash'],
-						'to_xchan'     => $importer['channel_hash'],
-						'link'         => z_root() . '/connedit/' . $new_connection[0]['abook_id'],
-					));
-
-				if($default_perms) {
-// @fixme!!!
-					// Send back a sharing notification to them
-					$x = gnusoc_follow($importer,$new_connection[0]);
-					if($x)
-						proc_run('php','include/deliver.php',$x);
-
-				}
-
-				$clone = array();
-				foreach($new_connection[0] as $k => $v) {
-					if(strpos($k,'abook_') === 0) {
-						$clone[$k] = $v;
-					}
-				}
-				unset($clone['abook_id']);
-				unset($clone['abook_account']);
-				unset($clone['abook_channel']);
-
-				$abconfig = load_abconfig($importer['channel_hash'],$clone['abook_xchan']);
-
-		 		if($abconfig)
-					$clone['abconfig'] = $abconfig;
-
-				build_sync_packet($importer['channel_id'], array('abook' => array($clone)));
-
-			}
-
+		$cb = array('item' => $item,'channel' => $importer, 'xchan' => $xchan, 'author' => $datarray['author'], 'caught' => false);
+		call_hooks('follow_from_feed',$cb);
+		if($cb['caught'])
 			http_status_exit(200);
+
+	}
+		
+
+	$m = parse_url($xchan['xchan_url']);
+	if($m) {
+		$host = $m['scheme'] . '://' . $m['host'];
+		
+    	q("update site set site_dead = 0, site_update = '%s' where site_type = %d and site_url = '%s'",
+        	dbesc(datetime_convert()),
+	        intval(SITE_TYPE_NOTZOT),
+    	    dbesc($url)
+    	);
+		if(! check_siteallowed($host)) {
+			logger('blacklisted site: ' . $host);
+			http_status_exit(403, 'permission denied.');
 		}
 	}
 
-	}
-	// 
-	// ... fixme
 
-
-	// Otherwise check general permissions
-
-	if(! perm_is_allowed($importer['channel_id'],$xchan['xchan_hash'],'send_stream')) { 
-
-		// check for and process ostatus autofriend
-
-
-		// ... fixme
-
-
-
-		// otherwise 
-
-		logger('mod-salmon: Ignoring this author.');
-		http_status_exit(202);
-		// NOTREACHED
+	$importer_arr = array($importer);
+	if(! $sys_disabled) {
+		$sys['system'] = true;
+		$importer_arr[] = $sys;
 	}
 
 	unset($datarray['author']);
 
-	$parent_item = null;
-	if($datarray['parent_mid']) {
-		$r = q("select * from item where mid = '%s' and uid = %d limit 1",
-			dbesc($datarray['parent_mid']),
-			intval($importer['channel_id'])
-		);
-		if(! $r) {
-			logger('mod-salmon: parent item not found.');
-			http_status_exit(202);
+	// we will only set and return the status code for operations 
+	// on an importer channel and not for the sys channel
+
+	$status = 200;
+
+	foreach($importer_arr as $importer) {
+
+		if(! $importer['system']) {
+			$allowed = get_pconfig($importer['channel_id'],'system','gnusoc_allowed');
+			if(! intval($allowed)) {
+        		logger('mod-salmon: disallowed for channel ' . $importer['channel_name']);
+				$status = 202;
+        		continue;
+			}
 		}
-		$parent_item = $r[0];
-	}
+
+
+		// Otherwise check general permissions
+
+		if((! perm_is_allowed($importer['channel_id'],$xchan['xchan_hash'],'send_stream')) && (! $importer['system'])) { 
+
+			// check for and process ostatus autofriend
+
+
+			// ... fixme
+
+			// otherwise 
+
+			logger('mod-salmon: Ignoring this author.');
+			$status = 202;
+			continue;
+		}
+
+
+		$parent_item = null;
+		if($item['parent_mid']) {
+			$r = q("select * from item where mid = '%s' and uid = %d limit 1",
+				dbesc($item['parent_mid']),
+				intval($importer['channel_id'])
+			);
+			if(! $r) {
+				logger('mod-salmon: parent item not found.');
+				if(! $importer['system'])
+					$status = 202;
+				continue;
+			}
+			$parent_item = $r[0];
+		}
 	
 
+		if(! $item['author_xchan'])
+			$item['author_xchan'] = $xchan['xchan_hash'];
+
+		$item['owner_xchan'] = (($parent_item) ? $parent_item['owner_xchan'] : $xchan['xchan_hash']);
 
 
-	if(! $datarray['author_xchan'])
-		$datarray['author_xchan'] = $xchan['xchan_hash'];
-
-	$datarray['owner_xchan'] = (($parent_item) ? $parent_item['owner_xchan'] : $xchan['xchan_hash']);
-
-
-
-	$r = q("SELECT edited FROM item WHERE mid = '%s' AND uid = %d LIMIT 1",
-		dbesc($datarray['mid']),
-		intval($importer['channel_id'])
-	);
+		$r = q("SELECT edited FROM item WHERE mid = '%s' AND uid = %d LIMIT 1",
+			dbesc($item['mid']),
+			intval($importer['channel_id'])
+		);
 
 
-	// Update content if 'updated' changes
-	// currently a no-op @fixme
+		// Update content if 'updated' changes
+		// currently a no-op @fixme
 
-	if($r) {
-	   if((x($datarray,'edited') !== false) && (datetime_convert('UTC','UTC',$datarray['edited']) !== $r[0]['edited'])) {
-		   // do not accept (ignore) an earlier edit than one we currently have.
-		   if(datetime_convert('UTC','UTC',$datarray['edited']) > $r[0]['edited'])
-			   update_feed_item($importer['channel_id'],$datarray);
-	   }
-	   http_status_exit(200);
+		if($r) {
+		   if((x($item,'edited') !== false) 
+				&& (datetime_convert('UTC','UTC',$item['edited']) !== $r[0]['edited'])) {
+			   	// do not accept (ignore) an earlier edit than one we currently have.
+			   	if(datetime_convert('UTC','UTC',$item['edited']) > $r[0]['edited'])
+					update_feed_item($importer['channel_id'],$item);
+			}
+			if(! $importer['system'])
+				$status = 200;
+			continue;
+		}
+
+		if(! $item['parent_mid'])
+			$item['parent_mid'] = $item['mid'];
+		
+		$item['aid'] = $importer['channel_account_id'];
+		$item['uid'] = $importer['channel_id'];
+
+		logger('consume_feed: ' . print_r($item,true),LOGGER_DATA);
+
+		$xx = item_store($item);
+		$r = $xx['item_id'];
+
+		if(! $importer['system'])
+			$status = 200;
+		continue;
+
 	}
 
-	if(! $datarray['parent_mid'])
-		$datarray['parent_mid'] = $datarray['mid'];
-		
-	$datarray['aid'] = $importer['channel_account_id'];
-	$datarray['uid'] = $importer['channel_id'];
-
-	logger('consume_feed: ' . print_r($datarray,true),LOGGER_DATA);
-
-	$xx = item_store($datarray);
-	$r = $xx['item_id'];
-
-// if this is a reply, do a relay?
-
-	http_status_exit(200);
+	http_status_exit($status);
+	
 }
 
-
-function gnusoc_follow($importer,$xchan) {
-
-
-
-}

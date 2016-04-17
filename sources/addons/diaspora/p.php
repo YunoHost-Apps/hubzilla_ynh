@@ -28,7 +28,7 @@ function p_init(&$a) {
 	if(! $c)
 		http_status_exit(404);
 
-	$myaddr = $c[0]['channel_address'] . '@' . $a->get_hostname();
+	$myaddr = $c[0]['channel_address'] . '@' . App::get_hostname();
 
 	$item = $r[0];
    

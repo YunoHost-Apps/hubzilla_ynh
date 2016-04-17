@@ -13,14 +13,14 @@ function network_init(&$a) {
 		return;
 	}
 
-	if((count($_GET) < 2) || (count($_GET) < 3 && $_GET['JS'])) {
+	if(count($_GET) < 2) {
 		$network_options = get_pconfig(local_channel(),'system','network_page_default');
 		if($network_options)
 			goaway('network' . '?f=&' . $network_options);
 	}
 
-	$channel = $a->get_channel();
-	$a->profile_uid = local_channel();
+	$channel = App::get_channel();
+	App::$profile_uid = local_channel();
 	head_set_icon($channel['xchan_photo_s']);
 
 }
@@ -28,18 +28,18 @@ function network_init(&$a) {
 function network_content(&$a, $update = 0, $load = false) {
 
 	if(! local_channel()) {
-		$_SESSION['return_url'] = $a->query_string;
+		$_SESSION['return_url'] = App::$query_string;
 		return login(false);
 	}
 
 	if($load)
 		$_SESSION['loadtime'] = datetime_convert();
 
-	$arr = array('query' => $a->query_string);
+	$arr = array('query' => App::$query_string);
 
 	call_hooks('network_content_init', $arr);
 
-	$channel = $a->get_channel();
+	$channel = App::get_channel();
 	$item_normal = item_normal();
 
 	$datequery = $datequery2 = '';
@@ -89,7 +89,7 @@ function network_content(&$a, $update = 0, $load = false) {
 			if($update)
 				killme();
 			notice( t('No such group') . EOL );
-			goaway($a->get_baseurl(true) . '/network');
+			goaway(z_root() . '/network');
 			// NOTREACHED
 		}
 
@@ -129,7 +129,7 @@ function network_content(&$a, $update = 0, $load = false) {
 				killme();
 			}
 			notice( t('No such channel') . EOL );
-			goaway($a->get_baseurl(true) . '/network');
+			goaway(z_root() . '/network');
 			// NOTREACHED
 		}
 		if($_GET['pf'] === '1')
@@ -169,7 +169,10 @@ function network_content(&$a, $update = 0, $load = false) {
 			'acl'              => populate_acl((($private_editing) ? $def_acl : $channel_acl), true, (($channel['channel_r_stream'] & PERMS_PUBLIC) ? t('Public') : '')),
 			'bang'             => (($private_editing) ? '!' : ''),
 			'visitor'          => true,
-			'profile_uid'      => local_channel()
+			'profile_uid'      => local_channel(),
+			'editor_autocomplete' => true,
+			'bbco_autocomplete' => 'bbcode',
+			'bbcode' => true
 		);
 		if($deftag)
 			$x['pretext'] = $deftag;
@@ -242,7 +245,7 @@ function network_content(&$a, $update = 0, $load = false) {
 		}
 		else {
 			notice( t('Invalid connection.') . EOL);
-			goaway($a->get_baseurl(true) . '/network');
+			goaway(z_root() . '/network');
 		}
 	}
 
@@ -268,10 +271,10 @@ function network_content(&$a, $update = 0, $load = false) {
 
 		$o .= '<div id="live-network"></div>' . "\r\n";
 		$o .= "<script> var profile_uid = " . local_channel() 
-			. "; var profile_page = " . $a->pager['page'] 
+			. "; var profile_page = " . App::$pager['page'] 
 			. "; divmore_height = " . intval($maxheight) . "; </script>\r\n";
 
-		$a->page['htmlhead'] .= replace_macros(get_markup_template("build_query.tpl"),array(
+		App::$page['htmlhead'] .= replace_macros(get_markup_template("build_query.tpl"),array(
 			'$baseurl' => z_root(),
 			'$pgtype'  => 'network',
 			'$uid'     => ((local_channel()) ? local_channel() : '0'),
@@ -287,7 +290,7 @@ function network_content(&$a, $update = 0, $load = false) {
 			'$nouveau' => (($nouveau) ? $nouveau : '0'),
 			'$wall'    => '0',
 			'$list'    => ((x($_REQUEST,'list')) ? intval($_REQUEST['list']) : 0),
-			'$page'    => (($a->pager['page'] != 1) ? $a->pager['page'] : 1),
+			'$page'    => ((App::$pager['page'] != 1) ? App::$pager['page'] : 1),
 			'$search'  => (($search) ? $search : ''),
 			'$order'   => $order,
 			'$file'    => $file,
@@ -348,8 +351,8 @@ function network_content(&$a, $update = 0, $load = false) {
 	}
 	else {
 		$itemspage = get_pconfig(local_channel(),'system','itemspage');
-		$a->set_pager_itemspage(((intval($itemspage)) ? $itemspage : 20));
-		$pager_sql = sprintf(" LIMIT %d OFFSET %d ", intval($a->pager['itemspage']), intval($a->pager['start']));
+		App::set_pager_itemspage(((intval($itemspage)) ? $itemspage : 20));
+		$pager_sql = sprintf(" LIMIT %d OFFSET %d ", intval(App::$pager['itemspage']), intval(App::$pager['start']));
 	}
 
 
@@ -380,7 +383,7 @@ function network_content(&$a, $update = 0, $load = false) {
 		require_once('include/identity.php');
 		$sys = get_sys_channel();
 		$uids = " and item.uid  = " . intval($sys['channel_id']) . " ";
-		$a->data['firehose'] = intval($sys['channel_id']);
+		App::$data['firehose'] = intval($sys['channel_id']);
 	}
 	else {
 		$uids = " and item.uid = " . local_channel() . " ";

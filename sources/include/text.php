@@ -27,7 +27,7 @@ function replace_macros($s, $r) {
 	$arr = array('template' => $s, 'params' => $r);
 	call_hooks('replace_macros', $arr);
 
-	$t = $a->template_engine();
+	$t = App::template_engine();
 	$output = $t->replace_macros($arr['template'],$arr['params']);
 
 	return $output;
@@ -99,7 +99,7 @@ function z_input_filter($channel_id,$s,$type = 'text/bbcode') {
 		return escape_tags($s);
 
 	$a = get_app();
-	if($a->is_sys) {
+	if(App::$is_sys) {
 		return $s;
 	}
 
@@ -368,34 +368,34 @@ function hex2bin($s) {
 
 // Automatic pagination.
 // To use, get the count of total items.
-// Then call $a->set_pager_total($number_items);
-// Optionally call $a->set_pager_itemspage($n) to the number of items to display on each page
+// Then call App::set_pager_total($number_items);
+// Optionally call App::set_pager_itemspage($n) to the number of items to display on each page
 // Then call paginate($a) after the end of the display loop to insert the pager block on the page
 // (assuming there are enough items to paginate).
-// When using with SQL, the setting LIMIT %d, %d => $a->pager['start'],$a->pager['itemspage']
+// When using with SQL, the setting LIMIT %d, %d => App::$pager['start'],App::$pager['itemspage']
 // will limit the results to the correct items for the current page. 
 // The actual page handling is then accomplished at the application layer. 
 
 
 function paginate(&$a) {
 	$o = '';
-	$stripped = preg_replace('/(&page=[0-9]*)/','',$a->query_string);
+	$stripped = preg_replace('/(&page=[0-9]*)/','',App::$query_string);
 
 //	$stripped = preg_replace('/&zid=(.*?)([\?&]|$)/ism','',$stripped);
 
 	$stripped = str_replace('q=','',$stripped);
 	$stripped = trim($stripped,'/');
-	$pagenum = $a->pager['page'];
-	$url = $a->get_baseurl() . '/' . $stripped;
+	$pagenum = App::$pager['page'];
+	$url = z_root() . '/' . $stripped;
 
-	if($a->pager['total'] > $a->pager['itemspage']) {
+	if(App::$pager['total'] > App::$pager['itemspage']) {
 		$o .= '<div class="pager">';
-		if($a->pager['page'] != 1)
-			$o .= '<span class="pager_prev">'."<a href=\"$url".'&page='.($a->pager['page'] - 1).'">' . t('prev') . '</a></span> ';
+		if(App::$pager['page'] != 1)
+			$o .= '<span class="pager_prev">'."<a href=\"$url".'&page='.(App::$pager['page'] - 1).'">' . t('prev') . '</a></span> ';
 
 		$o .=  "<span class=\"pager_first\"><a href=\"$url"."&page=1\">" . t('first') . "</a></span> ";
 
-			$numpages = $a->pager['total'] / $a->pager['itemspage'];
+			$numpages = App::$pager['total'] / App::$pager['itemspage'];
 
 			$numstart = 1;
 			$numstop = $numpages;
@@ -406,15 +406,15 @@ function paginate(&$a) {
 			}
 
 		for($i = $numstart; $i <= $numstop; $i++){
-			if($i == $a->pager['page'])
+			if($i == App::$pager['page'])
 				$o .= '<span class="pager_current">'.(($i < 10) ? '&nbsp;'.$i : $i);
 			else
 				$o .= "<span class=\"pager_n\"><a href=\"$url"."&page=$i\">".(($i < 10) ? '&nbsp;'.$i : $i)."</a>";
 			$o .= '</span> ';
 		}
 
-		if(($a->pager['total'] % $a->pager['itemspage']) != 0) {
-			if($i == $a->pager['page'])
+		if((App::$pager['total'] % App::$pager['itemspage']) != 0) {
+			if($i == App::$pager['page'])
 				$o .= '<span class="pager_current">'.(($i < 10) ? '&nbsp;'.$i : $i);
 			else
 				$o .= "<span class=\"pager_n\"><a href=\"$url"."&page=$i\">".(($i < 10) ? '&nbsp;'.$i : $i)."</a>";
@@ -424,8 +424,8 @@ function paginate(&$a) {
 		$lastpage = (($numpages > intval($numpages)) ? intval($numpages)+1 : $numpages);
 		$o .= "<span class=\"pager_last\"><a href=\"$url"."&page=$lastpage\">" . t('last') . "</a></span> ";
 
-		if(($a->pager['total'] - ($a->pager['itemspage'] * $a->pager['page'])) > 0)
-			$o .= '<span class="pager_next">'."<a href=\"$url"."&page=".($a->pager['page'] + 1).'">' . t('next') . '</a></span>';
+		if((App::$pager['total'] - (App::$pager['itemspage'] * App::$pager['page'])) > 0)
+			$o .= '<span class="pager_next">'."<a href=\"$url"."&page=".(App::$pager['page'] + 1).'">' . t('next') . '</a></span>';
 		$o .= '</div>'."\r\n";
 	}
 	return $o;
@@ -439,20 +439,20 @@ function alt_pager(&$a, $i, $more = '', $less = '') {
 	if(! $less)
 		$less = t('newer');
 
-	$stripped = preg_replace('/(&page=[0-9]*)/','',$a->query_string);
+	$stripped = preg_replace('/(&page=[0-9]*)/','',App::$query_string);
 	$stripped = str_replace('q=','',$stripped);
 	$stripped = trim($stripped,'/');
-	//$pagenum = $a->pager['page'];
-	$url = $a->get_baseurl() . '/' . $stripped;
+	//$pagenum = App::$pager['page'];
+	$url = z_root() . '/' . $stripped;
 
 	return replace_macros(get_markup_template('alt_pager.tpl'), array(
-		'$has_less' => (($a->pager['page'] > 1) ? true : false),
-		'$has_more' => (($i > 0 && $i >= $a->pager['itemspage']) ? true : false),
+		'$has_less' => ((App::$pager['page'] > 1) ? true : false),
+		'$has_more' => (($i > 0 && $i >= App::$pager['itemspage']) ? true : false),
 		'$less' => $less,
 		'$more' => $more,
 		'$url' => $url,
-		'$prevpage' => $a->pager['page'] - 1,
-		'$nextpage' => $a->pager['page'] + 1,
+		'$prevpage' => App::$pager['page'] - 1,
+		'$nextpage' => App::$pager['page'] + 1,
 	));
 
 }
@@ -470,7 +470,7 @@ function item_message_id() {
 	do {
 		$dups = false;
 		$hash = random_string();
-		$mid = $hash . '@' . get_app()->get_hostname();
+		$mid = $hash . '@' . App::get_hostname();
 
 		$r = q("SELECT id FROM item WHERE mid = '%s' LIMIT 1",
 			dbesc($mid));
@@ -544,7 +544,7 @@ function logger($msg, $level = LOGGER_NORMAL, $priority = LOG_INFO) {
 	global $a;
 	global $db;
 
-	if(($a->module == 'install') || (! ($db && $db->connected)))
+	if((App::$module == 'install') || (! ($db && $db->connected)))
 		return;
 
 	$debugging = get_config('system', 'debugging');
@@ -568,6 +568,25 @@ function logger($msg, $level = LOGGER_NORMAL, $priority = LOG_INFO) {
 	if(! $pluginfo['logged'])
 		@file_put_contents($pluginfo['filename'], $pluginfo['message'], FILE_APPEND);
 }
+
+// like logger() but with a function backtrace to pinpoint certain classes
+// of problems which show up deep in the calling stack
+
+
+function btlogger($msg, $level = LOGGER_NORMAL, $priority = LOG_INFO) {
+
+	logger($msg, $level, $priority);
+	if(version_compare(PHP_VERSION, '5.4.0') >= 0) {
+       	$stack = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+		if($stack) {
+			for($x = 1; $x < count($stack); $x ++) {
+				logger('stack: ' . basename($stack[$x]['file']) . ':' . $stack[$x]['line'] . ':' . $stack[$x]['function'] . '()',$level, $priority);
+		    }
+		}
+	}
+}
+
+
 
 function log_priority_str($priority) {
 	$parr = array(
@@ -606,7 +625,7 @@ function dlogger($msg, $level = 0) {
 	global $a;
 	global $db;
 
-	if(($a->module == 'install') || (! ($db && $db->connected)))
+	if((App::$module == 'install') || (! ($db && $db->connected)))
 		return;
 
 	$debugging = get_config('system','debugging');
@@ -766,20 +785,20 @@ function contact_block() {
 	$o = '';
 	$a = get_app();
 
-	if(! $a->profile['uid'])
+	if(! App::$profile['uid'])
 		return;
 
-	if(! perm_is_allowed($a->profile['uid'],get_observer_hash(),'view_contacts'))
+	if(! perm_is_allowed(App::$profile['uid'],get_observer_hash(),'view_contacts'))
 		return;
 
-	$shown = get_pconfig($a->profile['uid'],'system','display_friend_count');
+	$shown = get_pconfig(App::$profile['uid'],'system','display_friend_count');
 
 	if($shown === false)
 		$shown = 25;
 	if($shown == 0)
 		return;
 
-	$is_owner = ((local_channel() && local_channel() == $a->profile['uid']) ? true : false);
+	$is_owner = ((local_channel() && local_channel() == App::$profile['uid']) ? true : false);
 	$sql_extra = '';
 
 	$abook_flags = " and abook_pending = 0 and abook_self = 0 ";
@@ -789,12 +808,12 @@ function contact_block() {
 		$sql_extra = " and xchan_hidden = 0 ";
 	}
 
-	if((! is_array($a->profile)) || ($a->profile['hide_friends']))
+	if((! is_array(App::$profile)) || (App::$profile['hide_friends']))
 		return $o;
 
 	$r = q("SELECT COUNT(abook_id) AS total FROM abook left join xchan on abook_xchan = xchan_hash WHERE abook_channel = %d
 		$abook_flags and xchan_orphan = 0 and xchan_deleted = 0 $sql_extra",
-		intval($a->profile['uid'])
+		intval(App::$profile['uid'])
 	);
 	if(count($r)) {
 		$total = intval($r[0]['total']);
@@ -807,7 +826,7 @@ function contact_block() {
 		$randfunc = db_getfunc('RAND');
 	
 		$r = q("SELECT abook.*, xchan.* FROM abook left join xchan on abook.abook_xchan = xchan.xchan_hash WHERE abook_channel = %d $abook_flags and abook_archived = 0 and xchan_orphan = 0 and xchan_deleted = 0 $sql_extra ORDER BY $randfunc LIMIT %d",
-			intval($a->profile['uid']),
+			intval(App::$profile['uid']),
 			intval($shown)
 		);
 
@@ -824,7 +843,7 @@ function contact_block() {
 	$tpl = get_markup_template('contact_block.tpl');
 	$o = replace_macros($tpl, array(
 		'$contacts' => $contacts,
-		'$nickname' => $a->profile['channel_address'],
+		'$nickname' => App::$profile['channel_address'],
 		'$viewconnections' => (($total > $shown) ? sprintf(t('View all %s connections'),$total) : ''),
 		'$micropro' => $micropro,
 	));
@@ -881,7 +900,7 @@ function search($s,$id='search-box',$url='/search',$save = false) {
 	return replace_macros(get_markup_template('searchbox.tpl'),array(
 		'$s' => $s,
 		'$id' => $id,
-		'$action_url' => $a->get_baseurl((stristr($url,'network')) ? true : false) . $url,
+		'$action_url' => z_root() . $url,
 		'$search_label' => t('Search'),
 		'$save_label' => t('Save'),
 		'$savedsearch' => feature_enabled(local_channel(),'savedsearch')
@@ -1062,41 +1081,41 @@ function list_smilies() {
 	);
 
 	$icons = array(
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-heart.gif" alt="&lt;3" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-brokenheart.gif" alt="&lt;/3" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-brokenheart.gif" alt="&lt;\\3" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-smile.gif" alt=":-)" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-wink.gif" alt=";-)" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-frown.gif" alt=":-(" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-tongue-out.gif" alt=":-P" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-tongue-out.gif" alt=":-p" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-kiss.gif" alt=":-\"" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-kiss.gif" alt=":-\"" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-kiss.gif" alt=":-x" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-kiss.gif" alt=":-X" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-laughing.gif" alt=":-D" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-surprised.gif" alt="8-|" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-surprised.gif" alt="8-O" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-surprised.gif" alt=":-O" />',                
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-thumbsup.gif" alt="\\o/" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-Oo.gif" alt="o.O" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-Oo.gif" alt="O.o" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-Oo.gif" alt="o_O" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-Oo.gif" alt="O_o" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-cry.gif" alt=":\'(" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-foot-in-mouth.gif" alt=":-!" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-undecided.gif" alt=":-/" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-embarassed.gif" alt=":-[" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-cool.gif" alt="8-)" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/beer_mug.gif" alt=":beer" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/beer_mug.gif" alt=":homebrew" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/coffee.gif" alt=":coffee" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-facepalm.gif" alt=":facepalm" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/like.gif" alt=":like" />',
-		'<img class="smiley" src="' . $a->get_baseurl() . '/images/dislike.gif" alt=":dislike" />',
-		'<a href="http://getzot.com"><strong>red<img class="smiley bb_rm-logo" src="' . $a->get_baseurl() . '/images/rm-32.png" alt="' . urlencode('red#matrix') . '" />matrix</strong></a>',
-		'<a href="http://getzot.com"><strong>red<img class="smiley bb_rm-logo" src="' . $a->get_baseurl() . '/images/rm-32.png" alt="' . urlencode('red#') . '" />matrix</strong></a>',
-		'<a href="http://getzot.com"><strong>red<img class="smiley bb_rm-logo" src="' . $a->get_baseurl() . '/images/rm-32.png" alt="r#" />matrix</strong></a>'
+		'<img class="smiley" src="' . z_root() . '/images/smiley-heart.gif" alt="&lt;3" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-brokenheart.gif" alt="&lt;/3" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-brokenheart.gif" alt="&lt;\\3" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-smile.gif" alt=":-)" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-wink.gif" alt=";-)" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-frown.gif" alt=":-(" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-tongue-out.gif" alt=":-P" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-tongue-out.gif" alt=":-p" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-kiss.gif" alt=":-\"" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-kiss.gif" alt=":-\"" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-kiss.gif" alt=":-x" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-kiss.gif" alt=":-X" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-laughing.gif" alt=":-D" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-surprised.gif" alt="8-|" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-surprised.gif" alt="8-O" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-surprised.gif" alt=":-O" />',                
+		'<img class="smiley" src="' . z_root() . '/images/smiley-thumbsup.gif" alt="\\o/" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-Oo.gif" alt="o.O" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-Oo.gif" alt="O.o" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-Oo.gif" alt="o_O" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-Oo.gif" alt="O_o" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-cry.gif" alt=":\'(" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-foot-in-mouth.gif" alt=":-!" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-undecided.gif" alt=":-/" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-embarassed.gif" alt=":-[" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-cool.gif" alt="8-)" />',
+		'<img class="smiley" src="' . z_root() . '/images/beer_mug.gif" alt=":beer" />',
+		'<img class="smiley" src="' . z_root() . '/images/beer_mug.gif" alt=":homebrew" />',
+		'<img class="smiley" src="' . z_root() . '/images/coffee.gif" alt=":coffee" />',
+		'<img class="smiley" src="' . z_root() . '/images/smiley-facepalm.gif" alt=":facepalm" />',
+		'<img class="smiley" src="' . z_root() . '/images/like.gif" alt=":like" />',
+		'<img class="smiley" src="' . z_root() . '/images/dislike.gif" alt=":dislike" />',
+		'<a href="http://getzot.com"><strong>red<img class="smiley bb_rm-logo" src="' . z_root() . '/images/rm-32.png" alt="' . urlencode('red#matrix') . '" />matrix</strong></a>',
+		'<a href="http://getzot.com"><strong>red<img class="smiley bb_rm-logo" src="' . z_root() . '/images/rm-32.png" alt="' . urlencode('red#') . '" />matrix</strong></a>',
+		'<a href="http://getzot.com"><strong>red<img class="smiley bb_rm-logo" src="' . z_root() . '/images/rm-32.png" alt="r#" />matrix</strong></a>'
 
 	);
 
@@ -1173,7 +1192,7 @@ function preg_heart($x) {
 
 	$t = '';
 	for($cnt = 0; $cnt < strlen($x[1]); $cnt ++)
-		$t .= '<img class="smiley" src="' . $a->get_baseurl() . '/images/smiley-heart.gif" alt="&lt;3" />';
+		$t .= '<img class="smiley" src="' . z_root() . '/images/smiley-heart.gif" alt="&lt;3" />';
 
 	$r =  str_replace($x[0],$t,$x[0]);
 
@@ -1701,12 +1720,12 @@ function feed_hublinks() {
 function feed_salmonlinks($nick) {
 	$a = get_app();
 
-	$salmon  = '<link rel="salmon" href="' . xmlify($a->get_baseurl() . '/salmon/' . $nick) . '" />' . "\n" ;
+	$salmon  = '<link rel="salmon" href="' . xmlify(z_root() . '/salmon/' . $nick) . '" />' . "\n" ;
 
 	// old style links that status.net still needed as of 12/2010 
 
-	$salmon .= '  <link rel="http://salmon-protocol.org/ns/salmon-replies" href="' . xmlify($a->get_baseurl() . '/salmon/' . $nick) . '" />' . "\n" ; 
-	$salmon .= '  <link rel="http://salmon-protocol.org/ns/salmon-mention" href="' . xmlify($a->get_baseurl() . '/salmon/' . $nick) . '" />' . "\n" ; 
+	$salmon .= '  <link rel="http://salmon-protocol.org/ns/salmon-replies" href="' . xmlify(z_root() . '/salmon/' . $nick) . '" />' . "\n" ; 
+	$salmon .= '  <link rel="http://salmon-protocol.org/ns/salmon-mention" href="' . xmlify(z_root() . '/salmon/' . $nick) . '" />' . "\n" ; 
 
 	return $salmon;
 }
@@ -1768,7 +1787,7 @@ function mimetype_select($channel_id, $current = 'text/bbcode') {
 	);
 
 	$a = get_app();
-	if($a->is_sys) {
+	if(App::$is_sys) {
 		$x[] = 'application/x-php';
 	}
 	else {
@@ -1819,7 +1838,7 @@ function lang_selector() {
 			}
 			$ll = substr($l,5);
 			$ll = substr($ll,0,strrpos($ll,'/'));
-			$selected = (($ll === $a->language && (x($_SESSION, 'language'))) ? $ll : $selected);
+			$selected = (($ll === App::$language && (x($_SESSION, 'language'))) ? $ll : $selected);
 			$lang_options[$ll] = get_language_name($ll, $ll) . " ($ll)";
 		}
 	}
@@ -2241,10 +2260,10 @@ function json_decode_plus($s) {
  */
 function design_tools() {
 
-	$channel  = get_app()->get_channel();
+	$channel  = App::get_channel();
 	$sys = false;
 
-	if(get_app()->is_sys && is_site_admin()) {
+	if(App::$is_sys && is_site_admin()) {
 		require_once('include/identity.php');
 		$channel = get_sys_channel();
 		$sys = true;
@@ -2354,8 +2373,8 @@ function handle_tag($a, &$body, &$access_tag, &$str_tags, $profile_uid, $tag, $d
 				$basetag = str_replace('_',' ',substr($tag,1));
 
 			//create text for link
-			$url = $a->get_baseurl() . '/search?tag=' . rawurlencode($basetag);
-			$newtag = '#[zrl=' . $a->get_baseurl() . '/search?tag=' . rawurlencode($basetag) . ']' . $basetag . '[/zrl]';
+			$url = z_root() . '/search?tag=' . rawurlencode($basetag);
+			$newtag = '#[zrl=' . z_root() . '/search?tag=' . rawurlencode($basetag) . ']' . $basetag . '[/zrl]';
 			//replace tag by the link. Make sure to not replace something in the middle of a word
 			// The '=' is needed to not replace color codes if the code is also used as a tag
 			// Much better would be to somehow completely avoiding things in e.g. [color]-tags.
@@ -2501,7 +2520,7 @@ function handle_tag($a, &$body, &$access_tag, &$str_tags, $profile_uid, $tag, $d
 
 		// $r is set if we found something
 
-		$channel = get_app()->get_channel();
+		$channel = App::get_channel();
 
 		if($r) {
 			$profile = $r[0]['xchan_url'];
@@ -2531,7 +2550,7 @@ function handle_tag($a, &$body, &$access_tag, &$str_tags, $profile_uid, $tag, $d
 					if($g && $exclusive) {
 						$access_tag .= 'gid:' . $g[0]['hash'];
 					}
-					$channel = get_app()->get_channel();
+					$channel = App::get_channel();
 					if($channel) {
 						$newtag = '@' . (($exclusive) ? '!' : '') . '[zrl=' . z_root() . '/channel/' . $channel['channel_address'] . ']' . $newname . '[/zrl]';
 						$body = str_replace('@' . (($exclusive) ? '!' : '') . $name, $newtag, $body);
@@ -2589,7 +2608,7 @@ function linkify_tags($a, &$body, $uid, $diaspora = false) {
 			if($fullnametagged)
 				continue;
 
-			$success = handle_tag($a, $body, $access_tag, $str_tags, ($uid) ? $uid : $a->profile_uid , $tag, $diaspora); 
+			$success = handle_tag($a, $body, $access_tag, $str_tags, ($uid) ? $uid : App::$profile_uid , $tag, $diaspora); 
 			$results[] = array('success' => $success, 'access_tag' => $access_tag);
 			if($success['replaced']) $tagged[] = $tag;
 		}
@@ -2711,22 +2730,37 @@ function json_url_replace($old,$new,&$s) {
 }
 		
 
-function item_url_replace($channel,&$item,$old,$new) {
+function item_url_replace($channel,&$item,$old,$new,$oldnick = '') {
 	
-	if($item['attach'])
+	if($item['attach']) {
 		json_url_replace($old,$new,$item['attach']);
-	if($item['object'])
+		if($oldnick)
+			json_url_replace('/' . $oldnick . '/' ,'/' . $channel['channel_address'] . '/' ,$item['attach']);
+	}
+	if($item['object']) {
 		json_url_replace($old,$new,$item['object']);
-	if($item['target'])
+		if($oldnick)
+			json_url_replace('/' . $oldnick . '/' ,'/' . $channel['channel_address'] . '/' ,$item['object']);
+	}
+	if($item['target']) {
 		json_url_replace($old,$new,$item['target']);
+		if($oldnick)
+			json_url_replace('/' . $oldnick . '/' ,'/' . $channel['channel_address'] . '/' ,$item['target']);
+	}
 
 	if(string_replace($old,$new,$item['body'])) {
 		$item['sig'] = base64url_encode(rsa_sign($item['body'],$channel['channel_prvkey']));
 		$item['item_verified']  = 1;
 	}
 	
-	// @fixme item['plink'] and item['llink']
+	$item['plink'] = str_replace($old,$new,$item['plink']);
+	if($oldnick)
+		$item['plink'] = str_replace('/' . $oldnick . '/' ,'/' . $channel['channel_address'] . '/' ,$item['plink']);
 
+	$item['llink'] = str_replace($old,$new,$item['llink']);
+	if($oldnick)
+		$item['llink'] = str_replace('/' . $oldnick . '/' ,'/' . $channel['channel_address'] . '/' ,$item['llink']);
+	
 }
 
 

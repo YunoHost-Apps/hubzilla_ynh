@@ -160,7 +160,7 @@ function openclipatar_profile_photo_content_end(&$a, &$o) {
 			}
 		}
 	}
-	$x =  z_fetch_url('https://openclipart.org/search/json/?sort=' . $sortids . '&amount=20&query=' . urlencode($search) . '&page=' . $a->pager['page']);
+	$x =  z_fetch_url('https://openclipart.org/search/json/?sort=' . $sortids . '&amount=20&query=' . urlencode($search) . '&page=' . App::$pager['page']);
 	
 	if($x['success']) {
 		$j = json_decode($x['body'], true);
@@ -205,7 +205,7 @@ function openclipatar_content(&$a) {
 	$o = '';
 	if(argc() == 3 && argv(1) == 'use') {
 		$id = argv(2);
-		$chan = $a->get_channel();
+		$chan = App::get_channel();
 		
 		$x = z_fetch_url('https://openclipart.org/image/250px/svg_to_png/' .$id . '/' . $id . '.png',true);
 		if($x['success'])
@@ -277,8 +277,8 @@ function openclipatar_content(&$a) {
 		else {
 			// not the default profile, set the path in the correct entry in the profile DB
 			$r = q("update profile set photo = '%s', thumb = '%s' where id = %d and uid = %d",
-				dbesc(get_app()->get_baseurl() . '/photo/' . $hash . '-4'),
-				dbesc(get_app()->get_baseurl() . '/photo/' . $hash . '-5'),
+				dbesc(z_root() . '/photo/' . $hash . '-4'),
+				dbesc(z_root() . '/photo/' . $hash . '-5'),
 				intval($_REQUEST['profile']),
 				intval(local_channel())
 			);
@@ -294,9 +294,9 @@ function openclipatar_content(&$a) {
 		
 		$returnafter = get_config('openclipatar', 'returnafter');
 		$returnafter_urls = array(
-			0 => $a->get_baseurl() . '/profile/' . ($_REQUEST['profile'] ? $_REQUEST['profile'].'/view' : $chan['channel_address']),
-			1 => $a->get_baseurl() . '/profiles/' . ($_REQUEST['profile'] ? $_REQUEST['profile'] : $a->profile_uid),
-			2 => $a->get_baseurl() . '/profiles'
+			0 => z_root() . '/profile/' . ($_REQUEST['profile'] ? $_REQUEST['profile'].'/view' : $chan['channel_address']),
+			1 => z_root() . '/profiles/' . ($_REQUEST['profile'] ? $_REQUEST['profile'] : App::$profile_uid),
+			2 => z_root() . '/profiles'
 		);
 		
 		goaway($returnafter_urls[$returnafter]);

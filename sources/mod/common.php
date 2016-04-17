@@ -8,7 +8,7 @@ function common_init(&$a) {
 		$channel_id = intval(argv(1));
 	else {
 		notice( t('No channel.') . EOL );
-		$a->error = 404;
+		App::$error = 404;
 		return;
 	}
 
@@ -25,27 +25,27 @@ function common_content(&$a) {
 
 	$o = '';
 
-	if(! $a->profile['profile_uid'])
+	if(! App::$profile['profile_uid'])
 		return;
 
 	$observer_hash = get_observer_hash();
 
 
-	if(! perm_is_allowed($a->profile['profile_uid'],$observer_hash,'view_contacts')) {
+	if(! perm_is_allowed(App::$profile['profile_uid'],$observer_hash,'view_contacts')) {
 		notice( t('Permission denied.') . EOL);
 		return;
 	}
 
 	$o .= '<h2>' . t('Common connections') . '</h2>';
 
-	$t = count_common_friends($a->profile['profile_uid'],$observer_hash);
+	$t = count_common_friends(App::$profile['profile_uid'],$observer_hash);
 
 	if(! $t) {
 		notice( t('No connections in common.') . EOL);
 		return $o;
 	}
 
-	$r = common_friends($a->profile['profile_uid'],$observer_hash);
+	$r = common_friends(App::$profile['profile_uid'],$observer_hash);
 
 	if($r) {
 

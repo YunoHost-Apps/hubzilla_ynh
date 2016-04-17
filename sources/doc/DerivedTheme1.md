@@ -38,7 +38,7 @@ Inside it, put the following information - edit as needed
 
     function mytheme_init(&$a) {
 
-        $a->theme_info['extends'] = 'redbasic';
+        App::$theme_info['extends'] = 'redbasic';
 
 
     }
@@ -79,7 +79,7 @@ If you want to use the redbasic schemas for your derived theme, you have to do a
 
 Do everything as above, but don't create view/theme/mytheme/php/style.php, but copy instead  view/theme/redbasic/php/style.php to view/theme/mytheme/php/style.php. Modify that file and remove (or comment out) these two lines:
 
-	if(local_channel() && $a->channel && $a->channel['channel_theme'] != 'redbasic')
+	if(local_channel() && App::$channel && App::$channel['channel_theme'] != 'redbasic')
 		set_pconfig(local_channel(), 'redbasic', 'schema', '---');
 	
 Also add this line at the bottom:

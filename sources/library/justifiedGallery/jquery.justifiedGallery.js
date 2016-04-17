@@ -1,5 +1,5 @@
 /*!
- * Justified Gallery - v3.6.0
+ * Justified Gallery - v3.6.1
  * http://miromannino.github.io/Justified-Gallery/
  * Copyright (c) 2015 Miro Mannino
  * Licensed under the MIT license.
@@ -23,6 +23,7 @@
     this.buildingRow = {
       entriesBuff : [],
       width : 0,
+      height : 0,
       aspectRatio : 0
     };
     this.lastAnalyzedIndex = -1;
@@ -97,11 +98,18 @@
    * @returns {String} the suffix to use
    */
   JustifiedGallery.prototype.newSrc = function (imageSrc, imgWidth, imgHeight) {
-    var matchRes = imageSrc.match(this.settings.extension);
-    var ext = (matchRes != null) ? matchRes[0] : '';
-    var newImageSrc = imageSrc.replace(this.settings.extension, '');
-    newImageSrc = this.removeSuffix(newImageSrc, this.getUsedSuffix(newImageSrc));
-    newImageSrc += this.getSuffix(imgWidth, imgHeight) + ext;
+    var newImageSrc;
+    
+    if (this.settings.thumbnailPath) {
+      newImageSrc = this.settings.thumbnailPath(imageSrc, imgWidth, imgHeight);
+    } else {
+      var matchRes = imageSrc.match(this.settings.extension);
+      var ext = (matchRes !== null) ? matchRes[0] : '';
+      newImageSrc = imageSrc.replace(this.settings.extension, '');
+      newImageSrc = this.removeSuffix(newImageSrc, this.getUsedSuffix(newImageSrc));
+      newImageSrc += this.getSuffix(imgWidth, imgHeight) + ext;
+    }
+
     return newImageSrc;
   };
 
@@ -211,10 +219,10 @@
       var $imgCaption = this.captionFromEntry($entry);
 
       // Create it if it doesn't exists
-      if ($imgCaption == null) {
+      if ($imgCaption === null) {
         var caption = $image.attr('alt');
-        if (typeof caption === 'undefined') caption = $entry.attr('title');
-        if (typeof caption !== 'undefined') { // Create only we found something
+        if (!this.isValidCaption(caption)) caption = $entry.attr('title');
+        if (this.isValidCaption(caption)) { // Create only we found something
           $imgCaption = $('<div class="caption">' + caption + '</div>');
           $entry.append($imgCaption);
           $entry.data('jg.createdCaption', true);
@@ -229,6 +237,16 @@
     } else {
       this.removeCaptionEventsHandlers($entry);
     }
+  };
+
+  /**
+   * Validates the caption
+   *
+   * @param caption The caption that should be validated
+   * @return {boolean} Validation result
+   */
+  JustifiedGallery.prototype.isValidCaption = function (caption) {
+    return (typeof caption !== 'undefined' && caption.length > 0);
   };
 
   /**
@@ -299,7 +317,7 @@
    * Justify the building row, preparing it to
    *
    * @param isLastRow
-   * @returns {*}
+   * @returns a boolean to know if the row has been justified or not
    */
   JustifiedGallery.prototype.prepareBuildingRow = function (isLastRow) {
     var i, $entry, imgAspectRatio, newImgW, newImgH, justify = true;
@@ -322,7 +340,7 @@
     }
 
     // With lastRow = nojustify, justify if is justificable (the images will not become too big)
-    if (isLastRow && !justifiable && this.settings.lastRow === 'nojustify') justify = false;
+    if (isLastRow && !justifiable && this.settings.lastRow !== 'justify' && this.settings.lastRow !== 'hide') justify = false;
 
     for (i = 0; i < this.buildingRow.entriesBuff.length; i++) {
       $entry = this.buildingRow.entriesBuff[i];
@@ -355,7 +373,8 @@
     if (this.settings.fixedHeight && minHeight > this.settings.rowHeight)
       minHeight = this.settings.rowHeight;
 
-    return {minHeight: minHeight, justify: justify};
+    this.buildingRow.height = minHeight;
+    return justify;
   };
 
   /**
@@ -374,33 +393,53 @@
    */
   JustifiedGallery.prototype.flushRow = function (isLastRow) {
     var settings = this.settings;
-    var $entry, minHeight, buildingRowRes, offX = this.border;
+    var $entry, buildingRowRes, offX = this.border, i;
 
     buildingRowRes = this.prepareBuildingRow(isLastRow);
-    minHeight = buildingRowRes.minHeight;
-    if (isLastRow && settings.lastRow === 'hide' && minHeight === -1) {
+    if (isLastRow && settings.lastRow === 'hide' && this.buildingRow.height === -1) {
       this.clearBuildingRow();
       return;
     }
 
-    if (this.maxRowHeight.percentage) {
-      if (this.maxRowHeight.value * settings.rowHeight < minHeight) minHeight = this.maxRowHeight.value * settings.rowHeight;
+    if (this.maxRowHeight.isPercentage) {
+      if (this.maxRowHeight.value * settings.rowHeight < this.buildingRow.height) {
+        this.buildingRow.height = this.maxRowHeight.value * settings.rowHeight;
+      }
     } else {
-      if (this.maxRowHeight.value > 0 && this.maxRowHeight.value < minHeight) minHeight = this.maxRowHeight.value;
+      if (this.maxRowHeight.value > 0 && this.maxRowHeight.value < this.buildingRow.height) {
+        this.buildingRow.height = this.maxRowHeight.value;
+      }
     }
 
-    for (var i = 0; i < this.buildingRow.entriesBuff.length; i++) {
+    //Align last (unjustified) row
+    if (settings.lastRow === 'center' || settings.lastRow === 'right') {
+      var availableWidth = this.galleryWidth - 2 * this.border - (this.buildingRow.entriesBuff.length - 1) * settings.margins;
+
+      for (i = 0; i < this.buildingRow.entriesBuff.length; i++) {
+        $entry = this.buildingRow.entriesBuff[i];
+        availableWidth -= $entry.data('jg.jwidth');
+      }
+
+      if (settings.lastRow === 'center')
+        offX += availableWidth / 2;
+      else if (settings.lastRow === 'right')
+        offX += availableWidth;
+    }
+
+
+    for (i = 0; i < this.buildingRow.entriesBuff.length; i++) {
       $entry = this.buildingRow.entriesBuff[i];
-      this.displayEntry($entry, offX, this.offY, $entry.data('jg.jwidth'), $entry.data('jg.jheight'), minHeight);
+      this.displayEntry($entry, offX, this.offY, $entry.data('jg.jwidth'), $entry.data('jg.jheight'), this.buildingRow.height);
       offX += $entry.data('jg.jwidth') + settings.margins;
     }
 
     //Gallery Height
-    this.$gallery.height(this.offY + minHeight + this.border + (this.isSpinnerActive() ? this.getSpinnerHeight() : 0));
+    this.$gallery.height(this.offY + this.buildingRow.height + 
+        this.border + (this.isSpinnerActive() ? this.getSpinnerHeight() : 0));
 
-    if (!isLastRow || (minHeight <= this.settings.rowHeight && buildingRowRes.justify)) {
+    if (!isLastRow || (this.buildingRow.height <= settings.rowHeight && buildingRowRes)) {
       //Ready for a new row
-      this.offY += minHeight + this.settings.margins;
+      this.offY += this.buildingRow.height + settings.margins;
       this.clearBuildingRow();
       this.$gallery.trigger('jg.rowflush');
     }
@@ -411,8 +450,8 @@
    */
   JustifiedGallery.prototype.checkWidth = function () {
     this.checkWidthIntervalId = setInterval($.proxy(function () {
-      var galleryWidth = parseInt(this.$gallery.width(), 10);
-      if (this.galleryWidth !== galleryWidth) {
+      var galleryWidth = parseFloat(this.$gallery.width());
+      if (Math.abs(galleryWidth - this.galleryWidth) > this.settings.refreshSensitivity) {
         this.galleryWidth = galleryWidth;
         this.rewind();
 
@@ -426,7 +465,7 @@
    * @returns {boolean} a boolean saying if the spinner is active or not
    */
   JustifiedGallery.prototype.isSpinnerActive = function () {
-    return this.spinner.intervalId != null;
+    return this.spinner.intervalId !== null;
   };
 
   /**
@@ -454,7 +493,7 @@
     var $spinnerPoints = spinnerContext.$el.find('span');
     clearInterval(spinnerContext.intervalId);
     this.$gallery.append(spinnerContext.$el);
-    this.$gallery.height(this.offY + this.getSpinnerHeight());
+    this.$gallery.height(this.offY + this.buildingRow.height + this.getSpinnerHeight());
     spinnerContext.intervalId = setInterval(function () {
       if (spinnerContext.phase < $spinnerPoints.length) {
         $spinnerPoints.eq(spinnerContext.phase).fadeTo(spinnerContext.timeSlot, 1);
@@ -472,20 +511,6 @@
     this.lastAnalyzedIndex = -1;
     this.offY = this.border;
     this.clearBuildingRow();
-  };
-
-  /**
-   * Hide the image of the buildingRow to prevent strange effects when the row will be
-   * re-justified again
-   */
-  JustifiedGallery.prototype.hideBuildingRowImages = function () {
-    for (var i = 0; i < this.buildingRow.entriesBuff.length; i++) {
-      if (this.settings.cssAnimation) {
-        this.buildingRow.entriesBuff[i].removeClass('entry-visible');
-      } else {
-        this.buildingRow.entriesBuff[i].stop().fadeTo(0, 0);
-      }
-    }
   };
 
   /**
@@ -645,9 +670,9 @@
       if ($entry.data('jg.createdCaption')) {
         // remove also the caption element (if created by jg)
         $entry.data('jg.createdCaption', undefined);
-        if ($caption != null) $caption.remove();
+        if ($caption !== null) $caption.remove();
       } else {
-        if ($caption != null) $caption.fadeTo(0, 1);
+        if ($caption !== null) $caption.fadeTo(0, 1);
       }
 
     }, this));
@@ -782,8 +807,8 @@
           /* If we have the height and the width, we don't wait that the image is loaded, but we start directly
            * with the justification */
           if (that.settings.waitThumbnailsLoad === false) {
-            var width = parseInt($image.attr('width'), 10);
-            var height = parseInt($image.attr('height'), 10);
+            var width = parseFloat($image.attr('width'));
+            var height = parseFloat($image.attr('height'));
             if (!isNaN(width) && !isNaN(height)) {
               $entry.data('jg.width', width);
               $entry.data('jg.height', height);
@@ -798,9 +823,7 @@
           imagesToLoad = true;
 
           // Spinner start
-          if (!that.isSpinnerActive()) {
-            that.startLoadingSpinnerAnimation();
-          }
+          if (!that.isSpinnerActive()) that.startLoadingSpinnerAnimation();
 
           that.onImageEvent(imageSrc, function (loadImg) { // image loaded
             $entry.data('jg.width', loadImg.width);
@@ -814,8 +837,8 @@
 
         } else {
           $entry.data('jg.loaded', true);
-          $entry.data('jg.width', $entry.width() | $entry.css('width') | 1);
-          $entry.data('jg.height', $entry.height() | $entry.css('height') | 1);
+          $entry.data('jg.width', $entry.width() | parseFloat($entry.css('width')) | 1);
+          $entry.data('jg.height', $entry.height() | parseFloat($entry.css('height')) | 1);
         }
 
       }
@@ -883,15 +906,15 @@
 
     if ($.type(this.settings.maxRowHeight) === 'string') {
       if (this.settings.maxRowHeight.match(/^[0-9]+%$/)) {
-        newMaxRowHeight.value = parseFloat(this.settings.maxRowHeight.match(/^([0-9])+%$/)[1]) / 100;
-        newMaxRowHeight.percentage = false;
+        newMaxRowHeight.value = parseFloat(this.settings.maxRowHeight.match(/^([0-9]+)%$/)[1]) / 100;
+        newMaxRowHeight.isPercentage = false;
       } else {
         newMaxRowHeight.value = parseFloat(this.settings.maxRowHeight);
-        newMaxRowHeight.percentage = true;
+        newMaxRowHeight.isPercentage = true;
       }
     } else if ($.type(this.settings.maxRowHeight) === 'number') {
       newMaxRowHeight.value = this.settings.maxRowHeight;
-      newMaxRowHeight.percentage = false;
+      newMaxRowHeight.isPercentage = false;
     } else {
       throw 'maxRowHeight must be a number or a percentage';
     }
@@ -900,7 +923,7 @@
     if (isNaN(newMaxRowHeight.value)) throw 'invalid number for maxRowHeight';
 
     // check values
-    if (newMaxRowHeight.percentage) {
+    if (newMaxRowHeight.isPercentage) {
       if (newMaxRowHeight.value < 100) newMaxRowHeight.value = 100;
     } else {
       if (newMaxRowHeight.value > 0 && newMaxRowHeight.value < this.settings.rowHeight) {
@@ -922,10 +945,12 @@
     this.checkOrConvertNumber(this.settings, 'margins');
     this.checkOrConvertNumber(this.settings, 'border');
 
-    if (this.settings.lastRow !== 'nojustify' &&
-        this.settings.lastRow !== 'justify' &&
+    if (this.settings.lastRow !== 'justify' &&
+        this.settings.lastRow !== 'nojustify' && this.settings.lastRow !== 'left' &&
+        this.settings.lastRow !== 'center' &&
+        this.settings.lastRow !== 'right' &&
         this.settings.lastRow !== 'hide') {
-      throw 'lastRow must be "nojustify", "justify" or "hide"';
+      throw 'lastRow must be "justify", "nojustify", "left", "center", "right" or "hide"';
     }
 
     this.checkOrConvertNumber(this.settings, 'justifyThreshold');
@@ -954,6 +979,7 @@
     if ($.type(this.settings.fixedHeight) !== 'boolean') throw 'fixedHeight must be a boolean';
     this.checkOrConvertNumber(this.settings, 'imagesAnimationDuration');
     this.checkOrConvertNumber(this.settings, 'refreshTime');
+    this.checkOrConvertNumber(this.settings, 'refreshSensitivity');
     if ($.type(this.settings.randomize) !== 'boolean') throw 'randomize must be a boolean';
     if ($.type(this.settings.selector) !== 'string') throw 'selector must be a string';
 
@@ -961,7 +987,7 @@
       throw 'sort must be false or a comparison function';
     }
 
-    if (this.settings.filter !== false && !$.isFunction(this.settings.sort) &&
+    if (this.settings.filter !== false && !$.isFunction(this.settings.filter) &&
         $.type(this.settings.filter) !== 'string') {
       throw 'filter must be false, a string or a filter function';
     }
@@ -1018,13 +1044,14 @@
       if (typeof controller === 'undefined') {
         // Create controller and assign it to the object data
         if (typeof arg !== 'undefined' && arg !== null && $.type(arg) !== 'object') {
+          if (arg === 'destroy') return; // Just a call to an unexisting object
           throw 'The argument must be an object';
         }
         controller = new JustifiedGallery($gallery, $.extend({}, $.fn.justifiedGallery.defaults, arg));
         $gallery.data('jg.controller', controller);
       } else if (arg === 'norewind') {
         // In this case we don't rewind: we analyze only the latest images (e.g. to complete the last unfinished row
-        controller.hideBuildingRowImages();
+        // ... left to be more readable 
       } else if (arg === 'destroy') {
         controller.destroy();
         return;
@@ -1055,14 +1082,18 @@
           1024: '_b'  // used as else case because it is the last
         }
     */
+    thumbnailPath: undefined, /* If defined, sizeRangeSuffixes is not used, and this function is used to determine the
+    path relative to a specific thumbnail size. The function should accept respectively three arguments: 
+    current path, width and height */
     rowHeight: 120,
-    maxRowHeight: '200%', // negative value = no limits, number to express the value in pixels,
-                          // '[0-9]+%' to express in percentage (e.g. 200% means that the row height
-                          // can't exceed 2 * rowHeight)
+    maxRowHeight: -1, // negative value = no limits, number to express the value in pixels,
+                          // '[0-9]+%' to express in percentage (e.g. 300% means that the row height
+                          // can't exceed 3 * rowHeight)
     margins: 1,
     border: -1, // negative value = same as margins, 0 = disabled, any other value to set the border
 
-    lastRow: 'nojustify', // or can be 'justify' or 'hide'
+    lastRow: 'nojustify', // … which is the same as 'left', or can be 'justify', 'center', 'right' or 'hide'
+    
     justifyThreshold: 0.75, /* if row width / available space > 0.75 it will be always justified
                              * (i.e. lastRow setting is not considered) */
     fixedHeight: false,
@@ -1078,7 +1109,8 @@
     rel: null, // rewrite the rel of each analyzed links
     target: null, // rewrite the target of all links
     extension: /\.[^.\\/]+$/, // regexp to capture the extension of an image
-    refreshTime: 100, // time interval (in ms) to check if the page changes its width
+    refreshTime: 200, // time interval (in ms) to check if the page changes its width
+    refreshSensitivity: 0, // change in width allowed (in px) without re-building the gallery
     randomize: false,
     sort: false, /*
       - false: to do not sort

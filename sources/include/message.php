@@ -38,7 +38,7 @@ function send_message($uid = 0, $recipient='', $body='', $subject='', $replyto='
 			$channel = $r[0];
 	}
 	else {
-		$channel = get_app()->get_channel();
+		$channel = App::get_channel();
 	}
 
 	if(! $channel) {
@@ -75,7 +75,7 @@ function send_message($uid = 0, $recipient='', $body='', $subject='', $replyto='
 		if($recip)
 			$recip_handle = $recip[0]['xchan_addr'];
 
-		$sender_handle = $channel['channel_address'] . '@' . get_app()->get_hostname();
+		$sender_handle = $channel['channel_address'] . '@' . App::get_hostname();
 
 		$handles = $recip_handle . ';' . $sender_handle;
 
@@ -124,7 +124,7 @@ function send_message($uid = 0, $recipient='', $body='', $subject='', $replyto='
 		$dups = false;
 		$hash = random_string();
 
-		$mid = $hash . '@' . get_app()->get_hostname();
+		$mid = $hash . '@' . App::get_hostname();
 
 		$r = q("SELECT id FROM mail WHERE mid = '%s' LIMIT 1",
 			dbesc($mid));
@@ -169,7 +169,7 @@ function send_message($uid = 0, $recipient='', $body='', $subject='', $replyto='
 			$r = attach_by_hash_nodata($hash,$rev);
 			if($r['success']) {
 				$attachments[] = array(
-					'href'     => $a->get_baseurl() . '/attach/' . $r['data']['hash'],
+					'href'     => z_root() . '/attach/' . $r['data']['hash'],
 					'length'   =>  $r['data']['filesize'],
 					'type'     => $r['data']['filetype'],
 					'title'    => urlencode($r['data']['filename']),
@@ -225,7 +225,7 @@ function send_message($uid = 0, $recipient='', $body='', $subject='', $replyto='
 
 	if(count($images)) {
 		foreach($images as $image) {
-			if(! stristr($image,$a->get_baseurl() . '/photo/'))
+			if(! stristr($image,z_root() . '/photo/'))
 				continue;
 			$image_uri = substr($image,strrpos($image,'/') + 1);
 			$image_uri = substr($image_uri,0, strpos($image_uri,'-'));

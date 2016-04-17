@@ -143,7 +143,7 @@ function nsabait_settings(&$a,&$s) {
 
 	/* Add our stylesheet to the page so we can make our settings look nice */
 
-	//$a->page['htmlhead'] .= '<link rel="stylesheet"  type="text/css" href="' . $a->get_baseurl() . '/addon/nsabait/nsabait.css' . '" media="all" />' . "\r\n";
+	//App::$page['htmlhead'] .= '<link rel="stylesheet"  type="text/css" href="' . z_root() . '/addon/nsabait/nsabait.css' . '" media="all" />' . "\r\n";
 
 	/* Get the current state of our config variable */
 

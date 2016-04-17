@@ -64,7 +64,7 @@ Plural
 The tt() function supports plural form. Script extract.php write this in 
 strings.php as an array, one string for every plural form language supports:
 
-$a->string["%d message sent"] = Array(
+App::$string["%d message sent"] = Array(
  0 => "%d message sent",
  1 => "%d messages sent",
 );

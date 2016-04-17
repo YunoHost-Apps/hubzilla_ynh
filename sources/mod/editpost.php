@@ -1,6 +1,6 @@
 <?php /** @file */
 
-require_once('acl_selectors.php');
+require_once('include/acl_selectors.php');
 require_once('include/crypto.php');
 require_once('include/items.php');
 require_once('include/taxonomy.php');
@@ -44,17 +44,19 @@ function editpost_content(&$a) {
 //	if(feature_enabled(local_channel(),'richtext'))
 //		$plaintext = false;
 
-	$channel = $a->get_channel();
+	$channel = App::get_channel();
 
-	$a->page['htmlhead'] .= replace_macros(get_markup_template('jot-header.tpl'), array(
-		'$baseurl' => $a->get_baseurl(),
+	App::$page['htmlhead'] .= replace_macros(get_markup_template('jot-header.tpl'), array(
+		'$baseurl' => z_root(),
 		'$editselect' =>  (($plaintext) ? 'none' : '/(profile-jot-text|prvmail-text)/'),
 		'$pretext' => '',
 		'$ispublic' => '&nbsp;', // t('Visible to <strong>everybody</strong>'),
 		'$geotag' => $geotag,
 		'$nickname' => $channel['channel_address'],
 		'$expireswhen' => t('Expires YYYY-MM-DD HH:MM'),
-	    '$confirmdelete' => t('Delete item?'),
+		'$confirmdelete' => t('Delete item?'),
+		'$editor_autocomplete'=> true,
+		'$bbco_autocomplete'=> 'bbcode'
 	));
 
 	if(intval($itm[0]['item_obscured'])) {
@@ -101,7 +103,7 @@ function editpost_content(&$a) {
 		}
 	}
 
-	$cipher = get_pconfig(get_app()->profile['profile_uid'],'system','default_cipher');
+	$cipher = get_pconfig(App::$profile['profile_uid'],'system','default_cipher');
 	if(! $cipher)
 		$cipher = 'aes256';
 
@@ -132,7 +134,7 @@ function editpost_content(&$a) {
 		'$content' => undo_post_tagging($itm[0]['body']),
 		'$post_id' => $post_id,
 		'$parent' => (($itm[0]['parent'] != $itm[0]['id']) ? $itm[0]['parent'] : ''),
-		'$baseurl' => $a->get_baseurl(),
+		'$baseurl' => z_root(),
 		'$defloc' => $channel['channel_location'],
 		'$visitor' => false,
 		'$public' => t('Public post'),
@@ -148,12 +150,12 @@ function editpost_content(&$a) {
 		'$profile_uid' => $owner_uid,
 		'$preview' => t('Preview'),
 		'$jotplugins' => $jotplugins,
-		'$sourceapp' => t($a->sourcename),
+		'$sourceapp' => t(App::$sourcename),
 		'$catsenabled' => $catsenabled,
 		'$defexpire' => datetime_convert('UTC', date_default_timezone_get(),$itm[0]['expires']),
-		'$feature_expire' => ((feature_enabled(get_app()->profile['profile_uid'],'content_expire') && (! $webpage)) ? true : false),
+		'$feature_expire' => ((feature_enabled(App::$profile['profile_uid'],'content_expire') && (! $webpage)) ? true : false),
 		'$expires' => t('Set expiration date'),
-		'$feature_encrypt' => ((feature_enabled(get_app()->profile['profile_uid'],'content_encrypt') && (! $webpage)) ? true : false),
+		'$feature_encrypt' => ((feature_enabled(App::$profile['profile_uid'],'content_encrypt') && (! $webpage)) ? true : false),
 		'$encrypt' => t('Encrypt text'),
 		'$cipher' => $cipher,
 		'$expiryModalOK' => t('OK'),

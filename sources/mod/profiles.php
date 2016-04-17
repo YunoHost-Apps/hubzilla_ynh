@@ -17,7 +17,7 @@ function profiles_init(&$a) {
 		);
 		if(! count($r)) {
 			notice( t('Profile not found.') . EOL);
-			goaway($a->get_baseurl(true) . '/profiles');
+			goaway(z_root() . '/profiles');
 			return; // NOTREACHED
 		}
 		$profile_guid = $r['profile_guid'];
@@ -44,7 +44,7 @@ function profiles_init(&$a) {
 
 		// profiles_build_sync(local_channel());
 
-		goaway($a->get_baseurl(true) . '/profiles');
+		goaway(z_root() . '/profiles');
 		return; // NOTREACHED
 	}
 
@@ -83,9 +83,9 @@ function profiles_init(&$a) {
 
 		info( t('New profile created.') . EOL);
 		if(count($r3) == 1)
-			goaway($a->get_baseurl(true) . '/profiles/' . $r3[0]['id']);
+			goaway(z_root() . '/profiles/' . $r3[0]['id']);
 		
-		goaway($a->get_baseurl(true) . '/profiles');
+		goaway(z_root() . '/profiles');
 	} 
 
 	if((argc() > 2) && (argv(1) === 'clone')) {
@@ -99,11 +99,11 @@ function profiles_init(&$a) {
 		$name = t('Profile-') . ($num_profiles + 1);
 		$r1 = q("SELECT * FROM `profile` WHERE `uid` = %d AND `id` = %d LIMIT 1",
 			intval(local_channel()),
-			intval($a->argv[2])
+			intval(App::$argv[2])
 		);
 		if(! count($r1)) {
 			notice( t('Profile unavailable to clone.') . EOL);
-			$a->error = 404;
+			App::$error = 404;
 			return;
 		}
 		unset($r1[0]['id']);
@@ -129,9 +129,9 @@ function profiles_init(&$a) {
 		profiles_build_sync(local_channel());
 
 		if(($r3) && (count($r3) == 1))
-			goaway($a->get_baseurl(true) . '/profiles/' . $r3[0]['id']);
+			goaway(z_root() . '/profiles/' . $r3[0]['id']);
 		
-		goaway($a->get_baseurl(true) . '/profiles');
+		goaway(z_root() . '/profiles');
 		
 		return; // NOTREACHED
 	}
@@ -144,7 +144,7 @@ function profiles_init(&$a) {
 		);
 		if(! $r1) {
 			notice( t('Profile unavailable to export.') . EOL);
-			$a->error = 404;
+			App::$error = 404;
 			return;
 		}
 		header('content-type: application/octet_stream');
@@ -168,7 +168,7 @@ function profiles_init(&$a) {
 	// we start loading content
 	if(((argc() > 1) && (intval(argv(1)))) || !feature_enabled(local_channel(),'multi_profiles')) {
 		if(feature_enabled(local_channel(),'multi_profiles'))
-			$id = $a->argv[1];
+			$id = App::$argv[1];
 		else {
 			$x = q("select id from profile where uid = %d and is_default = 1",
 				intval(local_channel())
@@ -182,11 +182,11 @@ function profiles_init(&$a) {
 		);
 		if(! count($r)) {
 			notice( t('Profile not found.') . EOL);
-			$a->error = 404;
+			App::$error = 404;
 			return;
 		}
 
-		$chan = $a->get_channel();
+		$chan = App::get_channel();
 
 		profile_load($a,$chan['channel_address'],$r[0]['id']);
 	}
@@ -234,7 +234,7 @@ function profiles_post(&$a) {
 
 	if((argc() > 1) && (argv(1) !== "new") && intval(argv(1))) {
 		$orig = q("SELECT * FROM `profile` WHERE `id` = %d AND `uid` = %d LIMIT 1",
-			intval($a->argv[1]),
+			intval(App::$argv[1]),
 			intval(local_channel())
 		);
 		if(! count($orig)) {
@@ -563,7 +563,7 @@ function profiles_post(&$a) {
 			build_sync_packet(local_channel(),array('profile' => $r));
 		}
 
-		$channel = $a->get_channel();
+		$channel = App::get_channel();
 
 		if($namechanged && $is_default) {
 			$r = q("UPDATE xchan SET xchan_name = '%s', xchan_name_date = '%s' WHERE xchan_hash = '%s'",
@@ -590,7 +590,7 @@ function profiles_content(&$a) {
 
 	$o = '';
 
-	$channel = $a->get_channel();
+	$channel = App::get_channel();
 
 	if(! local_channel()) {
 		notice( t('Permission denied.') . EOL);
@@ -604,7 +604,7 @@ function profiles_content(&$a) {
 
 	if(((argc() > 1) && (intval(argv(1)))) || !feature_enabled(local_channel(),'multi_profiles')) {
 		if(feature_enabled(local_channel(),'multi_profiles'))
-			$id = $a->argv[1];
+			$id = App::$argv[1];
 		else {
 			$x = q("select id from profile where uid = %d and is_default = 1",
 				intval(local_channel())
@@ -628,8 +628,8 @@ function profiles_content(&$a) {
 //		if(feature_enabled(local_channel(),'richtext'))
 //			$editselect = 'textareas';
 
-		$a->page['htmlhead'] .= replace_macros(get_markup_template('profed_head.tpl'), array(
-			'$baseurl'    => $a->get_baseurl(true),
+		App::$page['htmlhead'] .= replace_macros(get_markup_template('profed_head.tpl'), array(
+			'$baseurl'    => z_root(),
 			'$editselect' => $editselect,
 		));
 
@@ -703,7 +703,7 @@ function profiles_content(&$a) {
 			'$lbl_gender'   => t('Your gender'),
 			'$lbl_marital'  => t('Marital status'),
 			'$lbl_sexual'   => t('Sexual preference'),
-			'$baseurl'      => $a->get_baseurl(true),
+			'$baseurl'      => z_root(),
 			'$profile_id'   => $r[0]['id'],
 			'$profile_name' => array('profile_name', t('Profile name'), $r[0]['profile_name'], t('Required'), '*'),
 			'$is_default'   => $is_default,
@@ -767,7 +767,7 @@ function profiles_content(&$a) {
 					'$profile_name' => $rr['profile_name'],
 					'$visible' => (($rr['is_default']) 
 						? '<strong>' . translate_scope(map_scope($channel['channel_r_profile'])) . '</strong>' 
-						: '<a href="' . $a->get_baseurl(true) . '/profperm/' . $rr['id'] . '" />' . t('Edit visibility') . '</a>')
+						: '<a href="' . z_root() . '/profperm/' . $rr['id'] . '" />' . t('Edit visibility') . '</a>')
 				));
 			}
 

@@ -5,9 +5,9 @@ function string_plural_select_de($n){
 	return ($n != 1);;
 }}
 ;
-$a->strings["\"Superblock\" Settings"] = "\"Superblock\" Einstellungen";
-$a->strings["Comma separated profile URLS to block"] = "Profil-URLs, die geblockt werden sollen (durch Kommas getrennt)";
-$a->strings["Submit"] = "Bestätigen";
-$a->strings["SUPERBLOCK Settings saved."] = "SUPERBLOCK Einstellungen gespeichert";
-$a->strings["Block Completely"] = "Komplett blockieren";
-$a->strings["superblock settings updated"] = "Superblock Einstellungen wurden aktualisiert";
+App::$strings["\"Superblock\" Settings"] = "\"Superblock\" Einstellungen";
+App::$strings["Comma separated profile URLS to block"] = "Profil-URLs, die geblockt werden sollen (durch Kommas getrennt)";
+App::$strings["Submit"] = "Bestätigen";
+App::$strings["SUPERBLOCK Settings saved."] = "SUPERBLOCK Einstellungen gespeichert";
+App::$strings["Block Completely"] = "Komplett blockieren";
+App::$strings["superblock settings updated"] = "Superblock Einstellungen wurden aktualisiert";

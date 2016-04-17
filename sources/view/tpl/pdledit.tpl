@@ -18,4 +18,7 @@
 <input type="submit" name="submit" value="{{$submit}}" />
 
 </form>
+<script>
+	$('textarea').bbco_autocomplete('comanche');
+</script>
 </div>

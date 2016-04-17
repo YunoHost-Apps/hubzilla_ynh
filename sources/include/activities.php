@@ -11,7 +11,7 @@ function profile_activity($changed, $value) {
 
 	require_once('include/items.php');
 
-	$self = $a->get_channel();
+	$self = App::get_channel();
 
 	if(! count($self))
 		return;

@@ -24,7 +24,7 @@ function cover_photo_init(&$a) {
 		return;
 	}
 
-	$channel = $a->get_channel();
+	$channel = App::get_channel();
 	profile_load($a,$channel['channel_address']);
 
 }
@@ -42,7 +42,7 @@ function cover_photo_post(&$a) {
 		return;
 	}
 
-	$channel = $a->get_channel();
+	$channel = App::get_channel();
 	
 	check_form_security_token_redirectOnErr('/cover_photo', 'cover_photo');
         
@@ -155,7 +155,7 @@ function cover_photo_post(&$a) {
 					return;
 				}
 
-				$channel = $a->get_channel();
+				$channel = App::get_channel();
 				send_cover_photo_activity($channel,$base_image,$profile);
 
 
@@ -174,7 +174,7 @@ function cover_photo_post(&$a) {
 
 	require_once('include/attach.php');
 
-	$res = attach_store($a->get_channel(), get_observer_hash(), '', array('album' => t('Cover Photos'), 'hash' => $hash));
+	$res = attach_store(App::get_channel(), get_observer_hash(), '', array('album' => t('Cover Photos'), 'hash' => $hash));
 
 	logger('attach_store: ' . print_r($res,true));
 
@@ -274,7 +274,7 @@ function cover_photo_content(&$a) {
 		return;
 	}
 
-	$channel = $a->get_channel();
+	$channel = App::get_channel();
 
 	$newuser = false;
 
@@ -341,12 +341,12 @@ function cover_photo_content(&$a) {
 	}
 
 
-	if(! x($a->data,'imagecrop')) {
+	if(! x(App::$data,'imagecrop')) {
 
 		$tpl = get_markup_template('cover_photo.tpl');
 
 		$o .= replace_macros($tpl,array(
-			'$user' => $a->channel['channel_address'],
+			'$user' => App::$channel['channel_address'],
 			'$lbl_upfile' => t('Upload File:'),
 			'$lbl_profiles' => t('Select a profile:'),
 			'$title' => t('Upload Cover Photo'),
@@ -354,7 +354,7 @@ function cover_photo_content(&$a) {
 			'$profiles' => $profiles,
 			'$form_security_token' => get_form_security_token("cover_photo"),
 // FIXME - yuk  
-			'$select' => sprintf('%s %s', t('or'), ($newuser) ? '<a href="' . $a->get_baseurl() . '">' . t('skip this step') . '</a>' : '<a href="'. $a->get_baseurl() . '/photos/' . $a->channel['channel_address'] . '">' . t('select a photo from your photo albums') . '</a>')
+			'$select' => sprintf('%s %s', t('or'), ($newuser) ? '<a href="' . z_root() . '">' . t('skip this step') . '</a>' : '<a href="'. z_root() . '/photos/' . App::$channel['channel_address'] . '">' . t('select a photo from your photo albums') . '</a>')
 		));
 		
 		call_hooks('cover_photo_content_end', $o);
@@ -362,14 +362,14 @@ function cover_photo_content(&$a) {
 		return $o;
 	}
 	else {
-		$filename = $a->data['imagecrop'] . '-3';
+		$filename = App::$data['imagecrop'] . '-3';
 		$resolution = 3;
 		$tpl = get_markup_template("cropcover.tpl");
 		$o .= replace_macros($tpl,array(
 			'$filename' => $filename,
 			'$profile' => intval($_REQUEST['profile']),
-			'$resource' => $a->data['imagecrop'] . '-3',
-			'$image_url' => $a->get_baseurl() . '/photo/' . $filename,
+			'$resource' => App::$data['imagecrop'] . '-3',
+			'$image_url' => z_root() . '/photo/' . $filename,
 			'$title' => t('Crop Image'),
 			'$desc' => t('Please adjust the image cropping for optimum viewing.'),
 			'$form_security_token' => get_form_security_token("cover_photo"),
@@ -409,9 +409,9 @@ function cover_photo_crop_ui_head(&$a, $ph, $hash, $smallest){
 	}
 
 
-	$a->data['imagecrop'] = $hash;
-	$a->data['imagecrop_resolution'] = $smallest;
-	$a->page['htmlhead'] .= replace_macros(get_markup_template("crophead.tpl"), array());
+	App::$data['imagecrop'] = $hash;
+	App::$data['imagecrop_resolution'] = $smallest;
+	App::$page['htmlhead'] .= replace_macros(get_markup_template("crophead.tpl"), array());
 	return;
 }
 

@@ -63,7 +63,7 @@ __ Alternative Configuration __
 If you want to provide preconfigured GNU social instances for your user add the
 credentials for them by adding this to .htconfig.php:
 
-$a->config['statusnet']['sites'] = array (
+App::$config['statusnet']['sites'] = array (
    array ('sitename' => 'identi.ca', 'apiurl' => 'https://identi.ca/api/',
      'consumersecret' => 'OAuth Consumer Secret here', 'consumerkey' => 'OAuth
      Consumer Key here'),

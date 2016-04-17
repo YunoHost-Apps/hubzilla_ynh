@@ -285,7 +285,7 @@ id.value = ""
 </script>
 
 EOT;
-$a->page['htmlhead'] .= $x;
+App::$page['htmlhead'] .= $x;
 }
 
 function calc_content($app) {

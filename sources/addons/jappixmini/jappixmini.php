@@ -274,7 +274,7 @@ function jappixmini_settings(&$a, &$s) {
 		$server = get_config("jappixmini", "default_server");
 
 	if (($username == "") and get_config("jappixmini", "default_user"))
-		$username = $a->user["nickname"];
+		$username = App::$user["nickname"];
 
 	$info_text = get_config("jappixmini", "infotext");
 	$info_text = htmlentities($info_text);
@@ -297,9 +297,9 @@ function jappixmini_settings(&$a, &$s) {
 
 	if (!$activate) {
 		// load scripts if not yet activated so that password can be saved
-		$a->page['htmlhead'] .= '<script type="text/javascript" src="' . $a->get_baseurl() . '/addon/jappixmini/jappix/php/get.php?t=js&amp;g=mini.xml"></script>'."\r\n";
-		$a->page['htmlhead'] .= '<script type="text/javascript" src="' . $a->get_baseurl() . '/addon/jappixmini/jappix/php/get.php?t=js&amp;f=presence.js~caps.js~name.js~roster.js"></script>'."\r\n";
-		$a->page['htmlhead'] .= '<script type="text/javascript" src="' . $a->get_baseurl() . '/addon/jappixmini/lib.js"></script>'."\r\n";
+		App::$page['htmlhead'] .= '<script type="text/javascript" src="' . z_root() . '/addon/jappixmini/jappix/php/get.php?t=js&amp;g=mini.xml"></script>'."\r\n";
+		App::$page['htmlhead'] .= '<script type="text/javascript" src="' . z_root() . '/addon/jappixmini/jappix/php/get.php?t=js&amp;f=presence.js~caps.js~name.js~roster.js"></script>'."\r\n";
+		App::$page['htmlhead'] .= '<script type="text/javascript" src="' . z_root() . '/addon/jappixmini/lib.js"></script>'."\r\n";
 	}
 
 	$sc .= '<div class="section-content-info-wrapper form-group">';
@@ -373,7 +373,7 @@ function jappixmini_settings(&$a, &$s) {
 		'$content'	=> $sc
 	));
 
-	$a->page['htmlhead'] .= "<script type=\"text/javascript\">
+	App::$page['htmlhead'] .= "<script type=\"text/javascript\">
 		function jappixmini_set_password() {
 			encrypt = document.getElementById('id_jappixmini-encrypt').checked;
 			password = document.getElementById('jappixmini-password');
@@ -490,10 +490,10 @@ function jappixmini_script(&$a,&$s) {
 	if (!$activate or $dontinsertchat) {
 		return;
 	}
-    $a->page['htmlhead'] .= '<script type="text/javascript" src="' . $a->get_baseurl() . '/addon/jappixmini/jappix/php/get.php?t=js&amp;g=mini.xml"></script>'."\r\n";
-    $a->page['htmlhead'] .= '<script type="text/javascript" src="' . $a->get_baseurl() . '/addon/jappixmini/jappix/php/get.php?t=js&amp;f=presence.js~caps.js~name.js~roster.js"></script>'."\r\n";
+    App::$page['htmlhead'] .= '<script type="text/javascript" src="' . z_root() . '/addon/jappixmini/jappix/php/get.php?t=js&amp;g=mini.xml"></script>'."\r\n";
+    App::$page['htmlhead'] .= '<script type="text/javascript" src="' . z_root() . '/addon/jappixmini/jappix/php/get.php?t=js&amp;f=presence.js~caps.js~name.js~roster.js"></script>'."\r\n";
 
-    $a->page['htmlhead'] .= '<script type="text/javascript" src="' . $a->get_baseurl() . '/addon/jappixmini/lib.js"></script>'."\r\n";
+    App::$page['htmlhead'] .= '<script type="text/javascript" src="' . z_root() . '/addon/jappixmini/lib.js"></script>'."\r\n";
 
     $username = get_pconfig(local_channel(),'jappixmini','username');
     $username = str_replace("'", "\\'", $username);
@@ -514,7 +514,7 @@ function jappixmini_script(&$a,&$s) {
     // set proxy if necessary
     $use_proxy = get_config('jappixmini','bosh_proxy');
     if ($use_proxy) {
-        $proxy = $a->get_baseurl().'/addon/jappixmini/proxy.php';
+        $proxy = z_root().'/addon/jappixmini/proxy.php';
     }
     else {
         $proxy = "";
@@ -555,7 +555,7 @@ function jappixmini_script(&$a,&$s) {
     }
 
     // add javascript to start Jappix Mini
-    $a->page['htmlhead'] .= "<script type=\"text/javascript\">
+    App::$page['htmlhead'] .= "<script type=\"text/javascript\">
         jQuery(document).ready(function() {
            jappixmini_addon_start('$server', '$username', '$proxy', '$bosh', $encrypt, '$password', $nickname, $contacts_json, '$contacts_hash', $autoapprove, $autosubscribe, $groupchats);
         });
@@ -568,10 +568,10 @@ function jappixmini_login(&$a, &$o) {
     // create client secret on login to be able to encrypt jabber passwords
 
     // for setDB and str_sha1, needed by jappixmini_addon_set_client_secret
-    $a->page['htmlhead'] .= '<script type="text/javascript" src="' . $a->get_baseurl() . '/addon/jappixmini/jappix/php/get.php?t=js&amp;f=datastore.js~jsjac.js"></script>'."\r\n";
+    App::$page['htmlhead'] .= '<script type="text/javascript" src="' . z_root() . '/addon/jappixmini/jappix/php/get.php?t=js&amp;f=datastore.js~jsjac.js"></script>'."\r\n";
 
     // for jappixmini_addon_set_client_secret
-    $a->page['htmlhead'] .= '<script type="text/javascript" src="' . $a->get_baseurl() . '/addon/jappixmini/lib.js"></script>'."\r\n";
+    App::$page['htmlhead'] .= '<script type="text/javascript" src="' . z_root() . '/addon/jappixmini/lib.js"></script>'."\r\n";
 
     // save hash of password
     $o = str_replace("<form ", "<form onsubmit=\"jappixmini_addon_set_client_secret(this.elements['id_password'].value);return true;\" ", $o);
@@ -699,6 +699,6 @@ function jappixmini_download_source(&$a,&$b) {
 	// Jappix Mini source download link on About page
 
 	$b .= '<h1>Jappix Mini</h1>';
-	$b .= '<p>This site uses the jappixmini addon, which includes Jappix Mini by the <a href="'.$a->get_baseurl().'/addon/jappixmini/jappix/AUTHORS">Jappix authors</a> and is distributed under the terms of the <a href="'.$a->get_baseurl().'/addon/jappixmini/jappix/COPYING">GNU Affero General Public License</a>.</p>';
-	$b .= '<p>You can download the <a href="'.$a->get_baseurl().'/addon/jappixmini.tgz">source code of the addon</a>. The rest of Hubzilla is distributed under compatible licenses and can be retrieved from <a href="https://github.com/friendica/red">https://github.com/friendica/red</a> and <a href="https://github.com/friendica/red-addons">https://github.com/friendica/red-addons</a></p>';
+	$b .= '<p>This site uses the jappixmini addon, which includes Jappix Mini by the <a href="'.z_root().'/addon/jappixmini/jappix/AUTHORS">Jappix authors</a> and is distributed under the terms of the <a href="'.z_root().'/addon/jappixmini/jappix/COPYING">GNU Affero General Public License</a>.</p>';
+	$b .= '<p>You can download the <a href="'.z_root().'/addon/jappixmini.tgz">source code of the addon</a>. The rest of Hubzilla is distributed under compatible licenses and can be retrieved from <a href="https://github.com/friendica/red">https://github.com/friendica/red</a> and <a href="https://github.com/friendica/red-addons">https://github.com/friendica/red-addons</a></p>';
 }

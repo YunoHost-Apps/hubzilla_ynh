@@ -80,9 +80,9 @@ function tagger_content(&$a) {
 
 
 	$link = xmlify('<link rel="alternate" type="text/html" href="' 
-		. $a->get_baseurl() . '/display/' . $owner['nickname'] . '/' . $item['id'] . '" />' . "\n") ;
+		. z_root() . '/display/' . $owner['nickname'] . '/' . $item['id'] . '" />' . "\n") ;
 
-	$tagid = $a->get_baseurl() . '/search?tag=' . $term;
+	$tagid = z_root() . '/search?tag=' . $term;
 	$objtype = ACTIVITY_OBJ_TAGTERM;
 
 	$obj = json_encode(array(
@@ -98,9 +98,9 @@ function tagger_content(&$a) {
 	// saving here for reference
 	// also check out x22d5 and x2317 and x0d6b and x0db8 and x24d0 and xff20 !!!
 
-	$termlink = html_entity_decode('&#x22d5;') . '[zrl=' . $a->get_baseurl() . '/search?tag=' . urlencode($term) . ']'. $term . '[/zrl]';
+	$termlink = html_entity_decode('&#x22d5;') . '[zrl=' . z_root() . '/search?tag=' . urlencode($term) . ']'. $term . '[/zrl]';
 
-	$channel = $a->get_channel();
+	$channel = App::get_channel();
 
 	$arr = array();
 

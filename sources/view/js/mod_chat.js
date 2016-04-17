@@ -15,4 +15,7 @@ $(document).ready(function() {
 			$('#jot-public').show();
 		}
 	}).trigger('change');
+
+	$('#chatText').bbco_autocomplete('bbcode');
+
 });

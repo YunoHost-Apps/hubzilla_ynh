@@ -121,8 +121,10 @@ ACL.prototype.on_button_show = function(event) {
 	event.stopImmediatePropagation();
 	event.stopPropagation();
 
-	that.set_allow($(this).parent().attr('id'));
-	that.on_submit();
+	if(!$(this).parent().hasClass("grouphide")) {
+		that.set_allow($(this).parent().attr('id'));
+		that.on_submit();
+	}
 
 	return false;
 };
@@ -231,25 +233,29 @@ ACL.prototype.update_view = function() {
 				}
 				$(that.group_uids[id]).each(function(i, v) {
 					if(uclass == "grouphide")
-						$("#c"+v).removeClass("groupshow");
+						// we need attr selection here because the id can include an @ (diaspora/friendica xchans)
+						$('[id="c' + v + '"]').removeClass("groupshow");
 					if(uclass !== "") {
-						var cls = $("#c"+v).attr('class');
+						var cls = $('[id="c' + v + '"]').attr('class');
 						if( cls === undefined)
 							return true;
 						var hiding = cls.indexOf('grouphide');
 						if(hiding == -1)
-							$("#c"+v).addClass(uclass);
+							$('[id="c' + v + '"]').addClass(uclass);
 					}
 				});
 				break;
 			case "c":
 				if (that.allow_cid.indexOf(id)>=0){
-					btshow.removeClass("btn-default").addClass("btn-success");
-					bthide.removeClass("btn-danger").addClass("btn-default");
+					if(!$(this).hasClass("grouphide") ) {
+						btshow.removeClass("btn-default").addClass("btn-success");
+						bthide.removeClass("btn-danger").addClass("btn-default");
+					}
 				}
 				if (that.deny_cid.indexOf(id)>=0){
 					btshow.removeClass("btn-success").addClass("btn-default");
 					bthide.removeClass("btn-default").addClass("btn-danger");
+					$(this).removeClass("groupshow");
 				}
 		}
 	});
@@ -277,7 +283,7 @@ ACL.prototype.populate = function(data) {
 	$(data.items).each(function(){
 		html = "<div class='acl-list-item {4} {7} {5}' title='{6}' id='{2}{3}'>"+that.item_tpl+"</div>";
 		html = html.format(this.photo, this.name, this.type, this.xid, '', this.self, this.link, this.taggable);
-		if (this.uids !== undefined) that.group_uids[this.id] = this.uids;
+		if (this.uids !== undefined) that.group_uids[this.xid] = this.uids;
 		//console.log(html);
 		that.list_content.append(html);
 	});

@@ -18,7 +18,7 @@ function removeaccount_post(&$a) {
 		return;
 
 
-	$account = $a->get_account();
+	$account = App::get_account();
 	$account_id = get_account_id();
 
 	if(! account_verify_password($account['account_email'],$_POST['qxz_password']))
@@ -52,7 +52,7 @@ function removeaccount_content(&$a) {
 	$_SESSION['remove_account_verify'] = $hash;
 	$tpl = get_markup_template('removeaccount.tpl');
 	$o .= replace_macros($tpl, array(
-		'$basedir' => $a->get_baseurl(),
+		'$basedir' => z_root(),
 		'$hash' => $hash,
 		'$title' => t('Remove This Account'),
 		'$desc' => array(t('WARNING: '), t('This account and all its channels will be completely removed from the network. '), t('This action is permanent and can not be undone!')),

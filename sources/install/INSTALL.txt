@@ -220,11 +220,11 @@ You can generally find the location of PHP by executing "which php". If you
 have troubles with this section please contact your hosting provider for 
 assistance. Hubzilla will not work correctly if you cannot perform this step.
 
-You should also be sure that $a->config['system']['php_path'] is set correctly 
+You should also be sure that App::$config['system']['php_path'] is set correctly 
 in your .htconfig.php file, it should look like (changing it to the correct 
 PHP location):
 
-$a->config['system']['php_path'] = '/usr/local/php55/bin/php';
+App::$config['system']['php_path'] = '/usr/local/php55/bin/php';
   
  
 #####################################################################
@@ -353,7 +353,7 @@ are NOT called with -d suhosin.executor.func.blacklist=none.
 
 So the simple solution is to put the correct parameters into .htconfig.php:
  // Location of PHP command line processor
- $a->config['system']['php_path'] = '/usr/bin/php -d suhosin.executor.func.blacklist=none
+ App::$config['system']['php_path'] = '/usr/bin/php -d suhosin.executor.func.blacklist=none
 -d suhosin.executor.eval.blacklist=none';
 
 

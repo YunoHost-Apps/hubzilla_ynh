@@ -1,57 +1,34 @@
-#channels-selected {
-	color: #666666;
-	font-size: 0.8em;
+.make-default-link,
+.make-default-link:hover {
+	color: inherit;
+	text-decoration: none;
 }
 
-#channels-desc {
-	color: #666666;
-	font-size: 1.2em;
-	margin-top: 15px;
+.new-notification {
+	color: #c60032;
+}
+
+.channel-photo-wrapper {
+	display: table-cell;
+	table-layout: fixed;
+	vertical-align: top;
+}
+
+.channel-photo-wrapper img {
+	border-radius: 4px;
+}
+
+.channel-notifications-wrapper {
+	display: table-cell;
+	table-layout: fixed;
+	vertical-align: top;
+	padding-left: 10px;
+}
+
+.selected-channel {
+	color: green;
+}
+
+#all-channels-end {
 	margin-bottom: 20px;
-}
-
-.channels-break {
-	margin-bottom: 15px;
-}
-
-.channel-selection-default {
-	font-size: 0.8em;
-	margin-bottom: 10px;
-}
-
-.channel-selection {
-	width: 12em;
-	height: 16em;
-	float: left;
-	text-align: center;
-}
-
-.channel-selection img {
-	display: block;
-	margin-left: auto;
-	margin-right: auto;
-}
-
-.channel-selection-name-link {
-	font-size: 1.2em;
-	margin-top: 10px;
-}
-
-.channel-selection-name-link .channel-name {
-	padding-top: 10px;
-	word-wrap: break-word;
-	overflow: hidden;
-}
-
-.channels-notifications-wrapper {
-	clear: both;
-	padding-top: 10px;
-}
-
-.selected-channel img {
-	border: 2px solid #ff0000;
-}
-
-.channels-end {
-	clear: both;
 }

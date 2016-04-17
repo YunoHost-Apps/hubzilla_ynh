@@ -10,7 +10,7 @@ function findpeople_widget() {
 	if(get_config('system','invitation_only')) {
 		$x = get_pconfig(local_channel(),'system','invites_remaining');
 		if($x || is_site_admin()) {
-			$a->page['aside'] .= '<div class="side-link" id="side-invite-remain">' 
+			App::$page['aside'] .= '<div class="side-link" id="side-invite-remain">' 
 			. sprintf( tt('%d invitation available','%d invitations available',$x), $x) 
 			. '</div>' . $inv;
 		}
@@ -68,7 +68,7 @@ function categories_widget($baseurl,$selected = '') {
 
 	$a = get_app();
 	
-	if(! feature_enabled($a->profile['profile_uid'],'categories'))
+	if(! feature_enabled(App::$profile['profile_uid'],'categories'))
 		return '';
 
 	$item_normal = item_normal();
@@ -83,9 +83,9 @@ function categories_widget($baseurl,$selected = '') {
 				and item.item_wall = 1
 				$item_normal
                 order by term.term asc",
-		intval($a->profile['profile_uid']),
+		intval(App::$profile['profile_uid']),
 	        intval(TERM_CATEGORY),
-	        dbesc($a->profile['channel_hash'])
+	        dbesc(App::$profile['channel_hash'])
 	);
 	if($r && count($r)) {
 		foreach($r as $rr)
@@ -126,7 +126,7 @@ function common_friends_visitor_widget($profile_uid) {
 
 	return replace_macros(get_markup_template('remote_friends_common.tpl'), array(
 		'$desc' =>  sprintf( tt("%d connection in common", "%d connections in common", $t), $t),
-		'$base' => $a->get_baseurl(),
+		'$base' => z_root(),
 		'$uid' => $profile_uid,
 		'$cid' => $observer,
 		'$linkmore' => (($t > 5) ? 'true' : ''),

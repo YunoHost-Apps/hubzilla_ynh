@@ -14,11 +14,21 @@ function lockview_content(&$a) {
 	if(! $item_id)
 		killme();
 
-	if (!in_array($type, array('item','photo','event', 'menu_item')))
+	if (!in_array($type, array('item','photo','event', 'menu_item', 'chatroom')))
 		killme();
 
-	//we have different naming in in menu_item table
-	$id = (($type == 'menu_item') ? 'mitem_id' : 'id');
+	//we have different naming in in menu_item table and chatroom table
+	switch($type) {
+		case 'menu_item':
+			$id = 'mitem_id';
+			break;
+		case 'chatroom':
+			$id = 'cr_id';
+			break;
+		default:
+			$id = 'id';
+			break;
+	}
 
 	$r = q("SELECT * FROM %s WHERE $id = %d LIMIT 1",
 		dbesc($type),
@@ -30,8 +40,18 @@ function lockview_content(&$a) {
 
 	$item = $r[0];
 
-	//we have different naming in in menu_item table
-	$uid = (($type == 'menu_item') ? $item['mitem_channel_id'] : $item['uid']);
+	//we have different naming in in menu_item table and chatroom table
+	switch($type) {
+		case 'menu_item':
+			$uid = $item['mitem_channel_id'];
+			break;
+		case 'chatroom':
+			$uid = $item['cr_uid'];
+			break;
+		default:
+			$uid = $item['uid'];
+			break;
+	}
 
 	if($uid != local_channel()) {
 		echo '<li>' . t('Remote privacy information not available.') . '</li>';

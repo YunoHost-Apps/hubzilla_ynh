@@ -1,3 +1,3 @@
 <?php
 
-$a->strings["Report Bug"] = "Fehlerreport erstellen";
+App::$strings["Report Bug"] = "Fehlerreport erstellen";
