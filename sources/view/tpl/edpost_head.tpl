@@ -2,7 +2,7 @@
 	<div class="section-title-wrapper">
 		{{if $delete}}
 		<div class="pull-right">
-			<a  href="item/drop/{{$id}}" id="delete-btn" class="btn btn-xs btn-danger" onclick="return confirmDelete();"><i class="icon-trash"></i>&nbsp;{{$delete}}</a>
+			<a  href="item/drop/{{$id}}" id="delete-btn" class="btn btn-xs btn-danger" onclick="return confirmDelete();"><i class="fa fa-trash-o"></i>&nbsp;{{$delete}}</a>
 		</div>
 		{{/if}}
 		<h2>{{$title}}</h2>

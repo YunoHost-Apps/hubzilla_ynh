@@ -103,7 +103,7 @@ function submit_form(e) {
 function getWord(text, caretPos) {
 	var index = text.indexOf(caretPos);
 	var postText = text.substring(caretPos, caretPos+8);
-	if ((postText.indexOf("[/list]") > 0) || postText.indexOf("[/ul]") > 0 || postText.indexOf("[/ol]") > 0) {
+	if ((postText.indexOf('[/list]') > 0) || postText.indexOf('[/ul]') > 0 || postText.indexOf('[/ol]') > 0 || postText.indexOf('[/dl]') > 0) {
 		return postText;
 	}
 }
@@ -143,9 +143,15 @@ function listNewLineAutocomplete(id) {
 	if (word != null) {
 		var textBefore = text.value.substring(0, caretPos);
 		var textAfter  = text.value.substring(caretPos, text.length);
-		$('#' + id).val(textBefore + '\r\n[*] ' + textAfter);
-		setCaretPosition(text, caretPos + 5);
+		var textInsert = (word.indexOf('[/dl]') > 0) ? '\r\n[*=] ' : '\r\n[*] ';
+		var caretPositionDiff = (word.indexOf('[/dl]') > 0) ? 3 : 1;
+
+		$('#' + id).val(textBefore + textInsert + textAfter);
+		setCaretPosition(text, caretPos + (textInsert.length - caretPositionDiff));
 		return true;
+	}
+	else {
+		return false;
 	}
 }
 
@@ -262,7 +268,7 @@ function string2bb(element) {
 	$.fn.bbco_autocomplete = function(type) {
 
 		if(type=='bbcode') {
-			var open_close_elements = ['bold', 'italic', 'underline', 'overline', 'strike', 'superscript', 'subscript', 'quote', 'code', 'spoiler', 'map', 'nobb', 'list', 'ul', 'ol', 'li', 'table', 'tr', 'th', 'td', 'center', 'color', 'font', 'size', 'zrl', 'zmg', 'rpost', 'qr', 'observer'];
+			var open_close_elements = ['bold', 'italic', 'underline', 'overline', 'strike', 'superscript', 'subscript', 'quote', 'code', 'open', 'spoiler', 'map', 'nobb', 'list', 'ul', 'ol', 'dl', 'li', 'table', 'tr', 'th', 'td', 'center', 'color', 'font', 'size', 'zrl', 'zmg', 'rpost', 'qr', 'observer'];
 			var open_elements = ['observer.baseurl', 'observer.address', 'observer.photo', 'observer.name', 'observer.webname', 'observer.url', '*', 'hr',  ];
 
 			var elements = open_close_elements.concat(open_elements);
@@ -294,9 +300,10 @@ function string2bb(element) {
 				element = string2bb(element);
 				if(open_elements.indexOf(element) < 0) {
 					if(element === 'list' || element === 'ol' || element === 'ul') {
-						return ['\[' + element + '\]' + '\n\[*\] ', '\n\[/' + element + '\]'];
-					}
-					else if(element === 'table') {
+						return ['\[' + element + '\]' + '\n\[*\] ',            '\n\[/' + element + '\]'];
+					} else if (element === 'dl') {
+						return ['\[' + element + '\]' + '\n\[*=Item name\] ', '\n\[/' + element + '\]'];
+					} else if(element === 'table') {
 						return ['\[' + element + '\]' + '\n\[tr\]', '\[/tr\]\n\[/' + element + '\]'];
 					}
 					else {
@@ -315,11 +322,12 @@ function string2bb(element) {
 		a.on('textComplete:select', function(e, value, strategy) { value; });
 
 		a.keypress(function(e){
-			e.stopImmediatePropagation();
 			if (e.keyCode == 13) {
 				var x = listNewLineAutocomplete(this.id);
-				if(x)
+				if(x) {
+					e.stopImmediatePropagation();
 					e.preventDefault();
+				}
 			}
 		});
 	};

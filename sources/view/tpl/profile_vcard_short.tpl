@@ -1,7 +1,7 @@
 {{$contact_block}}
 
 	{{if $connect}}
-	<div class="connect-btn-wrapper"><a href="{{$connect_url}}" class="btn btn-block btn-success btn-sm"><i class="icon-plus"></i> {{$connect}}</a></div>
+	<div class="connect-btn-wrapper"><a href="{{$connect_url}}" class="btn btn-block btn-success btn-sm"><i class="fa fa-plus"></i> {{$connect}}</a></div>
 	{{/if}}
 
 
@@ -26,7 +26,7 @@
 	{{if $gender}}<dl class="mf"><dt class="gender-label">{{$gender}}</dt> <dd class="x-gender">{{$profile.gender}}</dd></dl>{{/if}}
 	
 
-	{{if $marital}}<dl class="marital"><dt class="marital-label"><span class="heart"><i class="icon-heart"></i>&nbsp;</span>{{$marital}}</dt><dd class="marital-text">{{$profile.marital}}</dd></dl>{{/if}}
+	{{if $marital}}<dl class="marital"><dt class="marital-label"><span class="heart"><i class="fa fa-heart"></i>&nbsp;</span>{{$marital}}</dt><dd class="marital-text">{{$profile.marital}}</dd></dl>{{/if}}
 
 	{{if $homepage}}<dl class="homepage"><dt class="homepage-label">{{$homepage}}</dt><dd class="homepage-url">{{$profile.homepage}}</dd></dl>{{/if}}
 

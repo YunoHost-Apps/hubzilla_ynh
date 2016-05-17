@@ -2,7 +2,7 @@
 	<div class="section-title-wrapper">
 		{{if $editor}}
 		<div class="pull-right">
-			<button id="webpage-create-btn" class="btn btn-xs btn-success" onclick="openClose('webpage-editor');"><i class="icon-edit"></i>&nbsp;{{$create}}</button>
+			<button id="webpage-create-btn" class="btn btn-xs btn-success" onclick="openClose('webpage-editor');"><i class="fa fa-pencil-square-o"></i>&nbsp;{{$create}}</button>
 		</div>
 		{{/if}}
 		<h2>{{$listtitle}}</h2>
@@ -41,23 +41,23 @@
 				</td>
 				<td class="webpage-list-tool dropdown">
 					{{if $item.lockstate=='lock'}}
-					<i class="icon-lock dropdown-toggle lockview" data-toggle="dropdown" onclick="lockview('item',{{$item.url}});" ></i>
+					<i class="fa fa-lock dropdown-toggle lockview" data-toggle="dropdown" onclick="lockview('item',{{$item.url}});" ></i>
 					<ul id="panel-{{$item.url}}" class="lockview-panel dropdown-menu"></ul>
 					{{/if}}
 				</td>
 				<td class="webpage-list-tool">
 					{{if $edit}}
-					<a href="{{$baseurl}}/{{$item.url}}" title="{{$edit}}"><i class="icon-pencil"></i></a>
+					<a href="{{$baseurl}}/{{$item.url}}" title="{{$edit}}"><i class="fa fa-pencil"></i></a>
 					{{/if}}
 				</td>
 				<td class="webpage-list-tool">
 					{{if $item.bb_element}}
-					<a href="rpost?attachment={{$item.bb_element}}" title="{{$share}}"><i class="icon-share"></i></a>
+					<a href="rpost?attachment={{$item.bb_element}}" title="{{$share}}"><i class="fa fa-share-square-o"></i></a>
 					{{/if}}
 				</td>
 				<td class="webpage-list-tool">
 					{{if $edit}}
-					<a href="#" title="{{$delete}}" onclick="dropItem('item/drop/{{$item.url}}', '#webpage-list-item-{{$item.url}}'); return false;"><i class="icon-trash drop-icons"></i></a>
+					<a href="#" title="{{$delete}}" onclick="dropItem('item/drop/{{$item.url}}', '#webpage-list-item-{{$item.url}}'); return false;"><i class="fa fa-trash-o drop-icons"></i></a>
 					{{/if}}
 				</td>
 				<td class="hidden-xs">

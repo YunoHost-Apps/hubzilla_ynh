@@ -372,11 +372,11 @@ function NavUpdate() {
 			if(! updateCountsOnly) {
 				// start live update
 
-				if($('#live-network').length) { src = 'network'; liveUpdate(); }
-				if($('#live-channel').length) { src = 'channel'; liveUpdate(); }
-				if($('#live-public').length)  { src = 'public'; liveUpdate(); }
-				if($('#live-display').length) { src = 'display'; liveUpdate(); }
-				if($('#live-search').length)  { src = 'search'; liveUpdate(); }
+				if($('#live-network').length)    { src = 'network'; liveUpdate(); }
+				if($('#live-channel').length)    { src = 'channel'; liveUpdate(); }
+				if($('#live-pubstream').length)  { src = 'pubstream'; liveUpdate(); }
+				if($('#live-display').length)    { src = 'display'; liveUpdate(); }
+				if($('#live-search').length)     { src = 'search'; liveUpdate(); }
 
 				if($('#live-photos').length) {
 					if(liking) {
@@ -443,6 +443,32 @@ function NavUpdate() {
 	timer = setTimeout(NavUpdate, updateInterval);
 }
 
+function contextualHelp() {
+	var container = $("#contextual-help-content");
+
+	if(container.hasClass('contextual-help-content-open')) {
+		container.removeClass('contextual-help-content-open');
+		$('main').css('top', '')
+	}
+	else {
+		container.addClass('contextual-help-content-open');
+		var mainTop = container.outerHeight(true);
+		$('main').css('top', mainTop + 'px');
+	}
+}
+
+function contextualHelpFocus(target, openSidePanel) {
+	if (openSidePanel) {
+		$("main").addClass('region_1-on');  // Open the side panel to highlight element
+	}
+	else {
+		$("main").removeClass('region_1-on');
+	}
+	$('html,body').animate({ scrollTop: $(target).offset().top - $('nav').outerHeight(true) - $('#contextual-help-content').outerHeight(true)}, 'slow');
+	for (i = 0; i < 3; i++) {
+		$(target).fadeTo('slow', 0.1).fadeTo('slow', 1.0);
+	}
+}
 
 function updatePageItems(mode, data) {
 
@@ -958,16 +984,16 @@ function dostar(ident) {
 		if(data.result == 1) {
 			$('#starred-' + ident).addClass('starred');
 			$('#starred-' + ident).removeClass('unstarred');
-			$('#starred-' + ident).addClass('icon-star-full');
-			$('#starred-' + ident).removeClass('icon-star-empty');
+			$('#starred-' + ident).addClass('fa-star-full');
+			$('#starred-' + ident).removeClass('fa-star-o');
 			$('#star-' + ident).addClass('hidden');
 			$('#unstar-' + ident).removeClass('hidden');
 		}
 		else {
 			$('#starred-' + ident).addClass('unstarred');
 			$('#starred-' + ident).removeClass('starred');
-			$('#starred-' + ident).addClass('icon-star-empty');
-			$('#starred-' + ident).removeClass('icon-star-full');
+			$('#starred-' + ident).addClass('fa-star-o');
+			$('#starred-' + ident).removeClass('fa-star-full');
 			$('#star-' + ident).removeClass('hidden');
 			$('#unstar-' + ident).addClass('hidden');
 		}
@@ -1153,7 +1179,7 @@ function contactgroupChangeMember(gid, cid) {
 	$('body').css('cursor', 'wait');
 	$.get('contactgroup/' + gid + '/' + cid, function(data) {
 		$('body').css('cursor', 'auto');
-		$('#group-' + gid).toggleClass('icon-check icon-check-empty');
+		$('#group-' + gid).toggleClass('fa-check-square-o fa-square-o');
 	});
 }
 

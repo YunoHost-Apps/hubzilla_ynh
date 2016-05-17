@@ -5,20 +5,32 @@ namespace Zotlabs\Web;
 
 class Router {
 
+	private $modname = '';
+	private $controller = null;
+
 	function __construct(&$a) {
 
 		/**
 		 *
 		 * We have already parsed the server path into App::$argc and App::$argv
 		 *
-		 * App::$argv[0] is our module name. We will load the file mod/{App::$argv[0]}.php
-		 * and use it for handling our URL request.
+		 * App::$argv[0] is our module name. Let's call it 'foo'. We will load the
+		 * Zotlabs/Module/Foo.php (object) or file mod/foo.php (procedural)
+		 * and use it for handling our URL request to 'https://ourgreatwebsite.something/foo' .
 		 * The module file contains a few functions that we call in various circumstances
 		 * and in the following order:
 		 *
-		 * "module"_init
-		 * "module"_post (only called if there are $_POST variables)
-		 * "module"_content - the string return of this function contains our page body
+		 * Object:
+		 *    class Foo extends Zotlabs\Web\Controller {
+		 *        function init() { init function }
+		 *        function post() { post function }
+		 *        function get()  { normal page function }
+		 *    }
+		 *
+		 * Procedual interface:
+		 *        foo_init()
+		 *        foo_post() (only called if there are $_POST variables)
+		 *        foo_content() - the string return of this function contains our page body
 		 *
 		 * Modules which emit other serialisations besides HTML (XML,JSON, etc.) should do
 		 * so within the module init and/or post functions and then invoke killme() to terminate
@@ -26,6 +38,7 @@ class Router {
 		 */
 
 		$module = \App::$module;
+		$modname = "Zotlabs\\Module\\" . ucfirst($module);
 
 		if(strlen($module)) {
 
@@ -38,8 +51,13 @@ class Router {
 
 			if(is_array(\App::$plugins) && in_array($module,\App::$plugins) && file_exists("addon/{$module}/{$module}.php")) {
 				include_once("addon/{$module}/{$module}.php");
-				if(function_exists($module . '_module'))
+				if(class_exists($modname)) {
+					$this->controller = new $modname;
 					\App::$module_loaded = true;
+				}
+				elseif(function_exists($module . '_module')) {
+					\App::$module_loaded = true;
+				}
 			}
 
 			if((strpos($module,'admin') === 0) && (! is_site_admin())) {
@@ -50,33 +68,54 @@ class Router {
 
 			/**
 			 * If the site has a custom module to over-ride the standard module, use it.
-			 * Otherwise, look for the standard program module in the 'mod' directory
+			 * Otherwise, look for the standard program module
 			 */
 
 			if(! (\App::$module_loaded)) {
-				if(file_exists("mod/site/{$module}.php")) {
-					include_once("mod/site/{$module}.php");
-					\App::$module_loaded = true;
+				try {
+					$filename = 'Zotlabs/SiteModule/'. ucfirst($module). '.php';
+					if(file_exists($filename)) {
+						// This won't be picked up by the autoloader, so load it explicitly
+						require_once($filename);
+						$this->controller = new $modname;
+						\App::$module_loaded = true;
+					}
+					else {
+						$filename = 'Zotlabs/Module/'. ucfirst($module). '.php';
+						if(file_exists($filename)) {
+							$this->controller = new $modname;
+							\App::$module_loaded = true;
+						}
+					}
+					if(! \App::$module_loaded)
+						throw new \Exception('Module not found');
 				}
-				elseif(file_exists("mod/{$module}.php")) {
-					include_once("mod/{$module}.php");
-					\App::$module_loaded = true;
+				catch(\Exception $e) {
+					if(file_exists("mod/site/{$module}.php")) {
+						include_once("mod/site/{$module}.php");
+						\App::$module_loaded = true;
+					}
+					elseif(file_exists("mod/{$module}.php")) {
+						include_once("mod/{$module}.php");
+						\App::$module_loaded = true;
+					}
 				}
-				else logger("mod/{$module}.php not found.");
 			}
-
-
+				
 			/**
-			 * This provides a place for plugins to register module handlers which don't otherwise exist on the system.
+			 * This provides a place for plugins to register module handlers which don't otherwise exist 
+			 * on the system, or to completely over-ride an existing module. 
 			 * If the plugin sets 'installed' to true we won't throw a 404 error for the specified module even if
 			 * there is no specific module file or matching plugin name.
 			 * The plugin should catch at least one of the module hooks for this URL. 
 			 */
 
-			$x = array('module' => $module, 'installed' => false);
+			$x = array('module' => $module, 'installed' => \App::$module_loaded, 'controller' => $this->controller);
 			call_hooks('module_loaded', $x);
-			if($x['installed'])
+			if($x['installed']) {
 				\App::$module_loaded = true;
+				$this->controller = $x['controller'];
+			}
 
 			/**
 			 * The URL provided does not resolve to a valid module.
@@ -95,6 +134,8 @@ class Router {
 				if((x($_SERVER, 'QUERY_STRING')) && preg_match('/{[0-9]}/', $_SERVER['QUERY_STRING']) !== 0) {
 					killme();
 				}
+
+				logger("Module {$module} not found.", LOGGER_DEBUG, LOG_WARNING);
 
 				if((x($_SERVER, 'QUERY_STRING')) && ($_SERVER['QUERY_STRING'] === 'q=internal_error.html') && \App::$config['system']['dreamhost_error_hack']) {
 					logger('index.php: dreamhost_error_hack invoked. Original URI =' . $_SERVER['REQUEST_URI']);
@@ -133,17 +174,20 @@ class Router {
 			 * to over-ride them.
 			 */
 
-			if(function_exists(\App::$module . '_init')) {
-				$arr = array('init' => true, 'replace' => false);		
-				call_hooks(\App::$module . '_mod_init', $arr);
-				if(! $arr['replace']) {
+			$arr = array('init' => true, 'replace' => false);		
+			call_hooks(\App::$module . '_mod_init', $arr);
+			if(! $arr['replace']) {
+				if($this->controller && method_exists($this->controller,'init')) {
+					$this->controller->init();
+				}
+				elseif(function_exists(\App::$module . '_init')) {
 					$func = \App::$module . '_init';
 					$func($a);
 				}
 			}
 
 			/**
-			 * Do all theme initialiasion here before calling any additional module functions.
+			 * Do all theme initialisation here before calling any additional module functions.
 			 * The module_init function may have changed the theme.
 			 * Additionally any page with a Comanche template may alter the theme.
 			 * So we'll check for those now.
@@ -179,21 +223,30 @@ class Router {
 				}
 			}
 
-			if(($_SERVER['REQUEST_METHOD'] === 'POST') && (! \App::$error)
-				&& (function_exists(\App::$module . '_post'))
-				&& (! x($_POST, 'auth-params'))) {		
+			if(($_SERVER['REQUEST_METHOD'] === 'POST') && (! \App::$error) && (! x($_POST, 'auth-params'))) {		
 				call_hooks(\App::$module . '_mod_post', $_POST);
-				$func = \App::$module . '_post';
-				$func($a);
+
+				if($this->controller && method_exists($this->controller,'post')) {
+					$this->controller->post();
+				}
+				elseif(function_exists(\App::$module . '_post')) {
+					$func = \App::$module . '_post';
+					$func($a);
+				}
 			}
 
-			if((! \App::$error) && (function_exists(\App::$module . '_content'))) {
+			if(! \App::$error)  {
 				$arr = array('content' => \App::$page['content'], 'replace' => false);
 				call_hooks(\App::$module . '_mod_content', $arr);
 				\App::$page['content'] = $arr['content'];
 				if(! $arr['replace']) {
-					$func = \App::$module . '_content';
-					$arr = array('content' => $func($a));
+					if($this->controller && method_exists($this->controller,'get')) {
+						$arr = array('content' => $this->controller->get());
+					}
+					elseif(function_exists(\App::$module . '_content')) {
+						$func = \App::$module . '_content';
+						$arr = array('content' => $func($a));
+					}
 				}
 				call_hooks(\App::$module . '_mod_aftercontent', $arr);
 				\App::$page['content'] .= $arr['content'];

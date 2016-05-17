@@ -46,11 +46,10 @@ require_once('include/account.php');
 
 
 define ( 'PLATFORM_NAME',           'hubzilla' );
-define ( 'RED_VERSION',             trim(file_get_contents('version.inc')));
-define ( 'STD_VERSION',             '1.4' );
+define ( 'STD_VERSION',             '1.6' );
 define ( 'ZOT_REVISION',            1     );
 
-define ( 'DB_UPDATE_VERSION',       1165  );
+define ( 'DB_UPDATE_VERSION',       1168  );
 
 
 /**
@@ -314,15 +313,14 @@ define ( 'PERMS_A_REPUBLISH',      0x10000);
 define ( 'PERMS_W_LIKE',           0x20000);
 
 // General channel permissions
-
-define ( 'PERMS_PUBLIC'     , 0x0001 );
-define ( 'PERMS_NETWORK'    , 0x0002 );
-define ( 'PERMS_SITE'       , 0x0004 );
-define ( 'PERMS_CONTACTS'   , 0x0008 );
-define ( 'PERMS_SPECIFIC'   , 0x0080 );
-define ( 'PERMS_AUTHED'     , 0x0100 );
-define ( 'PERMS_PENDING'    , 0x0200 );
-
+                                        // 0 = Only you
+define ( 'PERMS_PUBLIC'     , 0x0001 ); // anybody
+define ( 'PERMS_NETWORK'    , 0x0002 ); // anybody in this network
+define ( 'PERMS_SITE'       , 0x0004 ); // anybody on this site
+define ( 'PERMS_CONTACTS'   , 0x0008 ); // any of my connections
+define ( 'PERMS_SPECIFIC'   , 0x0080 ); // only specific connections
+define ( 'PERMS_AUTHED'     , 0x0100 ); // anybody authenticated (could include visitors from other networks)
+define ( 'PERMS_PENDING'    , 0x0200 ); // any connections including those who haven't yet been approved
 
 // Address book flags
 
@@ -725,6 +723,7 @@ class App {
 	public static  $nav_sel;
 	public static $is_mobile = false;
 	public static $is_tablet = false;
+	public static $comanche;
 
 	public static  $category;
 
@@ -860,6 +859,8 @@ class App {
 		if ((array_key_exists('0', self::$argv)) && strlen(self::$argv[0])) {
 			self::$module = str_replace(".", "_", self::$argv[0]);
 			self::$module = str_replace("-", "_", self::$module);
+			if(strpos(self::$module,'_') === 0)
+				self::$module = substr(self::$module,1);
 		} else {
 			self::$argc = 1;
 			self::$argv = array('home');
@@ -903,6 +904,7 @@ class App {
 		spl_autoload_register('ZotlabsAutoloader::loader');
 
 		self::$meta= new Zotlabs\Web\HttpMeta();
+
 	}
 
 	public static function get_baseurl($ssl = false) {
@@ -1541,6 +1543,19 @@ function fix_system_urls($oldurl, $newurl) {
 				intval($c[0]['channel_id'])
 			);
 
+			$m = q("select abook_id, abook_instance from abook where abook_instance like '%s' and abook_channel = %d",
+				dbesc('%' . $oldurl . '%'),
+				intval($c[0]['channel_id'])
+			);
+			if($m) {
+				foreach($m as $mm) {
+					q("update abook set abook_instance = '%s' where abook_id = %d",
+						dbesc(str_replace($oldurl,$newurl,$mm['abook_instance'])),
+						intval($mm['abook_id'])
+					);
+				}
+			}
+
 			proc_run('php', 'include/notifier.php', 'refresh_all', $c[0]['channel_id']);
 		}
 	}
@@ -1618,6 +1633,16 @@ function login($register = false, $form_id = 'main-login', $hiddens=false) {
  * @brief Used to end the current process, after saving session state.
  */
 function killme() {
+
+	// Ensure that closing the database is the last function on the shutdown stack.
+	// If it is closed prematurely sessions might not get saved correctly.
+	// Note the second arg to PHP's session_set_save_handler() seems to order that shutdown 
+	// procedure last despite our best efforts, so we don't use that and implictly
+	// call register_shutdown_function('session_write_close'); within Zotlabs\Web\Session::init()
+	// and then register the database close function here where nothing else can register
+	// after it.
+
+	register_shutdown_function('shutdown');
 	exit;
 }
 
@@ -1627,6 +1652,11 @@ function killme() {
 function goaway($s) {
 	header("Location: $s");
 	killme();
+}
+
+function shutdown() {
+	global $db;
+	$db->close();
 }
 
 /**
@@ -1795,7 +1825,7 @@ function proc_run($cmd){
 
 	$arr = array('args' => $args, 'run_cmd' => true);
 
-	call_hooks("proc_run", $arr);
+	call_hooks('proc_run', $arr);
 	if(! $arr['run_cmd'])
 		return;
 
@@ -2097,7 +2127,10 @@ function get_custom_nav(&$a, $navname) {
  * @param App &$a global application object
  */
 function load_pdl(&$a) {
-	require_once('include/comanche.php');
+
+	App::$comanche = new Zotlabs\Render\Comanche();
+
+	//	require_once('include/comanche.php');
 
 	if (! count(App::$layout)) {
 
@@ -2106,7 +2139,7 @@ function load_pdl(&$a) {
 		$layout = $arr['layout'];
 
 		$n = 'mod_' . App::$module . '.pdl' ;
-		$u = comanche_get_channel_id();
+		$u = App::$comanche->get_channel_id();
 		if($u)
 			$s = get_pconfig($u, 'system', $n);
 		if(! $s)
@@ -2115,7 +2148,7 @@ function load_pdl(&$a) {
 		if((! $s) && (($p = theme_include($n)) != ''))
 			$s = @file_get_contents($p);
 		if($s) {
-			comanche_parser($a, $s);
+			App::$comanche->parse($s);
 			App::$pdl = $s;
 		}
 	}
@@ -2124,10 +2157,10 @@ function load_pdl(&$a) {
 
 
 function exec_pdl(&$a) {
-	require_once('include/comanche.php');
+//	require_once('include/comanche.php');
 
 	if(App::$pdl) {
-		comanche_parser($a, App::$pdl,1);
+		App::$comanche->parse(App::$pdl,1);
 	}
 }
 
@@ -2182,7 +2215,7 @@ function construct_page(&$a) {
 	App::build_pagehead();
 
 	if(App::$page['pdl_content']) {
-		App::$page['content'] = comanche_region($a,App::$page['content']);
+		App::$page['content'] = App::$comanche->region(App::$page['content']);
 	}
 
 	// Let's say we have a comanche declaration '[region=nav][/region][region=content]$nav $content[/region]'.
@@ -2203,7 +2236,7 @@ function construct_page(&$a) {
 		foreach(App::$layout as $k => $v) {
 			if((strpos($k, 'region_') === 0) && strlen($v)) {
 				if(strpos($v, '$region_') !== false) {
-					$v = preg_replace_callback('/\$region_([a-zA-Z0-9]+)/ism', 'comanche_replace_region', $v);
+					$v = preg_replace_callback('/\$region_([a-zA-Z0-9]+)/ism', array(App::$comanche,'replace_region'), $v);
 				}
 
 				// And a couple of convenience macros

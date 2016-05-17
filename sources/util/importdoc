@@ -5,7 +5,7 @@ require_once('include/cli_startup.php');
 
 cli_startup();
 
-require_once('mod/help.php');
+require_once('include/help.php');
 
 function update_docs_dir($s) {
 	$f = basename($s);

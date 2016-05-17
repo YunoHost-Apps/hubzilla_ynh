@@ -1,6 +1,6 @@
 <div class="generic-content-wrapper">
 	<div class="section-title-wrapper">
-		<a title="{{$removeaccount}}" class="btn btn-danger btn-xs pull-right" href="removeaccount"><i class="icon-trash"></i>&nbsp;{{$removeme}}</a>
+		<a title="{{$removeaccount}}" class="btn btn-danger btn-xs pull-right" href="removeaccount"><i class="fa fa-trash-o"></i>&nbsp;{{$removeme}}</a>
 		<h2>{{$title}}</h2>
 		<div class="clear"></div>
 	</div>

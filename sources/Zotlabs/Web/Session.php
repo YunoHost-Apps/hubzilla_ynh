@@ -31,7 +31,7 @@ class Session {
 		$handler = new \Zotlabs\Web\SessionHandler();
 		self::$handler = $handler;
 
-		$x = session_set_save_handler($handler,true);
+		$x = session_set_save_handler($handler,false);
 		if(! $x)
 			logger('Session save handler initialisation failed.',LOGGER_NORMAL,LOG_ERR);
 
@@ -46,6 +46,9 @@ class Session {
 			((isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) == 'on') ? true : false),
 			((isset($arr['httponly']))  ? $arr['httponly'] : true)
 		);
+
+		register_shutdown_function('session_write_close');
+
 	}
 
 	function start() {

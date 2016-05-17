@@ -25,8 +25,8 @@ We need much more than this, but here are areas where developers can help. Pleas
 [li](less advanced) create a way to preview Comanche results on a preview page while editing on another page[/li]
 [li]External post connectors - create standard interface[/li]
 [li]External post connectors, add popular services[/li]
-[li](in progress Habeas Codice) service classes - provide a pluggable subscription payment gateway for premium accounts[/li]
-[li](in progress Habeas Codice) service classes - account overview page showing resources consumed by channel. With special consideration this page can also be accessed at a meta level by the site admin to drill down on problematic accounts/channels.[/li]
+[li]service classes - provide a pluggable subscription payment gateway for premium accounts[/li]
+[li]service classes - account overview page showing resources consumed by channel. With special consideration this page can also be accessed at a meta level by the site admin to drill down on problematic accounts/channels.[/li]
 [li]implement CalDAV/CardDAV sync[/li]
 [li]Uploads - integrate #^[url=https://github.com/blueimp/jQuery-File-Upload]https://github.com/blueimp/jQuery-File-Upload[/url][/li]
 [li]API extensions, for Twitter API - search, friending, threading. For Red API, lots of stuff[/li]
@@ -36,7 +36,7 @@ We need much more than this, but here are areas where developers can help. Pleas
 [li]Customisable App collection pages[/li]
 [li]replace the tinymce visual editor and/or make the visual editor pluggable and responsive to different output formats. We probably want library/bbedit for bbcode. This needs a fair bit of work to catch up with our &quot;enhanced bbcode&quot;, but start with images, links, bold and highlight and work from there.[/li]
 [li]Create mobile clients for the top platforms - which involves extending the API so that we can do stuff far beyond the current crop of Twitter/Statusnet clients. Ditto for mobile themes. We can probably use something like the Friendica Android app as a base to start from.[/li]
-[li](in progress Habeas Codice) Implement owned and exchangeable &quot;things&quot;.[/li]
+[li]Implement owned and exchangeable &quot;things&quot;.[/li]
 [li]Family Account creation - using service classes (an account holder can create a certain number of sub-accounts which are all tied to their subscription - if the subscription lapses they all go away).[/li]
 
 

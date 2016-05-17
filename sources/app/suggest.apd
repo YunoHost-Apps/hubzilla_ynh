@@ -1,4 +1,4 @@
 url: $baseurl/suggest
 requires: local_channel
-name: Suggest channels
+name: Suggest Channels
 photo: $baseurl/app/suggest.png

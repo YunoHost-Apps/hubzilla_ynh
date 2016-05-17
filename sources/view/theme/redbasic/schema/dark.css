@@ -360,3 +360,14 @@ pre {
 .table > tbody > tr > td {
 	border-color: #888;
 }
+
+.help-content {
+	border-bottom: #222 thin solid;
+}
+
+.help-content-open {
+  	-moz-box-shadow: 0px 3px 3px #222;
+  	-webkit-box-shadow: 0px 3px 3px #222;
+  	box-shadow: 0px 3px 3px #222;
+}
+

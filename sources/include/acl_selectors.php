@@ -6,6 +6,9 @@
 /**
  * @package acl_selectors 
  */
+
+require_once("include/PermissionDescription.php");
+
 function group_select($selname,$selclass,$preselected = false,$size = 4) {
 
 	$a = get_app();
@@ -210,12 +213,38 @@ function fixacl(&$item) {
 	$item = str_replace(array('<','>'),array('',''),$item);
 }
 
-function populate_acl($defaults = null,$show_jotnets = true, $showall = '') {
+/**
+* Builds a modal dialog for editing permissions, using acl_selector.tpl as the template.
+*
+* @param array   $default Optional access control list for the initial state of the dialog.
+* @param boolean $show_jotnets Whether plugins for federated networks should be included in the permissions dialog
+* @param PermissionDescription $emptyACL_description - An optional description for the permission implied by selecting an empty ACL. Preferably an instance of PermissionDescription.
+* @param string  $dialog_description Optional message to include at the top of the dialog. E.g. "Warning: Post permissions cannot be changed once sent".
+* @param string  $context_help Allows the dialog to present a help icon. E.g. "acl_dialog_post"
+* @param boolean $readonly Not implemented yet. When implemented, the dialog will use acl_readonly.tpl instead, so that permissions may be viewed for posts that can no longer have their permissions changed.
+*
+* @return string html modal dialog built from acl_selector.tpl
+*/
+function populate_acl($defaults = null,$show_jotnets = true, $emptyACL_description = '', $dialog_description = '', $context_help = '', $readonly = false) {
 
 	$allow_cid = $allow_gid = $deny_cid = $deny_gid = false;
+	$showall_origin = '';
+	$showall_icon   = 'fa-globe';
 
-	if(! $showall)
-		$showall = t('Visible to your default audience');
+
+	if(! $emptyACL_description) {
+		$showall_caption = t('Visible to your default audience');
+
+	} else if (is_a($emptyACL_description, 'PermissionDescription')) {
+		$showall_caption = $emptyACL_description->get_permission_description();
+		$showall_origin  = $emptyACL_description->get_permission_origin_description();
+		$showall_icon    = $emptyACL_description->get_permission_icon();
+
+	} else {
+		// For backwards compatibility we still accept a string... for now!
+		$showall_caption = $emptyACL_description;
+	}
+
 
 	if(is_array($defaults)) {
 		$allow_cid = ((strlen($defaults['allow_cid'])) 
@@ -239,9 +268,14 @@ function populate_acl($defaults = null,$show_jotnets = true, $showall = '') {
 
 	$tpl = get_markup_template("acl_selector.tpl");
 	$o = replace_macros($tpl, array(
-		'$showall'         => $showall,
+		'$showall'         => $showall_caption,
+		'$showallOrigin'   => $showall_origin,
+		'$showallIcon'     => $showall_icon,
+		'$showlimited'     => t("Limit access:"),
+		'$showlimitedDesc' => t('Select "Show" to allow viewing. "Don\'t show" lets you override and limit the scope of "Show".'),
 		'$show'	           => t("Show"),
 		'$hide'	           => t("Don't show"),
+		'$search'          => t("Search"),
 		'$allowcid'        => json_encode($allow_cid),
 		'$allowgid'        => json_encode($allow_gid),
 		'$denycid'         => json_encode($deny_cid),
@@ -249,10 +283,39 @@ function populate_acl($defaults = null,$show_jotnets = true, $showall = '') {
 		'$jnetModalTitle'  => t('Other networks and post services'),
 		'$jotnets'         => $jotnets,
 		'$aclModalTitle'   => t('Permissions'),
-		'$aclModalDismiss' => t('Close')
+		'$aclModalDesc'    => $dialog_description,
+		'$aclModalDismiss' => t('Close'),
+		'$helpUrl'         => (($context_help == '') ? '' : (z_root() . '/help/' . $context_help))
 	));
 
 	return $o;
 
+}
+
+/**
+* Returns a string that's suitable for passing as the $dialog_description argument to a
+* populate_acl() call for wall posts or network posts.
+*
+* This string is needed in 3 different files, and our .po translation system currently
+* cannot be used as a string table (because the value is always the key in english) so
+* I've centralized the value here (making this function name the "key") until we have a
+* better way.
+*
+* @return string Description to present to user in modal permissions dialog
+*/
+function get_post_aclDialogDescription() {
+
+	// I'm trying to make two points in this description text - warn about finality of wall
+	// post permissions, and try to clear up confusion that these permissions set who is
+	// *shown* the post, istead of who is able to see the post, i.e. make it clear that clicking
+	// the "Show"  button on a group does not post it to the feed of people in that group, it
+	// mearly allows those people to view the post if they are viewing/following this channel.
+	$description = t('Post permissions %s cannot be changed %s after a post is shared.</br />These permissions set who is allowed to view the post.');
+
+	// Lets keep the emphasis styling seperate from the translation. It may change.
+	$emphasisOpen  = '<b><a href="' . z_root() . '/help/acl_dialog_post" target="hubzilla-help">';
+	$emphasisClose = '</a></b>';
+
+	return sprintf($description, $emphasisOpen, $emphasisClose);
 }
 

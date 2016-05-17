@@ -50,7 +50,7 @@ class dba_postgres extends dba_driver {
 			$this->error = pg_last_error($this->db);
 
 		if($result === false || $this->error) {
-			//logger('dba_postgres: ' . printable($sql) . ' returned false.' . "\n" . $this->error);
+			//db_logger('dba_postgres: ' . printable($sql) . ' returned false.' . "\n" . $this->error);
 			if(file_exists('dbfail.out'))
 				file_put_contents('dbfail.out', datetime_convert() . "\n" . printable($sql) . ' returned false' . "\n" . $this->error . "\n", FILE_APPEND);
 		}
@@ -67,7 +67,7 @@ class dba_postgres extends dba_driver {
 				$r[] = $x;
 			pg_free_result($result);
 			if($this->debug)
-				logger('dba_postgres: ' . printable(print_r($r,true)));
+				db_logger('dba_postgres: ' . printable(print_r($r,true)));
 		}
 		return $r;
 	}

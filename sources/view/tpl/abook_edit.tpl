@@ -3,18 +3,18 @@
 		{{if $notself}}
 		<div class="dropdown pull-right">
 			<button id="connection-dropdown" class="btn btn-default btn-xs" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-				<i class="icon-caret-down"></i>
+				<i class="fa fa-caret-down"></i>&nbsp;{{$tools_label}}
 			</button>
 			<ul class="dropdown-menu" aria-labelledby="dLabel">
-				<li><a  href="{{$buttons.view.url}}" title="{{$buttons.view.title}}">{{$buttons.view.label}}</a></li>
-				<li><a  href="{{$buttons.recent.url}}" title="{{$buttons.recent.title}}">{{$buttons.recent.label}}</a></li>
+				<li><a  href="{{$tools.view.url}}" title="{{$tools.view.title}}">{{$tools.view.label}}</a></li>
+				<li><a  href="{{$tools.recent.url}}" title="{{$tools.recent.title}}">{{$tools.recent.label}}</a></li>
 				<li class="divider"></li>
-				<li><a  href="#" title="{{$buttons.refresh.title}}" onclick="window.location.href='{{$buttons.refresh.url}}'; return false;">{{$buttons.refresh.label}}</a></li>
-				<li><a  href="#" title="{{$buttons.block.title}}" onclick="window.location.href='{{$buttons.block.url}}'; return false;">{{$buttons.block.label}}</a></li>
-				<li><a  href="#" title="{{$buttons.ignore.title}}" onclick="window.location.href='{{$buttons.ignore.url}}'; return false;">{{$buttons.ignore.label}}</a></li>
-				<li><a  href="#" title="{{$buttons.archive.title}}" onclick="window.location.href='{{$buttons.archive.url}}'; return false;">{{$buttons.archive.label}}</a></li>
-				<li><a  href="#" title="{{$buttons.hide.title}}" onclick="window.location.href='{{$buttons.hide.url}}'; return false;">{{$buttons.hide.label}}</a></li>
-				<li><a  href="#" title="{{$buttons.delete.title}}" onclick="window.location.href='{{$buttons.delete.url}}'; return false;">{{$buttons.delete.label}}</a></li>
+				<li><a  href="#" title="{{$tools.refresh.title}}" onclick="window.location.href='{{$tools.refresh.url}}'; return false;">{{$tools.refresh.label}}</a></li>
+				<li><a  href="#" title="{{$tools.block.title}}" onclick="window.location.href='{{$tools.block.url}}'; return false;">{{$tools.block.label}}</a></li>
+				<li><a  href="#" title="{{$tools.ignore.title}}" onclick="window.location.href='{{$tools.ignore.url}}'; return false;">{{$tools.ignore.label}}</a></li>
+				<li><a  href="#" title="{{$tools.archive.title}}" onclick="window.location.href='{{$tools.archive.url}}'; return false;">{{$tools.archive.label}}</a></li>
+				<li><a  href="#" title="{{$tools.hide.title}}" onclick="window.location.href='{{$tools.hide.url}}'; return false;">{{$tools.hide.label}}</a></li>
+				<li><a  href="#" title="{{$tools.delete.title}}" onclick="window.location.href='{{$tools.delete.url}}'; return false;">{{$tools.delete.label}}</a></li>
 			</ul>
 		</div>
 		{{/if}}
@@ -22,11 +22,11 @@
 	</div>
 	<div class="section-content-wrapper-np">
 		{{if $notself}}
-		{{foreach $buttons as $b}}
-		{{if $b.info}}
+		{{foreach $tools as $tool}}
+		{{if $tool.info}}
 		<div class="section-content-danger-wrapper">
 			<div>
-				{{$b.info}}
+				{{$tool.info}}
 			</div>
 		</div>
 		{{/if}}

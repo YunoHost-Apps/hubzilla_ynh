@@ -25,10 +25,10 @@
 			<div class="pull-right form-group">
 				<div class="btn-group">
 					<button id="dbtn-acl" class="btn btn-default btn-sm" data-toggle="modal" data-target="#aclModal" onclick="return false;">
-						<i id="jot-perms-icon" class="icon-{{$lockstate}}"></i>
+						<i id="jot-perms-icon" class="fa fa-{{$lockstate}}"></i>
 					</button>
 					{{if $submit_more}}
-					<button class="btn btn-primary btn-sm" type="submit" name="submit-more" value="{{$submit_more}}">{{$submit_more}}&nbsp;<i class="icon-caret-right"></i></button>
+					<button class="btn btn-primary btn-sm" type="submit" name="submit-more" value="{{$submit_more}}">{{$submit_more}}&nbsp;<i class="fa fa-caret-right"></i></button>
 					{{/if}}
 					<button class="btn btn-primary btn-sm" type="submit" name="submit" value="{{$submit}}">{{$submit}}</button>
 				</div>

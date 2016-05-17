@@ -3,11 +3,11 @@
 		{{if $channel.default_links}}
 		{{if $channel.default}}
 		<div>
-			<i class="icon-check"></i>&nbsp;{{$msg_default}}
+			<i class="fa fa-check-square-o"></i>&nbsp;{{$msg_default}}
 		</div>
 		{{else}}
 		<a href="manage/{{$channel.channel_id}}/default" class="make-default-link">
-			<i class="icon-check-empty"></i>&nbsp;{{$msg_make_default}}
+			<i class="fa fa-square-o"></i>&nbsp;{{$msg_make_default}}
 		</a>
 		{{/if}}
 		{{/if}}
@@ -17,10 +17,10 @@
 	</div>
 	<h3>
 		{{if $selected == $channel.channel_id}}
-		<i class="selected-channel icon-circle" title="{{$msg_selected}}"></i>
+		<i class="selected-channel fa fa-circle" title="{{$msg_selected}}"></i>
 		{{/if}}
 		{{if $channel.delegate}}
-		<i class="icon-circle-arrow-right" title="{{$delegated_desc}}"></i>
+		<i class="fa fa-arrow-circle-right" title="{{$delegated_desc}}"></i>
 		{{/if}}
 		{{if $selected != $channel.channel_id}}<a href="{{$channel.link}}" title="{{$channel.channel_name}}">{{/if}}
 			{{$channel.channel_name}}
@@ -37,11 +37,11 @@
 	<div class="channel-notifications-wrapper">
 		{{if !$channel.delegate}}
 		<div class="channel-notification">
-			<i class="icon-envelope{{if $channel.mail != 0}} new-notification{{/if}}"></i>
+			<i class="fa fa-envelope{{if $channel.mail != 0}} new-notification{{/if}}"></i>
 			{{if $channel.mail != 0}}<a href="manage/{{$channel.channel_id}}/mail/combined">{{/if}}{{$channel.mail|string_format:$mail_format}}{{if $channel.mail != 0}}</a>{{/if}}
 		</div>
 		<div class="channel-notification">
-			<i class="icon-user{{if $channel.intros != 0}} new-notification{{/if}}"></i>
+			<i class="fa fa-user{{if $channel.intros != 0}} new-notification{{/if}}"></i>
 			{{if $channel.intros != 0}}<a href='manage/{{$channel.channel_id}}/connections/ifpending'>{{/if}}{{$channel.intros|string_format:$intros_format}}{{if $channel.intros != 0}}</a>{{/if}}
 		</div>
 		{{/if}}

@@ -1,7 +1,7 @@
 Creating Webpages
 =================
 
-Red enables users to create static webpages.  To activate this feature, enable the web pages feature in your Additional Features section.
+Hubzilla enables users to create static webpages.  To activate this feature, enable the web pages feature in your Additional Features section.
 
 Once enabled, a new tab will appear on your channel page labelled "Webpages".  Clicking this link will take you to the webpage editor.  Here you can create a post using either BBCode or the rich text editor.
 

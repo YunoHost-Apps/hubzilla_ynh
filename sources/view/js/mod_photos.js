@@ -1,10 +1,6 @@
 /**
  * JavaScript used by mod/photos
  */
-
-// is this variable used anywhere?
-var ispublic = aStr.everybody;
-
 $(document).ready(function() {
 
 	$("#photo-edit-newtag").contact_autocomplete(baseurl + '/acl', 'p', false, function(data) {
@@ -17,11 +13,11 @@ $(document).ready(function() {
 		var selstr;
 		$('#contact_allow option:selected, #contact_deny option:selected, #group_allow option:selected, #group_deny option:selected').each( function() {
 			selstr = $(this).text();
-			$('#jot-perms-icon').removeClass('icon-unlock').addClass('icon-lock');
+			$('#jot-perms-icon').removeClass('fa-unlock').addClass('fa-lock');
 			$('#jot-public').hide();
 		});
 		if(selstr === null) {
-			$('#jot-perms-icon').removeClass('icon-lock').addClass('icon-unlock');
+			$('#jot-perms-icon').removeClass('fa-lock').addClass('fa-unlock');
 			$('#jot-public').show();
 		}
 	}).trigger('change');

@@ -121,7 +121,7 @@ function tour_addfooter($a,&$navHtml) {
 
 	$steps = 0;
 	if(!in_array('tourintro', $seen)) {
-		$content .= "<li data-orientation='centered' data-tourid='tourintro'><p>".t('Welcome to Hubzilla! Would you like to see a tour of the UI?</p> <p>You can pause it at any time and continue where you left off by reloading the page, or navigting to another page.</p><p>You can also advance by pressing the return key')."</p><button href='javascript:void(0);' class='tourbus-next btn btn-primary'>Start tour <span class='icon-forward'/></button><button href='javascript:void()' class='tourbus-stop btn btn-warning'>Show tour later <span class='icon-pause'/></button><button href='javascript:void();' onclick='notour()' class='tourbus-stop btn btn-danger' onclick='notour();'>Never show tour <span class='icon-remove'></span></button></li>";
+		$content .= "<li data-orientation='centered' data-tourid='tourintro'><p>".t('Welcome to Hubzilla! Would you like to see a tour of the UI?</p> <p>You can pause it at any time and continue where you left off by reloading the page, or navigting to another page.</p><p>You can also advance by pressing the return key')."</p><button href='javascript:void(0);' class='tourbus-next btn btn-primary'>Start tour <span class='fa fa-forward'/></button><button href='javascript:void()' class='tourbus-stop btn btn-warning'>Show tour later <span class='fa fa-pause'/></button><button href='javascript:void();' onclick='notour()' class='tourbus-stop btn btn-danger' onclick='notour();'>Never show tour <span class='fa fa-times'></span></button></li>";
 		$steps = $steps + 1;
 	}
 
@@ -132,12 +132,12 @@ function tour_addfooter($a,&$navHtml) {
 		$click='';
 		if(count($leg) > 2)
 			$click="data-click='$leg[2]'";
-		$content .= "<li data-el='$leg[0]' data-tourid='$leg[0]' $click><p>$leg[1]</p><button href='javascript:void(0);' class='tourbus-next btn btn-primary'>Continue <span class='icon-forward'/></button><button href='javascript:void()' class='tourbus-stop btn btn-warning'>Pause tour <span class='icon-pause'/></button><button href='javascript:void();' onclick='notour();' class='tourbus-stop btn btn-danger'>Don't show tour again <span class='icon-remove'></span></button></li>";
+		$content .= "<li data-el='$leg[0]' data-tourid='$leg[0]' $click><p>$leg[1]</p><button href='javascript:void(0);' class='tourbus-next btn btn-primary'>Continue <span class='fa fa-forward'/></button><button href='javascript:void()' class='tourbus-stop btn btn-warning'>Pause tour <span class='fa fa-pause'/></button><button href='javascript:void();' onclick='notour();' class='tourbus-stop btn btn-danger'>Don't show tour again <span class='fa fa-times'></span></button></li>";
 		$steps = $steps + 1;
 	}
 
 	if($steps > 1 && !in_array('tourend',$seen)) {
-		$content .= "<li data-orientation='centered' data-tourid='tourend'><p>That's it for now! Continue to explore, and you'll get more help along the way.</p><button href='javascript:void()' class='tourbus-stop btn btn-primary'>OK <span class='icon-ok'/></button></li>";
+		$content .= "<li data-orientation='centered' data-tourid='tourend'><p>That's it for now! Continue to explore, and you'll get more help along the way.</p><button href='javascript:void()' class='tourbus-stop btn btn-primary'>OK <span class='fa fa-check'/></button></li>";
 
 	}
 

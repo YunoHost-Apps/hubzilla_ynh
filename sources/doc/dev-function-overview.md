@@ -1,5 +1,5 @@
-Red development - some useful basic functions
-=============================================
+$Projectname development - some useful basic functions
+======================================================
 
 
 
@@ -17,11 +17,11 @@ Returns authenticated string hash of Red global identifier, if authenticated via
 
 * get_app()
 
-Returns the global app structure ($a).
+Returns the global app structure ($a). No longer used as App is a static class
 
 * App::get_observer()
 
-(App:: is usually assigned to the global $a), so App::get_observer() or App::get_observer() - returns an xchan structure representing the current viewer if authenticated (locally or remotely).
+returns an xchan structure representing the current viewer if authenticated (locally or remotely).
 
 * get_config($family,$key), get_pconfig($uid,$family,$key)
 

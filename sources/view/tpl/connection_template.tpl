@@ -3,18 +3,18 @@
 		<div class="pull-right">
 			{{if $contact.approve && $contact.ignore}}
 			<form action="connedit/{{$contact.id}}" method="post" >
-			<button type="submit" class="btn btn-success btn-xs" name="pending" value="1" title="{{$contact.approve_hover}}"><i class="icon-ok"></i> {{$contact.approve}}</button>
+			<button type="submit" class="btn btn-success btn-xs" name="pending" value="1" title="{{$contact.approve_hover}}"><i class="fa fa-check"></i> {{$contact.approve}}</button>
 
-			<a href="connedit/{{$contact.id}}/ignore" class="btn btn-warning btn-xs" title="{{$contact.ignore_hover}}"><i class="icon-ban-circle"></i> {{$contact.ignore}}</a>
+			<a href="connedit/{{$contact.id}}/ignore" class="btn btn-warning btn-xs" title="{{$contact.ignore_hover}}"><i class="fa fa-ban"></i> {{$contact.ignore}}</a>
 
 			{{/if}}
-			<a href="#" class="btn btn-danger btn-xs" title="{{$contact.delete_hover}}" onclick="dropItem('{{$contact.deletelink}}', '#contact-entry-wrapper-{{$contact.id}}'); return false;"><i class="icon-trash"></i> {{$contact.delete}}</a>
-			<a href="{{$contact.link}}" class="btn btn-default btn-xs" title="{{$contact.edit_hover}}"><i class="icon-pencil"></i></a>
+			<a href="#" class="btn btn-danger btn-xs" title="{{$contact.delete_hover}}" onclick="dropItem('{{$contact.deletelink}}', '#contact-entry-wrapper-{{$contact.id}}'); return false;"><i class="fa fa-trash-o"></i> {{$contact.delete}}</a>
+			<a href="{{$contact.link}}" class="btn btn-default btn-xs" title="{{$contact.edit_hover}}"><i class="fa fa-pencil"></i></a>
 			{{if $contact.approve}}
 			</form>
 			{{/if}}
 		</div>
-		<h3>{{if $contact.public_forum}}<i class="icon-comments-alt"></i>&nbsp;{{/if}}<a href="{{$contact.url}}" title="{{$contact.img_hover}}" >{{$contact.name}}</a></h3>
+		<h3>{{if $contact.public_forum}}<i class="fa fa-comments-o"></i>&nbsp;{{/if}}<a href="{{$contact.url}}" title="{{$contact.img_hover}}" >{{$contact.name}}</a></h3>
 	</div>
 	<div class="section-content-tools-wrapper">
 		<div class="contact-photo-wrapper" >

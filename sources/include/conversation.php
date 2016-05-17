@@ -658,7 +658,7 @@ function conversation(&$a, $items, $mode, $update, $page_mode = 'traditional', $
 				);
 
 				$star = false;
-				$isstarred = "unstarred icon-star-empty";
+				$isstarred = "unstarred fa-star-o";
 
 				$lock = (($item['item_private'] || strlen($item['allow_cid']) || strlen($item['allow_gid']) || strlen($item['deny_cid']) || strlen($item['deny_gid']))
 					? t('Private Message')
@@ -1115,37 +1115,52 @@ function status_editor($a, $x, $popup = false) {
 	if($c && $c['channel_moved'])
 		return $o;
 
-	$geotag = (($x['allow_location']) ? replace_macros(get_markup_template('jot_geotag.tpl'), array()) : '');
-
 	$plaintext = true;
 
 //	if(feature_enabled(local_channel(),'richtext'))
 //		$plaintext = false;
 
-	$voting = feature_enabled(local_channel(), 'consensus_tools');
-	if(x($x, 'novoting'))
-		$voting = false;
+	$feature_voting = feature_enabled($x['profile_uid'], 'consensus_tools');
+	if(x($x, 'hide_voting'))
+		$feature_voting = false;
 
-	$mimeselect = '';
-	if(array_key_exists('mimetype', $x) && $x['mimetype']) {
-		if($x['mimetype'] != 'text/bbcode')
-			$plaintext = true;
-		if($x['mimetype'] === 'choose') {
-			$mimeselect = mimetype_select($x['profile_uid']);
-		}
-		else
-			$mimeselect = '<input type="hidden" name="mimetype" value="' . $x['mimetype'] . '" />';
-	}
+	$feature_expire = ((feature_enabled($x['profile_uid'], 'content_expire') && (! $webpage)) ? true : false);
+	if(x($x, 'hide_expire'))
+		$feature_expire = false;
 
-	$layoutselect = '';
-	if(array_key_exists('layout', $x) && $x['layout']) {
- 		if($x['layout'] === 'choose') {
-			$layoutselect = layout_select($x['profile_uid']);
-		}
-		else
-			$layoutselect = '<input type="hidden" name="layout_mid" value="' . $x['layout'] . '" />';
-	}
+	$feature_future = ((feature_enabled($x['profile_uid'], 'delayed_posting') && (! $webpage)) ? true : false);
+	if(x($x, 'hide_future'))
+		$feature_future = false;
 
+	$geotag = (($x['allow_location']) ? replace_macros(get_markup_template('jot_geotag.tpl'), array()) : '');
+	$setloc = t('Set your location');
+	$clearloc = ((get_pconfig($x['profile_uid'], 'system', 'use_browser_location')) ? t('Clear browser location') : '');
+	if(x($x, 'hide_location'))
+		$geotag = $setloc = $clearloc = '';
+
+	$mimetype = ((x($x,'mimetype')) ? $x['mimetype'] : 'text/bbcode');
+
+	$mimeselect = ((x($x,'mimeselect')) ? $x['mimeselect'] : false);
+	if($mimeselect)
+		$mimeselect = mimetype_select($x['profile_uid'], $mimetype);
+	else
+		$mimeselect = '<input type="hidden" name="mimetype" value="' . $mimetype . '" />';
+
+	$weblink = (($mimetype === 'text/bbcode') ? t('Insert web link') : false);
+	if(x($x, 'hide_weblink'))
+		$weblink = false;
+
+	$writefiles = (($mimetype === 'text/bbcode') ? perm_is_allowed($x['profile_uid'], get_observer_hash(), 'write_storage') : false);
+	if(x($x, 'hide_attach'))
+		$writefiles = false;
+
+	$layout = ((x($x,'layout')) ? $x['layout'] : '');
+
+	$layoutselect = ((x($x,'layoutselect')) ? $x['layoutselect'] : false);
+	if($layoutselect)
+		$layoutselect = layout_select($x['profile_uid'], $layout);
+	else
+		$layoutselect = '<input type="hidden" name="layout_mid" value="' . $layout . '" />';
 
 	if(array_key_exists('channel_select',$x) && $x['channel_select']) {
 		require_once('include/identity.php');
@@ -1154,26 +1169,19 @@ function status_editor($a, $x, $popup = false) {
 	else
 		$id_select = '';
 
-
 	$webpage = ((x($x,'webpage')) ? $x['webpage'] : '');
 
 	$tpl = get_markup_template('jot-header.tpl');
 
 	App::$page['htmlhead'] .= replace_macros($tpl, array(
-		'$newpost' => 'true',
 		'$baseurl' => z_root(),
 		'$editselect' => (($plaintext) ? 'none' : '/(profile-jot-text|prvmail-text)/'),
 		'$pretext' => ((x($x,'pretext')) ? $x['pretext'] : ''),
 		'$geotag' => $geotag,
 		'$nickname' => $x['nickname'],
-		'$ispublic' => t('Visible to <strong>everybody</strong>'),
 		'$linkurl' => t('Please enter a link URL:'),
-		'$vidurl' => t('Please enter a video link/URL:'),
-		'$audurl' => t('Please enter an audio link/URL:'),
 		'$term' => t('Tag term:'),
-		'$fileas' => t('Save to Folder:'),
 		'$whereareu' => t('Where are you right now?'),
-		'$expireswhen' => t('Expires YYYY-MM-DD HH:MM'),
 		'$editor_autocomplete'=> ((x($x,'editor_autocomplete')) ? $x['editor_autocomplete'] : ''),
 		'$bbco_autocomplete'=> ((x($x,'bbco_autocomplete')) ? $x['bbco_autocomplete'] : ''),
 	));
@@ -1181,11 +1189,9 @@ function status_editor($a, $x, $popup = false) {
 	$tpl = get_markup_template('jot.tpl');
 
 	$jotplugins = '';
-	$jotnets = '';
 
 	$preview = t('Preview');
-//	$preview = ((feature_enabled($x['profile_uid'],'preview')) ? t('Preview') : '');
-	if(x($x, 'nopreview'))
+	if(x($x, 'hide_preview'))
 		$preview = '';
 
 	$defexpire = ((($z = get_pconfig($x['profile_uid'], 'system', 'default_post_expire')) && (! $webpage)) ? $z : '');
@@ -1201,7 +1207,6 @@ function status_editor($a, $x, $popup = false) {
 		$cipher = 'aes256';
 
 	call_hooks('jot_tool', $jotplugins);
-	call_hooks('jot_networks', $jotnets);
 
 	$o .= replace_macros($tpl, array(
 		'$return_path' => ((x($x, 'return_path')) ? $x['return_path'] : App::$query_string),
@@ -1212,48 +1217,31 @@ function status_editor($a, $x, $popup = false) {
 		'$pagetitle' => (x($x,'pagetitle') ? $x['pagetitle'] : ''),
 		'$id_select' => $id_select,
 		'$id_seltext' => t('Post as'),
-		'$writefiles' => perm_is_allowed($x['profile_uid'], get_observer_hash(), 'write_storage'),
+		'$writefiles' => $writefiles,
 		'$bold' => t('Bold'),
 		'$italic' => t('Italic'),
 		'$underline' => t('Underline'),
 		'$quote' => t('Quote'),
 		'$code' => t('Code'),
-		'$upload' => t('Upload photo'),
-		'$shortupload' => t('upload photo'),
 		'$attach' => t('Attach file'),
-		'$shortattach' => t('attach file'),
-		'$weblink' => t('Insert web link'),
-		'$shortweblink' => t('web link'),
-		'$video' => t('Insert video link'),
-		'$shortvideo' => t('video link'),
-		'$audio' => t('Insert audio link'),
-		'$shortaudio' => t('audio link'),
-		'$setloc' => t('Set your location'),
-		'$shortsetloc' => t('set location'),
+		'$weblink' => $weblink,
+		'$setloc' => $setloc,
 		'$voting' => t('Toggle voting'),
-		'$feature_voting' => $voting,
+		'$feature_voting' => $feature_voting,
 		'$consensus' => 0,
-		'$noloc' => ((get_pconfig($x['profile_uid'], 'system', 'use_browser_location')) ? t('Clear browser location') : ''),
-		'$shortnoloc' => t('clear location'),
+		'$clearloc' => $clearloc,
 		'$title' => ((x($x, 'title')) ? htmlspecialchars($x['title'], ENT_COMPAT,'UTF-8') : ''),
 		'$placeholdertitle' => ((x($x, 'placeholdertitle')) ? $x['placeholdertitle'] : t('Title (optional)')),
-		'$hidetitle' => ((x($x, 'hidetitle')) ? $x['hidetitle'] : false),
 		'$catsenabled' => ((feature_enabled($x['profile_uid'], 'categories') && (! $webpage)) ? 'categories' : ''),
-		'$category' => "",
+		'$category' => ((x($x, 'category')) ? $x['category'] : ''),
 		'$placeholdercategory' => t('Categories (optional, comma-separated list)'),
-		'$wait' => t('Please wait'),
 		'$permset' => t('Permission settings'),
-		'$shortpermset' => t('permissions'),
-		'$ptyp' => '',
+		'$ptyp' => ((x($x, 'ptyp')) ? $x['ptyp'] : ''),
 		'$content' => ((x($x,'body')) ? htmlspecialchars($x['body'], ENT_COMPAT,'UTF-8') : ''),
 		'$attachment' => ((x($x, 'attachment')) ? $x['attachment'] : ''),
-		'$post_id' => '',
-		'$baseurl' => z_root(),
+		'$post_id' => ((x($x, 'post_id')) ? $x['post_id'] : ''),
 		'$defloc' => $x['default_location'],
 		'$visitor' => $x['visitor'],
-		'$public' => t('Public post'),
-		'$jotnets' => $jotnets,
-		'$emtitle' => t('Example: bob@example.com, mary@example.com'),
 		'$lockstate' => $x['lockstate'],
 		'$acl' => $x['acl'],
 		'$mimeselect' => $mimeselect,
@@ -1265,10 +1253,10 @@ function status_editor($a, $x, $popup = false) {
 		'$source' => ((x($x, 'source')) ? $x['source'] : ''),
 		'$jotplugins' => $jotplugins,
 		'$defexpire' => $defexpire,
-		'$feature_expire' => ((feature_enabled($x['profile_uid'], 'content_expire') && (! $webpage)) ? true : false),
+		'$feature_expire' => $feature_expire,
 		'$expires' => t('Set expiration date'),
 		'$defpublish' => $defpublish,
-		'$feature_future' => ((feature_enabled($x['profile_uid'], 'delayed_posting') && (! $webpage)) ? true : false),
+		'$feature_future' => $feature_future,
 		'$future_txt' => t('Set publish date'),
 		'$feature_encrypt' => ((feature_enabled($x['profile_uid'], 'content_encrypt') && (! $webpage)) ? true : false),
 		'$encrypt' => t('Encrypt text'),

@@ -79,12 +79,14 @@ function categories_widget($baseurl,$selected = '') {
                 where item.uid = %d
                 and term.uid = item.uid
                 and term.type = %d
+				and term.otype = %d
                 and item.owner_xchan = '%s'
 				and item.item_wall = 1
 				$item_normal
                 order by term.term asc",
 		intval(App::$profile['profile_uid']),
 	        intval(TERM_CATEGORY),
+			intval(TERM_OBJ_POST),
 	        dbesc(App::$profile['channel_hash'])
 	);
 	if($r && count($r)) {

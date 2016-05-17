@@ -200,6 +200,50 @@ header #banner #logo-text {
   font-size: 22px;
 }
 
+/* contextual help */
+.contextual-help-content {
+	display: none;
+
+}
+
+.contextual-help-content-open {
+	display: block;
+	position: fixed;
+	top: 51px;
+	width: 100%;
+	max-height: 50%;
+	background: $comment_item_colour;
+	padding: 20px;
+	border-bottom: #ccc 1px solid;
+	overflow: auto;
+	-moz-box-shadow: 0px 3px 3px rgba(0,0,0,0.2);
+	-webkit-box-shadow: 0px 3px 3px rgba(0,0,0,0.2);
+	box-shadow: 0px 3px 3px rgba(0,0,0,0.2);
+}
+
+.contextual-help-content dd {
+	margin-bottom: 1em;
+}
+
+.contextual-help-tool {
+	padding: 7px;
+	filter: alpha(opacity=20);
+	opacity: .2;
+}
+
+.contextual-help-tool:hover {
+	filter: alpha(opacity=50);
+	opacity: .5;
+	text-decoration: none;
+}
+
+.contextual-help-tool i {
+	color: #000;
+	font-size: 16px;
+}
+
+/* contextual help end */
+
 /* footer */
 
 footer {
@@ -868,32 +912,65 @@ a.rconnect:hover, a.rateme:hover, div.rateme:hover {
 	clear: both;
 }
 
+.modal-header .contextual-help-tool {
+	/* Mostly duplicating ".modal-header .close" and ".close" layout settings from bootstrap */
+	float: right;
+	font-size: 21px;
+	padding: 0;
+	margin-top: -4px;
+	margin-right: 15px;
+	line-height: 1;
+}
+
 #acl-search {
-	margin-top: 20px;
-	padding: 8px;
+	padding: 4px;
 	border: 1px solid #ccc;
 	width: 100%;
 }
 
 #acl-search::-webkit-input-placeholder {
-	font-family: FontAwesome;
+	/* non-fontawesome fonts set a fallback for text parts of the placeholder*/
+	font-family: FontAwesome, sans-serif, arial, freesans;
 }
 
 #acl-search::-moz-placeholder {
-	font-family: FontAwesome;
+	/* non-fontawesome fonts set a fallback for text parts of the placeholder*/
+	font-family: FontAwesome, sans-serif, arial, freesans;
+}
+
+#aclModal .modal-body {
+	padding-top: 10px;
+}
+
+#acl-showlimited-description {
+	font-size: 90%;
+	color: #888;
+	margin-left: 10px;
+	margin-bottom: 4px;
 }
 
 #acl-list {
-	display: block;
 	border: 1px solid #ccc;
-	overflow: auto;
-	clear: both;
-	min-height: 62px;
-	margin-top: 20px;
-	padding: 10px 10px 0px 0px;
 	-webkit-border-radius: $radiuspx ;
 	-moz-border-radius: $radiuspx;
 	border-radius: $radiuspx;
+}
+
+#acl-search-wrapper {
+	padding: 7px 10px;
+	background-color: $item_colour;
+	border-top-left-radius: $radiuspx;
+	border-top-right-radius: $radiuspx;
+	border-bottom: 1px solid #ccc;
+}
+
+#acl-list-content-wrapper {
+	display: block;
+	overflow: auto;
+	clear: both;
+	min-height: 62px;
+	padding: 10px 10px 0px 0px;
+
 }
 
 #jotnets-wrapper, #jotnets-collapse {
@@ -913,6 +990,7 @@ a.rconnect:hover, a.rateme:hover, div.rateme:hover {
 	-webkit-border-radius: $radiuspx ;
 	-moz-border-radius: $radiuspx;
 	border-radius: $radiuspx;
+	background-color: white;
 }
 
 .acl-list-item.grouphide {
@@ -949,6 +1027,34 @@ a.rconnect:hover, a.rateme:hover, div.rateme:hover {
 .acl-button-hide {
 	float: right;
 	margin-left: 5px;
+}
+
+#acl-showlimited-caption,
+#acl-showall-caption {
+	font-size: 115%;
+}
+
+#acl-radiowrapper-showall {
+	margin-top: 20px;
+	margin-bottom: 20px;
+}
+#acl-radiowrapper-showlimited {
+	margin-bottom: 0;
+}
+
+#acl-showall + i {
+	font-size: 140%;
+}
+
+#acl-info-icon,
+#acl-info-icon:active {
+	font-size: 110%;
+	color: $link_colour;
+	text-decoration: none;
+}
+
+#acl-showall-caption {
+	margin-left: 0.35em;
 }
 
 .contact-block-content {
@@ -1108,22 +1214,15 @@ img.mail-conv-sender-photo {
 }
 
 #profile-jot-text {
-	resize: none;
-	border-width: 0px;
 	border-radius: $radiuspx;
 }
 
-#profile-jot-text:focus {
-	resize: vertical;
-}
-
-
 #profile-jot-text::-webkit-input-placeholder {
-	font-size:16px;
+	font-size: 16px;
 }
 
 #profile-jot-text::-moz-placeholder {
-	font-size:16px;
+	font-size: 16px;
 }
 
 #profile-jot-text:focus::-webkit-input-placeholder {
@@ -1346,9 +1445,8 @@ img.mail-conv-sender-photo {
 	-moz-border-radius: $radiuspx;
 }
 
-.profile-thing-list img, .thing-show img, .thing-edit-links a {
-	margin-top: 8px;
-	margin-right: 15px;
+.thing-show img {
+	margin: 10px;
 }
 
 .abook-self {
@@ -1645,9 +1743,7 @@ nav .badge.mail-update:hover {
 
 
 .navbar-inverse .navbar-nav > li > a {
-	font-size: 12px;
 	color: $nav_icon_colour;
-	text-shadow: 0px 0px 0px;
 }
 
 .navbar-inverse .navbar-nav > li > a:hover,
@@ -1681,7 +1777,8 @@ nav .badge.mail-update:hover {
 }
 
 #expand-aside,
-#expand-tabs {
+#expand-tabs,
+#context-help-btn {
 	color: $nav_active_icon_colour;
 	padding: 7px 10px;
 }
@@ -1789,8 +1886,29 @@ nav .badge.mail-update:hover {
 	margin-top:-3px;
 }
 
+dl.bb-dl > dt { 
+	/* overriding the default dl style from bootstrap, as bootstrap's
+	   style of a bold unindented line followed by a plain unindented
+	   line is already acheivable in bbcode without dl */
+	font-weight: normal; 
+} 
+dl.dl-terms-monospace > dt { font-family:     monospace; }
+dl.dl-terms-bold      > dt { font-weight:     bold; }
+dl.dl-terms-italic    > dt { font-style:      italic; }
+dl.dl-terms-underline > dt { text-decoration: underline; }
+dl.dl-terms-large     > dt { font-size:       120%; }
+dl.bb-dl:not(.dl-horizontal) > dd {
+	display: block;
+	margin-left: 2em;
+}
+dl.bb-dl > dd > li {
+	/* adding some indent so bullet-list items will line up better with 
+	   dl descriptions if someone wants to be impure and combine them */
+	margin-left: 1em;
+}
+
 .bootstrap-tagsinput .tag:before {
-	/* Copied from icon-asterisk, is there a better way to do it? */
+	/* Copied from fa-asterisk, is there a better way to do it? */
 	font-family: FontAwesome;
 	font-weight: normal;
 	font-style: normal;
@@ -1815,7 +1933,10 @@ nav .badge.mail-update:hover {
 }
 
 /* Abusing theme-green is less work than makeing a new new one */
-.theme-green .back-bar .selected-bar { background-color: #000000; background-image: none; !important }
+.theme-green .back-bar .selected-bar {
+	background-color: #000000;
+	background-image: none !important;
+}
 
 
 /* Turn checkboxes into switches */
@@ -1890,10 +2011,6 @@ nav .badge.mail-update:hover {
     right: 0px;
     background-color: #337AB7;
 }
-
-/*.channels_ckbx, .pending_ckbx, .users_ckbx {
-	margin-top: -5px !important;
-}*/
 
 .help-searchlist {
 	list-style-type: none;

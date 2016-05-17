@@ -103,8 +103,8 @@ function widget_appselect($arr) {
 		'$system' => t('System'),
 		'$authed' => ((local_channel()) ? true : false),
 		'$personal' => t('Personal'),
-		'$new' => t('Create Personal App'),
-		'$edit' => t('Edit Personal App')
+		'$new' => t('New App'),
+		'$edit' => t('Edit App')
 	));
 }
 
@@ -399,6 +399,55 @@ function widget_categories($arr) {
 	return categories_widget($srchurl, $cat);
 
 }
+
+function widget_appcategories($arr) {
+
+	if(! local_channel())
+		return '';
+
+	$cat = ((x($_REQUEST,'cat')) ? htmlspecialchars($_REQUEST['cat'],ENT_COMPAT,'UTF-8') : '');
+	$srchurl = App::$query_string;
+	$srchurl =  rtrim(preg_replace('/cat\=[^\&].*?(\&|$)/is','',$srchurl),'&');
+	$srchurl = str_replace(array('?f=','&f='),array('',''),$srchurl);
+
+	$terms = array();
+
+	$r = q("select distinct(term.term)
+        from term join app on term.oid = app.id
+        where app_channel = %d
+        and term.uid = app_channel
+        and term.otype = %d
+        order by term.term asc",
+		intval(local_channel()),
+	    intval(TERM_OBJ_APP)
+	);
+	if($r) {
+		foreach($r as $rr)
+			$terms[] = array('name' => $rr['term'], 'selected' => (($selected == $rr['term']) ? 'selected' : ''));
+
+		return replace_macros(get_markup_template('categories_widget.tpl'),array(
+			'$title' => t('Categories'),
+			'$desc' => '',
+			'$sel_all' => (($selected == '') ? 'selected' : ''),
+			'$all' => t('Everything'),
+			'$terms' => $terms,
+			'$base' => $srchurl,
+
+		));
+	}
+
+
+
+}
+
+
+
+function widget_appcloud($arr) {
+	if(! local_channel())
+		return '';
+	return app_tagblock(z_root() . '/apps');
+}
+
 
 function widget_tagcloud_wall($arr) {
 
@@ -1203,12 +1252,12 @@ function widget_rating($arr) {
 
 	if((($remote) || (local_channel())) && (! $self)) {
 		if($remote)
-			$o .= '<a class="btn btn-block btn-primary btn-sm" href="' . $url . '"><i class="icon-pencil"></i> ' . t('Rate Me') . '</a>';
+			$o .= '<a class="btn btn-block btn-primary btn-sm" href="' . $url . '"><i class="fa fa-pencil"></i> ' . t('Rate Me') . '</a>';
 		else
-			$o .= '<div class="btn btn-block btn-primary btn-sm" onclick="doRatings(\'' . $hash . '\'); return false;"><i class="icon-pencil"></i> ' . t('Rate Me') . '</div>';
+			$o .= '<div class="btn btn-block btn-primary btn-sm" onclick="doRatings(\'' . $hash . '\'); return false;"><i class="fa fa-pencil"></i> ' . t('Rate Me') . '</div>';
 	}
 
-	$o .= '<a class="btn btn-block btn-default btn-sm" href="ratings/' . $hash . '"><i class="icon-eye-open"></i> ' . t('View Ratings') . '</a>';
+	$o .= '<a class="btn btn-block btn-default btn-sm" href="ratings/' . $hash . '"><i class="fa fa-eye"></i> ' . t('View Ratings') . '</a>';
 	$o .= '</div>';
 
 	return $o;

@@ -3,10 +3,56 @@
 
 // Red pconfig utility
 
+
+if(!file_exists('include/cli_startup.php')) {
+	echo 'Run pconfig from the top level Hubzilla web directory, as util/pconfig <args>' . PHP_EOL;
+	exit(1);
+}
+
+
+
 require_once('include/cli_startup.php');
 require_once('include/zot.php');
 
 cli_startup();
+
+$helpArgs = getopt('h', array('help'));
+if (count($helpArgs) === 1) {
+	echo <<<'EndOfOutput'
+Gets, sets, or lists personal (per channel) configuration settings.
+
+Usage: util/pconfig
+       util/pconfig <channel_id>
+       util/pconfig <channel_id> <family>
+       util/pconfig <channel_id> <family> <key>
+       util/pconfig <channel_id> <family> <key> <value>
+
+  util/pconfig
+	List all channel IDs
+
+  util/pconfig <channel_id>
+	Displays all of the the channel's config entries
+
+  util/pconfig <channel_id> <family>
+	Displays all of the channel's config entries for the specified family 
+	(system, database, etc)
+
+  util/pconfig <channel_id> <family> <key>
+	Displays single config entry for the specified family and key
+
+  util/pconfig <channel_id> <family> <key> <value>
+	Set config entry for specified family and key to value and display result
+
+Notes:
+  For site-wide configuration settings, use util/config
+
+  Details for configuration options can be found at:
+
+EndOfOutput;
+	echo '    ' . App::get_baseurl() . '/help/hidden_configs' . PHP_EOL . PHP_EOL;
+	return;
+}
+
 
 if($argc > 4) {
 	set_pconfig($argv[1],$argv[2],$argv[3],$argv[4]);
@@ -34,3 +80,11 @@ if($argc == 2) {
 	}
 }
 
+if($argc == 1) {
+	$r = q("select channel_id, channel_name from channel");
+	if($r) {
+		foreach($r as $rr) {
+			echo sprintf('%4u %s', $rr['channel_id'], $rr['channel_name']) . PHP_EOL;
+		}
+	}
+}

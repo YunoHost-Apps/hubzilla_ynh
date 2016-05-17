@@ -275,3 +275,13 @@ pre {
 	background-color: inherit;
 	border: none;
 }
+
+.help-content {
+	border-bottom: #000 thin solid;
+}
+
+.help-content-open {
+  	-moz-box-shadow: none;
+  	-webkit-box-shadow: none;
+  	box-shadow: none;
+}

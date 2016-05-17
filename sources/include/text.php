@@ -122,7 +122,7 @@ function z_input_filter($channel_id,$s,$type = 'text/bbcode') {
 
 
 
-function purify_html($s) {
+function purify_html($s, $allow_position = false) {
 	require_once('library/HTMLPurifier.auto.php');
 	require_once('include/html2bbcode.php');
 
@@ -201,6 +201,35 @@ function purify_html($s) {
 	$def->addElement('aside',   'Block', 'Flow', 'Common');
 	$def->addElement('header',  'Block', 'Flow', 'Common');
 	$def->addElement('footer',  'Block', 'Flow', 'Common');
+
+
+	if($allow_position) {
+		$cssDefinition = $config->getCSSDefinition();
+
+		$cssDefinition->info['position'] = new HTMLPurifier_AttrDef_Enum(array('absolute', 'fixed', 'relative', 'static', 'inherit'), false);
+
+		$cssDefinition->info['left'] = new HTMLPurifier_AttrDef_CSS_Composite(array(
+			new HTMLPurifier_AttrDef_CSS_Length(),
+			new HTMLPurifier_AttrDef_CSS_Percentage()
+		));
+
+		$cssDefinition->info['right'] = new HTMLPurifier_AttrDef_CSS_Composite(array(
+			new HTMLPurifier_AttrDef_CSS_Length(),
+			new HTMLPurifier_AttrDef_CSS_Percentage()
+		));
+
+		$cssDefinition->info['top'] = new HTMLPurifier_AttrDef_CSS_Composite(array(
+			new HTMLPurifier_AttrDef_CSS_Length(),
+			new HTMLPurifier_AttrDef_CSS_Percentage()
+		));
+
+		$cssDefinition->info['bottom'] = new HTMLPurifier_AttrDef_CSS_Composite(array(
+			new HTMLPurifier_AttrDef_CSS_Length(),
+			new HTMLPurifier_AttrDef_CSS_Percentage()
+		));
+
+	}
+
 
 	$purifier = new HTMLPurifier($config);
 
@@ -1532,35 +1561,6 @@ function prepare_body(&$item,$attach = false) {
 
 	$s = sslify($s);
 
-	// Look for spoiler
-	$spoilersearch = '<blockquote class="spoiler">';
-
-	// Remove line breaks before the spoiler
-	while ((strpos($s, "\n".$spoilersearch) !== false))
-		$s = str_replace("\n".$spoilersearch, $spoilersearch, $s);
-	while ((strpos($s, "<br />".$spoilersearch) !== false))
-		$s = str_replace("<br />".$spoilersearch, $spoilersearch, $s);
-
-	while ((strpos($s, $spoilersearch) !== false)) {
-
-		$pos = strpos($s, $spoilersearch);
-		$rnd = random_string(8);
-		$spoilerreplace = '<br /> <span id="spoiler-wrap-'.$rnd.'" style="white-space:nowrap;" class="fakelink" onclick="openClose(\'spoiler-'.$rnd.'\');">'.sprintf(t('Click to open/close')).'</span>'.
-                                '<blockquote class="spoiler" id="spoiler-'.$rnd.'" style="display: none;">';
-		$s = substr($s, 0, $pos).$spoilerreplace.substr($s, $pos+strlen($spoilersearch));
-	}
-
-	// Look for quote with author
-	$authorsearch = '<blockquote class="author">';
-
-	while ((strpos($s, $authorsearch) !== false)) {
-		$pos = strpos($s, $authorsearch);
-		$rnd = random_string(8);
-		$authorreplace = '<br /> <span id="author-wrap-'.$rnd.'" style="white-space:nowrap;" class="fakelink" onclick="openClose(\'author-'.$rnd.'\');">'.sprintf(t('Click to open/close')).'</span>'.
-                                '<blockquote class="author" id="author-'.$rnd.'" style="display: block;">';
-		$s = substr($s, 0, $pos).$authorreplace.substr($s, $pos+strlen($authorsearch));
-	}
-
 	$prep_arr = array(
 		'item' => $item,
 		'photo' => $photo,
@@ -1854,8 +1854,10 @@ function lang_selector() {
 }
 
 
-function return_bytes ($size_str) {
-	switch (substr ($size_str, -1)) {
+function engr_units_to_bytes ($size_str) {
+	if(! $size_str)
+		return $size_str;
+	switch (substr(trim($size_str), -1)) {
 		case 'M': case 'm': return (int)$size_str * 1048576;
 		case 'K': case 'k': return (int)$size_str * 1024;
 		case 'G': case 'g': return (int)$size_str * 1073741824;
@@ -1893,32 +1895,15 @@ function cleardiv() {
 
 
 function bb_translate_video($s) {
-
-	$matches = null;
-	$r = preg_match_all("/\[video\](.*?)\[\/video\]/ism",$s,$matches,PREG_SET_ORDER);
-	if($r) {
-		foreach($matches as $mtch) {
-			if((stristr($mtch[1],'youtube')) || (stristr($mtch[1],'youtu.be')))
-				$s = str_replace($mtch[0],'[youtube]' . $mtch[1] . '[/youtube]',$s);
-			elseif(stristr($mtch[1],'vimeo'))
-				$s = str_replace($mtch[0],'[vimeo]' . $mtch[1] . '[/vimeo]',$s);
-		}
-	}
-	return $s;
+	$arr = array('string' => $s);
+	call_hooks('bb_translate_video',$arr);
+	return $arr['string'];
 }
 
 function html2bb_video($s) {
-
-	$s = preg_replace('#<object[^>]+>(.*?)https?://www.youtube.com/((?:v|cp)/[A-Za-z0-9\-_=]+)(.*?)</object>#ism',
-			'[youtube]$2[/youtube]', $s);
-
-	$s = preg_replace('#<iframe[^>](.*?)https?://www.youtube.com/embed/([A-Za-z0-9\-_=]+)(.*?)</iframe>#ism',
-			'[youtube]$2[/youtube]', $s);
-
-	$s = preg_replace('#<iframe[^>](.*?)https?://player.vimeo.com/video/([0-9]+)(.*?)</iframe>#ism',
-			'[vimeo]$2[/vimeo]', $s);
-
-	return $s;
+	$arr = array('string' => $s);
+	call_hooks('html2bb_video',$arr);
+	return $arr['string'];
 }
 
 /**
@@ -2040,7 +2025,7 @@ function check_webbie($arr) {
 	if(strlen($reservechan))
 		$taken = explode(',', $reservechan);
 	else
-		$taken = array();
+		$taken = array('principals','addressbooks','calendars');
 
 	$str = '';
 	if(count($arr)) {
@@ -2071,6 +2056,20 @@ function check_webbie($arr) {
 
 	return '';
 }
+
+function ids_to_array($arr,$idx = 'id') {
+	$t = array();
+	if($arr) {
+		foreach($arr as $x) {
+			if(! in_array($x[$idx],$t)) {
+				$t[] = $x[$idx];
+			}
+		}
+	}
+	return($t);
+}
+
+
 
 
 function ids_to_querystr($arr,$idx = 'id') {
@@ -2630,41 +2629,41 @@ function linkify_tags($a, &$body, $uid, $diaspora = false) {
 function getIconFromType($type) {
 	$iconMap = array(
 		//Folder
-		t('Collection') => 'icon-folder-close',
-		'multipart/mixed' => 'icon-folder-close', //dirs in attach use this mime type
+		t('Collection') => 'fa-folder',
+		'multipart/mixed' => 'fa-folder', //dirs in attach use this mime type
 		//Common file
-		'application/octet-stream' => 'icon-file-alt',
+		'application/octet-stream' => 'fa-file-o',
 		//Text
-		'text/plain' => 'icon-file-text-alt',
-		'application/msword' => 'icon-file-text-alt',
-		'application/pdf' => 'icon-file-text-alt',
-		'application/vnd.oasis.opendocument.text' => 'icon-file-text-alt',
-		'application/epub+zip' => 'icon-book',
+		'text/plain' => 'fa-file-text-o',
+		'application/msword' => 'fa-file-text-o',
+		'application/pdf' => 'fa-file-text-o',
+		'application/vnd.oasis.opendocument.text' => 'fa-file-text-o',
+		'application/epub+zip' => 'fa-book',
 		//Spreadsheet
-		'application/vnd.oasis.opendocument.spreadsheet' => 'icon-table',
-		'application/vnd.ms-excel' => 'icon-table',
+		'application/vnd.oasis.opendocument.spreadsheet' => 'fa-table',
+		'application/vnd.ms-excel' => 'fa-table',
 		//Image
-		'image/jpeg' => 'icon-picture',
-		'image/png' => 'icon-picture',
-		'image/gif' => 'icon-picture',
-		'image/svg+xml' => 'icon-picture',
+		'image/jpeg' => 'fa-picture-o',
+		'image/png' => 'fa-picture-o',
+		'image/gif' => 'fa-picture-o',
+		'image/svg+xml' => 'fa-picture-o',
 		//Archive
-		'application/zip' => 'icon-archive',
-		'application/x-rar-compressed' => 'icon-archive',
+		'application/zip' => 'fa-archive',
+		'application/x-rar-compressed' => 'fa-archive',
 		//Audio
-		'audio/mpeg' => 'icon-music',
-		'audio/wav' => 'icon-music',
-		'application/ogg' => 'icon-music',
-		'audio/ogg' => 'icon-music',
-		'audio/webm' => 'icon-music',
-		'audio/mp4' => 'icon-music',
+		'audio/mpeg' => 'fa-music',
+		'audio/wav' => 'fa-music',
+		'application/ogg' => 'fa-music',
+		'audio/ogg' => 'fa-music',
+		'audio/webm' => 'fa-music',
+		'audio/mp4' => 'fa-music',
 		//Video
-		'video/quicktime' => 'icon-film',
-		'video/webm' => 'icon-film',
-		'video/mp4' => 'icon-film'
+		'video/quicktime' => 'fa-film',
+		'video/webm' => 'fa-film',
+		'video/mp4' => 'fa-film'
 	);
 
-	$iconFromType = 'icon-file-alt';
+	$iconFromType = 'fa-file-o';
 
 	if (array_key_exists($type, $iconMap)) {
 		$iconFromType = $iconMap[$type];
@@ -2822,3 +2821,42 @@ function expand_acl($s) {
 
 	return $ret;
 }
+
+
+// When editing a webpage - a dropdown is needed to select a page layout
+// On submit, the pdl_select value (which is the mid of an item with item_type = ITEM_TYPE_PDL) is stored in 
+// the webpage's resource_id, with resource_type 'pdl'.
+
+// Then when displaying a webpage, we can see if it has a pdl attached. If not we'll 
+// use the default site/page layout.
+
+// If it has a pdl we'll load it as we know the mid and pass the body through comanche_parser() which will generate the 
+// page layout from the given description
+
+
+function pdl_selector($uid, $current="") {
+	$o = '';
+
+	$sql_extra = item_permissions_sql($uid);
+
+	$r = q("select item_id.*, mid from item_id left join item on iid = item.id where item_id.uid = %d and item_id.uid = item.uid and service = 'PDL' $sql_extra order by sid asc",
+		intval($uid)
+	);
+
+	$arr = array('channel_id' => $uid, 'current' => $current, 'entries' => $r);
+	call_hooks('pdl_selector',$arr);
+
+	$entries = $arr['entries'];
+	$current = $arr['current'];
+
+	$o .= '<select name="pdl_select" id="pdl_select" size="1">';
+	$entries[] = array('title' => t('Default'), 'mid' => '');
+	foreach($entries as $selection) {
+		$selected = (($selection == $current) ? ' selected="selected" ' : '');
+		$o .= "<option value=\"{$selection['mid']}\" $selected >{$selection['sid']}</option>";
+	}
+
+	$o .= '</select>';
+	return $o;
+}
+

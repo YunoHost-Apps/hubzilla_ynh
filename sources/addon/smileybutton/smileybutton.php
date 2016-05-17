@@ -162,7 +162,7 @@ function show_button($a, &$b) {
 	if (! $nobutton and ! $deactivated) {
 		$b .= "<div id=\"profile-smiley-wrapper\"  >\n";
 		//$b .= "\t<img src=\"" . z_root() . "/addon/smileybutton/icon.gif\" onclick=\"toggle_smileybutton(); return false;\" alt=\"smiley\">\n";
-		$b .= "\t<button class=\"btn btn-default btn-sm\" onclick=\"toggle_smileybutton(); return false;\"><i id=\"profile-smiley-button\" class=\"icon-smile jot-icons\" ></i></button>\n";
+		$b .= "\t<button class=\"btn btn-default btn-sm\" onclick=\"toggle_smileybutton(); return false;\"><i id=\"profile-smiley-button\" class=\"fa fa-smile-o jot-icons\" ></i></button>\n";
 		$b .= "\t</div>\n";
 	}
 

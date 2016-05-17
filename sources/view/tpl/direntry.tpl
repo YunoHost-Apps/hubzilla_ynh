@@ -8,13 +8,13 @@
 			<a class="directory-ignore btn btn-warning btn-xs" href="{{$entry.ignlink}}"> {{$entry.ignore_label}}</a>
 			{{/if}}
 			{{if $entry.connect}}
-			<a class="btn btn-success btn-xs" href="{{$entry.connect}}"><i class="icon-plus connect-icon"></i> {{$entry.conn_label}}</a>
+			<a class="btn btn-success btn-xs" href="{{$entry.connect}}"><i class="fa fa-plus connect-icon"></i> {{$entry.conn_label}}</a>
 			{{/if}}
 			{{if $entry.viewrate}}
-				{{if $entry.canrate}}<button class="btn btn-default btn-xs" onclick="doRatings('{{$entry.hash}}'); return false;" ><i class="icon-pencil"></i><span id="edited-{{$entry.hash}}" class="required" id="edited-{{$entry.hash}}" style="display: none;" >&nbsp;*</span></button>{{/if}}
+				{{if $entry.canrate}}<button class="btn btn-default btn-xs" onclick="doRatings('{{$entry.hash}}'); return false;" ><i class="fa fa-pencil"></i><span id="edited-{{$entry.hash}}" class="required" id="edited-{{$entry.hash}}" style="display: none;" >&nbsp;*</span></button>{{/if}}
 			{{/if}}
 		</div>
-		<h3>{{if $entry.public_forum}}<i class="icon-comments-alt" title="{{$entry.forum_label}} @{{$entry.nickname}}+"></i>&nbsp;{{/if}}<a href='{{$entry.profile_link}}' >{{$entry.name}}</a>{{if $entry.online}}&nbsp;<i class="icon-asterisk online-now" title="{{$entry.online}}"></i>{{/if}}</h3>
+		<h3>{{if $entry.public_forum}}<i class="fa fa-comments-o" title="{{$entry.forum_label}} @{{$entry.nickname}}+"></i>&nbsp;{{/if}}<a href='{{$entry.profile_link}}' >{{$entry.name}}</a>{{if $entry.online}}&nbsp;<i class="fa fa-asterisk online-now" title="{{$entry.online}}"></i>{{/if}}</h3>
 	</div>
 	<div class="section-content-tools-wrapper directory-collapse">
 		<div class="contact-photo-wrapper" id="directory-photo-wrapper-{{$entry.hash}}" >

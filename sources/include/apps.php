@@ -8,7 +8,7 @@
 require_once('include/plugin.php');
 require_once('include/identity.php');
 
-function get_system_apps() {
+function get_system_apps($translate = true) {
 
 	$ret = array();
 	if(is_dir('apps'))
@@ -17,7 +17,7 @@ function get_system_apps() {
 		$files = glob('app/*.apd');
 	if($files) {
 		foreach($files as $f) {
-			$x = parse_app_description($f);
+			$x = parse_app_description($f,$translate);
 			if($x) {
 				$ret[] = $x;
 			}
@@ -28,7 +28,7 @@ function get_system_apps() {
 		foreach($files as $f) {
 			$n = basename($f,'.apd');
 			if(plugin_is_installed($n)) {
-				$x = parse_app_description($f);
+				$x = parse_app_description($f,$translate);
 				if($x) {
 					$ret[] = $x;
 				}
@@ -40,11 +40,37 @@ function get_system_apps() {
 
 }
 
+
+function import_system_apps() {
+	if(! local_channel())
+		return;
+
+	// Eventually we want to look at modification dates and update system apps.
+
+	$installed = get_pconfig(local_channel(),'system','apps_installed');
+	if($installed)
+		return;
+	$apps = get_system_apps(false);
+	if($apps) {
+		foreach($apps as $app) {
+			$app['uid'] = local_channel();
+			$app['guid'] = hash('whirlpool',$app['name']);
+			$app['system'] = 1;
+			app_install(local_channel(),$app);			
+		}
+	}					
+	set_pconfig(local_channel(),'system','apps_installed',1);
+}
+
+
+
+
 function app_name_compare($a,$b) {
 	return strcmp($a['name'],$b['name']);
 }
 
-function parse_app_description($f) {
+
+function parse_app_description($f,$translate = true) {
 	$ret = array();
 
 	$baseurl = z_root();
@@ -116,7 +142,8 @@ function parse_app_description($f) {
 		}
 	}
 	if($ret) {
-		translate_system_apps($ret);
+		if($translate)
+			translate_system_apps($ret);
 		return $ret;
 	}
 	return false;
@@ -126,8 +153,13 @@ function parse_app_description($f) {
 function translate_system_apps(&$arr) {
 	$apps = array(
 		'Site Admin' => t('Site Admin'),
-		'Bookmarks' => t('Bookmarks'),
-		'Address Book' => t('Address Book'),
+		'Bug Report' => t('Bug Report'),
+		'View Bookmarks' => t('View Bookmarks'),
+		'My Chatrooms' => t('My Chatrooms'),
+		'Connections' => t('Connections'),
+		'Firefox Share' => t('Firefox Share'),
+		'Remote Diagnostics' => t('Remote Diagnostics'),
+		'Suggest Channels' => t('Suggest Channels'),
 		'Login' => t('Login'),
 		'Channel Manager' => t('Channel Manager'), 
 		'Grid' => t('Grid'), 
@@ -135,7 +167,7 @@ function translate_system_apps(&$arr) {
 		'Files' => t('Files'),
 		'Webpages' => t('Webpages'),
 		'Channel Home' => t('Channel Home'), 
-		'Profile' => t('Profile'),
+		'View Profile' => t('View Profile'),
 		'Photos' => t('Photos'), 
 		'Events' => t('Events'), 
 		'Directory' => t('Directory'), 
@@ -264,6 +296,7 @@ function app_render($papp,$mode = 'view') {
 
 function app_install($uid,$app) {
 	$app['uid'] = $uid;
+
 	if(app_installed($uid,$app))
 		$x = app_update($app);
 	else
@@ -274,9 +307,17 @@ function app_install($uid,$app) {
 			dbesc($x['app_id']),
 			intval($uid)
 		);
-		if($r)
-			build_sync_packet($uid,array('app' => $r[0]));
-
+		if($r) {
+			if(! $r[0]['app_system']) {
+				if($app['categories'] && (! $app['term'])) {
+					$r[0]['term'] = q("select * from term where otype = %d and oid = d",
+						intval(TERM_OBJ_APP),
+						intval($r[0]['id'])
+					);
+					build_sync_packet($uid,array('app' => $r[0]));
+				}
+			}
+		}
 		return $x['app_id'];
 	}
 	return false;
@@ -291,15 +332,28 @@ function app_destroy($uid,$app) {
 			dbesc($app['guid']),
 			intval($uid)
 		);
-		$x[0]['app_deleted'] = 1;
+		if($x) {
+			$x[0]['app_deleted'] = 1;
+			q("delete from term where otype = %d and oid = %d",
+				intval(TERM_OBJ_APP),
+				intval($x[0]['id'])
+			);
+			if($x[0]['app_system']) {
+				$r = q("update app set app_deleted = 1 where app_id = '%s' and app_channel = %d",
+					dbesc($app['guid']),
+					intval($uid)
+				);
+			}
+			else {
+				$r = q("delete from app where app_id = '%s' and app_channel = %d",
+					dbesc($app['guid']),
+					intval($uid)
+				);
 
-
-		$r = q("delete from app where app_id = '%s' and app_channel = %d",
-			dbesc($app['guid']),
-			intval($uid)
-		);
-
-		build_sync_packet($uid,array('app' => $x));
+				// we don't sync system apps - they may be completely different on the other system
+				build_sync_packet($uid,array('app' => $x));
+			}
+		}
 	}
 }
 
@@ -316,13 +370,40 @@ function app_installed($uid,$app) {
 }
 
 
-function app_list($uid) {
-	$r = q("select * from app where app_channel = %d order by app_name asc",
+function app_list($uid, $deleted = false, $cat = '') {
+	if($deleted) 
+		$sql_extra = " and app_deleted = 1 ";
+	else
+		$sql_extra = " and app_deleted = 0 ";
+
+	if($cat) {
+		$r = q("select oid from term where otype = %d and term = '%s'",
+			intval(TERM_OBJ_APP),
+			dbesc($cat)
+		);
+		if(! $r)
+			return $r;
+		$sql_extra .= " and app.id in ( ";
+		$s = '';
+		foreach($r as $rr) {
+			if($s)
+				$s .= ',';
+			$s .= intval($rr['oid']);
+		}
+		$sql_extra .= $s . ') ';
+	}
+
+	$r = q("select * from app where app_channel = %d $sql_extra order by app_name asc",
 		intval($uid)
 	);
 	if($r) {
 		for($x = 0; $x < count($r); $x ++) {
-			$r[$x]['type'] = 'personal';
+			if(! $r[$x]['app_system'])
+				$r[$x]['type'] = 'personal';
+			$r[$x]['term'] = q("select * from term where otype = %d and oid = %d",
+				intval(TERM_OBJ_APP),
+				intval($r[$x]['id'])
+			);
 		}
 	}
 	return($r);
@@ -365,10 +446,12 @@ function app_store($arr) {
 	$darray['app_price']    = ((x($arr,'price'))    ? escape_tags($arr['price']) : '');
 	$darray['app_page']     = ((x($arr,'page'))     ? escape_tags($arr['page']) : '');
 	$darray['app_requires'] = ((x($arr,'requires')) ? escape_tags($arr['requires']) : '');
+	$darray['app_system']   = ((x($arr,'system'))   ? intval($arr['system']) : 0);
+	$darray['app_deleted']  = ((x($arr,'deleted'))  ? intval($arr['deleted']) : 0);
 
 	$created = datetime_convert();
 
-	$r = q("insert into app ( app_id, app_sig, app_author, app_name, app_desc, app_url, app_photo, app_version, app_channel, app_addr, app_price, app_page, app_requires, app_created, app_edited ) values ( '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, '%s', '%s', '%s', '%s', '%s', '%s' )",
+	$r = q("insert into app ( app_id, app_sig, app_author, app_name, app_desc, app_url, app_photo, app_version, app_channel, app_addr, app_price, app_page, app_requires, app_created, app_edited, app_system, app_deleted ) values ( '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, '%s', '%s', '%s', '%s', '%s', '%s', %d, %d )",
 		dbesc($darray['app_id']),
 		dbesc($darray['app_sig']),
 		dbesc($darray['app_author']),
@@ -383,12 +466,30 @@ function app_store($arr) {
 		dbesc($darray['app_page']),
 		dbesc($darray['app_requires']),
 		dbesc($created),
-		dbesc($created)
+		dbesc($created),
+		intval($darray['app_system']),
+		intval($darray['app_deleted'])
 	);
 	if($r) {
 		$ret['success'] = true;
 		$ret['app_id'] = $darray['app_id'];
 	}
+	if($arr['categories']) {
+		$x = q("select id from app where app_id = '%s' and app_channel = %d limit 1",
+			dbesc($darray['app_id']),
+			intval($darray['app_channel'])
+		);
+		$y = explode(',',$arr['categories']);
+		if($y) {
+			foreach($y as $t) {
+				$t = trim($t);
+				if($t) {
+					store_item_tag($darray['app_channel'],$x[0]['id'],TERM_OBJ_APP,TERM_CATEGORY,escape_tags($t),escape_tags(z_root() . '/apps/?f=&cat=' . escape_tags($t)));
+				}
+			}
+		}
+	}
+
 	return $ret;
 }
 
@@ -420,10 +521,12 @@ function app_update($arr) {
 	$darray['app_price']    = ((x($arr,'price')) ? escape_tags($arr['price']) : '');
 	$darray['app_page']     = ((x($arr,'page')) ? escape_tags($arr['page']) : '');
 	$darray['app_requires'] = ((x($arr,'requires')) ? escape_tags($arr['requires']) : '');
+	$darray['app_system']   = ((x($arr,'system'))   ? intval($arr['system']) : 0);
+	$darray['app_deleted']  = ((x($arr,'deleted'))  ? intval($arr['deleted']) : 0);
 
 	$edited = datetime_convert();
 
-	$r = q("update app set app_sig = '%s', app_author = '%s', app_name = '%s', app_desc = '%s', app_url = '%s', app_photo = '%s', app_version = '%s', app_addr = '%s', app_price = '%s', app_page = '%s', app_requires = '%s', app_edited = '%s' where app_id = '%s' and app_channel = %d",
+	$r = q("update app set app_sig = '%s', app_author = '%s', app_name = '%s', app_desc = '%s', app_url = '%s', app_photo = '%s', app_version = '%s', app_addr = '%s', app_price = '%s', app_page = '%s', app_requires = '%s', app_edited = '%s', app_system = %d, app_deleted = %d where app_id = '%s' and app_channel = %d",
 		dbesc($darray['app_sig']),
 		dbesc($darray['app_author']),
 		dbesc($darray['app_name']),
@@ -436,12 +539,36 @@ function app_update($arr) {
 		dbesc($darray['app_page']),
 		dbesc($darray['app_requires']),
 		dbesc($edited),
+		intval($darray['app_system']),
+		intval($darray['app_deleted']),
 		dbesc($darray['app_id']),
 		intval($darray['app_channel'])
 	);
 	if($r) {
 		$ret['success'] = true;
 		$ret['app_id'] = $darray['app_id'];
+	}
+
+	$x = q("select id from app where app_id = '%s' and app_channel = %d limit 1",
+		dbesc($darray['app_id']),
+		intval($darray['app_channel'])
+	);
+	if($x) {
+		q("delete from term where otype = %d and oid = %d",
+			intval(TERM_OBJ_APP),
+			intval($x[0]['id'])
+		);
+		if($arr['categories']) {
+			$y = explode(',',$arr['categories']);
+			if($y) {
+				foreach($y as $t) {
+					$t = trim($t);
+					if($t) {
+						store_item_tag($darray['app_channel'],$x[0]['id'],TERM_OBJ_APP,TERM_CATEGORY,escape_tags($t),escape_tags(z_root() . '/apps/?f=&cat=' . escape_tags($t)));
+					}
+				}
+			}
+		}
 	}
 
 	return $ret;
@@ -494,9 +621,29 @@ function app_encode($app,$embed = false) {
 	if($app['app_requires'])
 		$ret['requires'] = $app['app_requires'];
 
+	if($app['app_system'])
+		$ret['system'] = $app['app_system'];
+
+	if($app['app_deleted'])
+		$ret['deleted'] = $app['app_deleted'];
+
+	if($app['term']) {
+		$s = '';
+		foreach($app['term'] as $t) {
+			if($s)
+				$s .= ',';
+			$s .= $t['term'];
+		}
+		$ret['categories'] = $s;
+	}
+
+
 	if(! $embed)
 		return $ret;
 
+	if(array_key_exists('categories',$ret))
+		unset($ret['categories']);
+	
 	$j = json_encode($ret);
 	return '[app]' . chunk_split(base64_encode($j),72,"\n") . '[/app]';
 

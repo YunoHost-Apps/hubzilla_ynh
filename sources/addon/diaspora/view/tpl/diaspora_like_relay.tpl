@@ -1,6 +1,9 @@
 <XML>
   <post>
     <like>
+      {{if $xml}}
+      {{$xml}}
+      {{else}}
       <positive>{{$positive}}</positive>
       <guid>{{$guid}}</guid>
       <target_type>{{$target_type}}</target_type>
@@ -8,6 +11,7 @@
       <diaspora_handle>{{$handle}}</diaspora_handle>
       <parent_author_signature>{{$parentsig}}</parent_author_signature>
       <author_signature>{{$authorsig}}</author_signature>
+      {{/if}}
     </like>
   </post>
 </XML>

@@ -3,13 +3,54 @@
 
 // Red config utility
 
+if(!file_exists('include/cli_startup.php')) {
+	echo 'Run config from the top level Hubzilla web directory, as util/config <args>' . PHP_EOL;
+	exit(1);
+}
+
 require_once('include/cli_startup.php');
 
 cli_startup();
 
-if($argc > 3) {
-	
 
+$helpArgs = getopt('h', array('help'));
+if (count($helpArgs) === 1) {
+	echo <<<'EndOfOutput'
+Gets, sets, or lists site-wide configuration settings.
+
+Usage: util/config 
+       util/config <family>
+       util/config <family> <key>
+       util/config <family> <key> <value>
+
+  util/config
+	Displays all config entries
+
+  util/config <family>
+	Displays all config entries for family (system, database, etc)
+
+  util/config <family> <key>
+	Displays single config entry for the specified family and key
+
+  util/config <family> <key> <value>
+	Set config entry for specified family and key to value and display result
+
+Notes:
+  Setting config entries which are manually set in .htconfig.php may result 
+  in conflict between database settings and the manual startup settings. 
+
+  For channel-specific configuration settings, use util/pconfig
+
+  Details for configuration options can be found at:
+
+EndOfOutput;
+	echo '    ' . App::get_baseurl() . '/help/hidden_configs' . PHP_EOL . PHP_EOL;
+	return;
+}
+
+
+
+if($argc > 3) {
 	set_config($argv[1],$argv[2],$argv[3]);
 	echo "config[{$argv[1]}][{$argv[2]}] = " . printable_config(get_config($argv[1],$argv[2])) . "\n";
 }

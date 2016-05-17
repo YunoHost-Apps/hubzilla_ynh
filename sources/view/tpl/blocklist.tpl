@@ -2,7 +2,7 @@
 	<div class="section-title-wrapper">
 		{{if $editor}}
 		<div class="pull-right">
-			<button id="webpage-create-btn" class="btn btn-xs btn-success" onclick="openClose('block-editor');"><i class="icon-edit"></i>&nbsp;{{$create}}</button>
+			<button id="webpage-create-btn" class="btn btn-xs btn-success" onclick="openClose('block-editor');"><i class="fa fa-pencil-square-o"></i>&nbsp;{{$create}}</button>
 		</div>
 		{{/if}}
 		<h2>{{$title}}</h2>
@@ -40,17 +40,17 @@
 				</td>
 				<td class="webpage-list-tool">
 					{{if $edit}}
-					<a href="{{$baseurl}}/{{$item.url}}" title="{{$edit}}"><i class="icon-pencil"></i></a>
+					<a href="{{$baseurl}}/{{$item.url}}" title="{{$edit}}"><i class="fa fa-pencil"></i></a>
 					{{/if}}
 				</td>
 				<td class="webpage-list-tool">
 					{{if $item.bb_element}}
-					<a href="rpost?attachment={{$item.bb_element}}" title="{{$share}}"><i class="icon-share"></i></a>
+					<a href="rpost?attachment={{$item.bb_element}}" title="{{$share}}"><i class="fa fa-share-square-o"></i></a>
 					{{/if}}
 				</td>
 				<td class="webpage-list-tool">
 					{{if $edit}}
-					<a href="#" title="{{$delete}}" onclick="dropItem('item/drop/{{$item.url}}', '#block-list-item-{{$item.url}}'); return false;"><i class="icon-trash drop-icons"></i></a>
+					<a href="#" title="{{$delete}}" onclick="dropItem('item/drop/{{$item.url}}', '#block-list-item-{{$item.url}}'); return false;"><i class="fa fa-trash-o drop-icons"></i></a>
 					{{/if}}
 				</td>
 				<td class="hidden-xs">

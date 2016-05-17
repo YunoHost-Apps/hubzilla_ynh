@@ -591,6 +591,7 @@ function service_class_allows($uid, $property, $usage = false) {
 	if($limit === false)
 		return true; // No service class set => everything is allowed
 
+	$limit = engr_units_to_bytes($limit);
 	if($usage === false) {
 		// We use negative values for not allowed properties in a subscriber plan
 		return ((x($limit)) ? (bool) $limit : true);
@@ -626,6 +627,8 @@ function account_service_class_allows($aid, $property, $usage = false) {
 
 	if($limit === false)
 		return true; // No service class is set => everything is allowed
+
+	$limit = engr_units_to_bytes($limit);
 
 	if($usage === false) {
 		// We use negative values for not allowed properties in a subscriber plan

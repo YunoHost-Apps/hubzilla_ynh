@@ -2,7 +2,7 @@
 <div id="pmenu-{{$id}}" class="pmenu{{if !$class}} widget{{else}} {{$class}}{{/if}}">
 {{/if}}
 	{{if $menu.menu_desc}}
-	<h3 class="pmenu-title">{{$menu.menu_desc}}{{if $edit}} <a href="mitem/{{$menu.menu_id}}" title="{{$edit}}"><i class="icon-pencil fakelink" title="{{$edit}}"></i></a>{{/if}}</h3>
+	<h3 class="pmenu-title">{{$menu.menu_desc}}{{if $edit}} <a href="mitem/{{$menu.menu_id}}" title="{{$edit}}"><i class="fa fa-pencil fakelink" title="{{$edit}}"></i></a>{{/if}}</h3>
 	{{/if}}
 	{{if $items}}
 	<ul class="pmenu-body{{if $wrap || !$class}} nav nav-pills nav-stacked{{elseif !$wrap || $class}} {{$class}}{{/if}}">

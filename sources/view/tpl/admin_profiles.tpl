@@ -1,5 +1,5 @@
 <div class="generic-content-wrapper">
-<div class="section-title-wrapper"><a title="{{$new}}" class="btn btn-primary btn-xs pull-right" href="admin/profs/new"><i class="icon-plus-sign"></i>&nbsp;{{$new}}</a><h2>{{$title}}</h2>
+<div class="section-title-wrapper"><a title="{{$new}}" class="btn btn-primary btn-xs pull-right" href="admin/profs/new"><i class="fa fa-plus-circle"></i>&nbsp;{{$new}}</a><h2>{{$title}}</h2>
 <div class="clear"></div>
 </div>
 
@@ -28,7 +28,7 @@
 
 <table width="100%">
 {{foreach $cust_fields as $field}}
-<tr><td>{{$field.field_name}}</td><td>{{$field.field_desc}}</td><td><a class="btn btn-danger btn-xs" href="admin/profs/drop/{{$field.id}}" title="{{$drop}}"><i class="icon-trash"></i>&nbsp;{{$drop}}</a> <a class="btn btn-xs" title="{{$edit}}" href="admin/profs/{{$field.id}}" ><i class="icon-pencil"></i></a></td></tr>
+<tr><td>{{$field.field_name}}</td><td>{{$field.field_desc}}</td><td><a class="btn btn-danger btn-xs" href="admin/profs/drop/{{$field.id}}" title="{{$drop}}"><i class="fa fa-trash-o"></i>&nbsp;{{$drop}}</a> <a class="btn btn-xs" title="{{$edit}}" href="admin/profs/{{$field.id}}" ><i class="fa fa-pencil"></i></a></td></tr>
 {{/foreach}}
 </table>
 {{/if}}

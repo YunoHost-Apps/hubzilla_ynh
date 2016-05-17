@@ -1,6 +1,6 @@
 <div class="generic-content-wrapper">
 	<div class="section-title-wrapper">
-		<a class="btn btn-success btn-xs pull-right" href="{{$cr_new_link}}" id="profile-listing-new-link" title="{{$cr_new}}" ><i class="icon-plus-sign"></i>&nbsp;{{$cr_new}}</a>
+		<a class="btn btn-success btn-xs pull-right" href="{{$cr_new_link}}" id="profile-listing-new-link" title="{{$cr_new}}" ><i class="fa fa-plus-circle"></i>&nbsp;{{$cr_new}}</a>
 		<h2>{{$header}}</h2>
 	</div>
 	<div class="section-content-wrapper">

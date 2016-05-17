@@ -1,5 +1,5 @@
 <div class="generic-content-wrapper-styled">
-<h3>{{$title}}</h3>
+<h3>{{$title}}{{$cat}}</h3>
 
 {{foreach $apps as $ap}}
 {{$ap}}

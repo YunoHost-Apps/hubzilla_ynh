@@ -5,42 +5,37 @@ namespace Sabre\DAVACL;
 use Sabre\DAV;
 use Sabre\HTTP;
 
-
 class PluginPropertiesTest extends \PHPUnit_Framework_TestCase {
 
     function testPrincipalCollectionSet() {
 
         $plugin = new Plugin();
-        $plugin->principalCollectionSet = array(
+        $plugin->principalCollectionSet = [
             'principals1',
             'principals2',
-        );
+        ];
 
-        $requestedProperties = array(
+        $requestedProperties = [
             '{DAV:}principal-collection-set',
-        );
+        ];
 
-        $returnedProperties = array(
-            200 => array(),
-            404 => array(),
-        );
-
-        $server = new DAV\Server();
+        $server = new DAV\Server(new DAV\SimpleCollection('root'));
         $server->addPlugin($plugin);
 
-        $this->assertNull($plugin->beforeGetProperties('', new DAV\SimpleCollection('root'), $requestedProperties, $returnedProperties));
+        $result = $server->getPropertiesForPath('', $requestedProperties);
+        $result = $result[0];
 
-        $this->assertEquals(1,count($returnedProperties[200]));
-        $this->assertArrayHasKey('{DAV:}principal-collection-set',$returnedProperties[200]);
-        $this->assertInstanceOf('Sabre\\DAV\\Property\\HrefList', $returnedProperties[200]['{DAV:}principal-collection-set']);
+        $this->assertEquals(1,count($result[200]));
+        $this->assertArrayHasKey('{DAV:}principal-collection-set',$result[200]);
+        $this->assertInstanceOf('Sabre\\DAV\\Xml\\Property\\Href', $result[200]['{DAV:}principal-collection-set']);
 
-        $expected = array(
+        $expected = [
             'principals1/',
             'principals2/',
-        );
+        ];
 
 
-        $this->assertEquals($expected, $returnedProperties[200]['{DAV:}principal-collection-set']->getHrefs());
+        $this->assertEquals($expected, $result[200]['{DAV:}principal-collection-set']->getHrefs());
 
 
     }
@@ -48,50 +43,35 @@ class PluginPropertiesTest extends \PHPUnit_Framework_TestCase {
     function testCurrentUserPrincipal() {
 
         $fakeServer = new DAV\Server();
-        $plugin = new DAV\Auth\Plugin(new DAV\Auth\Backend\Mock(),'realm');
+        $plugin = new DAV\Auth\Plugin(new DAV\Auth\Backend\Mock());
         $fakeServer->addPlugin($plugin);
         $plugin = new Plugin();
         $fakeServer->addPlugin($plugin);
 
 
-        $requestedProperties = array(
+        $requestedProperties = [
             '{DAV:}current-user-principal',
-        );
+        ];
 
-        $returnedProperties = array(
-            200 => array(),
-            404 => array(),
-        );
+        $result = $fakeServer->getPropertiesForPath('', $requestedProperties);
+        $result = $result[0];
 
-        $this->assertNull($plugin->beforeGetProperties('', new DAV\SimpleCollection('root'), $requestedProperties, $returnedProperties));
-
-        $this->assertEquals(1,count($returnedProperties[200]));
-        $this->assertArrayHasKey('{DAV:}current-user-principal',$returnedProperties[200]);
-        $this->assertInstanceOf('Sabre\DAVACL\Property\Principal', $returnedProperties[200]['{DAV:}current-user-principal']);
-        $this->assertEquals(Property\Principal::UNAUTHENTICATED, $returnedProperties[200]['{DAV:}current-user-principal']->getType());
+        $this->assertEquals(1,count($result[200]));
+        $this->assertArrayHasKey('{DAV:}current-user-principal',$result[200]);
+        $this->assertInstanceOf('Sabre\DAVACL\Xml\Property\Principal', $result[200]['{DAV:}current-user-principal']);
+        $this->assertEquals(Xml\Property\Principal::UNAUTHENTICATED, $result[200]['{DAV:}current-user-principal']->getType());
 
         // This will force the login
-        $fakeServer->broadCastEvent('beforeMethod',array('GET',''));
+        $fakeServer->emit('beforeMethod', [$fakeServer->httpRequest, $fakeServer->httpResponse]);
 
+        $result = $fakeServer->getPropertiesForPath('', $requestedProperties);
+        $result = $result[0];
 
-        $requestedProperties = array(
-            '{DAV:}current-user-principal',
-        );
-
-        $returnedProperties = array(
-            200 => array(),
-            404 => array(),
-        );
-
-
-        $this->assertNull($plugin->beforeGetProperties('', new DAV\SimpleCollection('root'), $requestedProperties, $returnedProperties));
-
-
-        $this->assertEquals(1,count($returnedProperties[200]));
-        $this->assertArrayHasKey('{DAV:}current-user-principal',$returnedProperties[200]);
-        $this->assertInstanceOf('Sabre\DAVACL\Property\Principal', $returnedProperties[200]['{DAV:}current-user-principal']);
-        $this->assertEquals(Property\Principal::HREF, $returnedProperties[200]['{DAV:}current-user-principal']->getType());
-        $this->assertEquals('principals/admin/', $returnedProperties[200]['{DAV:}current-user-principal']->getHref());
+        $this->assertEquals(1,count($result[200]));
+        $this->assertArrayHasKey('{DAV:}current-user-principal',$result[200]);
+        $this->assertInstanceOf('Sabre\DAVACL\Xml\Property\Principal', $result[200]['{DAV:}current-user-principal']);
+        $this->assertEquals(Xml\Property\Principal::HREF, $result[200]['{DAV:}current-user-principal']->getType());
+        $this->assertEquals('principals/admin/', $result[200]['{DAV:}current-user-principal']->getHref());
 
     }
 
@@ -101,33 +81,23 @@ class PluginPropertiesTest extends \PHPUnit_Framework_TestCase {
         $server = new DAV\Server();
         $server->addPlugin($plugin);
 
-        $requestedProperties = array(
+        $requestedProperties = [
             '{DAV:}supported-privilege-set',
-        );
+        ];
 
-        $returnedProperties = array(
-            200 => array(),
-            404 => array(),
-        );
+        $result = $server->getPropertiesForPath('', $requestedProperties);
+        $result = $result[0];
 
-
-        $this->assertNull($plugin->beforeGetProperties('', new DAV\SimpleCollection('root'), $requestedProperties, $returnedProperties));
-
-        $this->assertEquals(1,count($returnedProperties[200]));
-        $this->assertArrayHasKey('{DAV:}supported-privilege-set',$returnedProperties[200]);
-        $this->assertInstanceOf('Sabre\\DAVACL\\Property\\SupportedPrivilegeSet', $returnedProperties[200]['{DAV:}supported-privilege-set']);
+        $this->assertEquals(1,count($result[200]));
+        $this->assertArrayHasKey('{DAV:}supported-privilege-set',$result[200]);
+        $this->assertInstanceOf('Sabre\\DAVACL\\Xml\\Property\\SupportedPrivilegeSet', $result[200]['{DAV:}supported-privilege-set']);
 
         $server = new DAV\Server();
-        $prop = $returnedProperties[200]['{DAV:}supported-privilege-set'];
 
-        $dom = new \DOMDocument('1.0', 'utf-8');
-        $root = $dom->createElement('d:root');
-        $root->setAttribute('xmlns:d','DAV:');
-        $dom->appendChild($root);
-        $prop->serialize($server, $root);
+        $prop = $result[200]['{DAV:}supported-privilege-set'];
+        $result = $server->xml->write('{DAV:}root', $prop);
 
-
-        $xpaths = array(
+        $xpaths = [
             '/d:root' => 1,
             '/d:root/d:supported-privilege' => 1,
             '/d:root/d:supported-privilege/d:privilege' => 1,
@@ -147,19 +117,19 @@ class PluginPropertiesTest extends \PHPUnit_Framework_TestCase {
             '/d:root/d:supported-privilege/d:supported-privilege/d:supported-privilege/d:privilege/d:bind' => 1,
             '/d:root/d:supported-privilege/d:supported-privilege/d:supported-privilege/d:privilege/d:unbind' => 1,
             '/d:root/d:supported-privilege/d:supported-privilege/d:supported-privilege/d:privilege/d:unlock' => 1,
-            '/d:root/d:supported-privilege/d:supported-privilege/d:supported-privilege/d:abstract' => 8,
-        );
+            '/d:root/d:supported-privilege/d:supported-privilege/d:supported-privilege/d:abstract' => 0,
+        ];
 
 
         // reloading because php dom sucks
         $dom2 = new \DOMDocument('1.0', 'utf-8');
-        $dom2->loadXML($dom->saveXML());
+        $dom2->loadXML($result);
 
         $dxpath = new \DOMXPath($dom2);
         $dxpath->registerNamespace('d','DAV:');
         foreach($xpaths as $xpath=>$count) {
 
-            $this->assertEquals($count, $dxpath->query($xpath)->length, 'Looking for : ' . $xpath . ', we could only find ' . $dxpath->query($xpath)->length . ' elements, while we expected ' . $count);
+            $this->assertEquals($count, $dxpath->query($xpath)->length, 'Looking for : ' . $xpath . ', we could only find ' . $dxpath->query($xpath)->length . ' elements, while we expected ' . $count. ' Full XML: ' . $result);
 
         }
 
@@ -169,42 +139,37 @@ class PluginPropertiesTest extends \PHPUnit_Framework_TestCase {
 
         $plugin = new Plugin();
 
-        $nodes = array(
-            new MockACLNode('foo', array(
-                array(
+        $nodes = [
+            new MockACLNode('foo', [
+                [
                     'principal' => 'principals/admin',
                     'privilege' => '{DAV:}read',
-                )
-            )),
-            new DAV\SimpleCollection('principals', array(
+                ]
+            ]),
+            new DAV\SimpleCollection('principals', [
                 $principal = new MockPrincipal('admin','principals/admin'),
-            )),
+            ]),
 
-        );
+        ];
 
         $server = new DAV\Server($nodes);
         $server->addPlugin($plugin);
-        $authPlugin = new DAV\Auth\Plugin(new DAV\Auth\Backend\Mock(),'realm');
+        $authPlugin = new DAV\Auth\Plugin(new DAV\Auth\Backend\Mock());
         $server->addPlugin($authPlugin);
 
         // Force login
-        $authPlugin->beforeMethod('BLA','foo');
+        $authPlugin->beforeMethod(new HTTP\Request(), new HTTP\Response());
 
-        $requestedProperties = array(
+        $requestedProperties = [
             '{DAV:}acl',
-        );
+        ];
 
-        $returnedProperties = array(
-            200 => array(),
-            404 => array(),
-        );
+        $result = $server->getPropertiesForPath('foo', $requestedProperties);
+        $result = $result[0];
 
-
-        $this->assertNull($plugin->beforeGetProperties('foo', $nodes[0], $requestedProperties, $returnedProperties));
-
-        $this->assertEquals(1,count($returnedProperties[200]),'The {DAV:}acl property did not return from the list. Full list: ' . print_r($returnedProperties,true));
-        $this->assertArrayHasKey('{DAV:}acl',$returnedProperties[200]);
-        $this->assertInstanceOf('Sabre\\DAVACL\\Property\\ACL', $returnedProperties[200]['{DAV:}acl']);
+        $this->assertEquals(1,count($result[200]),'The {DAV:}acl property did not return from the list. Full list: ' . print_r($result, true));
+        $this->assertArrayHasKey('{DAV:}acl',$result[200]);
+        $this->assertInstanceOf('Sabre\\DAVACL\\Xml\Property\\Acl', $result[200]['{DAV:}acl']);
 
     }
 
@@ -212,196 +177,176 @@ class PluginPropertiesTest extends \PHPUnit_Framework_TestCase {
 
         $plugin = new Plugin();
 
-        $nodes = array(
-            new MockACLNode('foo', array(
-                array(
+        $nodes = [
+            new MockACLNode('foo', [
+                [
                     'principal' => 'principals/admin',
                     'privilege' => '{DAV:}read',
-                )
-            )),
-            new DAV\SimpleCollection('principals', array(
+                ]
+            ]),
+            new DAV\SimpleCollection('principals', [
                 $principal = new MockPrincipal('admin','principals/admin'),
-            )),
+            ]),
 
-        );
+        ];
 
         $server = new DAV\Server($nodes);
         $server->addPlugin($plugin);
-        $authPlugin = new DAV\Auth\Plugin(new DAV\Auth\Backend\Mock(),'realm');
+        $authPlugin = new DAV\Auth\Plugin(new DAV\Auth\Backend\Mock());
         $server->addPlugin($authPlugin);
 
         // Force login
-        $authPlugin->beforeMethod('BLA','foo');
+        $authPlugin->beforeMethod(new HTTP\Request(), new HTTP\Response());
 
-        $requestedProperties = array(
+        $requestedProperties = [
             '{DAV:}acl-restrictions',
-        );
+        ];
 
-        $returnedProperties = array(
-            200 => array(),
-            404 => array(),
-        );
+        $result = $server->getPropertiesForPath('foo', $requestedProperties);
+        $result = $result[0];
 
-
-        $this->assertNull($plugin->beforeGetProperties('foo', $nodes[0], $requestedProperties, $returnedProperties));
-
-        $this->assertEquals(1,count($returnedProperties[200]),'The {DAV:}acl-restrictions property did not return from the list. Full list: ' . print_r($returnedProperties,true));
-        $this->assertArrayHasKey('{DAV:}acl-restrictions',$returnedProperties[200]);
-        $this->assertInstanceOf('Sabre\\DAVACL\\Property\\ACLRestrictions', $returnedProperties[200]['{DAV:}acl-restrictions']);
+        $this->assertEquals(1,count($result[200]),'The {DAV:}acl-restrictions property did not return from the list. Full list: ' . print_r($result, true));
+        $this->assertArrayHasKey('{DAV:}acl-restrictions',$result[200]);
+        $this->assertInstanceOf('Sabre\\DAVACL\\Xml\\Property\\AclRestrictions', $result[200]['{DAV:}acl-restrictions']);
 
     }
 
     function testAlternateUriSet() {
 
-        $tree = array(
-            new DAV\SimpleCollection('principals', array(
+        $tree = [
+            new DAV\SimpleCollection('principals', [
                 $principal = new MockPrincipal('user','principals/user'),
-            )),
-        );
+            ])
+        ];
 
         $fakeServer = new DAV\Server($tree);
-        //$plugin = new DAV\Auth\Plugin(new DAV\Auth\MockBackend(),'realm');
+        //$plugin = new DAV\Auth\Plugin(new DAV\Auth\MockBackend())
         //$fakeServer->addPlugin($plugin);
         $plugin = new Plugin();
         $fakeServer->addPlugin($plugin);
 
-        $requestedProperties = array(
+        $requestedProperties = [
             '{DAV:}alternate-URI-set',
-        );
-        $returnedProperties = array();
+        ];
+        $result = $fakeServer->getPropertiesForPath('principals/user', $requestedProperties);
+        $result = $result[0];
 
-        $result = $plugin->beforeGetProperties('principals/user',$principal,$requestedProperties,$returnedProperties);
+        $this->assertTrue(isset($result[200]));
+        $this->assertTrue(isset($result[200]['{DAV:}alternate-URI-set']));
+        $this->assertInstanceOf('Sabre\\DAV\\Xml\\Property\\Href', $result[200]['{DAV:}alternate-URI-set']);
 
-        $this->assertNull($result);
-
-        $this->assertTrue(isset($returnedProperties[200]));
-        $this->assertTrue(isset($returnedProperties[200]['{DAV:}alternate-URI-set']));
-        $this->assertInstanceOf('Sabre\\DAV\\Property\\HrefList', $returnedProperties[200]['{DAV:}alternate-URI-set']);
-
-        $this->assertEquals(array(), $returnedProperties[200]['{DAV:}alternate-URI-set']->getHrefs());
+        $this->assertEquals([], $result[200]['{DAV:}alternate-URI-set']->getHrefs());
 
     }
 
     function testPrincipalURL() {
 
-        $tree = array(
-            new DAV\SimpleCollection('principals', array(
+        $tree = [
+            new DAV\SimpleCollection('principals', [
                 $principal = new MockPrincipal('user','principals/user'),
-            )),
-        );
+            ]),
+        ];
 
         $fakeServer = new DAV\Server($tree);
-        //$plugin = new DAV\Auth\Plugin(new DAV\Auth\MockBackend(),'realm');
+        //$plugin = new DAV\Auth\Plugin(new DAV\Auth\MockBackend());
         //$fakeServer->addPlugin($plugin);
         $plugin = new Plugin();
         $fakeServer->addPlugin($plugin);
 
-        $requestedProperties = array(
+        $requestedProperties = [
             '{DAV:}principal-URL',
-        );
-        $returnedProperties = array();
+        ];
 
-        $result = $plugin->beforeGetProperties('principals/user',$principal,$requestedProperties,$returnedProperties);
+        $result = $fakeServer->getPropertiesForPath('principals/user', $requestedProperties);
+        $result = $result[0];
 
-        $this->assertNull($result);
+        $this->assertTrue(isset($result[200]));
+        $this->assertTrue(isset($result[200]['{DAV:}principal-URL']));
+        $this->assertInstanceOf('Sabre\\DAV\\Xml\\Property\\Href', $result[200]['{DAV:}principal-URL']);
 
-        $this->assertTrue(isset($returnedProperties[200]));
-        $this->assertTrue(isset($returnedProperties[200]['{DAV:}principal-URL']));
-        $this->assertInstanceOf('Sabre\\DAV\\Property\\Href', $returnedProperties[200]['{DAV:}principal-URL']);
-
-        $this->assertEquals('principals/user/', $returnedProperties[200]['{DAV:}principal-URL']->getHref());
+        $this->assertEquals('principals/user/', $result[200]['{DAV:}principal-URL']->getHref());
 
     }
 
     function testGroupMemberSet() {
 
-        $tree = array(
-            new DAV\SimpleCollection('principals', array(
+        $tree = [
+            new DAV\SimpleCollection('principals', [
                 $principal = new MockPrincipal('user','principals/user'),
-            )),
-        );
+            ]),
+        ];
 
         $fakeServer = new DAV\Server($tree);
-        //$plugin = new DAV\Auth\Plugin(new DAV\Auth\MockBackend(),'realm');
+        //$plugin = new DAV\Auth\Plugin(new DAV\Auth\MockBackend());
         //$fakeServer->addPlugin($plugin);
         $plugin = new Plugin();
         $fakeServer->addPlugin($plugin);
 
-        $requestedProperties = array(
+        $requestedProperties = [
             '{DAV:}group-member-set',
-        );
-        $returnedProperties = array();
+        ];
 
-        $result = $plugin->beforeGetProperties('principals/user',$principal,$requestedProperties,$returnedProperties);
+        $result = $fakeServer->getPropertiesForPath('principals/user', $requestedProperties);
+        $result = $result[0];
 
-        $this->assertNull($result);
+        $this->assertTrue(isset($result[200]));
+        $this->assertTrue(isset($result[200]['{DAV:}group-member-set']));
+        $this->assertInstanceOf('Sabre\\DAV\\Xml\\Property\\Href', $result[200]['{DAV:}group-member-set']);
 
-        $this->assertTrue(isset($returnedProperties[200]));
-        $this->assertTrue(isset($returnedProperties[200]['{DAV:}group-member-set']));
-        $this->assertInstanceOf('Sabre\\DAV\\Property\\HrefList', $returnedProperties[200]['{DAV:}group-member-set']);
-
-        $this->assertEquals(array(), $returnedProperties[200]['{DAV:}group-member-set']->getHrefs());
+        $this->assertEquals([], $result[200]['{DAV:}group-member-set']->getHrefs());
 
     }
 
     function testGroupMemberShip() {
 
-        $tree = array(
-            new DAV\SimpleCollection('principals', array(
+        $tree = [
+            new DAV\SimpleCollection('principals', [
                 $principal = new MockPrincipal('user','principals/user'),
-            )),
-        );
+            ]),
+        ];
 
         $fakeServer = new DAV\Server($tree);
-        //$plugin = new DAV\Auth\Plugin(new DAV\Auth\MockBackend(),'realm');
-        //$fakeServer->addPlugin($plugin);
         $plugin = new Plugin();
         $fakeServer->addPlugin($plugin);
 
-        $requestedProperties = array(
+        $requestedProperties = [
             '{DAV:}group-membership',
-        );
-        $returnedProperties = array();
+        ];
 
-        $result = $plugin->beforeGetProperties('principals/user',$principal,$requestedProperties,$returnedProperties);
+        $result = $fakeServer->getPropertiesForPath('principals/user', $requestedProperties);
+        $result = $result[0];
 
-        $this->assertNull($result);
+        $this->assertTrue(isset($result[200]));
+        $this->assertTrue(isset($result[200]['{DAV:}group-membership']));
+        $this->assertInstanceOf('Sabre\\DAV\\Xml\\Property\\Href', $result[200]['{DAV:}group-membership']);
 
-        $this->assertTrue(isset($returnedProperties[200]));
-        $this->assertTrue(isset($returnedProperties[200]['{DAV:}group-membership']));
-        $this->assertInstanceOf('Sabre\\DAV\\Property\\HrefList', $returnedProperties[200]['{DAV:}group-membership']);
-
-        $this->assertEquals(array(), $returnedProperties[200]['{DAV:}group-membership']->getHrefs());
+        $this->assertEquals([], $result[200]['{DAV:}group-membership']->getHrefs());
 
     }
 
     function testGetDisplayName() {
 
-        $tree = array(
-            new DAV\SimpleCollection('principals', array(
+        $tree = [
+            new DAV\SimpleCollection('principals', [
                 $principal = new MockPrincipal('user','principals/user'),
-            )),
-        );
+            ]),
+        ];
 
         $fakeServer = new DAV\Server($tree);
-        //$plugin = new DAV\Auth\Plugin(new DAV\Auth\MockBackend(),'realm');
-        //$fakeServer->addPlugin($plugin);
         $plugin = new Plugin();
         $fakeServer->addPlugin($plugin);
 
-        $requestedProperties = array(
+        $requestedProperties = [
             '{DAV:}displayname',
-        );
-        $returnedProperties = array();
+        ];
 
-        $result = $plugin->beforeGetProperties('principals/user',$principal,$requestedProperties,$returnedProperties);
+        $result = $fakeServer->getPropertiesForPath('principals/user', $requestedProperties);
+        $result = $result[0];
 
-        $this->assertNull($result);
+        $this->assertTrue(isset($result[200]));
+        $this->assertTrue(isset($result[200]['{DAV:}displayname']));
 
-        $this->assertTrue(isset($returnedProperties[200]));
-        $this->assertTrue(isset($returnedProperties[200]['{DAV:}displayname']));
-
-        $this->assertEquals('user', $returnedProperties[200]['{DAV:}displayname']);
+        $this->assertEquals('user', $result[200]['{DAV:}displayname']);
 
     }
 }

@@ -2,10 +2,10 @@
 	<div class="section-title-wrapper">
 		<div class="dropdown pull-right">
 			<button type="button" class="btn btn-primary btn-xs" onclick="openClose('contacts-search-form');">
-				<i class="icon-search"></i>&nbsp;{{$label}}
+				<i class="fa fa-search"></i>&nbsp;{{$label}}
 			</button>
 			<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="{{$sort}}">
-				<i class="icon-sort"></i>
+				<i class="fa fa-sort"></i>
 			</button>
 			<ul class="dropdown-menu">
 				{{foreach $tabs as $menu}}
@@ -21,7 +21,7 @@
 				<div class="input-group">
 					<input type="text" name="search" id="contacts-search" class="widget-input" onfocus="this.select();" value="{{$search}}" placeholder="{{$desc}}" />
 					<div class="input-group-btn">
-						<button id="contacts-search-submit" class="btn btn-default btn-sm" type="submit" name="submit" value="{{$submit}}"><i class="icon-search"></i></button>
+						<button id="contacts-search-submit" class="btn btn-default btn-sm" type="submit" name="submit" value="{{$submit}}"><i class="fa fa-search"></i></button>
 					</div>
 				</div>
 			</div>

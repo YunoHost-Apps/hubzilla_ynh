@@ -41,39 +41,39 @@
 					<div id="prvmail-tools" class="btn-toolbar pull-left">
 						<div class="btn-group">
 							<button id="main-editor-bold" class="btn btn-default btn-sm" title="{{$bold}}" onclick="inserteditortag('b', 'prvmail-text'); return false;">
-								<i class="icon-bold jot-icons"></i>
+								<i class="fa fa-bold jot-icons"></i>
 							</button>
 							<button id="main-editor-italic" class="btn btn-default btn-sm" title="{{$italic}}" onclick="inserteditortag('i', 'prvmail-text'); return false;">
-								<i class="icon-italic jot-icons"></i>
+								<i class="fa fa-italic jot-icons"></i>
 							</button>
 							<button id="main-editor-underline" class="btn btn-default btn-sm" title="{{$underline}}" onclick="inserteditortag('u', 'prvmail-text'); return false;">
-								<i class="icon-underline jot-icons"></i>
+								<i class="fa fa-underline jot-icons"></i>
 							</button>
 							<button id="main-editor-quote" class="btn btn-default btn-sm" title="{{$quote}}" onclick="inserteditortag('quote', 'prvmail-text'); return false;">
-								<i class="icon-quote-left jot-icons"></i>
+								<i class="fa fa-quote-left jot-icons"></i>
 							</button>
 							<button id="main-editor-code" class="btn btn-default btn-sm" title="{{$code}}" onclick="inserteditortag('code', 'prvmail-text'); return false;">
-								<i class="icon-terminal jot-icons"></i>
+								<i class="fa fa-terminal jot-icons"></i>
 							</button>
 						</div>
 						<div class="btn-group hidden-xs">
 							<button id="prvmail-attach-wrapper" class="btn btn-default btn-sm" >
-								<i id="prvmail-attach" class="icon-paper-clip jot-icons" title="{{$attach}}"></i>
+								<i id="prvmail-attach" class="fa fa-paperclip jot-icons" title="{{$attach}}"></i>
 							</button>
 							<button id="prvmail-link-wrapper" class="btn btn-default btn-sm" onclick="prvmailJotGetLink(); return false;" >
-								<i id="prvmail-link" class="icon-link jot-icons" title="{{$insert}}" ></i>
+								<i id="prvmail-link" class="fa fa-link jot-icons" title="{{$insert}}" ></i>
 							</button>
 						</div>
 						{{if $feature_expire || $feature_encrypt}}
 						<div class="btn-group hidden-sm hidden-xs">
 							{{if $feature_expire}}
 							<button id="prvmail-expire-wrapper" class="btn btn-default btn-sm" onclick="prvmailGetExpiry();return false;" >
-								<i id="prvmail-expires" class="icon-eraser jot-icons" title="{{$expires}}" ></i>
+								<i id="prvmail-expires" class="fa fa-eraser jot-icons" title="{{$expires}}" ></i>
 							</button>
 							{{/if}}
 							{{if $feature_encrypt}}
 							<button id="prvmail-encrypt-wrapper" class="btn btn-default btn-sm" onclick="red_encrypt('{{$cipher}}','#prvmail-text',$('#prvmail-text').val());return false;">
-								<i id="prvmail-encrypt" class="icon-key jot-icons" title="{{$encrypt}}" ></i>
+								<i id="prvmail-encrypt" class="fa fa-key jot-icons" title="{{$encrypt}}" ></i>
 							</button>
 							{{/if}}
 						</div>
@@ -81,15 +81,15 @@
 
 						<div class="btn-group visible-xs visible-sm">
 							<button type="button" id="more-tools" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-								<i id="more-tools-icon" class="icon-caret-down jot-icons"></i>
+								<i id="more-tools-icon" class="fa fa-caret-down jot-icons"></i>
 							</button>
 							<ul class="dropdown-menu dropdown-menu-right" role="menu">
-								<li class="visible-xs"><a href="#" id="prvmail-attach-sub"><i class="icon-paper-clip"></i>&nbsp;{{$attach}}</a></li>
-								<li class="visible-xs"><a href="#" onclick="prvmailJotGetLink(); return false;" ><i class="icon-link"></i>&nbsp;{{$insert}}</a></li>
+								<li class="visible-xs"><a href="#" id="prvmail-attach-sub"><i class="fa fa-paperclip"></i>&nbsp;{{$attach}}</a></li>
+								<li class="visible-xs"><a href="#" onclick="prvmailJotGetLink(); return false;" ><i class="fa fa-link"></i>&nbsp;{{$insert}}</a></li>
 								{{if $feature_expire || $feature_encrypt}}
 								<li class="divider visible-xs"></li>
-								<li class="visible-sm visible-xs"><a href="#" onclick="prvmailGetExpiry(); return false;"><i id="prvmail-expires" class="icon-eraser"></i>&nbsp;{{$expires}}</a></li>
-								<li class="visible-sm visible-xs"><a href="#" onclick="red_encrypt('{{$cipher}}','#prvmail-text',$('#prvmail-text').val()); return false;"><i class="icon-key"></i>&nbsp;{{$encrypt}}</a></li>
+								<li class="visible-sm visible-xs"><a href="#" onclick="prvmailGetExpiry(); return false;"><i id="prvmail-expires" class="fa fa-eraser"></i>&nbsp;{{$expires}}</a></li>
+								<li class="visible-sm visible-xs"><a href="#" onclick="red_encrypt('{{$cipher}}','#prvmail-text',$('#prvmail-text').val()); return false;"><i class="fa fa-key"></i>&nbsp;{{$encrypt}}</a></li>
 								{{/if}}
 							</ul>
 						</div>

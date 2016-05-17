@@ -1,6 +1,6 @@
 <?php
 
-define( 'UPDATE_VERSION' , 1165 );
+define( 'UPDATE_VERSION' , 1168 );
 
 /**
  *
@@ -2058,3 +2058,42 @@ function update_r1164() {
     return UPDATE_FAILED;
 }
 
+function update_r1165() {
+
+	$r1 = q("alter table hook add hook_version int not null default '0' ");
+
+	if(ACTIVE_DBTYPE == DBTYPE_POSTGRES)
+		$r2 = q("create index \"hook_version_idx\" on hook (\"hook_version\") "); 
+	else 
+		$r2 = q("alter table hook add index ( hook_version ) ");
+    if($r1 && $r2)
+        return UPDATE_SUCCESS;
+    return UPDATE_FAILED;
+}
+
+function update_r1166() {
+
+	$r = q("alter table source add src_tag text not null default '' ");
+    if($r)
+        return UPDATE_SUCCESS;
+    return UPDATE_FAILED;
+}
+
+function update_r1167() {
+
+	$r1 = q("alter table app add app_deleted int not null default '0' ");
+	$r2 = q("alter table app add app_system int not null default '0' ");
+
+	if(ACTIVE_DBTYPE == DBTYPE_POSTGRES) {
+		$r3 = q("create index \"app_deleted_idx\" on app (\"app_deleted\") "); 
+		$r4 = q("create index \"app_system_idx\" on app (\"app_system\") "); 
+	}
+	else { 
+		$r3 = q("alter table app add index ( app_deleted ) ");
+		$r4 = q("alter table app add index ( app_system ) ");
+	}
+
+	if($r1 && $r2 && $r3 && $r4)
+		return UPDATE_SUCCESS;
+	return UPDATE_FAILED;
+}

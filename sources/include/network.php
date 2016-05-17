@@ -2114,8 +2114,9 @@ function check_channelallowed($hash) {
 	return $retvalue;
 }
 
-function deliverable_singleton($xchan) {
-	$r = q("select abook_instance from abook where abook_xchan = '%s' limit 1",
+function deliverable_singleton($channel_id,$xchan) {
+	$r = q("select abook_instance from abook where abook_channel = %d and abook_xchan = '%s' limit 1",
+		intval($channel_id),
 		dbesc($xchan['xchan_hash'])
 	);
 	if($r) {
@@ -2127,3 +2128,18 @@ function deliverable_singleton($xchan) {
 	return false;
 }
 
+
+
+function get_repository_version($branch = 'master') {
+
+	$path = "https://raw.githubusercontent.com/redmatrix/hubzilla/$branch/boot.php";
+	
+	$x = z_fetch_url($path);
+	if($x['success']) {
+		$y = preg_match('/define(.*?)STD_VERSION(.*?)([0-9.].*)\'/',$x['body'],$matches);
+		if($y)
+			return $matches[3];
+	}
+	return '?.?';
+
+}		

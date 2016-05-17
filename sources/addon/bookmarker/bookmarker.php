@@ -29,7 +29,7 @@ function bookmarker_prepare_body(&$a,&$b) {
 		return;
 
 	if(function_exists('redbasic_init') || App::$theme_info['extends'] == 'redbasic')
-		$bookmarkicon = '<i class="icon-bookmark"></i>';
+		$bookmarkicon = '<i class="fa fa-bookmark"></i>';
 	else 
 		$bookmarkicon = '<img src="addon/bookmarker/bookmarker.png" width="19px" height="20px" alt="#^" />';
 

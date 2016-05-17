@@ -156,47 +156,16 @@ function tagadelic($uid, $count = 0, $authors = '', $owner = '', $flags = 0, $re
 	if(! $r)
 		return array();
 
-	// Find minimum and maximum log-count.
-	$tags = array();
-	$min = 1e9;
-	$max = -1e9;
+	return Zotlabs\Text\Tagadelic::calc($r);
 
-	$x = 0;
-	foreach($r as $rr) {
-		$tags[$x][0] = $rr['term'];
-		$tags[$x][1] = log($rr['total']);
-		$tags[$x][2] = 0;
-		$min = min($min,$tags[$x][1]);
-		$max = max($max,$tags[$x][1]);
-		$x ++;
-	}
-
-	usort($tags,'tags_sort');
-
-	$range = max(.01, $max - $min) * 1.0001;
-
-	for($x = 0; $x < count($tags); $x ++) {
-		$tags[$x][2] = 1 + floor(9 * ($tags[$x][1] - $min) / $range);
-	}
-
-	return $tags;
 }
-
-
-function tags_sort($a,$b) {
-	if(strtolower($a[0]) == strtolower($b[0]))
-		return 0;
-
-	return((strtolower($a[0]) < strtolower($b[0])) ? -1 : 1);
-}
-
 
 function dir_tagadelic($count = 0) {
 
 	$count = intval($count);
 
 	// Fetch tags
-	$r = q("select xtag_term, count(xtag_term) as total from xtag where xtag_flags = 0
+	$r = q("select xtag_term as term, count(xtag_term) as total from xtag where xtag_flags = 0
 		group by xtag_term order by total desc %s",
 		((intval($count)) ? "limit $count" : '')
 	);
@@ -204,30 +173,49 @@ function dir_tagadelic($count = 0) {
 	if(! $r)
 		return array();
 
-	// Find minimum and maximum log-count.
-	$tags = array();
-	$min = 1e9;
-	$max = -1e9;
 
-	$x = 0;
-	foreach($r as $rr) {
-		$tags[$x][0] = $rr['xtag_term'];
-		$tags[$x][1] = log($rr['total']);
-		$tags[$x][2] = 0;
-		$min = min($min,$tags[$x][1]);
-		$max = max($max,$tags[$x][1]);
-		$x ++;
+	return Zotlabs\Text\Tagadelic::calc($r);
+
+}
+
+
+function app_tagblock($link,$count = 0) {
+	$o = '';
+
+	$r = app_tagadelic($count);
+
+	if($r) {
+		$o = '<div class="tagblock widget"><h3>' . t('Categories') . '</h3><div class="tags" align="center">';
+		foreach($r as $rr) { 
+		  $o .= '<a href="'.$link .'/' . '?f=&cat=' . urlencode($rr[0]).'" class="tag'.$rr[2].'">'.$rr[0].'</a> ' . "\r\n";
+		}
+		$o .= '</div></div>';
 	}
 
-	usort($tags,'tags_sort');
+	return $o;
+}
 
-	$range = max(.01, $max - $min) * 1.0001;
+function app_tagadelic($count = 0) {
 
-	for($x = 0; $x < count($tags); $x ++) {
-		$tags[$x][2] = 1 + floor(9 * ($tags[$x][1] - $min) / $range);
-	}
+	if(! local_channel())
+		return '';
 
-	return $tags;
+	$count = intval($count);
+
+
+	// Fetch tags
+	$r = q("select term, count(term) as total from term left join app on term.uid = app_channel where term.uid = %d
+		and term.otype = %d group by term order by total desc %s",
+		intval(local_channel()),
+		intval(TERM_OBJ_APP),
+		((intval($count)) ? "limit $count" : '')
+	);
+
+	if(! $r)
+		return array();
+
+	return Zotlabs\Text\Tagadelic::calc($r);
+
 }
 
 

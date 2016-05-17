@@ -9,11 +9,11 @@
 			{{/if}}
 			{{if $profile.canlike}}
 			<button type="button" class="btn btn-success btn-xs" onclick="doprofilelike('profile/' + '{{$profile.profile_guid}}','like'); return false;" title="{{$profile.likethis}}" >
-				<i class="icon-thumbs-up-alt" title="{{$profile.likethis}}"></i>
+				<i class="fa fa-thumbs-o-up" title="{{$profile.likethis}}"></i>
 			</button>
 			{{/if}}
 			{{if $editmenu.multi}}
-			<a class="btn btn-primary btn-xs dropdown-toggle" data-toggle="dropdown" href="#" ><i class="icon-pencil"></i>&nbsp;{{$editmenu.edit.3}}</a>
+			<a class="btn btn-primary btn-xs dropdown-toggle" data-toggle="dropdown" href="#" ><i class="fa fa-pencil"></i>&nbsp;{{$editmenu.edit.3}}</a>
 			<ul class="dropdown-menu" role="menu">
 				{{foreach $editmenu.menu.entries as $e}}
 				<li>
@@ -24,7 +24,7 @@
 				{{if $editmenu.menu.cr_new}}<li><a href="profiles/new" id="profile-listing-new-link">{{$editmenu.menu.cr_new}}</a></li>{{/if}}
 			</ul>
 			{{elseif $editmenu}}
-			<a class="btn btn-primary btn-xs" href="{{$editmenu.edit.0}}" ><i class="icon-pencil"></i>&nbsp;{{$editmenu.edit.3}}</a>
+			<a class="btn btn-primary btn-xs" href="{{$editmenu.edit.0}}" ><i class="fa fa-pencil"></i>&nbsp;{{$editmenu.edit.3}}</a>
 			{{/if}}
 		</div>
 		<h2>{{$title}}</h2>
@@ -71,7 +71,7 @@
 		{{if $f == 'marital'}}
 		{{if $profile.marital}}
 		<dl id="aprofile-marital" class="aprofile">
-		 <dt><span class="heart"><i class="icon-heart"></i>&nbsp;</span>{{$profile.marital.0}}</dt>
+		 <dt><span class="heart"><i class="fa fa-heart"></i>&nbsp;</span>{{$profile.marital.0}}</dt>
 		 <dd>{{$profile.marital.1}}{{if in_array('with',$fields)}}{{if $profile.marital.with}} ({{$profile.marital.with}}){{/if}}{{/if}}{{if in_array('howlong',$fields)}}{{if $profile.howlong}} {{$profile.howlong}}{{/if}}{{/if}}</dd>
 		</dl>
 		{{/if}}
@@ -273,11 +273,11 @@
 		<b>{{$profile.fullname.1}} {{$key}}</b>
 		<ul class="profile-thing-list">
 		{{foreach $items as $item}}
-		<li>{{if $item.img}}<a href="{{$item.url}}" ><img src="{{$item.img}}" width="100" height="100" alt="{{$item.term}}" /></a>{{/if}}
+		<li>{{if $item.img}}<a href="{{$item.url}}" ><img src="{{$item.img}}" class="profile-thing-img" width="100" height="100" alt="{{$item.term}}" /></a>{{/if}}
 		<a href="{{$item.url}}" >{{$item.term}}</a>
 		{{if $profile.canlike}}<br />
 		<button type="button" class="btn btn-default btn-sm" onclick="doprofilelike('thing/' + '{{$item.term_hash}}','like'); return false;" title="{{$likethis}}" >
-		<i class="icon-thumbs-up-alt" title="{{$likethis}}"></i>
+		<i class="fa fa-thumbs-o-up" title="{{$likethis}}"></i>
 		</button>
 		{{/if}}
 		{{if $item.like_count}}

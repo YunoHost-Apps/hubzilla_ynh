@@ -3121,7 +3121,7 @@ function process_channel_sync_delivery($sender, $arr, $deliveries) {
 			import_conv($channel,$arr['conv']);
 
 		if(array_key_exists('mail',$arr) && $arr['mail'])
-			import_mail($channel,$arr['mail']);
+			sync_mail($channel,$arr['mail']);
 
 		if(array_key_exists('event',$arr) && $arr['event'])
 			sync_events($channel,$arr['event']);
@@ -3914,7 +3914,7 @@ function zotinfo($arr) {
 		$ret['site']['channels'] = channel_total();
 
 
-		$ret['site']['version'] = Zotlabs\Project\System::get_platform_name() . ' ' . RED_VERSION . '[' . DB_UPDATE_VERSION . ']';
+		$ret['site']['version'] = Zotlabs\Project\System::get_platform_name() . ' ' . STD_VERSION . '[' . DB_UPDATE_VERSION . ']';
 
 		$ret['site']['admin'] = get_config('system','admin_email');
 
@@ -4048,6 +4048,17 @@ function delivery_report_is_storable($dr) {
 	if(($dr['location'] !== z_root()) && ($dr['sender'] === $rxchan) && ($dr['status'] === 'recipient_not_found'))
 		return false;
 
+	// If you have a private post with a recipient list, every single site is going to report
+	// back a failed delivery for anybody on that list that isn't local to them. We're only 
+	// concerned about this if we have a local hubloc record which says we expected them to
+	// have a channel on that site.
+ 
+	$r = q("select hubloc_id from hubloc where hubloc_hash = '%s' and hubloc_url = '%s'",
+		dbesc($rxchan),
+		dbesc($dr['location'])
+	);
+	if((! $r) && ($dr['status'] === 'recipient_not_found'))
+		return false;
 
 	$r = q("select abook_id from abook where abook_xchan = '%s' and abook_channel = %d limit 1",
 		dbesc($rxchan),

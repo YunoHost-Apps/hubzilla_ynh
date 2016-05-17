@@ -268,7 +268,7 @@ function openclipatar_content(&$a) {
 				dbesc($hash)
 				);
 			
-			require_once('mod/profile_photo.php');
+			require_once('include/photos.php');
 			profile_photo_set_profile_perms(); //Reset default profile photo permissions to public
 			
 			// only the default needs reload since it uses canonical url -- despite the slightly ambiguous message, left it so as to re-use translations

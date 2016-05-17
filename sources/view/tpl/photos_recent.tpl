@@ -1,10 +1,10 @@
 <div class="generic-content-wrapper">
 	<div class="section-title-wrapper">
 		<div class="pull-right">
-			<button id="fullscreen-btn" type="button" class="btn btn-default btn-xs" onclick="makeFullScreen();"><i class="icon-resize-full"></i></button>
-			<button id="inline-btn" type="button" class="btn btn-default btn-xs" onclick="makeFullScreen(false);"><i class="icon-resize-small"></i></button>
+			<button id="fullscreen-btn" type="button" class="btn btn-default btn-xs" onclick="makeFullScreen();"><i class="fa fa-expand"></i></button>
+			<button id="inline-btn" type="button" class="btn btn-default btn-xs" onclick="makeFullScreen(false);"><i class="fa fa-compress"></i></button>
 			{{if $can_post}}
-			<button class="btn btn-xs btn-success" title="{{$usage}}" onclick="openClose('photo-upload-form');"><i class="icon-upload"></i>&nbsp;{{$upload.0}}</button>
+			<button class="btn btn-xs btn-success" title="{{$usage}}" onclick="openClose('photo-upload-form');"><i class="fa fa-arrow-circle-o-up"></i>&nbsp;{{$upload.0}}</button>
 			{{/if}}
 		</div>
 		<h2>{{$title}}</h2>

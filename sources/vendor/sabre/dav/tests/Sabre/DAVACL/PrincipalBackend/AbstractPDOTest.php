@@ -128,10 +128,12 @@ abstract class AbstractPDOTest extends \PHPUnit_Framework_TestCase {
         $pdo = $this->getPDO();
         $backend = new PDO($pdo);
 
-        $result = $backend->updatePrincipal('principals/user', array(
+        $propPatch = new DAV\PropPatch([
             '{DAV:}displayname' => 'pietje',
-            '{http://sabredav.org/ns}vcard-url' => 'blabla',
-        ));
+        ]);
+
+        $backend->updatePrincipal('principals/user', $propPatch);
+        $result = $propPatch->commit();
 
         $this->assertTrue($result);
 
@@ -139,7 +141,6 @@ abstract class AbstractPDOTest extends \PHPUnit_Framework_TestCase {
             'id' => 1,
             'uri' => 'principals/user',
             '{DAV:}displayname' => 'pietje',
-            '{http://sabredav.org/ns}vcard-url' => 'blabla',
             '{http://sabredav.org/ns}email-address' => 'user@example.org',
         ), $backend->getPrincipalByPath('principals/user'));
 
@@ -150,21 +151,20 @@ abstract class AbstractPDOTest extends \PHPUnit_Framework_TestCase {
         $pdo = $this->getPDO();
         $backend = new PDO($pdo);
 
-        $result = $backend->updatePrincipal('principals/user', array(
+        $propPatch = new DAV\PropPatch([
             '{DAV:}displayname' => 'pietje',
-            '{http://sabredav.org/ns}vcard-url' => 'blabla',
             '{DAV:}unknown' => 'foo',
-        ));
+        ]);
+
+        $backend->updatePrincipal('principals/user', $propPatch);
+        $result = $propPatch->commit();
+
+        $this->assertFalse($result);
 
         $this->assertEquals(array(
-            424 => array(
-                '{DAV:}displayname' => null,
-                '{http://sabredav.org/ns}vcard-url' => null,
-            ),
-            403 => array(
-                '{DAV:}unknown' => null,
-            ),
-        ), $result); 
+            '{DAV:}displayname' => 424,
+            '{DAV:}unknown' => 403
+        ), $propPatch->getResult());
 
         $this->assertEquals(array(
             'id' => '1',
@@ -172,6 +172,26 @@ abstract class AbstractPDOTest extends \PHPUnit_Framework_TestCase {
             '{DAV:}displayname' => 'User',
             '{http://sabredav.org/ns}email-address' => 'user@example.org',
         ), $backend->getPrincipalByPath('principals/user'));
+
+    }
+
+    function testFindByUriUnknownScheme() {
+
+        $pdo = $this->getPDO();
+        $backend = new PDO($pdo);
+        $this->assertNull($backend->findByUri('http://foo', 'principals'));
+
+    }
+
+
+    function testFindByUri() {
+
+        $pdo = $this->getPDO();
+        $backend = new PDO($pdo);
+        $this->assertEquals(
+            'principals/user',
+            $backend->findByUri('mailto:user@example.org', 'principals')
+        );
 
     }
 

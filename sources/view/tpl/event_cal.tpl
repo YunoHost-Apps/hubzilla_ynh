@@ -6,7 +6,7 @@
 			</div>
 			{{$event.html}}
 			<div class="event-buttons">
-				{{if $event.item.plink}}<a href="{{$event.plink.0}}" title="{{$event.plink.1}}"  class="plink-event-link"><i class="icon-external-link btn btn-default" ></i></a>{{/if}}
+				{{if $event.item.plink}}<a href="{{$event.plink.0}}" title="{{$event.plink.1}}"  class="plink-event-link"><i class="fa fa-external-link btn btn-default" ></i></a>{{/if}}
 			</div>
 			<div class="clear"></div>
 		</div>

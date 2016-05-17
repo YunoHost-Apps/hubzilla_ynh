@@ -1,6 +1,6 @@
 <div class="generic-content-wrapper">
 	<div class="section-title-wrapper">
-		<a class="btn btn-success btn-xs pull-right" href="{{$create.0}}" title="{{$create.1}}"><i class="icon-plus-sign"></i>&nbsp;{{$create.2}}</a>
+		<a class="btn btn-success btn-xs pull-right" href="{{$create.0}}" title="{{$create.1}}"><i class="fa fa-plus-circle"></i>&nbsp;{{$create.2}}</a>
 		<h2>{{$header}}</h2>
 	</div>
 	<div class="section-content-wrapper-np">

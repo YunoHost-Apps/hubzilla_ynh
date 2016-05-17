@@ -34,10 +34,18 @@ code {
 	padding: 10px;
 }
 
-.profile-jot-text {
+#profile-jot-text {
+	resize: none;
+	border-width: 0px;
 	height: 39px;
+	line-height: 19px;
 	padding: 10px;
 	width: 100%;
+	display: inherit;
+}
+
+#profile-jot-text:focus {
+	resize: vertical;
 }
 
 .jot-attachment {
@@ -60,10 +68,6 @@ code {
 	height: 30px;
 }
 
-#profile-jot-form {
-	line-height: initial;
-}
-
 #profile-jot-wrapper {
 	margin-bottom: 30px;
 }
@@ -73,7 +77,7 @@ code {
 }
 
 #profile-rotator {
-	margin: 16px;
+	padding: 15px 0px 0px 15px;
 }
 
 .profile-jot-net {
@@ -120,7 +124,7 @@ a.wall-item-name-link {
 	text-overflow: ellipsis;
 }
 
-.wall-item-ago .icon-ok {
+.wall-item-ago .fa-check {
 	cursor: pointer;
 }
 
@@ -192,8 +196,10 @@ a.wall-item-name-link {
 
 /* comment_item */
 
-.comment-edit-text-empty, .comment-edit-text-full {
+.comment-edit-text-empty,
+.comment-edit-text-full {
 	width: 100%;
+	display: inherit;
 }
 
 .comment-edit-text-empty {

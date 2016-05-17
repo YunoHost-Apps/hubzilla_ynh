@@ -197,22 +197,22 @@ echo "Try to add or update Hubzilla addons"
 cd ${OPENSHIFT_REPO_DIR}
 util/add_addon_repo https://github.com/redmatrix/hubzilla-addons.git HubzillaAddons 
 
-# Hubzilla themes
-echo "Try to add or update Hubzilla themes"
+# Hubzilla themes - unofficial repo
+echo "Try to add or update Hubzilla themes - unofficial repo"
 cd ${OPENSHIFT_REPO_DIR}
-util/add_theme_repo https://github.com/DeadSuperHero/hubzilla-themes.git DeadSuperHeroThemes 
+util/add_theme_repo https://github.com/DeadSuperHero/hubzilla-themes.git DeadSuperHeroThemes insecure
 
-# Hubzilla ownMapp
-echo "Try to add or update Hubzilla ownMapp"
+# Hubzilla ownMapp - unofficial repo
+echo "Try to add or update Hubzilla ownMapp - unofficial repo"
 cd ${OPENSHIFT_REPO_DIR}
-util/add_addon_repo https://gitlab.com/zot/ownmapp.git ownMapp
+util/add_addon_repo https://gitlab.com/zot/ownmapp.git ownMapp insecure
 
-# Hubzilla Chess
-echo "Try to add or update Hubzilla chess "
+# Hubzilla Chess - unofficial repo
+echo "Try to add or update Hubzilla chess - unofficial repo"
 cd ${OPENSHIFT_REPO_DIR}
-util/add_addon_repo https://gitlab.com/zot/hubzilla-chess.git Chess
+util/add_addon_repo https://gitlab.com/zot/hubzilla-chess.git Chess insecure
 
-# Hubzilla Hubsites
-echo "Try to add or update Hubzilla Hubsites"
+# Hubzilla Hubsites - unofficial repo
+echo "Try to add or update Hubzilla Hubsites - unofficial repo"
 cd ${OPENSHIFT_REPO_DIR}
-util/add_addon_repo https://gitlab.com/zot/hubsites.git Hubsites
+util/add_addon_repo https://gitlab.com/zot/hubsites.git Hubsites insecure

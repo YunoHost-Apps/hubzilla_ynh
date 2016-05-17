@@ -1,6 +1,6 @@
-[b]Permissions[/b]
-
+[h1]Permissions[/h1]
 Permissions in the $Projectname are more complete than you may be used to. This allows us to define more fine graded relationships than the black and white &quot;this person is my friend, so they can do everything&quot; or &quot;this person is not my friend, so they can't do anything&quot; permissions you may find elsewhere.
+
 
 [b]Default Permissions[/b]
 
@@ -13,89 +13,57 @@ Be aware that altering the scope of who can see your "public" items is a more or
 A more useful privacy setup is to leave "public" items visible to anybody on the internet; but force everything you create to be restricted. This can be done on your Channel Settings page by selecting the role "Social - restricted". This ensures a Default Privacy Group for all new contacts, and sets your Default Post Permissions to restrict all your posts to that group. We use the Default Post Permissions for everything you create - posts, photos, events, webpages, and everything else. However you can then edit the permissions when you create any individual thing and remove your default privacy group to make just that item visible to anybody.   
 
 
+[dl terms="l"]
+[*= The scopes of permissions are:]
+[dl terms="i"]
+  [*= Nobody Except Yourself ] This is self explanatory. Only you will be allowed access.
+  
+  [*= Only those you specifically allow ] By default, people you are not connected to, and all new contacts will   have this permission denied. You will be able to make exceptions for individual channels on their contact edit   screen.
+  
+  [*= Anybody in your address book ] Anybody you do not know will have this permission denied, but anybody you   accept as a contact will have this permission approved. This is the way most legacy platforms handle   permissions.
+  
+  [*= Anybody On This Hub ] Anybody using the same hub as you will have permission approved. Anybody who   registered at a different hub will have this permission denied.
+  
+  [*= Anybody in this network ] Anybody in the $Projectname will have this permission approved. Even complete   strangers. However, anybody not logged in/authenticated will have this permission denied.
+  
+  [*= Anybody authenticated ] This is similar to "anybody in this network" except that it can include anybody   who can authenticate by any means - and therefore may include visitors from other networks.
+  
+  [*= Anybody on the internet ] Completely public. This permission will be approved for anybody at all.
+[/dl]
+[*= The individual permissions are:]
+[dl terms="i"]
+  [*= Can view my &quot;public&quot; stream and posts. ] This permision determines who can view your channel &quot;stream&quot; that is, the non-private posts that appear on the &quot;home&quot; tab when you're logged in.
 
-The scopes of permissions are:
+  [*= Can view my &quot;public&quot; channel profile. ] This permission determines who can view your channel's profile. This refers to the &quot;about&quot; tab
 
-[li]Nobody Except Yourself. This is self explanatory. Only you will be allowed access.[/li]
+  [*= Can view my &quot;public&quot; photo albums. ] This permission determines who can view your photo albums. Individual photographs may still be posted to a more private audience.
 
-[li]Only those you specifically allow. By default, people you are not connected to, and all new contacts will have this permission denied. You will be able to make exceptions for individual channels on their contact edit screen.[/li]
+  [*= Can view my &quot;public&quot; address book. ] This permission determines who can view your contacts. These are the connections displayed in the &quot;View connections&quot; section.
 
-[li]Anybody in your address book. Anybody you do not know will have this permission denied, but anybody you accept as a contact will have this permission approved. This is the way most legacy platforms handle permissions.[/li]
+  [*= Can view my &quot;public&quot; file storage. ] This permission determines who can view your public files stored in your cloud.
 
-[li]Anybody On This Hub. Anybody using the same hub as you will have permission approved. Anybody who registered at a different hub will have this permission denied.[/li]
+  [*= Can view my &quot;public&quot; pages. ] This permission determines who can view your public web pages. 
 
-[li]Anybody in this network. Anybody in the $Projectname will have this permission approved. Even complete strangers. However, anybody not logged in/authenticated will have this permission denied.[/li]
+  [*= Can send me their channel stream and posts. ] This permission determines whose posts you will view. If your channel is a personal channel (ie, you as a person), you would probably want to set this to &quot;anyone in my address book&quot; at a minimum. A personal notes channel would probably want to choose &quot;nobody except myself&quot;. Setting this to &quot;Anybody in the network&quot; will show you posts from complete strangers, which is a good form of discovery.
 
-[li]Anybody authenticated. This is similar to "anybody in this network" except that it can include anybody who can authenticate by any means - and therefore may include visitors from other networks.[/li]
+  [*= Can post on my channel page (&quot;wall&quot;). ] This permission determines who can write to your wall when clicking through to your channel.
 
-[li]Anybody on the internet. Completely public. This permission will be approved for anybody at all.[/li]
+  [*= Can comment on my posts. ] This permission determines who can comment on posts you create. Normally, you would want this to match your &quot;can view my public stream and posts&quot; permission
 
-The individual permissions are:
+  [*= Can send me private mail messages. ] This determines who can send you private messages (zotmail).
 
-[i]Can view my &quot;public&quot; stream and posts.[/i]
+  [*= Can post photos to my photo albums. ] This determines who can post photographs in your albums. This is very useful for forum-like channels where connections may not be connected to each other.
 
-This permision determines who can view your channel &quot;stream&quot; that is, the non-private posts that appear on the &quot;home&quot; tab when you're logged in.
+  [*= Can forward to all my channel contacts via post tags. ] Using @- mentions will reproduce a copy of your post on the profile specified, as though you posted on the channel wall. This determines if people can post to your channel in this way.
 
-[i]Can view my &quot;public&quot; channel profile.[/i]
+  [*= Can chat with me (when available). ] This determines who can join the public chat rooms created by your channel.
 
-This permission determines who can view your channel's profile. This refers to the &quot;about&quot; tab
+  [*= Can write to my &quot;public&quot; file storage. ] This determines who can upload files to your public file storage, or 'cloud'.
 
-[i]Can view my &quot;public&quot; photo albums.[/i]
+  [*= Can edit my &quot;public&quot; pages. ] This determines who can edit your webpages. This is useful for wikis or sites with multiple editors.
 
- This permission determines who can view your photo albums. Individual photographs may still be posted to a more private audience.
-
-[i]Can view my &quot;public&quot; address book.[/i]
-
-This permission determines who can view your contacts. These are the connections displayed in the &quot;View connections&quot; section.
-
-[i]Can view my &quot;public&quot; file storage.[/i]
-
-This permission determines who can view your public files stored in your cloud.
-
-[i]Can view my &quot;public&quot; pages.[/i]
-
-This permission determines who can view your public web pages. 
-
-[i]Can send me their channel stream and posts.[/i]
-
-This permission determines whose posts you will view. If your channel is a personal channel (ie, you as a person), you would probably want to set this to &quot;anyone in my address book&quot; at a minimum. A personal notes channel would probably want to choose &quot;nobody except myself&quot;. Setting this to &quot;Anybody in the network&quot; will show you posts from complete strangers, which is a good form of discovery.
-
-[i]Can post on my channel page (&quot;wall&quot;).[/i]
-
-This permission determines who can write to your wall when clicking through to your channel.
-
-[i]Can comment on my posts.[/i]
-
-This permission determines who can comment on posts you create. Normally, you would want this to match your &quot;can view my public stream and posts&quot; permission
-
-[i]Can send me private mail messages.[/i]
-
-This determines who can send you private messages (zotmail).
-
-[i]Can post photos to my photo albums.[/i]
-
-This determines who can post photographs in your albums. This is very useful for forum-like channels where connections may not be connected to each other.
-
-[i]Can forward to all my channel contacts via post tags.[/i]
-
-Using @- mentions will reproduce a copy of your post on the profile specified, as though you posted on the channel wall. This determines if people can post to your channel in this way.
-
-[i]Can chat with me (when available).[/i]
-
-This determines who can join the public chat rooms created by your channel.
-
-[i]Can write to my &quot;public&quot; file storage.[/i]
-
-This determines who can upload files to your public file storage, or 'cloud'.
-
-[i]Can edit my &quot;public&quot; pages.[/i]
-
-This determines who can edit your webpages. This is useful for wikis or sites with multiple editors.
-
-[i]Can administer my channel resources.[/i]
-
-This determines who can have full control of your channel. This should normally be set to &quot;nobody except myself&quot;.
-
+  [*= Can administer my channel resources. ] This determines who can have full control of your channel. This should normally be set to &quot;nobody except myself&quot;.
+[/dl][/dl]
 [i]Note:[/i]
 Plugins/addons may provide special permission settings, so you may be offered additional permission settings beyond what is described here.
 

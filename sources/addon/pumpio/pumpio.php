@@ -490,9 +490,9 @@ function pumpio_fetchtimeline($a, $uid) {
 
 				logger('pumpio: posting for user '.$uid);
 
-				require_once('mod/item.php');
-				//print_r($_REQUEST);
-				item_post($a);
+				$mod = new Zotlabs\Module\Item();
+				$mod->post();
+
 				logger('pumpio: posting done - user '.$uid);
 			}
 		}

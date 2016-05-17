@@ -27,12 +27,31 @@
 <li>[list=a]<br />
 <li>[list=A] <br />
 <li>[ul]<br />
-<li>[ol]
+<li>[ol]<br />
+<li>[dl]<br />
+<li>[dl terms="biumlh"] &mdash; where style of the terms can be any combination of:
+	<dl class="bb-dl dl-horizontal">
+	<dt>b</dt><dd>bold</dd>
+	<dt>i</dt><dd>italic</dd>
+	<dt>u</dt><dd>underline</dd>
+	<dt>m</dt><dd>monospace</dd>
+	<dt>l</dt><dd>large</dd>
+	<dt>h</dt><dd>horizontal &mdash; like <em>this</em> defintion list</dd>
+	</dl>
+</li>
 
 </ul>For example:<br />[ul]<br />[*] First list element<br />[*] Second list element<br />[/ul]<br /><br />Will render something like: <br />
 <ul class="listbullet" style="list-style-type: circle;">
 <li> First list element<br />
-<li> Second list element</ul><br /> 
+<li> Second list element</ul>
+
+or<br /><br />[dl terms="b"]<br />[*= First element term] First element description<br />[*= Second element term] Second element description<br />[/dl]<br /><br />Will render something like: <br /><br />
+<dl class="bb-dl dl-terms-bold">
+<dt> First element term </dt><dd>First element description</dd>
+<dt> Second element term </dt><dd>Second element description</dd>
+</dl><br /> 
+
+
 <br />There's also:<br />
 <ul class="listloweralpha" style="list-style-type: lower-alpha;">
 <li>[hr]<br />

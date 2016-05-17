@@ -1,6 +1,6 @@
 [b]Creating Web Pages[/b]
 
-Red enables users to create static webpages.  To activate this feature, enable the web pages feature in your Additional Features section.
+Hubzilla enables users to create static webpages.  To activate this feature, enable the web pages feature in your Additional Features section.
 
 Once enabled, a new tab will appear on your channel page labelled &quot;Webpages&quot;.  Clicking this link will take you to the webpage editor.
 Pages will be accessible at mydomain/page/username/pagelinktitle

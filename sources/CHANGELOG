@@ -1,3 +1,52 @@
+Hubzilla 1.6
+	Cleanup and standardise the interfaces to the "jot" editor
+	Router re-written to support calling class object methods as controllers
+	All existing modules (160+) re-written as object classes
+	Plugin hook interface adapted to call static class methods
+	Context help improved dramatically with content for the most accessed pages.
+	Reverted a compatibility change to support GNU-social events. We copied their feed format and their feed format is wrong (XML namespace collisions).
+	Provide a querystring attribute to CSS/JS resources to avoid caching issues when our code changes (which is often). 
+	Fix javascript detection and allow either positive or negative detection.
+	Refactor the plugin hook registration procedure, provide 'unregister all' ability.
+	Fix RSD (Real Simple Discovery) which has been broken for some time.
+	Update smarty library to 3.1.29
+	Update jquery.textcomplete to 1.3.4
+	Update font-awesome to 4.6.1
+	Update SabreDAV to 3.0 (PHP version requirements prevent us from pushing it further at this time)
+	Help text added to cmdline utilities config and pconfig
+	Reworking of the database logging facility to avoid the rare but troublesome recursion when the log facility needed to query the DB internally to obtain config parameters. 
+	Implement singleton delivery (emulate nomadic identity to singleton networks and services)
+	Fix empty album name in photo activities when photo is stored in top level folder.
+	Allow engineering units to be used in service class data size restrictions (400M, 1G, etc.)
+	Lots of work on bbcode auto-completion
+	Admin interface provided to manage external resource repositories
+ 	Oembed security reworked. Now all sources are filtered by default unless blocked.
+	Remove the date-string version and use only STD_VERSION
+	Add categories and categorisation filtering and the ability to edit all apps (including system apps) for a given channel 
+	Ensure the ability to translate names of all system apps (except those provided in addons)
+	Provide ability to add categories to content from channel sources
+	Lots of work on the presentation of the ACL widget to enhance usability and intuitiveness
+	Allow somebody to follow a channel from a pasted redress containing a Unicode lookalike of the @ sign.
+	Add conditional syntax to Comanche (if/then/else)
+	Convert Comanche to an object class
+	Removed IE6 compatibility code
+	Explicitly close DB on shutdown/exit instead of allowing it to close naturally
+	Allowed delayed publish of webpages
+	Show current repository versions of master and dev on admin page and warn if your installation has fallen behind master
+	Provide some extra security checks to import data and files to prevent mischief
+	Block CalDAV/CardDAV namespace reserved words from being used as a channel nickname/redress since Sabre is somewhat inflexible in this regard
+	Plugins:
+		Diaspora 
+			markdown translator work needed to eradicate the Diaspora Comment Virus.    
+			upgrade all inbound paths with the most recent protocol changes (several of these)
+			convert 'diaspora_meta' (Diaspora Comment Virus) to iconfig and eradicate from sites with Diaspora disabled
+			implement social relay and allow following tags
+			upgrade statistics.json to NodeInfo. Currently hubzilla sites are tagged as 'redmatrix' because the NodeInfo schema lacks extensibility and project names are used to designate protocol compatibility rather than protocol names.
+		Std-embeds
+			New addon to allow a handful of corporate providers to run unfiltered embed code (youtube, vimeo, soundcloud) 
+		Various:
+			upgrade font-awesome icons and adapt a few addons to Objects and the new hook interface and new controller interface
+			
 Hubzilla 1.4
 	[This list may appear brief, but encompasses a huge amount of re-writing and re-factoring
 	of the internal code structure to gain long-term performance and stability and provide a standard

@@ -772,13 +772,15 @@ require_once('include/api_auth.php');
 		
 		$_REQUEST['silent']='1'; //tell wall_upload function to return img info instead of echo
 		$_FILES['userfile'] = $_FILES['media'];
-		require_once('mod/wall_attach.php');
-		$posted = wall_attach_post($a);
-				
-		//now that we have the img url in bbcode we can add it to the status and insert the wall item.
+
+		$mod = new Zotlabs\Module\Wall_attach();
+		$mod->post();
+
+
 		$_REQUEST['body']=$txt."\n\n".$posted;
-		require_once('mod/item.php');
-		item_post($a);
+
+		$mod = new Zotlabs\Module\Item();
+		$mod->post();
 
 		// this should output the last post (the one we just posted).
 		return api_status_show($a,$type);
@@ -871,9 +873,9 @@ require_once('include/api_auth.php');
 
 						// upload each image if we have any
 						$_REQUEST['silent']='1'; //tell wall_upload function to return img info instead of echo
-						require_once('mod/wall_attach.php');
+						$mod = new Zotlabs\Module\Wall_attach();
 						App::$data['api_info'] = $user_info;
-						$media = wall_attach_post($a);
+						$media = $mod->post();
 
 						if(strlen($media)>0)
 							$_REQUEST['body'] .= "\n\n" . $media;
@@ -884,9 +886,9 @@ require_once('include/api_auth.php');
 					$_FILES['userfile'] = $_FILES['media'];
 					// upload each image if we have any
 					$_REQUEST['silent']='1'; //tell wall_upload function to return img info instead of echo
-					require_once('mod/wall_attach.php');
+					$mod = new Zotlabs\Module\Wall_attach();
 					App::$data['api_info'] = $user_info;
-					$media = wall_attach_post($a);
+					$media = $mod->post();
 
 					if(strlen($media)>0)
 						$_REQUEST['body'] .= "\n\n" . $media;
@@ -896,8 +898,8 @@ require_once('include/api_auth.php');
 
 		// call out normal post function
 
-		require_once('mod/item.php');
-		item_post($a);	
+		$mod = new Zotlabs\Module\Item();
+		$mod->post();	
 
 		// this should output the last post (the one we just posted).
 		return api_status_show($a,$type);
@@ -926,14 +928,14 @@ require_once('include/api_auth.php');
 			$_FILES['userfile'] = $_FILES['media'];
 			// upload the image if we have one
 			$_REQUEST['silent']='1'; //tell wall_upload function to return img info instead of echo
-			require_once('mod/wall_upload.php');
-			$media = wall_upload_post($a);
+			$mod = new Zotlabs\Module\Wall_upload();
+			$media = $mod->post();
 			if(strlen($media)>0)
 				$_REQUEST['body'] .= "\n\n".$media;
 		}
 
-		require_once('mod/item.php');
-		$x = item_post($a);	
+		$mod = new Zotlabs\Module\Item();
+		$x = $mod->post();	
 		json_return_and_die($x);
 	}
 
@@ -1423,9 +1425,8 @@ require_once('include/api_auth.php');
 				$_REQUEST['profile_uid'] = api_user();
 				$_REQUEST['type'] = 'wall';
 				$_REQUEST['api_source'] = true;
-
-				require_once('mod/item.php');
-				item_post($a);
+				$mod = new Zotlabs\Module\Item();
+				$mod->post();
 			}
 		}
 		else
@@ -2107,7 +2108,7 @@ require_once('include/api_auth.php');
 			'shorturllength' => '30',
         	'hubzilla' => array(
 				'PLATFORM_NAME' => Zotlabs\Project\System::get_platform_name(),
-				'RED_VERSION' => Zotlabs\Project\System::get_project_version(),
+				'STD_VERSION' => Zotlabs\Project\System::get_project_version(),
 				'ZOT_REVISION' => ZOT_REVISION,
 				'DB_UPDATE_VERSION' => Zotlabs\Project\System::get_update_version()
 			)

@@ -2,24 +2,24 @@
 	<div class="section-title-wrapper">
 		<div class="dropdown pull-right" id="profile-edit-links">
 			<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-				<i class="icon-caret-down"></i>
+				<i class="fa fa-caret-down"></i>&nbsp;{{$tools_label}}
 			</button>
 			<ul class="dropdown-menu">
 				<li class="nav-item">
-					<a class="nav-link" href="profile_photo" id="profile-photo_upload-link" title="{{$profpic}}"><i class="icon-user"></i>&nbsp;{{$profpic}}</a>
+					<a class="nav-link" href="profile_photo" id="profile-photo_upload-link" title="{{$profpic}}"><i class="fa fa-user"></i>&nbsp;{{$profpic}}</a>
 				</li>
 				{{if $is_default}}
 				<li class="nav-item">
-					<a href="cover_photo" id="cover-photo_upload-link" title="{{$coverpic}}"><i class="icon-picture"></i>&nbsp;{{$coverpic}}</a>
+					<a href="cover_photo" id="cover-photo_upload-link" title="{{$coverpic}}"><i class="fa fa-picture-o"></i>&nbsp;{{$coverpic}}</a>
 				</li>
 				{{/if}}
 				{{if ! $is_default}}
 				<li class="nav-item">
-					<a href="profperm/{{$profile_id}}" id="profile-edit-visibility-link" title="{{$editvis}}"><i class="icon-pencil"></i>&nbsp;{{$editvis}}</a>
+					<a href="profperm/{{$profile_id}}" id="profile-edit-visibility-link" title="{{$editvis}}"><i class="fa fa-pencil"></i>&nbsp;{{$editvis}}</a>
 				</li>
 				{{/if}}
 				<li class="nav-item">
-					<a href="thing" id="profile-edit-thing-link" title="{{$addthing}}"><i class="icon-plus-sign"></i>&nbsp;{{$addthing}}</a>
+					<a href="thing" id="profile-edit-thing-link" title="{{$addthing}}"><i class="fa fa-plus-circle"></i>&nbsp;{{$addthing}}</a>
 				</li>
 				<li class="divider"></li>
 				<li class="nav-item">
@@ -44,7 +44,7 @@
 				{{if ! $is_default}}
 				<li class="divider"></li>
 				<li class="nav-item">
-					<a href="{{$profile_drop_link}}" id="profile-edit-drop-link" title="{{$del_prof}}" onclick="return confirmDelete();"><i class="icon-trash"></i>&nbsp;{{$del_prof}}</a>
+					<a href="{{$profile_drop_link}}" id="profile-edit-drop-link" title="{{$del_prof}}" onclick="return confirmDelete();"><i class="fa fa-trash-o"></i>&nbsp;{{$del_prof}}</a>
 				</li>
 				{{/if}}
 			<ul>
@@ -164,7 +164,7 @@
 						<div class="section-content-tools-wrapper">
 							{{if $fields.marital }}
 							<div id="profile-edit-marital-wrapper" class="form-group field" >
-							<label id="profile-edit-marital-label" for="profile-edit-marital" ><span class="heart"><i class="icon-heart"></i>&nbsp;</span>{{$lbl_marital}}</label>
+							<label id="profile-edit-marital-label" for="profile-edit-marital" ><span class="heart"><i class="fa fa-heart"></i>&nbsp;</span>{{$lbl_marital}}</label>
 							{{if $advanced}}
 							{{$marital}}
 							{{else}}

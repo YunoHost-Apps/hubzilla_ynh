@@ -34,9 +34,9 @@
 						<td class='channel_address'>{{$c.channel_address}}</td>
 						<td class="checkbox_bulkedit"><input type="checkbox" class="channels_ckbx" id="id_channel_{{$c.channel_id}}" name="channel[]" value="{{$c.channel_id}}"/></td>
 						<td class="tools">
-							<a href="{{$baseurl}}/admin/channels/block/{{$c.channel_id}}?t={{$form_security_token}}" class="btn btn-default btn-xs" title='{{if ($c.blocked)}}{{$unblock}}{{else}}{{$block}}{{/if}}'><i class='icon-ban-circle admin-icons {{if ($c.blocked)}}dim{{/if}}'></i></a>
-							<a href="{{$baseurl}}/admin/channels/code/{{$c.channel_id}}?t={{$form_security_token}}" class="btn btn-default btn-xs" title='{{if ($c.allowcode)}}{{$uncode}}{{else}}{{$code}}{{/if}}'><i class='icon-terminal admin-icons {{if ($c.allowcode)}}dim{{/if}}'></i></a>
-							<a href="{{$baseurl}}/admin/channels/delete/{{$c.channel_id}}?t={{$form_security_token}}" class="btn btn-default btn-xs" title='{{$delete}}' onclick="return confirm_delete('{{$c.channel_name}}')"><i class='icon-trash admin-icons'></i></a>
+							<a href="{{$baseurl}}/admin/channels/block/{{$c.channel_id}}?t={{$form_security_token}}" class="btn btn-default btn-xs" title='{{if ($c.blocked)}}{{$unblock}}{{else}}{{$block}}{{/if}}'><i class='fa fa-ban admin-icons {{if ($c.blocked)}}dim{{/if}}'></i></a>
+							<a href="{{$baseurl}}/admin/channels/code/{{$c.channel_id}}?t={{$form_security_token}}" class="btn btn-default btn-xs" title='{{if ($c.allowcode)}}{{$uncode}}{{else}}{{$code}}{{/if}}'><i class='fa fa-terminal admin-icons {{if ($c.allowcode)}}dim{{/if}}'></i></a>
+							<a href="{{$baseurl}}/admin/channels/delete/{{$c.channel_id}}?t={{$form_security_token}}" class="btn btn-default btn-xs" title='{{$delete}}' onclick="return confirm_delete('{{$c.channel_name}}')"><i class='fa fa-trash-o admin-icons'></i></a>
 						</td>
 					</tr>
 				{{/foreach}}

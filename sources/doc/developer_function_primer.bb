@@ -1,4 +1,4 @@
-[b]Red development - some useful basic functions[/b]
+[b]$Projectname development - some useful basic functions[/b]
 
 [b]get_account_id()[/b]
 
@@ -18,7 +18,7 @@ Returns the global app structure ($a).
 
 [b]App::get_observer()[/b]
 
-(App:: is usually assigned to the global $a), so $a-&gt;get_observer() or get_app()-&gt;get_observer() - returns an xchan structure representing the current viewer if authenticated (locally or remotely).
+returns an xchan structure representing the current viewer if authenticated (locally or remotely).
 
 [b]get_config($family,$key), get_pconfig($uid,$family,$key), get_xconfig($xchan_hash,$family,$key)[/b]
 

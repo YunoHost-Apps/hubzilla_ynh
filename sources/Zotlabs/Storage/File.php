@@ -208,13 +208,13 @@ class File extends DAV\Node implements DAV\IFile {
 			return;
 		}
 
-		$limit = service_class_fetch($c[0]['channel_id'], 'attach_upload_limit');
+		$limit = engr_units_to_bytes(service_class_fetch($c[0]['channel_id'], 'attach_upload_limit'));
 		if ($limit !== false) {
 			$x = q("select sum(filesize) as total from attach where aid = %d ",
 				intval($c[0]['channel_account_id'])
 			);
 			if (($x) && ($x[0]['total'] + $size > $limit)) {
-				logger('service class limit exceeded for ' . $c[0]['channel_name'] . ' total usage is ' . $x[0]['total'] . ' limit is ' . $limit);
+				logger('service class limit exceeded for ' . $c[0]['channel_name'] . ' total usage is ' . $x[0]['total'] . ' limit is ' . userReadableSize($limit));
 				attach_delete($c[0]['channel_id'], $this->data['hash']);
 				return;
 			}

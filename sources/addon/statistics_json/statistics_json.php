@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Name: Statistics
+ * Name: Diaspora Statistics
  * Description: Generates some statistics for the-federation.info (formerly http://pods.jasonrobinson.me/)
  * Version: 0.1
  * Author: Michael Vogel <https://pirati.ca/profile/heluecht>
@@ -10,12 +10,39 @@
 
 function statistics_json_load() {
 	register_hook('cron_daily', 'addon/statistics_json/statistics_json.php', 'statistics_json_cron');
+	register_hook('well_known', 'addon/statistics_json/statistics_json.php', 'statistics_json_well_known');
+	register_hook('module_loaded', 'addon/statistics_json/statistics_json.php', 'statistics_json_load_module');
 }
 
 
 function statistics_json_unload() {
 	unregister_hook('cron_daily', 'addon/statistics_json/statistics_json.php', 'statistics_json_cron');
+	unregister_hook('well_known', 'addon/statistics_json/statistics_json.php', 'statistics_json_well_known');
+	unregister_hook('module_loaded', 'addon/statistics_json/statistics_json.php', 'statistics_json_load_module');
 }
+
+
+function statistics_json_well_known() {
+	if(argc() > 1 && argv(1) === 'nodeinfo') {
+		$arr = array( 'links' => array(
+			'rel' => 'http://nodeinfo.diaspora.software/ns/schema/1.0',
+			'href' => z_root() . '/nodeinfo/1.0'
+		));
+
+		header('Content-type: application/json');
+		echo json_encode($arr);
+		killme();
+	}
+}
+
+
+function statistics_json_load_module(&$a, &$b) {
+	if($b['module'] === 'nodeinfo') {
+		require_once('addon/statistics_json/nodeinfo.php');
+		$b['installed'] = true;
+	}
+}
+
 
 function statistics_json_module() {}
 
@@ -104,6 +131,15 @@ function statistics_json_cron($a,$b) {
 		$local_posts = $posts[0]["local_posts"];
 
 	set_config('statistics_json','local_posts', $local_posts);
+
+
+	$posts = q("SELECT COUNT(*) AS local_posts FROM `item` WHERE item_wall != 0 and id != parent");
+	if (!is_array($posts))
+		$local_posts = -1;
+	else
+		$local_posts = $posts[0]["local_posts"];
+
+	set_config('statistics_json','local_comments', $local_posts);
 
 
 	$wordpress = false;

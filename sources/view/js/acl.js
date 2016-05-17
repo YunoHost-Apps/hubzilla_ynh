@@ -14,8 +14,9 @@ function ACL(backend_url, preset) {
 	that.nw = 4; //items per row. should be calulated from #acl-list.width
 
 	that.list_content = $("#acl-list-content");
-	that.item_tpl = unescape($(".acl-list-item[rel=acl-template]").html());
-	that.showall = $("#acl-showall");
+	that.item_tpl     = unescape($(".acl-list-item[rel=acl-template]").html());
+	that.showall      = $("#acl-showall");
+	that.showlimited  = $("#acl-showlimited");
 
 	// set the initial ACL lists in case the enclosing form gets submitted before the ajax loader completes. 
 	that.on_submit();
@@ -26,6 +27,7 @@ function ACL(backend_url, preset) {
 
 	$(document).ready(function() {
 			that.showall.click(that.on_showall);
+			that.showlimited.click(that.on_showlimited);
 			$(document).on('click','.acl-button-show',that.on_button_show);
 			$(document).on('click','.acl-button-hide',that.on_button_hide);
 			$("#acl-search").keypress(that.on_search);
@@ -71,7 +73,8 @@ ACL.prototype.on_search = function(event) {
 };
 
 ACL.prototype.on_showall = function(event) {
-	event.preventDefault();
+
+	// preventDefault() isn't called here as we want state changes from update_view() to be applied to the radiobutton
 	event.stopPropagation();
 
 	if (that.showall.hasClass("btn-warning")) {
@@ -87,8 +90,16 @@ ACL.prototype.on_showall = function(event) {
 	that.update_view();
 	that.on_submit();
 
-	return false;
+	return true; // return true so that state changes from update_view() will be applied
 };
+
+ACL.prototype.on_showlimited = function(event) {
+	// Prevent the radiobutton from being selected, as the showlimited radiobutton
+	// option is selected only by selecting show or hide options on channels or groups.
+	event.preventDefault();
+	event.stopPropagation();
+	return false;
+}
 
 ACL.prototype.on_selectall = function(event) {
 	event.preventDefault();
@@ -188,24 +199,35 @@ ACL.prototype.set_deny = function(itemid) {
 	that.update_view();
 };
 
+ACL.prototype.update_radiobuttons = function(isPublic) {
+
+	that.showall.prop('checked', isPublic);
+	that.showlimited.prop('checked', !isPublic);
+	that.showlimited.prop('disabled', isPublic);
+};
+
 ACL.prototype.update_view = function() {
 	if (that.allow_gid.length === 0 && that.allow_cid.length === 0 &&
 		that.deny_gid.length === 0 && that.deny_cid.length === 0) {
+			// btn-warning indicates that the permissions are public, it was chosen because
+			// that.showall used to be a normal button, which btn-warning is a bootstrap style for.
 			that.showall.removeClass("btn-default").addClass("btn-warning");
+			that.update_radiobuttons(true);
+
 			/* jot acl */
-			$('#jot-perms-icon').removeClass('icon-lock').addClass('icon-unlock');
+			$('#jot-perms-icon, #dialog-perms-icon').removeClass('fa-lock').addClass('fa-unlock');
 			$('#jot-public').show();
 			$('.profile-jot-net input').attr('disabled', false);
-			if(typeof editor !== 'undefined' && editor !== false) {
-				$('#profile-jot-desc').html(ispublic);
-			}
+
 	} else {
 		that.showall.removeClass("btn-warning").addClass("btn-default");
+		that.update_radiobuttons(false);
+
 		/* jot acl */
-		$('#jot-perms-icon').removeClass('icon-unlock').addClass('icon-lock');
+		$('#jot-perms-icon, #dialog-perms-icon').removeClass('fa-unlock').addClass('fa-lock');
 		$('#jot-public').hide();
 		$('.profile-jot-net input').attr('disabled', 'disabled');
-		$('#profile-jot-desc').html('&nbsp;');
+
 	}
 	$("#acl-list-content .acl-list-item").each(function() {
 		$(this).removeClass("groupshow grouphide");

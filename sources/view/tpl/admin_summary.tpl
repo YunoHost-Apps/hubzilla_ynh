@@ -3,6 +3,9 @@
 {{if $adminalertmsg}}
 	<p class="alert alert-warning" role="alert">{{$adminalertmsg}}</p>
 {{/if}}
+{{if $upgrade}}
+	<p class="alert alert-warning" role="alert">{{$upgrade}}</p>
+{{/if}}
 	<dl>
 		<dt>{{$queues.label}}</dt>
 		<dd>{{$queues.queue}}</dd>
@@ -28,5 +31,13 @@
 	<dl>
 		<dt>{{$version.0}}</dt>
 		<dd>{{$version.1}} - {{$build}}</dd>
+	</dl>
+	<dl>
+		<dt>{{$vmaster.0}}</dt>
+		<dd>{{$vmaster.1}}</dd>
+	</dl>
+	<dl>
+		<dt>{{$vdev.0}}</dt>
+		<dd>{{$vdev.1}}</dd>
 	</dl>
 </div>

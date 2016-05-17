@@ -49,6 +49,7 @@
     {{include file="field_input.tpl" field=$frontpage}}
     {{include file="field_checkbox.tpl" field=$mirror_frontpage}}
     {{include file="field_checkbox.tpl" field=$login_on_homepage}}
+    {{include file="field_checkbox.tpl" field=$enable_context_help}}
 	{{if $directory_server}}
 		{{include file="field_select.tpl" field=$directory_server}}
 	{{/if}}

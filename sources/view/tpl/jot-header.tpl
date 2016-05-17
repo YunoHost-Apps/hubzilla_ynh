@@ -1,7 +1,6 @@
 <script language="javascript" type="text/javascript">
 
 var editor = false;
-var textlen = 0;
 var plaintext = '{{$editselect}}';
 var pretext = '{{$pretext}}';
 
@@ -10,7 +9,7 @@ function initEditor(cb){
 		$("#profile-jot-text-loading").spin('small').show();
 		if(plaintext == 'none') {
 			$("#profile-jot-text-loading").spin(false).hide();
-			$("#profile-jot-text").css({ 'height': 200, 'color': '#000' });
+			$("#profile-jot-text").css({ 'height': 200, 'color': '#000', 'line-height': 'inherit' });
 			{{if $bbco_autocomplete}}
 			$("#profile-jot-text").bbco_autocomplete('{{$bbco_autocomplete}}'); // autocomplete bbcode
 			{{/if}}
@@ -75,14 +74,6 @@ function initEditor(cb){
 					else {
 						if(cPopup !== null) { cPopup.close(); cPopup = null; }
 					}
-
-					textlen = txt.length;
-					if(textlen != 0 && $('#jot-perms-icon').is('.unlock')) {
-						$('#profile-jot-desc').html(ispublic);
-					}
-					else {
-						$('#profile-jot-desc').html('&nbsp;');
-					}
 				});
 
 				ed.onInit.add(function(ed) {
@@ -109,8 +100,6 @@ function enableOnUser(){
 </script>
 <script type="text/javascript" src="{{$baseurl}}/view/js/ajaxupload.js" ></script>
 <script>
-	var ispublic = '{{$ispublic}}';
-
 	$(document).ready(function() {
 		/* enable tinymce on focus and click */
 		$("#profile-jot-text").focus(enableOnUser);
@@ -352,11 +341,11 @@ function enableOnUser(){
 	function toggleVoting() {
 		if($('#jot-consensus').val() > 0) {
 			$('#jot-consensus').val(0);
-			$('#profile-voting, #profile-voting-sub').removeClass('icon-check').addClass('icon-check-empty');
+			$('#profile-voting, #profile-voting-sub').removeClass('fa-check-square-o').addClass('fa-square-o');
 		}
 		else {
 			$('#jot-consensus').val(1);
-			$('#profile-voting, #profile-voting-sub').removeClass('icon-check-empty').addClass('icon-check');
+			$('#profile-voting, #profile-voting-sub').removeClass('fa-square-o').addClass('fa-check-square-o');
 		}
 	}
 

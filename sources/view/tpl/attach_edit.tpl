@@ -8,16 +8,16 @@
 	<div id="attach-edit-tools-share" class="btn-group form-group">
 		{{if !$isadir}}
 		<a href="/rpost?attachment=[attachment]{{$file.hash}},{{$file.revision}}[/attachment]" id="attach-btn" class="btn btn-default btn-xs" title="{{$attach_btn_title}}">
-			<i class="icon-share jot-icons"></i>
+			<i class="fa fa-share-square-o jot-icons"></i>
 		</a>
 		{{/if}}
 		<button id="link-btn" class="btn btn-default btn-xs" type="button" onclick="openClose('link-code');" title="{{$link_btn_title}}">
-			<i class="icon-link jot-icons"></i>
+			<i class="fa fa-link jot-icons"></i>
 		</button>
 	</div>
 	<div id="attach-edit-perms" class="btn-group pull-right">
 		<button id="dbtn-acl" class="btn btn-default btn-xs" data-toggle="modal" data-target="#aclModal" title="{{$permset}}" onclick="return false;">
-			<i id="jot-perms-icon" class="icon-{{$lockstate}} jot-icons"></i>
+			<i id="jot-perms-icon" class="fa fa-{{$lockstate}} jot-icons"></i>
 		</button>
 		<button id="dbtn-submit" class="btn btn-primary btn-xs" type="submit" name="submit">
 			{{$submit}}

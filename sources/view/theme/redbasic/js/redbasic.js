@@ -17,7 +17,7 @@ $(document).ready(function() {
 	$('#css3-calc').remove(); // Remove the test element
 
 	$('#expand-aside').click(function() {
-		$('#expand-aside-icon').toggleClass('icon-circle-arrow-right').toggleClass('icon-circle-arrow-left');
+		$('#expand-aside-icon').toggleClass('fa-arrow-circle-right').toggleClass('fa-arrow-circle-left');
 		$('main').toggleClass('region_1-on');
 	});
 
@@ -29,7 +29,7 @@ $(document).ready(function() {
 		if(!$('#tabs-collapse-1').hasClass('in')){
 			$('html, body').animate({ scrollTop: 0 }, 'slow');
 		}
-		$('#expand-tabs-icon').toggleClass('icon-circle-arrow-down').toggleClass('icon-circle-arrow-up');
+		$('#expand-tabs-icon').toggleClass('fa-arrow-circle-down').toggleClass('fa-arrow-circle-up');
 	});
 
 	if($('#tabs-collapse-1').length === 0) {

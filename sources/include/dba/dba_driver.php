@@ -59,8 +59,9 @@ abstract class dba_driver {
 	const NULL_DATE = '0000-00-00 00:00:00';
 	const UTC_NOW = 'UTC_TIMESTAMP()';
 
-	protected $debug = 0;
 	protected $db;
+
+	public $debug = 0;
 	public  $connected = false;
 	public  $error = false;
 
@@ -302,10 +303,10 @@ function q($sql) {
 		$stmt = vsprintf($sql, $args);
 		if($stmt === false) {
 			if(version_compare(PHP_VERSION, '5.4.0') >= 0)
-				logger('dba: vsprintf error: ' .
+				db_logger('dba: vsprintf error: ' .
 					print_r(debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1), true),LOGGER_NORMAL,LOG_CRIT);
 			else
-				logger('dba: vsprintf error: ' . print_r(debug_backtrace(), true),LOGGER_NORMAL,LOG_CRIT);
+				db_logger('dba: vsprintf error: ' . print_r(debug_backtrace(), true),LOGGER_NORMAL,LOG_CRIT);
 		}
 		return $db->q($stmt);
 	}
@@ -314,7 +315,7 @@ function q($sql) {
 	 * This will happen occasionally trying to store the 
 	 * session data after abnormal program termination 
 	 */
-	logger('dba: no database: ' . print_r($args,true),LOGGER_NORMAL,LOG_CRIT);
+	db_logger('dba: no database: ' . print_r($args,true),LOGGER_NORMAL,LOG_CRIT);
 
 	return false;
 }
@@ -385,7 +386,19 @@ function db_getfunc($f) {
 	if(isset($lookup[$f]) && isset($lookup[$f][ACTIVE_DBTYPE]))
 		return $lookup[$f][ACTIVE_DBTYPE];
 
-	logger('Unable to abstract DB function "'. $f . '" for dbtype ' . ACTIVE_DBTYPE, LOGGER_DEBUG, LOG_ERR);
+	db_logger('Unable to abstract DB function "'. $f . '" for dbtype ' . ACTIVE_DBTYPE, LOGGER_DEBUG, LOG_ERR);
 	return $f;
 }
 
+// The logger function may make DB calls internally to query the system logging parameters.
+// This can cause a recursion if database debugging is enabled.
+// So this function preserves the current database debugging state and then turns it off while 
+// doing the logger() call
+
+function db_logger($s,$level = LOGGER_NORMAL,$syslog = LOG_INFO) {
+	global $db;
+	$saved = $db->debug;
+	$db->debug = false;
+	logger($s,$level,$syslog);
+	$db->debug = $saved;
+}

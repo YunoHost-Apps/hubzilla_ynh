@@ -330,8 +330,61 @@ function bb_map_location($match) {
 }
 
 function bb_opentag($match) {
+	$openclose = (($match[2]) ? '<span class="bb-open" title="' . t('Click to open/close') . '">' . $match[1] . '</span>' : t('Click to open/close'));
+	$text = (($match[2]) ? $match[2] : $match[1]);
 	$rnd = mt_rand();
-	return "<br /><div onclick=\"openClose('opendiv-" . $rnd . "');return false;\" class=\"fakelink\">" . $match[1] . "</div><div id=\"opendiv-" . $rnd . "\" style=\"display: none;\">" . $match[2] . "</div>";
+
+	return '<div onclick="openClose(\'opendiv-' . $rnd . '\'); return false;" class="fakelink">' . $openclose . '</div><div id="opendiv-' . $rnd . '" style="display: none;">' . $text . '</div>';
+}
+
+function bb_spoilertag($match) {
+	$openclose = (($match[2]) ? '<span class="bb-spoiler" title="' . t('Click to open/close') . '">' . $match[1] . ' ' . t('spoiler') . '</span>' : t('Click to open/close'));
+	$text = (($match[2]) ? $match[2] : $match[1]);
+	$rnd = mt_rand();
+
+	return '<div onclick="openClose(\'opendiv-' . $rnd . '\'); return false;" class="fakelink">' . $openclose . '</div><blockquote id="opendiv-' . $rnd . '" style="display: none;">' . $text . '</blockquote>';
+}
+
+function bb_definitionList($match) {
+	// $match[1] is the markup styles for the "terms" in the definition list.
+	// $match[2] is the content between the [dl]...[/dl] tags
+
+	$classes = '';
+	if (stripos($match[1], "b") !== false) $classes .= 'dl-terms-bold ';
+	if (stripos($match[1], "i") !== false) $classes .= 'dl-terms-italic ';
+	if (stripos($match[1], "u") !== false) $classes .= 'dl-terms-underline ';
+	if (stripos($match[1], "l") !== false) $classes .= 'dl-terms-large ';
+	if (stripos($match[1], "m") !== false) $classes .= 'dl-terms-monospace ';
+	if (stripos($match[1], "h") !== false) $classes .= 'dl-horizontal '; // dl-horizontal is already provided by bootstrap
+	if (strlen($classes) === 0) $classes = "dl-terms-plain";
+
+	// The bbcode transformation will be:
+	// [*=term-text] description-text   =>   </dd> <dt>term-text<dt><dd> description-text
+	// then after all replacements have been made, the extra </dd> at the start of the 
+	// first line can be removed. HTML5 allows the tag to be missing from the end of the last line.
+	// Using '(?<!\\\)' to allow backslash-escaped closing braces to appear in the term-text.
+	$closeDescriptionTag = "</dd>\n";
+	$eatLeadingSpaces = '(?:&nbsp;|[ \t])*'; // prevent spaces infront of [*= from adding another line to the previous element
+	$listElements = preg_replace('/^(\n|<br \/>)/', '', $match[2]); // ltrim the first newline
+	$listElements = preg_replace(
+		'/' . $eatLeadingSpaces . '\[\*=([[:print:]]*?)(?<!\\\)\]/ism', 
+		$closeDescriptionTag . '<dt>$1</dt><dd>', 
+		$listElements
+	);
+	// Unescape any \] inside the <dt> tags
+	$listElements = preg_replace_callback('/<dt>(.*?)<\/dt>/ism', 'bb_definitionList_unescapeBraces', $listElements);
+	
+	// Remove the extra </dd> at the start of the string, if there is one.
+	$firstOpenTag  = strpos($listElements, '<dd>');
+	$firstCloseTag = strpos($listElements, $closeDescriptionTag);
+	if ($firstCloseTag !== false && ($firstOpenTag === false || ($firstCloseTag < $firstOpenTag))) {		
+		$listElements = preg_replace( '/<\/dd>/ism', '', $listElements, 1);
+	}
+
+	return '<dl class="bb-dl ' . rtrim($classes) . '">' . $listElements . '</dl>';;
+}
+function bb_definitionList_unescapeBraces($match) {
+	return '<dt>' . str_replace('\]', ']', $match[1]) . '</dt>';
 }
 
 /**
@@ -438,18 +491,6 @@ function bb_observer($Text) {
 	// extended to work with Mistpark/Friendica/Redmatrix/Hubzilla - Mike Macgirvin
 
 function bbcode($Text, $preserve_nl = false, $tryoembed = true, $cache = false) {
-
-	$a = get_app();
-
-	// Move all spaces out of the tags
-	// ....Uhm why?
-	// This is basically doing a trim() on the stuff in between tags, but it messes up
-	// carefully crafted bbcode and especially other pre-formatted code. 
-	// Commenting out until we come up with a use case where it's needed. Then let's try and
-	// special case rather than a heavy-handed approach like this. 
-
-//	$Text = preg_replace("/\[(\w*)\](\s*)/ism", '$2[$1]', $Text);
-//	$Text = preg_replace("/(\s*)\[\/(\w*)\]/ism", '[/$2]$1', $Text);
 
 	// Hide all [noparse] contained bbtags by spacefying them
 	if (strpos($Text,'[noparse]') !== false) {
@@ -576,7 +617,7 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $cache = false) 
 	}
 	if($tryoembed) {
 		if (strpos($Text,'[/url]') !== false) {
-			$Text = preg_replace_callback("/\[url\]([$URLSearchString]*)\[\/url\]/ism", 'tryoembed', $Text);
+			$Text = preg_replace_callback("/[^\^]\[url\]([$URLSearchString]*)\[\/url\]/ism", 'tryoembed', $Text);
 		}
 	}
 	if (strpos($Text,'[/url]') !== false) {
@@ -702,6 +743,7 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $cache = false) 
 	while ((((strpos($Text, "[/list]") !== false) && (strpos($Text, "[list") !== false)) ||
 			((strpos($Text, "[/ol]") !== false) && (strpos($Text, "[ol]") !== false)) ||
 			((strpos($Text, "[/ul]") !== false) && (strpos($Text, "[ul]") !== false)) ||
+			((strpos($Text, "[/dl]") !== false) && (strpos($Text, "[dl")  !== false)) ||
 			((strpos($Text, "[/li]") !== false) && (strpos($Text, "[li]") !== false))) && (++$endlessloop < 20)) {
 		$Text = preg_replace("/\[list\](.*?)\[\/list\]/ism", '<ul class="listbullet" style="list-style-type: circle;">$1</ul>', $Text);
 		$Text = preg_replace("/\[list=\](.*?)\[\/list\]/ism", '<ul class="listnone" style="list-style-type: none;">$1</ul>', $Text);
@@ -713,6 +755,13 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $cache = false) 
 		$Text = preg_replace("/\[ul\](.*?)\[\/ul\]/ism", '<ul class="listbullet" style="list-style-type: circle;">$1</ul>', $Text);
 		$Text = preg_replace("/\[ol\](.*?)\[\/ol\]/ism", '<ul class="listdecimal" style="list-style-type: decimal;">$1</ul>', $Text);
 		$Text = preg_replace("/\[li\](.*?)\[\/li\]/ism", '<li>$1</li>', $Text);
+
+		// [dl] tags have an optional [dl terms="bi"] form where bold/italic/underline/mono/large
+		// etc. style may be specified for the "terms" in the definition list. The quotation marks 
+		// are also optional. The regex looks intimidating, but breaks down as: 
+		//   "[dl" <optional-whitespace> <optional-termStyles> "]" <matchGroup2> "[/dl]"
+		// where optional-termStyles are: "terms=" <optional-quote> <matchGroup1> <optional-quote>
+		$Text = preg_replace_callback('/\[dl[[:space:]]*(?:terms=(?:&quot;|")?([a-zA-Z]+)(?:&quot;|")?)?\](.*?)\[\/dl\]/ism', 'bb_definitionList', $Text);
 	}
 	if (strpos($Text,'[th]') !== false) {
 		$Text = preg_replace("/\[th\](.*?)\[\/th\]/sm", '<th>$1</th>', $Text);
@@ -748,27 +797,25 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $cache = false) 
 		$Text = preg_replace("/\[code\](.*?)\[\/code\]/ism", "$CodeLayout", $Text);
 	}
 
-	// Declare the format for [spoiler] layout
-	$SpoilerLayout = '<blockquote class="spoiler">$1</blockquote>';
-
 	// Check for [spoiler] text
-	// handle nested quotes
 	$endlessloop = 0;
-	while ((strpos($Text, "[/spoiler]") !== false) and (strpos($Text, "[spoiler]") !== false) and (++$endlessloop < 20))
-		$Text = preg_replace("/\[spoiler\](.*?)\[\/spoiler\]/ism", "$SpoilerLayout", $Text);
+	while ((strpos($Text, "[/spoiler]")!== false) and (strpos($Text, "[spoiler]") !== false) and (++$endlessloop < 20)) {
+		$Text = preg_replace_callback("/\[spoiler\](.*?)\[\/spoiler\]/ism", 'bb_spoilertag', $Text);
+	}
 
 	// Check for [spoiler=Author] text
-
-	$t_wrote = t('$1 spoiler');
-
-	// handle nested quotes
 	$endlessloop = 0;
-	while ((strpos($Text, "[/spoiler]")!== false)  and (strpos($Text, "[spoiler=") !== false) and (++$endlessloop < 20))
-		$Text = preg_replace("/\[spoiler=[\"\']*(.*?)[\"\']*\](.*?)\[\/spoiler\]/ism",
-			"<br /><strong class=".'"spoiler"'.">" . $t_wrote . "</strong><blockquote class=".'"spoiler"'.">$2</blockquote>",
-			$Text);
+	while ((strpos($Text, "[/spoiler]")!== false) and (strpos($Text, "[spoiler=") !== false) and (++$endlessloop < 20)) {
+		$Text = preg_replace_callback("/\[spoiler=(.*?)\](.*?)\[\/spoiler\]/ism", 'bb_spoilertag', $Text);
+	}
 
+	// Check for [open] text
+	$endlessloop = 0;
+	while ((strpos($Text, "[/open]")!== false)  and (strpos($Text, "[open]") !== false) and (++$endlessloop < 20)) {
+		$Text = preg_replace_callback("/\[open\](.*?)\[\/open\]/ism", 'bb_opentag', $Text);
+	}
 
+	// Check for [open=Title] text
 	$endlessloop = 0;
 	while ((strpos($Text, "[/open]")!== false)  and (strpos($Text, "[open=") !== false) and (++$endlessloop < 20)) {
 		$Text = preg_replace_callback("/\[open=(.*?)\](.*?)\[\/open\]/ism", 'bb_opentag', $Text);
@@ -792,7 +839,7 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $cache = false) 
 	$endlessloop = 0;
 	while ((strpos($Text, "[/quote]")!== false)  and (strpos($Text, "[quote=") !== false) and (++$endlessloop < 20))
 		$Text = preg_replace("/\[quote=[\"\']*(.*?)[\"\']*\](.*?)\[\/quote\]/ism",
-			"<br /><strong class=".'"author"'.">" . $t_wrote . "</strong><blockquote>$2</blockquote>",
+			"<span class=".'"bb-quote"'.">" . $t_wrote . "</span><blockquote>$2</blockquote>",
 			$Text);
 
 	// Images
@@ -915,37 +962,6 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $cache = false) 
 			$Text = preg_replace("/\[iframe\](.*?)\[\/iframe\]/ism", '<a href="$1" target="_blank" >$1</a>', $Text);
 		}
 	}
-
-	// Youtube extensions
-//	if (strpos($Text,'[youtube]') !== false) {
-//		if ($tryoembed) {
-//			$Text = preg_replace_callback("/\[youtube\](https?:\/\/www.youtube.com\/watch\?v\=.*?)\[\/youtube\]/ism", 'tryoembed', $Text);
-//			$Text = preg_replace_callback("/\[youtube\](www.youtube.com\/watch\?v\=.*?)\[\/youtube\]/ism", 'tryoembed', $Text);
-//			$Text = preg_replace_callback("/\[youtube\](https?:\/\/youtu.be\/.*?)\[\/youtube\]/ism", 'tryoembed', $Text);
-//		}
-//			$Text = preg_replace("/\[youtube\]https?:\/\/www.youtube.com\/watch\?v\=(.*?)\[\/youtube\]/ism", '[youtube]$1[/youtube]', $Text);
-//			$Text = preg_replace("/\[youtube\]https?:\/\/www.youtube.com\/embed\/(.*?)\[\/youtube\]/ism", '[youtube]$1[/youtube]', $Text);
-//			$Text = preg_replace("/\[youtube\]https?:\/\/youtu.be\/(.*?)\[\/youtube\]/ism", '[youtube]$1[/youtube]', $Text);
-
-//		if ($tryoembed)
-//			$Text = preg_replace("/\[youtube\]([A-Za-z0-9\-_=]+)(.*?)\[\/youtube\]/ism", '<iframe width="' . App::$videowidth . '" height="' . App::$videoheight . '" src="http://www.youtube.com/embed/$1" frameborder="0"></iframe>', $Text);
-//		else
-//			$Text = preg_replace("/\[youtube\]([A-Za-z0-9\-_=]+)(.*?)\[\/youtube\]/ism", "http://www.youtube.com/watch?v=$1", $Text);
-//	}
-//	if (strpos($Text,'[vimeo]') !== false) {
-//		if ($tryoembed) {
-//			$Text = preg_replace_callback("/\[vimeo\](https?:\/\/player.vimeo.com\/video\/[0-9]+).*?\[\/vimeo\]/ism", 'tryoembed', $Text);
-//			$Text = preg_replace_callback("/\[vimeo\](https?:\/\/vimeo.com\/[0-9]+).*?\[\/vimeo\]/ism", 'tryoembed', $Text);
-//		}
-
-//		$Text = preg_replace("/\[vimeo\]https?:\/\/player.vimeo.com\/video\/([0-9]+)(.*?)\[\/vimeo\]/ism", '[vimeo]$1[/vimeo]', $Text);
-//		$Text = preg_replace("/\[vimeo\]https?:\/\/vimeo.com\/([0-9]+)(.*?)\[\/vimeo\]/ism", '[vimeo]$1[/vimeo]', $Text);
-
-//		if ($tryoembed)
-//			$Text = preg_replace("/\[vimeo\]([0-9]+)(.*?)\[\/vimeo\]/ism", '<iframe width="' . App::$videowidth . '" height="' . App::$videoheight . '" src="http://player.vimeo.com/video/$1" frameborder="0" ></iframe>', $Text);
-//		else
-//			$Text = preg_replace("/\[vimeo\]([0-9]+)(.*?)\[\/vimeo\]/ism", "http://vimeo.com/$1", $Text);
-//	}
 
 	// oembed tag
 	$Text = oembed_bbcode2html($Text);

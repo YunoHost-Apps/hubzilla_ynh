@@ -279,3 +279,13 @@ pre {
 .table > tbody > tr > td {
 	border-color: #FFF;
 }
+
+.help-content {
+	border-bottom: #FFF thin solid;
+}
+
+.help-content-open {
+  	-moz-box-shadow: none;
+  	-webkit-box-shadow: none;
+  	box-shadow: none;
+}

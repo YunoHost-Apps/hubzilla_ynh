@@ -2,6 +2,6 @@
 	<a href="group/drop/{{$id}}?t={{$form_security_token}}" 
 		onclick="return confirmDelete();" 
 		id="group-delete-icon-{{$id}}" 
-		class="group-delete-icon btn btn-default" title="{{$delete}}" ><i class="icon-trash drop-icons"></i></a>
+		class="group-delete-icon btn btn-default" title="{{$delete}}" ><i class="fa fa-trash-o drop-icons"></i></a>
 </div>
 <div class="group-delete-end"></div>

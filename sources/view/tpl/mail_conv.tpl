@@ -15,22 +15,22 @@
 		</div>
 		{{if $mail.attachments}}
 		<div class="dropdown pull-left">
-			<button type="button" class="btn btn-default btn-sm wall-item-like dropdown-toggle" data-toggle="dropdown" id="attachment-menu-{{$item.id}}"><i class="icon-paperclip"></i></button>
+			<button type="button" class="btn btn-default btn-sm wall-item-like dropdown-toggle" data-toggle="dropdown" id="attachment-menu-{{$item.id}}"><i class="fa fa-paperclip"></i></button>
 			<ul class="dropdown-menu" role="menu" aria-labelledby="attachment-menu-{{$item.id}}">{{$mail.attachments}}</ul>
 		</div>
 		{{/if}}
 		<div class="pull-right dropdown">
 			<button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" id="mail-item-menu-{{$mail.id}}">
-				<i class="icon-caret-down"></i>
+				<i class="fa fa-caret-down"></i>
 			</button>
 			<ul class="dropdown-menu" role="menu" aria-labelledby="mail-item-menu-{{$mail.id}}">
 				{{if $mail.can_recall}}
 				<li>
-					<a href="mail/{{$mail.mailbox}}/recall/{{$mail.id}}" title="{{$mail.recall}}" id="mail-conv-recall-icon-{{$mail.id}}"><i class="icon-undo mail-icons"></i>&nbsp;{{$mail.recall}}</a>
+					<a href="mail/{{$mail.mailbox}}/recall/{{$mail.id}}" title="{{$mail.recall}}" id="mail-conv-recall-icon-{{$mail.id}}"><i class="fa fa-undo mail-icons"></i>&nbsp;{{$mail.recall}}</a>
 				</li>
 				{{/if}}
 				<li>
-					<a href="#" onclick="dropItem('mail/{{$mail.mailbox}}/drop/{{$mail.id}}', '#mail-{{$mail.id}}'); return false;" title="{{$mail.delete}}" id="mail-conv-delete-icon-{{$mail.id}}"><i class="icon-trash mail-icons"></i>&nbsp;{{$mail.delete}}</a>
+					<a href="#" onclick="dropItem('mail/{{$mail.mailbox}}/drop/{{$mail.id}}', '#mail-{{$mail.id}}'); return false;" title="{{$mail.delete}}" id="mail-conv-delete-icon-{{$mail.id}}"><i class="fa fa-trash-o mail-icons"></i>&nbsp;{{$mail.delete}}</a>
 				</li>
 				{{if $mail.can_recall}}
 				<li class="divider"></li>

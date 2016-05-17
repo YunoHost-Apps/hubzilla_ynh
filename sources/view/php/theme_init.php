@@ -21,7 +21,7 @@ head_add_js('spin.js');
 head_add_js('jquery.spin.js');
 head_add_js('jquery.textinputs.js');
 head_add_js('autocomplete.js');
-head_add_js('library/jquery-textcomplete/jquery.textcomplete.js');
+head_add_js('library/jquery-textcomplete/jquery.textcomplete.min.js');
 //head_add_js('library/colorbox/jquery.colorbox.js');
 head_add_js('library/jquery.timeago.js');
 head_add_js('library/readmore.js/readmore.js');

@@ -5,7 +5,7 @@
 			<div class="input-group">
 				<input class="widget-input" type="text" name="url" title="{{$hint}}" placeholder="{{$desc}}" />
 				<div class="input-group-btn">
-					<button class="btn btn-default btn-sm" type="submit" name="submit" value="{{$follow}}"><i class="icon-plus"></i></button>
+					<button class="btn btn-default btn-sm" type="submit" name="submit" value="{{$follow}}"><i class="fa fa-plus"></i></button>
 				</div>
 			</div>
 		</div>

@@ -1004,9 +1004,9 @@ function statusnet_fetchtimeline($a, $uid) {
 			//print_r($_REQUEST);
 			if ($_REQUEST["body"] != "") {
 				logger('statusnet: posting for user '.$uid);
+				$mod = new Zotlabs\Module\Item();
+				$mod->post();
 
-				require_once('mod/item.php');
-				item_post($a);
 			}
 				}
 			}

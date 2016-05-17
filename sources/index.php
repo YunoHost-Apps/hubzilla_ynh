@@ -179,4 +179,4 @@ call_hooks('page_end', App::$page['content']);
 
 construct_page($a);
 
-exit;
+killme();

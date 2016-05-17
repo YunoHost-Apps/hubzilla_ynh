@@ -555,8 +555,8 @@ function get_public_feed($channel, $params) {
 
 	// put a sane lower limit on feed requests if not specified
 
-	if($params['begin'] === NULL_DATE)
-		$params['begin'] = datetime_convert('UTC','UTC','now - 1 month');
+//	if($params['begin'] === NULL_DATE)
+//		$params['begin'] = datetime_convert('UTC','UTC','now - 1 month');
 
 	switch($params['type']) {
 		case 'json':
@@ -2223,7 +2223,7 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 			dbesc($arr['layout_mid']),
 			intval($arr['uid'])
 		);
-		if((! $l) || (! ($l[0]['item_type'] != ITEM_TYPE_PDL)))
+		if((! $l) || ($l[0]['item_type'] != ITEM_TYPE_PDL))
 			unset($arr['layout_mid']);
 	}
 
@@ -3400,6 +3400,37 @@ function tgroup_check($uid,$item) {
  */
 function start_delivery_chain($channel, $item, $item_id, $parent) {
 
+	$sourced = check_item_source($channel['channel_id'],$item);
+
+	if($sourced) {
+		$r = q("select * from source where src_channel_id = %d and ( src_xchan = '%s' or src_xchan = '*' ) limit 1",
+			intval($channel['channel_id']),
+	        dbesc(($item['source_xchan']) ?  $item['source_xchan'] : $item['owner_xchan'])
+    	);
+		if($r) {
+			$t = trim($r[0]['src_tag']);
+			if($t) {
+				$tags = explode(',',$t);
+				if($tags) {
+					foreach($tags as $tt) {
+						$tt = trim($tt);
+						if($tt) {
+            				q("insert into term (uid,oid,otype,type,term,url)
+                				values(%d,%d,%d,%d,'%s','%s') ",
+                				intval($channel['channel_id']),
+				                intval($item_id),
+                				intval(TERM_OBJ_POST),
+				                intval(TERM_CATEGORY),
+                				dbesc($tt),
+								dbesc(z_root() . '/channel/' . $channel['channel_address'] . '?f=&cat=' . urlencode($tt))
+            				);
+						}
+					}
+				}
+			}
+		}
+	}
+
 	// Change this copy of the post to a forum head message and deliver to all the tgroup members
 	// also reset all the privacy bits to the forum default permissions
 
@@ -3458,6 +3489,9 @@ function start_delivery_chain($channel, $item, $item_id, $parent) {
 		intval($item_origin),
 		intval($item_id)
 	);
+
+
+
 
 	if($r)
 		proc_run('php','include/notifier.php','tgroup',$item_id);
@@ -4235,10 +4269,10 @@ function atom_entry($item,$type,$author,$owner,$comment = false,$cid = 0) {
 		$obj = ((is_array($item['obj'])) ? $item['object'] : json_decode($item['object'],true));
  
 		$o .= '<title>' . xmlify($item['title']) . '</title>' . "\r\n";
-		$o .= '<summary>' . xmlify(bbcode($obj['title'])) . '</summary>' . "\r\n";
+		$o .= '<summary xmlns="urn:ietf:params:xml:ns:xcal">' . xmlify(bbcode($obj['title'])) . '</summary>' . "\r\n";
 		$o .= '<dtstart xmlns="urn:ietf:params:xml:ns:xcal">' . datetime_convert('UTC','UTC', $obj['start'],'Ymd\\THis' . (($obj['adjust']) ? '\\Z' : '')) .  '</dtstart>' . "\r\n";
 		$o .= '<dtend xmlns="urn:ietf:params:xml:ns:xcal">' . datetime_convert('UTC','UTC', $obj['finish'],'Ymd\\THis' . (($obj['adjust']) ? '\\Z' : '')) .  '</dtend>' . "\r\n";
-		$o .= '<location>' . bbcode($obj['location']) . '</location>' . "\r\n";
+		$o .= '<location xmlns="urn:ietf:params:xml:ns:xcal">' . xmlify(bbcode($obj['location'])) . '</location>' . "\r\n";
 		$o .= '<content type="' . $type . '" >' . xmlify(bbcode($obj['description'])) . '</content>' . "\r\n";
 	}
 	else {
@@ -5617,157 +5651,17 @@ function send_profile_photo_activity($channel,$photo,$profile) {
 }
 
 
+function sync_an_item($channel_id,$item_id) {
 
-
-
-function get_iconfig(&$item, $family, $key) {
-
-	$is_item = false;
-	if(is_array($item)) {
-		$is_item = true;
-		if((! array_key_exists('iconfig',$item)) || (! is_array($item['iconfig'])))
-			$item['iconfig'] = array();
-
-		if(array_key_exists('item_id',$item))
-			$iid = $item['item_id'];
-		else
-			$iid = $item['id'];
-	}
-	elseif(intval($item))
-		$iid = $item;
-
-	if(! $iid)
-		return false;
-
-	if(is_array($item) && array_key_exists('iconfig',$item) && is_array($item['iconfig'])) {
-		foreach($item['iconfig'] as $c) {
-			if($c['iid'] == $iid && $c['cat'] == $family && $c['k'] == $key)
-				return $c['v'];
-		}
-	}
-		 
-	$r = q("select * from iconfig where iid = %d and cat = '%s' and k = '%s' limit 1",
-		intval($iid),
-		dbesc($family),
-		dbesc($key)
+	$r = q("select * from item where id = %d",
+		intval($item_id)
 	);
 	if($r) {
-		$r[0]['v'] = ((preg_match('|^a:[0-9]+:{.*}$|s',$r[0]['v'])) ? unserialize($r[0]['v']) : $r[0]['v']);
-		if($is_item)
-			$item['iconfig'][] = $r[0];
-		return $r[0]['v'];
-	}
-	return false;
-
-}
-
-/**
- * set_iconfig(&$item, $family, $key, $value, $sharing = false);
- *
- * $item - item array or item id. If passed an array the iconfig meta information is
- *    added to the item structure (which will need to be saved with item_store eventually).
- *    If passed an id, the DB is updated, but may not be federated and/or cloned.
- * $family - namespace of meta variable
- * $key - key of meta variable
- * $value - value of meta variable
- * $sharing - boolean (default false); if true the meta information is propagated with the item
- *   to other sites/channels, mostly useful when $item is an array and has not yet been stored/delivered.
- *   If the meta information is added after delivery and you wish it to be shared, it may be necessary to 
- *   alter the item edited timestamp and invoke the delivery process on the updated item. The edited 
- *   timestamp needs to be altered in order to trigger an item_store_update() at the receiving end.
- */
- 
-
-function set_iconfig(&$item, $family, $key, $value, $sharing = false) {
-
-	$dbvalue = ((is_array($value))  ? serialize($value) : $value);
-	$dbvalue = ((is_bool($dbvalue)) ? intval($dbvalue)  : $dbvalue);
-
-	$is_item = false;
-	$idx = null;
-
-	if(is_array($item)) {
-		$is_item = true;
-		if((! array_key_exists('iconfig',$item)) || (! is_array($item['iconfig'])))
-			$item['iconfig'] = array();
-		elseif($item['iconfig']) {
-			for($x = 0; $x < count($item['iconfig']); $x ++) {
-				if($item['iconfig'][$x]['cat'] == $family && $item['iconfig'][$x]['k'] == $key) {
-					$idx = $x;
-				}
-			}
-		}
-		$entry = array('cat' => $family, 'k' => $key, 'v' => $value, 'sharing' => $sharing);
-
-		if(is_null($idx))
-			$item['iconfig'][] = $entry;
-		else
-			$item['iconfig'][$idx] = $entry;
-		return $value;
-	}
-
-	if(intval($item))
-		$iid = intval($item);
-
-	if(! $iid)
-		return false;
-
-	if(get_iconfig($item, $family, $key) === false) {
-		$r = q("insert into iconfig( iid, cat, k, v, sharing ) values ( %d, '%s', '%s', '%s', %d ) ",
-			intval($iid),
-			dbesc($family),
-			dbesc($key),
-			dbesc($dbvalue),
-			intval($sharing)
+		xchan_query($r);
+		$sync_item = fetch_post_tags($r);
+		$rid = q("select * from item_id where iid = %d",
+			intval($item_id)
 		);
+		build_sync_packet($channel_d,array('item' => array(encode_item($sync_item[0],true)),'item_id' => $rid));
 	}
-	else {
-		$r = q("update iconfig set v = '%s', sharing = %d where iid = %d and cat = '%s' and  k = '%s' ",
-			dbesc($dbvalue),
-			intval($sharing),
-			intval($iid),
-			dbesc($family),
-			dbesc($key)
-		);
-	}
-
-	if(! $r)
-		return false;
-
-	return $value;
 }
-
-
-
-function del_iconfig(&$item, $family, $key) {
-
-
-	$is_item = false;
-	$idx = null;
-
-	if(is_array($item)) {
-		$is_item = true;
-		if(is_array($item['iconfig'])) {
-			for($x = 0; $x < count($item['iconfig']); $x ++) {
-				if($item['iconfig'][$x]['cat'] == $family && $item['iconfig'][$x]['k'] == $key) {
-					unset($item['iconfig'][$x]);
-				}
-			}
-		}
-		return true;
-	}
-
-	if(intval($item))
-		$iid = intval($item);
-
-	if(! $iid)
-		return false;
-
-	return q("delete from iconfig where iid = %d and cat = '%s' and  k = '%s' ",
-		intval($iid),
-		dbesc($family),
-		dbesc($key)
-	);
-
-}
-

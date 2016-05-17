@@ -3,7 +3,7 @@
 <form  action="{{$baseurl}}/index.php?q=setup" method="post">
 <table>
 {{foreach $checks as $check}}
-	<tr><td>{{$check.title}} </td><td><i class="{{if $check.status}}icon-check{{else}}{{if $check.required}}icon-check-empty{{else}}icon-exclamation{{/if}}{{/if}}"></i></td><td>{{if $check.required}}(required){{/if}}</td></tr>
+	<tr><td>{{$check.title}} </td><td><i class="fa {{if $check.status}}fa-check-square-o{{else}}{{if $check.required}}fa-square-o{{else}}fa-exclamation{{/if}}{{/if}}"></i></td><td>{{if $check.required}}(required){{/if}}</td></tr>
 	{{if $check.help}}
 	<tr><td colspan="3"><blockquote>{{$check.help}}</blockquote></td></tr>
 	{{/if}}

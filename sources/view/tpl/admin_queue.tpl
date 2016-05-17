@@ -7,7 +7,7 @@
 
 {{foreach $entries as $e}}
 
-<tr><td>{{$e.total}}</td><td>{{$e.outq_posturl}}</td><td>{{$e.priority}}</td>{{if $expert}}<td><a href="admin/queue?f=&drophub={{$e.eurl}}" title="{{$nukehub}}" class="btn btn-default"><i class="icon-remove"></i><a></td><td><a href="admin/queue?f=&emptyhub={{$e.eurl}}" title="{{$empty}}" class="btn btn-default"><i class="icon-trash"></i></a></td>{{/if}}</tr>
+<tr><td>{{$e.total}}</td><td>{{$e.outq_posturl}}</td><td>{{$e.priority}}</td>{{if $expert}}<td><a href="admin/queue?f=&drophub={{$e.eurl}}" title="{{$nukehub}}" class="btn btn-default"><i class="fa fa-times"></i><a></td><td><a href="admin/queue?f=&emptyhub={{$e.eurl}}" title="{{$empty}}" class="btn btn-default"><i class="fa fa-trash-o"></i></a></td>{{/if}}</tr>
 {{/foreach}}
 
 </table>

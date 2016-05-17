@@ -1,13 +1,13 @@
 <div class="generic-content-wrapper">
 	<div class="section-title-wrapper">
 		<div class="pull-right">
-			<button id="fullscreen-btn" type="button" class="btn btn-default btn-xs" onclick="makeFullScreen(); adjustFullscreenTopBarHeight();"><i class="icon-resize-full"></i></button>
-			<button id="inline-btn" type="button" class="btn btn-default btn-xs" onclick="makeFullScreen(false); adjustInlineTopBarHeight();"><i class="icon-resize-small"></i></button>
+			<button id="fullscreen-btn" type="button" class="btn btn-default btn-xs" onclick="makeFullScreen(); adjustFullscreenTopBarHeight();"><i class="fa fa-expand"></i></button>
+			<button id="inline-btn" type="button" class="btn btn-default btn-xs" onclick="makeFullScreen(false); adjustInlineTopBarHeight();"><i class="fa fa-compress"></i></button>
 			{{if $is_owner}}
 			<form id="chat-destroy" method="post" action="chat">
 				<input type="hidden" name="room_name" value="{{$room_name}}" />
 				<input type="hidden" name="action" value="drop" />
-				<button class="btn btn-danger btn-xs" type="submit" name="submit" value="{{$drop}}" onclick="return confirmDelete();"><i class="icon-trash"></i>&nbsp;{{$drop}}</button>
+				<button class="btn btn-danger btn-xs" type="submit" name="submit" value="{{$drop}}" onclick="return confirmDelete();"><i class="fa fa-trash-o"></i>&nbsp;{{$drop}}</button>
 			</form>
 			{{/if}}
 		</div>
@@ -27,57 +27,57 @@
 				</div>
 				<div id="chat-submit-wrapper">
 					<div id="chat-submit" class="dropup pull-right">
-						<button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown"><i class="icon-caret-up"></i></button>
+						<button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown"><i class="fa fa-caret-up"></i></button>
 						<button class="btn btn-primary btn-sm" type="submit" id="chat-submit" name="submit" value="{{$submit}}">{{$submit}}</button>
 						<ul class="dropdown-menu">
-							<li class="nav-item"><a class="nav-link" href="{{$baseurl}}/chatsvc?f=&room_id={{$room_id}}&status=online"><i class="icon-circle online"></i>&nbsp;{{$online}}</a></li>
-							<li class="nav-item"><a class="nav-link" href="{{$baseurl}}/chatsvc?f=&room_id={{$room_id}}&status=away"><i class="icon-circle away"></i>&nbsp;{{$away}}</a></li>
-							<li class="nav-item"><a class="nav-link" href="{{$baseurl}}/chat/{{$nickname}}/{{$room_id}}/leave"><i class="icon-circle leave"></i>&nbsp;{{$leave}}</a></li>
+							<li class="nav-item"><a class="nav-link" href="{{$baseurl}}/chatsvc?f=&room_id={{$room_id}}&status=online"><i class="fa fa-circle online"></i>&nbsp;{{$online}}</a></li>
+							<li class="nav-item"><a class="nav-link" href="{{$baseurl}}/chatsvc?f=&room_id={{$room_id}}&status=away"><i class="fa fa-circle away"></i>&nbsp;{{$away}}</a></li>
+							<li class="nav-item"><a class="nav-link" href="{{$baseurl}}/chat/{{$nickname}}/{{$room_id}}/leave"><i class="fa fa-circle leave"></i>&nbsp;{{$leave}}</a></li>
 							{{if $bookmark_link}}
 							<li class="divider"></li>
-							<li class="nav-item"><a class="nav-link" href="{{$bookmark_link}}" target="_blank" ><i class="icon-bookmark"></i>&nbsp;{{$bookmark}}</a></li>
+							<li class="nav-item"><a class="nav-link" href="{{$bookmark_link}}" target="_blank" ><i class="fa fa-bookmark"></i>&nbsp;{{$bookmark}}</a></li>
 							{{/if}}
 						</ul>
 					</div>
 					<div id="chat-tools" class="btn-toolbar pull-left">
 						<div class="btn-group">
 							<button id="main-editor-bold" class="btn btn-default btn-sm" title="{{$bold}}" onclick="inserteditortag('b', 'chatText'); return false;">
-								<i class="icon-bold jot-icons"></i>
+								<i class="fa fa-bold jot-icons"></i>
 							</button>
 							<button id="main-editor-italic" class="btn btn-default btn-sm" title="{{$italic}}" onclick="inserteditortag('i', 'chatText'); return false;">
-								<i class="icon-italic jot-icons"></i>
+								<i class="fa fa-italic jot-icons"></i>
 							</button>
 							<button id="main-editor-underline" class="btn btn-default btn-sm" title="{{$underline}}" onclick="inserteditortag('u', 'chatText'); return false;">
-								<i class="icon-underline jot-icons"></i>
+								<i class="fa fa-underline jot-icons"></i>
 							</button>
 							<button id="main-editor-quote" class="btn btn-default btn-sm" title="{{$quote}}" onclick="inserteditortag('quote', 'chatText'); return false;">
-								<i class="icon-quote-left jot-icons"></i>
+								<i class="fa fa-quote-left jot-icons"></i>
 							</button>
 							<button id="main-editor-code" class="btn btn-default btn-sm" title="{{$code}}" onclick="inserteditortag('code', 'chatText'); return false;">
-								<i class="icon-terminal jot-icons"></i>
+								<i class="fa fa-terminal jot-icons"></i>
 							</button>
 						</div>
 						<div class="btn-group hidden-xs">
 							<button id="chat-link-wrapper" class="btn btn-default btn-sm" onclick="chatJotGetLink(); return false;" >
-								<i id="chat-link" class="icon-link jot-icons" title="{{$insert}}" ></i>
+								<i id="chat-link" class="fa fa-link jot-icons" title="{{$insert}}" ></i>
 							</button>
 						</div>
 						{{if $feature_encrypt}}
 						<div class="btn-group hidden-xs">
 							<button id="chat-encrypt-wrapper" class="btn btn-default btn-sm" onclick="red_encrypt('{{$cipher}}', '#chatText', $('#chatText').val()); return false;">
-								<i id="chat-encrypt" class="icon-key jot-icons" title="{{$encrypt}}" ></i>
+								<i id="chat-encrypt" class="fa fa-key jot-icons" title="{{$encrypt}}" ></i>
 							</button>
 						</div>
 						{{/if}}
 						<div class="btn-group dropup visible-xs">
 							<button type="button" id="more-tools" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-								<i id="more-tools-icon" class="icon-caret-up jot-icons"></i>
+								<i id="more-tools-icon" class="fa fa-caret-up jot-icons"></i>
 							</button>
 							<ul class="dropdown-menu dropdown-menu-right" role="menu">
-								<li class="visible-xs"><a href="#" onclick="chatJotGetLink(); return false;" ><i class="icon-link"></i>&nbsp;{{$insert}}</a></li>
+								<li class="visible-xs"><a href="#" onclick="chatJotGetLink(); return false;" ><i class="fa fa-link"></i>&nbsp;{{$insert}}</a></li>
 								{{if $feature_encrypt}}
 								<li class="divider"></li>
-								<li class="visible-xs"><a href="#" onclick="red_encrypt('{{$cipher}}', '#chatText' ,$('#chatText').val()); return false;"><i class="icon-key"></i>&nbsp;{{$encrypt}}</a></li>
+								<li class="visible-xs"><a href="#" onclick="red_encrypt('{{$cipher}}', '#chatText' ,$('#chatText').val()); return false;"><i class="fa fa-key"></i>&nbsp;{{$encrypt}}</a></li>
 								{{/if}}
 							</ul>
 						</div>
@@ -103,6 +103,7 @@ $(document).ready(function() {
 	$('#chatroom_bookmarks, #vcard').hide();
 	$('#chatroom_list, #chatroom_members').show();
 	adjustInlineTopBarHeight();
+    chatNotificationInit();
 });
 
 $(window).resize(function () {
@@ -138,6 +139,8 @@ function load_chats() {
 
 }
 
+var previousChatRoomMembers = null; // initialize chat room member change register
+var currentChatRoomMembers = null; // initialize chat room member change register
 function update_inroom(inroom) {
 	var html = document.createElement('div');
 	var count = inroom.length;
@@ -147,7 +150,35 @@ function update_inroom(inroom) {
 		$(newNode).html('<img style="height: 32px; width: 32px;" src="' + item.img + '" alt="' + item.name + '" /> ' + '<span class="name">' + item.name + '</span><br /><span class="' + item.status_class + '">' + item.status + '</span>');
 		html.appendChild(newNode);
 	});
+    memberChange = chatRoomMembersChange(inroom); // get list of arrivals and departures
+    if(memberChange.membersArriving.length > 0) {
+      // Issue pop-up notification if anyone enters the room.
+      chat_issue_notification(JSON.stringify(memberChange.membersArriving.pop().name) + ' entered the room', 'Hubzilla Chat');
+    }
 	$('#chatMembers').html(html);
+}
+
+// Determine if the new list of chat room members has any new members or if any have left
+function chatRoomMembersChange(inroom) {
+    previousChatRoomMembers = currentChatRoomMembers;
+    currentChatRoomMembers = inroom;
+      var membersArriving = [];
+      var membersLeaving = [];
+    if(previousChatRoomMembers !== null) {
+      var newMember = false;
+      $.each( currentChatRoomMembers, function(index, currMember) {
+        newMember = true;
+        $.each( previousChatRoomMembers, function(index, prevMember) {
+          if (prevMember.name === currMember.name) {
+              newMember = false;
+          }
+        });
+        if (newMember === true) {
+          membersArriving.push(currMember);
+        }
+      });
+    }
+    return {membersArriving: membersArriving, membersLeaving: membersLeaving};
 }
 
 function update_chats(chats) {
@@ -170,6 +201,51 @@ function update_chats(chats) {
 		var elem = document.getElementById('chatTopBar');
 		elem.scrollTop = elem.scrollHeight;
 	});
+}
+
+var chat_notify_granted = false; // Initialize notification permission to denied
+// Request notification access from the user
+// TODO: Check Hubzilla member config setting before requesting permission
+function chatNotificationInit() {
+  
+    if (!("Notification" in window)) {
+        window.console.log("This browser does not support system notifications");
+    }
+    // Let's check whether notification permissions have already been granted
+    else if (Notification.permission === "granted") {
+        // If it's okay let's create a notification
+        chat_notify_granted = true; //var notification = new Notification("Hi there!");
+    }
+
+    // Otherwise, we need to ask the user for permission
+    else if (Notification.permission !== 'denied') {
+        Notification.requestPermission(function (permission) {
+            // If the user accepts, let's create a notification
+            if (permission === "granted") {
+                chat_notify_granted = true; //var notification = new Notification("Hi there!");
+            }
+        });
+    }
+}
+
+// Issue a pop-up notification using the web standard Notification API
+// https://developer.mozilla.org/docs/Web/API/notification
+var chat_issue_notification = function (theBody,theTitle) {
+    if ( !chat_notify_granted ) {
+        return;
+    }
+    var nIcon = "/images/icons/48/group.png";
+    var options = {
+        body: theBody,
+        icon: nIcon,
+        silent: false
+    }
+    var n = new Notification(theTitle,options);
+    n.onclick = function (event) {
+        setTimeout(n.close.bind(n), 300); 
+    } 
+    // TODO: Allow audio notification option
+    //chat_notify_audio.play();
 }
 
 function chatJotGetLink() {

@@ -84,10 +84,6 @@ class BasicAuth extends DAV\Auth\Backend\AbstractBasic {
 	 * @return bool
 	 */
 	protected function validateUserPass($username, $password) {
-		if (trim($password) === '+++') {
-			logger('guest: ' . $username);
-			return true;
-		}
 
 		require_once('include/auth.php');
 		$record = account_verify_password($username, $password);

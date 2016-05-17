@@ -1,16 +1,7 @@
-.aprofile dt {
-	font-weight: bold;
-}
-
 .profile-thing-list {
 	list-style-type: none;
 }
 
-.profile-thing-list img {
-	margin-bottom: 5px;
+.profile-thing-img {
+	margin: 7px 0px;
 }
-
-.profile-thing-list > li {
-	margin-bottom: 15px;
-}
-

@@ -9,15 +9,19 @@ function import_channel($channel, $account_id, $seize) {
 		$channel['channel_removed'] = (($channel['channel_pageflags'] & 0x8000) ? 1 : 0);
 	}
 
+	// Ignore the hash provided and re-calculate
+
+	$channel['channel_hash'] = make_xchan_hash($channel['channel_guid'],$channel['channel_guid_sig']);
+
+	// Check for duplicate channels
+
 	$r = q("select * from channel where (channel_guid = '%s' or channel_hash = '%s' or channel_address = '%s' ) limit 1",
 		dbesc($channel['channel_guid']),
 		dbesc($channel['channel_hash']),
 		dbesc($channel['channel_address'])
 	);
 
-	// We should probably also verify the hash 
-	
-	if($r) {
+	if(($r) || (check_webbie(array($channel['channel_hash'])) !== $channel['channel_hash'])) {
 		if($r[0]['channel_guid'] === $channel['channel_guid'] || $r[0]['channel_hash'] === $channel['channel_hash']) {
 			logger('mod_import: duplicate channel. ', print_r($channel,true));
 			notice( t('Cannot create a duplicate channel identifier on this system. Import failed.') . EOL);
@@ -297,8 +301,11 @@ function import_apps($channel,$apps) {
 	if($channel && $apps) {
 		foreach($apps as $app) {
 
+			$term = ((array_key_exists('term',$app) && is_array($app['term'])) ? $app['term'] : null); 
+
 			unset($app['id']);
 			unset($app['app_channel']);
+			unset($app['term']);
 
 			$app['app_channel'] = $channel['channel_id'];
 
@@ -307,6 +314,8 @@ function import_apps($channel,$apps) {
 				$app['app_photo'] = $x[0];
 			}
 
+			$hash = $app['app_id'];
+
 			dbesc_array($app);
 			$r = dbq("INSERT INTO app (`" 
 				. implode("`, `", array_keys($app)) 
@@ -314,6 +323,21 @@ function import_apps($channel,$apps) {
 				. implode("', '", array_values($app)) 
 				. "')" 
 			);
+
+			if($term) {
+				$x = q("select * from app where app_id = '%s' and app_channel = %d limit 1",
+					dbesc($hash),
+					intval($channel['channel_id'])
+				);
+				if($x) {
+					foreach($term as $t) {
+						store_item_tag($channel['channel_id'],$x[0]['id'],TERM_OBJ_APP,$t['type'],escape_tags($t['term']),escape_tags($t['url']));
+					}
+				}
+			}
+
+
+
 		}
 	}
 }
@@ -325,16 +349,41 @@ function sync_apps($channel,$apps) {
 	if($channel && $apps) {
 		foreach($apps as $app) {
 
-           if(array_key_exists('app_deleted',$app) && $app['app_deleted'] && $app['app_id']) {
+			$exists = false;
+			$term = ((array_key_exists('term',$app)) ? $app['term'] : null);
+
+			$x = q("select * from app where app_id = '%s' and app_channel = %d limit 1",
+				dbesc($app['app_id']),
+				intval($channel['channel_id'])
+			);
+			if($x) {
+				$exists = $x[0];
+			}
+			
+			if(array_key_exists('app_deleted',$app) && $app['app_deleted'] && $app['app_id']) {
                 q("delete from app where app_id = '%s' and app_channel = %d limit 1",
                     dbesc($app['app_id']),
                     intval($channel['channel_id'])
                 );
+				if($exists) {
+					q("delete from term where otype = %d and oid = %d",
+						intval(TERM_OBJ_APP),
+						intval($exists['id'])
+            		);
+				}
                 continue;
             }
 
 			unset($app['id']);
 			unset($app['app_channel']);
+			unset($app['term']);
+
+			if($exists) {
+				q("delete from term where otype = %d and oid = %d",
+					intval(TERM_OBJ_APP),
+					intval($exists['id'])
+            	);
+			}
 
 			if(! $app['app_created'] || $app['app_created'] === NULL_DATE)
 				$app['app_created'] = datetime_convert();
@@ -348,16 +397,15 @@ function sync_apps($channel,$apps) {
 				$app['app_photo'] = $x[0];
 			}
 
-			$exists = false;
+			if($exists && $term) {
+				foreach($term as $t) {
+					store_item_tag($channel['channel_id'],$exists['id'],TERM_OBJ_APP,$t['type'],escape_tags($t['term']),escape_tags($t['url']));
+				}
+			}
 
-			$x = q("select * from app where app_id = '%s' and app_channel = %d limit 1",
-				dbesc($app['app_id']),
-				intval($channel['channel_id'])
-			);
-			if($x) {
-				if($x[0]['app_edited'] >= $app['app_edited'])
+			if($exists) {
+				if($exists['app_edited'] >= $app['app_edited'])
 					continue;
-				$exists = true;
 			}
 			$hash = $app['app_id'];
 
@@ -380,6 +428,17 @@ function sync_apps($channel,$apps) {
 					. implode("', '", array_values($app)) 
 					. "')" 
 				);
+				if($term) {
+					$x = q("select * from app where app_id = '%s' and app_channel = %d limit 1",
+						dbesc($hash),
+						intval($channel['channel_id'])
+					);
+					if($x) {
+						foreach($term as $t) {
+							store_item_tag($channel['channel_id'],$x[0]['id'],TERM_OBJ_APP,$t['type'],escape_tags($t['term']),escape_tags($t['url']));
+						}
+					}
+				}
 			}
 		}
 	}
@@ -482,7 +541,7 @@ function sync_chatrooms($channel,$chatrooms) {
 
 
 
-function import_items($channel,$items) {
+function import_items($channel,$items,$sync = false) {
 
 	if($channel && $items) {
 		$allow_code = false;
@@ -499,6 +558,7 @@ function import_items($channel,$items) {
 		$deliver = false;  // Don't deliver any messages or notifications when importing
 
 		foreach($items as $i) {
+			$item_result = false;
 			$item = get_item_elements($i,$allow_code);
 			if(! $item)
 				continue;
@@ -511,7 +571,13 @@ function import_items($channel,$items) {
 				if($item['edited'] > $r[0]['edited']) {
 					$item['id'] = $r[0]['id'];
 					$item['uid'] = $channel['channel_id'];
-					item_store_update($item,$allow_code,$deliver);
+					$item_result = item_store_update($item,$allow_code,$deliver);
+					if($sync && $item['item_wall']) {
+						// deliver singletons if we have any
+						if($item_result && $item_result['success']) {
+							proc_run('php','include/notifier.php','single_activity',$item_result['item_id']);
+						}
+					}
 					continue;
 				}	
 			}
@@ -520,13 +586,19 @@ function import_items($channel,$items) {
 				$item['uid'] = $channel['channel_id'];
 				$item_result = item_store($item,$allow_code,$deliver);
 			}
+			if($sync && $item['item_wall']) {
+				// deliver singletons if we have any
+				if($item_result && $item_result['success']) {
+					proc_run('php','include/notifier.php','single_activity',$item_result['item_id']);
+				}
+			}
 		}
 	}
 }
 
 
 function sync_items($channel,$items) {
-	import_items($channel,$items);
+	import_items($channel,$items,true);
 }
 
 
@@ -839,7 +911,7 @@ function import_conv($channel,$convs) {
 
 
 
-function import_mail($channel,$mails) {
+function import_mail($channel,$mails,$sync = false) {
 	if($channel && $mails) {
 		foreach($mails as $mail) {
 			if(array_key_exists('flags',$mail) && in_array('deleted',$mail['flags'])) {
@@ -863,12 +935,17 @@ function import_mail($channel,$mails) {
 
 			$m['aid'] = $channel['channel_account_id'];
 			$m['uid'] = $channel['channel_id'];
-			mail_store($m);
+			$mail_id = mail_store($m);
+			if($sync && $mail_id) {
+				proc_run('php','include/notifier.php','single_mail',$mail_id);
+			}
  		}
 	}	
 }
 
-
+function sync_mail($channel,$mails) {
+	import_mail($channel,$mails,true);
+}
 
 function sync_files($channel,$files) {
 
