@@ -1,0 +1,36 @@
+#block-editor {
+	display: none;
+}
+
+#block-list-table {
+	width: 100%;
+}
+
+#block-list-table th:nth-child(1){
+	padding: 7px 3px 7px 10px;
+	white-space: nowrap;
+}
+
+#block-list-table td:nth-child(1){
+	padding: 7px 3px 7px 10px;
+}
+
+#block-list-table th:nth-child(2){
+	white-space: nowrap;
+}
+
+#block-list-table th:nth-child(6),
+#block-list-table td:nth-child(6){
+	padding: 7px 3px;
+	white-space: nowrap;
+}
+
+#block-list-table th:nth-child(7),
+#block-list-table td:nth-child(7){
+	padding: 7px 10px 7px 7px;
+	white-space: nowrap;
+}
+
+.webpage-list-tool {
+	padding: 7px 10px;
+}

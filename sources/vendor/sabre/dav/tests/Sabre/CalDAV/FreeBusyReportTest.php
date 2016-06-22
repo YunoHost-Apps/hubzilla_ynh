@@ -30,6 +30,7 @@ DURATION:PT1H
 END:VEVENT
 END:VCALENDAR
 ics;
+
         $obj2 = fopen('php://memory','r+');
         fwrite($obj2,<<<ics
 BEGIN:VCALENDAR
@@ -42,41 +43,55 @@ ics
         );
         rewind($obj2);
 
-        $calendarData = array(
-            1 => array(
-                'obj1' => array(
+        $obj3 = <<<ics
+BEGIN:VCALENDAR
+BEGIN:VEVENT
+DTSTART:20111006T120000
+DURATION:PT1H
+END:VEVENT
+END:VCALENDAR
+ics;
+
+        $calendarData = [
+            1 => [
+                'obj1' => [
                     'calendarid' => 1,
                     'uri' => 'event1.ics',
                     'calendardata' => $obj1,
-                 ),
-                'obj2' => array(
+                ],
+                'obj2' => [
                     'calendarid' => 1,
                     'uri' => 'event2.ics',
                     'calendardata' => $obj2
-                )
-            ),
-        );
+                ],
+                'obj3' => [
+                    'calendarid' => 1,
+                    'uri' => 'event3.ics',
+                    'calendardata' => $obj3
+                ]
+            ],
+        ];
 
 
-        $caldavBackend = new Backend\Mock(array(), $calendarData);
+        $caldavBackend = new Backend\Mock([], $calendarData);
 
-        $calendar = new Calendar($caldavBackend, array(
+        $calendar = new Calendar($caldavBackend, [
             'id' => 1,
             'uri' => 'calendar',
             'principaluri' => 'principals/user1',
-        ));
+            '{' . Plugin::NS_CALDAV . '}calendar-timezone' => "BEGIN:VCALENDAR\r\nBEGIN:VTIMEZONE\r\nTZID:Europe/Berlin\r\nEND:VTIMEZONE\r\nEND:VCALENDAR",
+        ]);
 
-        $this->server = new DAV\Server(array($calendar));
+        $this->server = new DAV\Server([$calendar]);
 
-        $request = new HTTP\Request(array(
+        $request = HTTP\Sapi::createFromServerArray([
             'REQUEST_URI' => '/calendar',
-        ));
+        ]);
         $this->server->httpRequest = $request;
         $this->server->httpResponse = new HTTP\ResponseMock();
 
         $this->plugin = new Plugin();
         $this->server->addPlugin($this->plugin);
-        $this->server->addPlugin(new DAVACL\Plugin());
 
     }
 
@@ -89,12 +104,14 @@ ics
 </c:free-busy-query>
 XML;
 
-        $dom = DAV\XMLUtil::loadDOMDocument($reportXML);
-        $this->plugin->report('{urn:ietf:params:xml:ns:caldav}free-busy-query', $dom);
+        $report = $this->server->xml->parse($reportXML, null, $rootElem);
+        $this->plugin->report($rootElem, $report);
 
-        $this->assertEquals('HTTP/1.1 200 OK', $this->server->httpResponse->status);
-        $this->assertEquals('text/calendar', $this->server->httpResponse->headers['Content-Type']);
-        $this->assertTrue(strpos($this->server->httpResponse->body,'BEGIN:VFREEBUSY')!==false);
+        $this->assertEquals(200, $this->server->httpResponse->status);
+        $this->assertEquals('text/calendar', $this->server->httpResponse->getHeader('Content-Type'));
+        $this->assertTrue(strpos($this->server->httpResponse->body, 'BEGIN:VFREEBUSY')!==false);
+        $this->assertTrue(strpos($this->server->httpResponse->body, '20111005T120000Z/20111005T130000Z')!==false);
+        $this->assertTrue(strpos($this->server->httpResponse->body, '20111006T100000Z/20111006T110000Z')!==false);
 
     }
 
@@ -109,8 +126,8 @@ XML;
 </c:free-busy-query>
 XML;
 
-        $dom = DAV\XMLUtil::loadDOMDocument($reportXML);
-        $this->plugin->report('{urn:ietf:params:xml:ns:caldav}free-busy-query', $dom);
+        $report = $this->server->xml->parse($reportXML, null, $rootElem);
+        $this->plugin->report($rootElem, $report);
 
     }
 
@@ -119,7 +136,7 @@ XML;
      */
     function testFreeBusyReportWrongNode() {
 
-        $request = new HTTP\Request(array(
+        $request = HTTP\Sapi::createFromServerArray(array(
             'REQUEST_URI' => '/',
         ));
         $this->server->httpRequest = $request;
@@ -131,8 +148,8 @@ XML;
 </c:free-busy-query>
 XML;
 
-        $dom = DAV\XMLUtil::loadDOMDocument($reportXML);
-        $this->plugin->report('{urn:ietf:params:xml:ns:caldav}free-busy-query', $dom);
+        $report = $this->server->xml->parse($reportXML, null, $rootElem);
+        $this->plugin->report($rootElem, $report);
 
     }
 
@@ -152,8 +169,8 @@ XML;
 </c:free-busy-query>
 XML;
 
-        $dom = DAV\XMLUtil::loadDOMDocument($reportXML);
-        $this->plugin->report('{urn:ietf:params:xml:ns:caldav}free-busy-query', $dom);
+        $report = $this->server->xml->parse($reportXML, null, $rootElem);
+        $this->plugin->report($rootElem, $report);
 
     }
 }

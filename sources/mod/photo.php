@@ -156,8 +156,8 @@ function photo_init(&$a) {
 				);
  
 				if($r) {
-					logger('mod_photo: forbidden. ' . $a->query_string);
-					$observer = $a->get_observer();
+					logger('mod_photo: forbidden. ' . App::$query_string);
+					$observer = App::get_observer();
 					logger('mod_photo: observer = ' . (($observer) ? $observer['xchan_addr'] : '(not authenticated)'));
 					$data = file_get_contents('images/nosign.png');
 					$mimetype = 'image/png';

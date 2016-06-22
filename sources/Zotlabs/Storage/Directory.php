@@ -53,7 +53,7 @@ class Directory extends DAV\Node implements DAV\ICollection, DAV\IQuota {
 		logger('directory ' . $ext_path, LOGGER_DATA);
 		$this->ext_path = $ext_path;
 		// remove "/cloud" from the beginning of the path
-		$modulename = get_app()->module; 
+		$modulename = \App::$module; 
 		$this->red_path = ((strpos($ext_path, '/' . $modulename) === 0) ? substr($ext_path, strlen($modulename) + 1) : $ext_path);
 		if (! $this->red_path) {
 			$this->red_path = '/';
@@ -114,7 +114,7 @@ class Directory extends DAV\Node implements DAV\ICollection, DAV\IQuota {
 			throw new DAV\Exception\Forbidden('Permission denied.');
 		}
 
-		$modulename = get_app()->module;
+		$modulename = \App::$module;
 		if ($this->red_path === '/' && $name === $modulename) {
 			return new Directory('/' . $modulename, $this->auth);
 		}
@@ -167,6 +167,14 @@ class Directory extends DAV\Node implements DAV\ICollection, DAV\IQuota {
 			dbesc($this->folder_hash),
 			intval($this->auth->owner_id)
 		);
+
+
+		$ch = channelx_by_n($this->auth->owner_id);
+		if($ch) {
+			$sync = attach_export_data($ch,$this->folder_hash);
+			if($sync) 
+				build_sync_packet($ch['channel_id'],array('file' => array($sync)));
+		}
 
 		$this->red_path = $new_path;
 	}
@@ -307,13 +315,13 @@ class Directory extends DAV\Node implements DAV\ICollection, DAV\IQuota {
 		}
 
 		// check against service class quota
-		$limit = service_class_fetch($c[0]['channel_id'], 'attach_upload_limit');
+		$limit = engr_units_to_bytes(service_class_fetch($c[0]['channel_id'], 'attach_upload_limit'));
 		if ($limit !== false) {
 			$x = q("SELECT SUM(filesize) AS total FROM attach WHERE aid = %d ",
 				intval($c[0]['channel_account_id'])
 			);
 			if (($x) && ($x[0]['total'] + $size > $limit)) {
-				logger('service class limit exceeded for ' . $c[0]['channel_name'] . ' total usage is ' . $x[0]['total'] . ' limit is ' . $limit);
+				logger('service class limit exceeded for ' . $c[0]['channel_name'] . ' total usage is ' . $x[0]['total'] . ' limit is ' . userReadableSize($limit));
 				attach_delete($c[0]['channel_id'], $hash);
 				return;
 			}
@@ -332,8 +340,14 @@ class Directory extends DAV\Node implements DAV\ICollection, DAV\IQuota {
 
 			require_once('include/photos.php');
 			$args = array( 'resource_id' => $hash, 'album' => $album, 'os_path' => $f, 'filename' => $name, 'getimagesize' => $x, 'directory' => $direct);
-			$p = photo_upload($c[0],get_app()->get_observer(),$args);
+			$p = photo_upload($c[0],\App::get_observer(),$args);
 		}
+
+		$sync = attach_export_data($c[0],$hash);
+
+		if($sync) 
+			build_sync_packet($c[0]['channel_id'],array('file' => array($sync)));
+
 
 	}
 
@@ -356,7 +370,14 @@ class Directory extends DAV\Node implements DAV\ICollection, DAV\IQuota {
 
 		if ($r) {
 			$result = attach_mkdir($r[0], $this->auth->observer, array('filename' => $name, 'folder' => $this->folder_hash));
-			if (! $result['success']) {
+
+			if($result['success']) {
+				$sync = attach_export_data($r[0],$ret['data']['hash']);
+				if($sync) {
+					build_sync_packet($r[0]['channel_id'],array('file' => array($sync)));
+				}
+			}
+			else {		
 				logger('error ' . print_r($result, true), LOGGER_DEBUG);
 			}
 		}
@@ -380,6 +401,15 @@ class Directory extends DAV\Node implements DAV\ICollection, DAV\IQuota {
 		}
 
 		attach_delete($this->auth->owner_id, $this->folder_hash);
+
+		$ch = channelx_by_n($this->auth->owner_id);
+		if($ch) {
+			$sync = attach_export_data($ch,$this->folder_hash,true);
+			if($sync) 
+				build_sync_packet($ch['channel_id'],array('file' => array($sync)));
+		}
+
+
 	}
 
 
@@ -393,7 +423,7 @@ class Directory extends DAV\Node implements DAV\ICollection, DAV\IQuota {
 	public function childExists($name) {
 		// On /cloud we show a list of available channels.
 		// @todo what happens if no channels are available?
-		$modulename = get_app()->module;
+		$modulename = \App::$module;
 		if ($this->red_path === '/' && $name === $modulename) {
 			//logger('We are at ' $modulename . ' show a channel list', LOGGER_DEBUG);
 			return true;
@@ -417,7 +447,7 @@ class Directory extends DAV\Node implements DAV\ICollection, DAV\IQuota {
 
 		logger('GetDir: ' . $this->ext_path, LOGGER_DEBUG);
 		$this->auth->log();
-		$modulename = get_app()->module;
+		$modulename = \App::$module;
 
 		$file = $this->ext_path;
 
@@ -519,7 +549,7 @@ class Directory extends DAV\Node implements DAV\ICollection, DAV\IQuota {
 				intval($this->auth->owner_id)
 			);
 
-			$ulimit = service_class_fetch($c[0]['channel_id'], 'attach_upload_limit');
+			$ulimit = engr_units_to_bytes(service_class_fetch($c[0]['channel_id'], 'attach_upload_limit'));
 			$limit = (($ulimit) ? $ulimit : $limit);
 
 			$x = q("select sum(filesize) as total from attach where aid = %d",

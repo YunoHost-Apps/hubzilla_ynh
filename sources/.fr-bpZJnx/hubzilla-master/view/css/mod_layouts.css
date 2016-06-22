@@ -1,0 +1,36 @@
+#layout-editor {
+	display: none;
+}
+
+#layout-list-table {
+	width: 100%;
+}
+
+#layout-list-table th:nth-child(1){
+	padding: 7px 3px 7px 10px;
+	white-space: nowrap;
+}
+
+#layout-list-table td:nth-child(1){
+	padding: 7px 3px 7px 10px;
+}
+
+#layout-list-table th:nth-child(2){
+	white-space: nowrap;
+}
+
+#layout-list-table th:nth-child(6),
+#layout-list-table td:nth-child(6){
+	padding: 7px 3px;
+	white-space: nowrap;
+}
+
+#layout-list-table th:nth-child(7),
+#layout-list-table td:nth-child(7){
+	padding: 7px 10px 7px 7px;
+	white-space: nowrap;
+}
+
+.webpage-list-tool {
+	padding: 7px 10px;
+}

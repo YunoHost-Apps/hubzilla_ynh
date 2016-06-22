@@ -7,10 +7,10 @@ function profperm_init(&$a) {
 	if(! local_channel())
 		return;
 
-	$channel = $a->get_channel();
+	$channel = App::get_channel();
 	$which = $channel['channel_address'];
 
-	$profile = $a->argv[1];
+	$profile = App::$argv[1];
 
 	profile_load($a,$which,$profile);
 

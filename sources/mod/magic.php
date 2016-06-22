@@ -128,21 +128,17 @@ function magic_init(&$a) {
 	}
 
 	if(local_channel()) {
-		$channel = $a->get_channel();
+		$channel = App::get_channel();
 
 		$token = random_string();
 		$token_sig = base64url_encode(rsa_sign($token,$channel['channel_prvkey']));
  
 		$channel['token'] = $token;
 		$channel['token_sig'] = $token_sig;
-		$r = q("insert into verify ( type, channel, token, meta, created) values ('%s','%d','%s','%s','%s')",
-			dbesc('auth'),
-			intval($channel['channel_id']),
-			dbesc($token),
-			dbesc($x[0]['hubloc_url']),
-			dbesc(datetime_convert())
-		);
-		$target_url = $x[0]['hubloc_callback'] . '/?f=&auth=' . urlencode($channel['channel_address'] . '@' . $a->get_hostname())
+
+		Zotlabs\Zot\Verify::create('auth',$channel['channel_id'],$token,$x[0]['hubloc_url']);
+
+		$target_url = $x[0]['hubloc_callback'] . '/?f=&auth=' . urlencode($channel['channel_address'] . '@' . App::get_hostname())
 			. '&sec=' . $token . '&dest=' . urlencode($dest) . '&version=' . ZOT_REVISION;
 
 		if($delegate)

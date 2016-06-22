@@ -2,6 +2,7 @@
 
 namespace Sabre\CardDAV;
 
+use Sabre\DAV\PropPatch;
 
 require_once 'Sabre/CardDAV/Backend/Mock.php';
 
@@ -105,9 +106,11 @@ class AddressBookTest extends \PHPUnit_Framework_TestCase {
 
     function testUpdateProperties() {
 
-        $this->assertTrue(
-            $this->ab->updateProperties(array('{DAV:}displayname' => 'barrr'))
-        );
+        $propPatch = new PropPatch([
+            '{DAV:}displayname' => 'barrr',
+        ]);
+        $this->ab->propPatch($propPatch);
+        $this->assertTrue($propPatch->commit());
 
         $this->assertEquals('barrr', $this->backend->addressBooks[0]['{DAV:}displayname']);
 
@@ -155,6 +158,53 @@ class AddressBookTest extends \PHPUnit_Framework_TestCase {
         $this->assertNull(
             $this->ab->getSupportedPrivilegeSet()
         );
+
+    }
+
+    function testGetSyncTokenNoSyncSupport() {
+
+        $this->assertNull($this->ab->getSyncToken());
+
+    }
+    function testGetChangesNoSyncSupport() {
+
+        $this->assertNull($this->ab->getChanges(1,null));
+
+    }
+
+    function testGetSyncToken() {
+
+        if (!SABRE_HASSQLITE) {
+            $this->markTestSkipped('Sqlite is required for this test to run');
+        }
+        $ab = new AddressBook(TestUtil::getBackend(), [ 'id' => 1, '{DAV:}sync-token' => 2]);
+        $this->assertEquals(2, $ab->getSyncToken());
+        TestUtil::deleteSQLiteDB();
+    }
+
+    function testGetSyncToken2() {
+
+        if (!SABRE_HASSQLITE) {
+            $this->markTestSkipped('Sqlite is required for this test to run');
+        }
+        $ab = new AddressBook(TestUtil::getBackend(), [ 'id' => 1, '{http://sabredav.org/ns}sync-token' => 2]);
+        $this->assertEquals(2, $ab->getSyncToken());
+        TestUtil::deleteSQLiteDB();
+    }
+
+    function testGetChanges() {
+
+        if (!SABRE_HASSQLITE) {
+            $this->markTestSkipped('Sqlite is required for this test to run');
+        }
+        $ab = new AddressBook(TestUtil::getBackend(), [ 'id' => 1, '{DAV:}sync-token' => 2]);
+        $this->assertEquals([
+            'syncToken' => 2,
+            'modified' => [],
+            'deleted' => [],
+            'added' => ['UUID-2345'],
+        ], $ab->getChanges(1, 1));
+        TestUtil::deleteSQLiteDB();
 
     }
 

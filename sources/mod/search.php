@@ -2,7 +2,7 @@
 
 function search_init(&$a) {
 	if(x($_REQUEST,'search'))
-		$a->data['search'] = $_REQUEST['search'];
+		App::$data['search'] = $_REQUEST['search'];
 }
 
 
@@ -30,7 +30,7 @@ function search_content(&$a,$update = 0, $load = false) {
 		$update = $load = 1;
 	}
 
-	$observer = $a->get_observer();
+	$observer = App::get_observer();
 	$observer_hash = (($observer) ? $observer['xchan_hash'] : '');
 
 	$o = '<div id="live-search"></div>' . "\r\n";
@@ -39,8 +39,8 @@ function search_content(&$a,$update = 0, $load = false) {
 
 	$o .= '<h3>' . t('Search') . '</h3>';
 
-	if(x($a->data,'search'))
-		$search = trim($a->data['search']);
+	if(x(App::$data,'search'))
+		$search = trim(App::$data['search']);
 	else
 		$search = ((x($_GET,'search')) ? trim(rawurldecode($_GET['search'])) : '');
 
@@ -99,12 +99,12 @@ function search_content(&$a,$update = 0, $load = false) {
 
 		$o .= '<div id="live-search"></div>' . "\r\n";
 		$o .= "<script> var profile_uid = " . ((intval(local_channel())) ? local_channel() : (-1))
-			. "; var netargs = '?f='; var profile_page = " . $a->pager['page'] . "; </script>\r\n";
+			. "; var netargs = '?f='; var profile_page = " . App::$pager['page'] . "; </script>\r\n";
 
-		$a->page['htmlhead'] .= replace_macros(get_markup_template("build_query.tpl"),array(
+		App::$page['htmlhead'] .= replace_macros(get_markup_template("build_query.tpl"),array(
 			'$baseurl' => z_root(),
 			'$pgtype' => 'search',
-			'$uid' => (($a->profile['profile_uid']) ? $a->profile['profile_uid'] : '0'),
+			'$uid' => ((App::$profile['profile_uid']) ? App::$profile['profile_uid'] : '0'),
 			'$gid' => '0',
 			'$cid' => '0',
 			'$cmin' => '0',
@@ -117,7 +117,7 @@ function search_content(&$a,$update = 0, $load = false) {
 			'$nouveau' => '0',
 			'$wall' => '0',
 			'$list' => ((x($_REQUEST,'list')) ? intval($_REQUEST['list']) : 0),
-			'$page' => (($a->pager['page'] != 1) ? $a->pager['page'] : 1),
+			'$page' => ((App::$pager['page'] != 1) ? App::$pager['page'] : 1),
 			'$search' => (($tag) ? urlencode('#') : '') . $search,
 			'$order' => '',
 			'$file' => '',
@@ -141,8 +141,8 @@ function search_content(&$a,$update = 0, $load = false) {
 
 	if(($update) && ($load)) {
 		$itemspage = get_pconfig(local_channel(),'system','itemspage');
-		$a->set_pager_itemspage(((intval($itemspage)) ? $itemspage : 20));
-		$pager_sql = sprintf(" LIMIT %d OFFSET %d ", intval($a->pager['itemspage']), intval($a->pager['start']));
+		App::set_pager_itemspage(((intval($itemspage)) ? $itemspage : 20));
+		$pager_sql = sprintf(" LIMIT %d OFFSET %d ", intval(App::$pager['itemspage']), intval(App::$pager['start']));
 
 		// in case somebody turned off public access to sys channel content with permissions
 

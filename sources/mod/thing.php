@@ -14,7 +14,7 @@ function thing_init(&$a) {
 	if(! local_channel())
 		return;
 
-	$channel    = $a->get_channel();
+	$channel    = App::get_channel();
 
 	$term_hash = (($_REQUEST['term_hash']) ? $_REQUEST['term_hash'] : '');
 
@@ -264,7 +264,7 @@ function thing_content(&$a) {
 		}
 	}
 
-	$channel = $a->get_channel();
+	$channel = App::get_channel();
 
 	if(! (local_channel() && $channel)) {
 		notice( t('Permission denied.') . EOL);

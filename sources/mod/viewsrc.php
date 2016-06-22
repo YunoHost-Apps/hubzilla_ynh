@@ -16,7 +16,7 @@ function viewsrc_content(&$a) {
 
 
 	if(! $item_id) {
-		$a->error = 404;
+		App::$error = 404;
 		notice( t('Item not found.') . EOL);
 	}
 

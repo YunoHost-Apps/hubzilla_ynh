@@ -9,7 +9,7 @@ function webpages_init(&$a) {
 	if(argc() > 1 && argv(1) === 'sys' && is_site_admin()) {
 		$sys = get_sys_channel();
 		if($sys && intval($sys['channel_id'])) {
-			$a->is_sys = true;
+			App::$is_sys = true;
 		}
 	}
 
@@ -25,24 +25,24 @@ function webpages_init(&$a) {
 
 function webpages_content(&$a) {
 
-	if(! $a->profile) {
+	if(! App::$profile) {
 		notice( t('Requested profile is not available.') . EOL );
-		$a->error = 404;
+		App::$error = 404;
 		return;
 	}
 
 	$which = argv(1);
 	
-	$_SESSION['return_url'] = $a->query_string;
+	$_SESSION['return_url'] = App::$query_string;
 
 	$uid = local_channel();
 	$owner = 0;
 	$channel = null;
-	$observer = $a->get_observer();
+	$observer = App::get_observer();
 
-	$channel = $a->get_channel();
+	$channel = App::get_channel();
 
-	if($a->is_sys && is_site_admin()) {
+	if(App::$is_sys && is_site_admin()) {
 		$sys = get_sys_channel();
 		if($sys && intval($sys['channel_id'])) {
 			$uid = $owner = intval($sys['channel_id']);
@@ -84,8 +84,8 @@ function webpages_content(&$a) {
 	// Nickname is set to the observers xchan, and profile_uid to the owner's.  
 	// This lets you post pages at other people's channels.
 
-	if((! $channel) && ($uid) && ($uid == $a->profile_uid)) {
-		$channel = $a->get_channel();
+	if((! $channel) && ($uid) && ($uid == App::$profile_uid)) {
+		$channel = App::get_channel();
 	}
 	if($channel) {
 		$channel_acl = array(
@@ -99,12 +99,12 @@ function webpages_content(&$a) {
 		$channel_acl = array();
 
 	$is_owner = ($uid && $uid == $owner);
-	$o = profile_tabs($a, $is_owner, $a->profile['channel_address']);
+	$o = profile_tabs($a, $is_owner, App::$profile['channel_address']);
 
 	$x = array(
 		'webpage'     => ITEM_TYPE_WEBPAGE,
 		'is_owner'    => true,
-		'nickname'    => $a->profile['channel_address'],
+		'nickname'    => App::$profile['channel_address'],
 		'lockstate'   => (($channel['channel_allow_cid'] || $channel['channel_allow_gid'] || $channel['channel_deny_cid'] || $channel['channel_deny_gid']) ? 'lock' : 'unlock'),
 		'bang'        => '',
 		'acl'         => (($is_owner) ? populate_acl($channel_acl,false) : ''),
@@ -114,7 +114,9 @@ function webpages_content(&$a) {
 		'mimetype'    => $mimetype,
 		'layout'      => $layout,
 		'expanded'    => true,
-		'novoting' => true
+		'novoting'=> true,
+		'bbco_autocomplete' => 'bbcode',
+		'bbcode' => true
 	);
 	
 	if($_REQUEST['title'])

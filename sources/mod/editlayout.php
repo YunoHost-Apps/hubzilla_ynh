@@ -8,7 +8,7 @@ function editlayout_init(&$a) {
 	if(argc() > 1 && argv(1) === 'sys' && is_site_admin()) {
 		$sys = get_sys_channel();
 		if($sys && intval($sys['channel_id'])) {
-			$a->is_sys = true;
+			App::$is_sys = true;
 		}
 	}
 
@@ -23,9 +23,9 @@ function editlayout_init(&$a) {
 
 function editlayout_content(&$a) {
 
-	if(! $a->profile) {
+	if(! App::$profile) {
 		notice( t('Requested profile is not available.') . EOL );
-		$a->error = 404;
+		App::$error = 404;
 		return;
 	}
 
@@ -34,11 +34,11 @@ function editlayout_content(&$a) {
 	$uid = local_channel();
 	$owner = 0;
 	$channel = null;
-	$observer = $a->get_observer();
+	$observer = App::get_observer();
 
-	$channel = $a->get_channel();
+	$channel = App::get_channel();
 
-	if($a->is_sys && is_site_admin()) {
+	if(App::$is_sys && is_site_admin()) {
 		$sys = get_sys_channel();
 		if($sys && intval($sys['channel_id'])) {
 			$uid = $owner = intval($sys['channel_id']);
@@ -102,14 +102,15 @@ function editlayout_content(&$a) {
 
 	$plaintext = true;
 	
-	$a->page['htmlhead'] .= replace_macros(get_markup_template('jot-header.tpl'), array(
-		'$baseurl'       => $a->get_baseurl(),
+	App::$page['htmlhead'] .= replace_macros(get_markup_template('jot-header.tpl'), array(
+		'$baseurl'       => z_root(),
 		'$editselect'    =>  (($plaintext) ? 'none' : '/(profile-jot-text|prvmail-text)/'),
 		'$pretext'       => '',
 		'$ispublic'      => '&nbsp;', // t('Visible to <strong>everybody</strong>'),
 		'$geotag'        => $geotag,
 		'$nickname'      => $channel['channel_address'],
-		'$confirmdelete' => t('Delete layout?')
+		'$confirmdelete' => t('Delete layout?'),
+		'$bbco_autocomplete'=> 'comanche'
 	));
 
 
@@ -150,7 +151,7 @@ function editlayout_content(&$a) {
 		'$ptyp'                => $itm[0]['type'],
 		'$content'             => undo_post_tagging($itm[0]['body']),
 		'$post_id'             => $post_id,
-		'$baseurl'             => $a->get_baseurl(),
+		'$baseurl'             => z_root(),
 		'$defloc'              => $channel['channel_location'],
 		'$visitor'             => false,
 		'$public'              => t('Public post'),
@@ -167,7 +168,7 @@ function editlayout_content(&$a) {
 		'$bang'                => '',
 		'$profile_uid'         => (intval($owner)),
 		'$jotplugins'          => $jotplugins,
-		'$sourceapp'           => t($a->sourcename),
+		'$sourceapp'           => t(App::$sourcename),
 		'$defexpire'           => '',
 		'$feature_expire'      => false,
 		'$expires'             => t('Set expiration date'),

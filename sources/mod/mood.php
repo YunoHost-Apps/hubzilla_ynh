@@ -11,7 +11,7 @@ function mood_init(&$a) {
 		return;
 
 	$uid = local_channel();
-	$channel = $a->get_channel();
+	$channel = App::get_channel();
 	$verb = notags(trim($_GET['verb']));
 	
 	if(! $verb) 
@@ -56,7 +56,7 @@ function mood_init(&$a) {
 		$deny_gid      =  $channel['channel_deny_gid'];
 	}
 
-	$poster = $a->get_observer();
+	$poster = App::get_observer();
 
 	$mid = item_message_id();
 

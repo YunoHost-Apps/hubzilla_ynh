@@ -1,7 +1,7 @@
 <?php
 
 function smilies_content(&$a) { 
-	if ($a->argv[1]==="json"){
+	if (App::$argv[1]==="json"){
 		$tmp = list_smilies();
 		$results = array();
 		for($i = 0; $i < count($tmp['texts']); $i++) {

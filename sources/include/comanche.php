@@ -56,34 +56,34 @@ function comanche_parser(&$a, $s, $pass = 0) {
 	if($pass == 0) {
 		$cnt = preg_match("/\[layout\](.*?)\[\/layout\]/ism", $s, $matches);
 		if($cnt)
-			$a->page['template'] = trim($matches[1]);
+			App::$page['template'] = trim($matches[1]);
 
 		$cnt = preg_match("/\[template=(.*?)\](.*?)\[\/template\]/ism", $s, $matches);
 		if($cnt) {
-			$a->page['template'] = trim($matches[2]);
-			$a->page['template_style'] = trim($matches[2]) . '_' . $matches[1]; 
+			App::$page['template'] = trim($matches[2]);
+			App::$page['template_style'] = trim($matches[2]) . '_' . $matches[1]; 
 		}
 
 		$cnt = preg_match("/\[template\](.*?)\[\/template\]/ism", $s, $matches);
 		if($cnt) {
-			$a->page['template'] = trim($matches[1]);
+			App::$page['template'] = trim($matches[1]);
 		}
 
 		$cnt = preg_match("/\[theme=(.*?)\](.*?)\[\/theme\]/ism", $s, $matches);
 		if($cnt) {
-			$a->layout['schema'] = trim($matches[1]);
-			$a->layout['theme'] = trim($matches[2]);
+			App::$layout['schema'] = trim($matches[1]);
+			App::$layout['theme'] = trim($matches[2]);
 		}
 
 		$cnt = preg_match("/\[theme\](.*?)\[\/theme\]/ism", $s, $matches);
 		if($cnt)
-			$a->layout['theme'] = trim($matches[1]);
+			App::$layout['theme'] = trim($matches[1]);
 
 		$cnt = preg_match_all("/\[webpage\](.*?)\[\/webpage\]/ism", $s, $matches, PREG_SET_ORDER);
 		if($cnt) {
 			// only the last webpage definition is used if there is more than one
 			foreach($matches as $mtch) {
-				$a->layout['webpage'] = comanche_webpage($a,$mtch[1]);
+				App::$layout['webpage'] = comanche_webpage($a,$mtch[1]);
 			}
 		}
 
@@ -92,7 +92,7 @@ function comanche_parser(&$a, $s, $pass = 0) {
 		$cnt = preg_match_all("/\[region=(.*?)\](.*?)\[\/region\]/ism", $s, $matches, PREG_SET_ORDER);
 		if($cnt) {
 			foreach($matches as $mtch) {
-				$a->layout['region_' . $mtch[1]] = comanche_region($a,$mtch[2]);
+				App::$layout['region_' . $mtch[1]] = comanche_region($a,$mtch[2]);
 			}
 		}
 
@@ -122,8 +122,8 @@ function comanche_menu($s, $class = '') {
 
 function comanche_replace_region($match) {
 	$a = get_app();
-	if (array_key_exists($match[1], $a->page)) {
-		return $a->page[$match[1]];
+	if (array_key_exists($match[1], App::$page)) {
+		return App::$page[$match[1]];
 	}
 }
 
@@ -136,7 +136,7 @@ function comanche_replace_region($match) {
  * @return channel_id
  */
 function comanche_get_channel_id() {
-	$channel_id = ((is_array(get_app()->profile)) ? get_app()->profile['profile_uid'] : 0);
+	$channel_id = ((is_array(App::$profile)) ? App::$profile['profile_uid'] : 0);
 
 	if ((! $channel_id) && (local_channel()))
 		$channel_id = local_channel();
@@ -190,7 +190,7 @@ function comanche_block($s, $class = '') {
 			}
 
 			if(trim($r[0]['body']) === '$content') {
-				$o .= get_app()->page['content'];
+				$o .= App::$page['content'];
 			}
 			else {
 				$o .= prepare_text($r[0]['body'], $r[0]['mimetype']);
@@ -378,6 +378,6 @@ function comanche_region(&$a, $s) {
 
 
 function register_page_template($arr) {
-	get_app()->page_layouts[$arr['template']] = array($arr['variant']);
+	App::$page_layouts[$arr['template']] = array($arr['variant']);
 	return;
 }

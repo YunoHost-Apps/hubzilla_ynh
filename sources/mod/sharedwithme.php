@@ -8,7 +8,7 @@ function sharedwithme_content(&$a) {
 		return;
 	}
 	
-	$channel = $a->get_channel();
+	$channel = App::get_channel();
 
 	$is_owner = (local_channel() && (local_channel() == $channel['channel_id']));
 

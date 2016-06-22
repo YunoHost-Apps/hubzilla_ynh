@@ -1,0 +1,34 @@
+.directory-photo-img {
+	width: 80px;
+	height: 80px;
+	border: none;
+}
+
+.section-content-tools-wrapper {
+	padding-bottom: 20px;
+}
+
+.contact-photo-wrapper {
+	display: table-cell;
+	table-layout: fixed;
+	vertical-align: top;
+}
+
+.contact-info {
+	display: table-cell;
+	table-layout: fixed;
+	vertical-align: top;
+	padding-left: 10px;
+}
+
+.contact-info-label {
+	font-weight: bold;
+}
+
+.section-subtitle-wrapper .btn-xs {
+	margin-top: -2px;
+}
+
+.directory-collapse {
+		overflow: auto;
+}

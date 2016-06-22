@@ -1,0 +1,114 @@
+nav, header, .pageheader {
+	display: none;
+}
+
+main {
+	display: table;
+	table-layout: fixed;
+	position: relative;
+	width: 100%;
+	height: 100%;
+}
+
+@media screen and (max-width: 801px) {
+	main {
+		left: -14rem !important;
+    	right: -14rem !important;    
+    	width: calc(100% + 14rem) !important;
+}
+
+@media screen and (min-width: 802px) {
+section#region_2 * {
+	font-size: 1.05rem;
+}
+}
+
+#profile-photo-wrapper {
+	display:none;
+}
+
+section#region_2 * {
+	font-size: 1.15rem;
+}
+}
+
+aside#region_1 {
+	width: 14rem;
+	min-width: 14rem;
+	max-width: 14rem;
+	display: table-cell;
+	vertical-align: top;
+	padding: 7px 7px 0px 7px;
+	}
+	
+aside#region_1 * {
+	font-size: 0.8rem;
+	line-height: 1.45;
+}
+
+aside input[type='text'] {
+	width: 100%;
+}
+
+section#region_2wrap {
+	width: 100%;
+	display: table-cell;
+	vertical-align: top;
+	padding: 17px 10px 200px 10px;
+}
+
+section#region_2 {
+	max-width: 36rem;	
+	margin-left: auto;
+	margin-right: auto;
+	vertical-align: top;
+}
+
+section#region_2 * {
+	text-align: justify;
+	line-height: 1.55;
+}
+
+ul.nojustify li, .nojustify {
+	text-align: initial;
+}
+
+section#region_2 p + p {
+	margin-top: 1.5em; 
+}
+
+aside#region_3 {
+	width: 14rem;
+	min-width: 14rem;
+	max-width: 14rem;
+	display: table-cell;
+	vertical-align: top;
+	padding: 7px 7px 0px 7px;
+}
+
+aside#region_3 * {
+	font-size: 0.8rem;
+	line-height: 1.45;
+}
+
+h1 { 
+	font-size: 1.39em !important;
+	text-align: left !important;	
+}
+
+h2 {
+	font-size: 1.18em !important;
+	text-align: left !important;	
+}
+
+h1 *, h2 * {
+	font-size: 1em !important;
+}
+
+li {
+	text-align: left !important;	
+}
+
+.widget, .pmenu {
+border-bottom: none !important;
+}

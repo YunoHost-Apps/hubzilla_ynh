@@ -1,0 +1,34 @@
+<?php
+
+App::$strings["Post to StatusNet"] = "Wyślij do sieci StatusNet";
+App::$strings["Please contact your site administrator.<br />The provided API URL is not valid."] = "Proszę się skontaktować z administratorem strony. <br />  API URL nie jest poprawne";
+App::$strings["We could not contact the StatusNet API with the Path you entered."] = "";
+App::$strings["StatusNet settings updated."] = "Ustawienia StatusNet zaktualizowane";
+App::$strings["StatusNet Posting Settings"] = "Ustawienia StatusNet";
+App::$strings["Globally Available StatusNet OAuthKeys"] = "";
+App::$strings["There are preconfigured OAuth key pairs for some StatusNet servers available. If you are useing one of them, please use these credentials. If not feel free to connect to any other StatusNet instance (see below)."] = "";
+App::$strings["Submit"] = "Potwierdź";
+App::$strings["Provide your own OAuth Credentials"] = "";
+App::$strings["No consumer key pair for StatusNet found. Register your Friendica Account as an desktop client on your StatusNet account, copy the consumer key pair here and enter the API base root.<br />Before you register your own OAuth key pair ask the administrator if there is already a key pair for this Friendica installation at your favorited StatusNet installation."] = "";
+App::$strings["OAuth Consumer Key"] = "";
+App::$strings["OAuth Consumer Secret"] = "";
+App::$strings["Base API Path (remember the trailing /)"] = "";
+App::$strings["To connect to your StatusNet account click the button below to get a security code from StatusNet which you have to copy into the input box below and submit the form. Only your <strong>public</strong> posts will be posted to StatusNet."] = "Aby uzyskać połączenie z kontem w serwisie StatusNet naciśnij przycisk poniżej aby otrzymać kod bezpieczeństwa od StatusNet, który musisz skopiować do pola poniżej i wysłać formularz. Tylko twoje <strong>publiczne</strong> posty będą publikowane na StatusNet.";
+App::$strings["Log in with StatusNet"] = "Zaloguj się przez StatusNet";
+App::$strings["Copy the security code from StatusNet here"] = "Tutaj skopiuj kod bezpieczeństwa z StatusNet";
+App::$strings["Cancel Connection Process"] = "Anuluj proces łączenia";
+App::$strings["Current StatusNet API is"] = "Aktualnym StatusNet API jest";
+App::$strings["Cancel StatusNet Connection"] = "Anuluj połączenie StatusNet";
+App::$strings["Currently connected to: "] = "Obecnie połączone z:";
+App::$strings["If enabled all your <strong>public</strong> postings can be posted to the associated StatusNet account. You can choose to do so by default (here) or for every posting separately in the posting options when writing the entry."] = "";
+App::$strings["<strong>Note</strong>: Due your privacy settings (<em>Hide your profile details from unknown viewers?</em>) the link potentially included in public postings relayed to StatusNet will lead the visitor to a blank page informing the visitor that the access to your profile has been restricted."] = "";
+App::$strings["Allow posting to StatusNet"] = "Pozwól zamieszczać posty na StatusNet";
+App::$strings["Send public postings to StatusNet by default"] = "";
+App::$strings["Mirror all posts from statusnet that are no replies or repeated messages"] = "";
+App::$strings["Shortening method that optimizes the post"] = "";
+App::$strings["Send linked #-tags and @-names to StatusNet"] = "";
+App::$strings["Clear OAuth configuration"] = "";
+App::$strings["Site name"] = "Nazwa strony";
+App::$strings["API URL"] = "Adres API";
+App::$strings["Consumer Secret"] = "Sekret konsumenta";
+App::$strings["Consumer Key"] = "Klucz konsumenta";

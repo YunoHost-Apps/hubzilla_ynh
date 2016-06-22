@@ -18,7 +18,7 @@ function removeme_post(&$a) {
 		return;
 
 
-	$account = $a->get_account();
+	$account = App::get_account();
 
 	if(! account_verify_password($account['account_email'],$_POST['qxz_password']))
 		return;
@@ -52,7 +52,7 @@ function removeme_content(&$a) {
 
 	$tpl = get_markup_template('removeme.tpl');
 	$o .= replace_macros($tpl, array(
-		'$basedir' => $a->get_baseurl(),
+		'$basedir' => z_root(),
 		'$hash' => $hash,
 		'$title' => t('Remove This Channel'),
 		'$desc' => array(t('WARNING: '), t('This channel will be completely removed from the network. '), t('This action is permanent and can not be undone!')),

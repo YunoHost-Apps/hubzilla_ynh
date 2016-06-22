@@ -28,13 +28,13 @@ define( 'UNO', {{$uno}} );
 // Choose a legal default timezone. If you are unsure, use "America/Los_Angeles".
 // It can be changed later and only applies to timestamps for anonymous viewers.
 
-$default_timezone = '{{$timezone}}';
+App::$config['system']['timezone'] = '{{$timezone}}';
 
 // What is your site name?
 
-$a->config['system']['baseurl'] = '{{$siteurl}}';
-$a->config['system']['sitename'] = "Hubzilla";
-$a->config['system']['location_hash'] = '{{$site_id}}';
+App::$config['system']['baseurl'] = '{{$siteurl}}';
+App::$config['system']['sitename'] = "Hubzilla";
+App::$config['system']['location_hash'] = '{{$site_id}}';
 
 // Your choices are REGISTER_OPEN, REGISTER_APPROVE, or REGISTER_CLOSED.
 // Be certain to create your own personal account before setting 
@@ -43,21 +43,21 @@ $a->config['system']['location_hash'] = '{{$site_id}}';
 // to the email address of an already registered person who can authorise
 // and/or approve/deny the request.
 
-$a->config['system']['register_policy'] = REGISTER_OPEN;
-$a->config['system']['register_text'] = '';
-$a->config['system']['admin_email'] = '{{$adminmail}}';
+App::$config['system']['register_policy'] = REGISTER_OPEN;
+App::$config['system']['register_text'] = '';
+App::$config['system']['admin_email'] = '{{$adminmail}}';
 
 // Maximum size of an imported message, 0 is unlimited
 
-$a->config['system']['max_import_size'] = 200000;
+App::$config['system']['max_import_size'] = 200000;
 
 // maximum size of uploaded photos
 
-$a->config['system']['maximagesize'] = 8000000;
+App::$config['system']['maximagesize'] = 8000000;
 
 // Location of PHP command line processor
 
-$a->config['system']['php_path'] = '{{$phpath}}';
+App::$config['system']['php_path'] = '{{$phpath}}';
 
 // Configure how we communicate with directory servers.
 // DIRECTORY_MODE_NORMAL     = directory client, we will find a directory
@@ -65,9 +65,9 @@ $a->config['system']['php_path'] = '{{$phpath}}';
 // DIRECTORY_MODE_PRIMARY    = main directory server
 // DIRECTORY_MODE_STANDALONE = "off the grid" or private directory services
 
-$a->config['system']['directory_mode']  = DIRECTORY_MODE_NORMAL;
+App::$config['system']['directory_mode']  = DIRECTORY_MODE_NORMAL;
 
 // default system theme
 
-$a->config['system']['theme'] = 'redbasic';
+App::$config['system']['theme'] = 'redbasic';
 

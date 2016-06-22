@@ -9,362 +9,311 @@ require_once 'Sabre/HTTP/ResponseMock.php';
 class ServerPreconditionsTest extends \PHPUnit_Framework_TestCase {
 
     /**
-     * @covers Sabre\DAV\Server::checkPreconditions
      * @expectedException Sabre\DAV\Exception\PreconditionFailed
      */
     function testIfMatchNoNode() {
 
         $root = new SimpleCollection('root',array(new ServerPreconditionsNode()));
         $server = new Server($root);
-        $httpRequest = new HTTP\Request(array(
-            'HTTP_IF_MATCH' => '*',
-            'REQUEST_URI'   => '/bar'
-        ));
-        $server->httpRequest = $httpRequest;
-
-        $server->checkPreconditions();
+        $httpRequest = new HTTP\Request('GET', '/bar', ['If-Match' => '*']);
+        $httpResponse = new HTTP\Response();
+        $server->checkPreconditions($httpRequest, $httpResponse);
 
     }
 
     /**
-     * @covers \Sabre\DAV\Server::checkPreconditions
      */
     function testIfMatchHasNode() {
 
         $root = new SimpleCollection('root',array(new ServerPreconditionsNode()));
         $server = new Server($root);
-        $httpRequest = new HTTP\Request(array(
-            'HTTP_IF_MATCH' => '*',
-            'REQUEST_URI'   => '/foo'
-        ));
-        $server->httpRequest = $httpRequest;
-
-        $this->assertTrue($server->checkPreconditions());
+        $httpRequest = new HTTP\Request('GET', '/foo', ['If-Match' => '*']);
+        $httpResponse = new HTTP\Response();
+        $this->assertTrue($server->checkPreconditions($httpRequest, $httpResponse));
 
     }
 
     /**
-     * @covers \Sabre\DAV\Server::checkPreconditions
      * @expectedException Sabre\DAV\Exception\PreconditionFailed
      */
     function testIfMatchWrongEtag() {
 
         $root = new SimpleCollection('root',array(new ServerPreconditionsNode()));
         $server = new Server($root);
-        $httpRequest = new HTTP\Request(array(
-            'HTTP_IF_MATCH' => '1234',
-            'REQUEST_URI'   => '/foo'
-        ));
-        $server->httpRequest = $httpRequest;
-
-        $server->checkPreconditions();
+        $httpRequest = new HTTP\Request('GET', '/foo', ['If-Match' => '1234']);
+        $httpResponse = new HTTP\Response();
+        $server->checkPreconditions($httpRequest, $httpResponse);
 
     }
 
     /**
-     * @covers \Sabre\DAV\Server::checkPreconditions
      */
     function testIfMatchCorrectEtag() {
 
         $root = new SimpleCollection('root',array(new ServerPreconditionsNode()));
         $server = new Server($root);
-        $httpRequest = new HTTP\Request(array(
-            'HTTP_IF_MATCH' => '"abc123"',
-            'REQUEST_URI'   => '/foo'
-        ));
-        $server->httpRequest = $httpRequest;
-
-        $this->assertTrue($server->checkPreconditions());
+        $httpRequest = new HTTP\Request('GET', '/foo', ['If-Match' => '"abc123"']);
+        $httpResponse = new HTTP\Response();
+        $this->assertTrue($server->checkPreconditions($httpRequest, $httpResponse));
 
     }
 
     /**
      * Evolution sometimes uses \" instead of " for If-Match headers.
      *
-     * @covers \Sabre\DAV\Server::checkPreconditions
      * @depends testIfMatchCorrectEtag
      */
     function testIfMatchEvolutionEtag() {
 
         $root = new SimpleCollection('root',array(new ServerPreconditionsNode()));
         $server = new Server($root);
-        $httpRequest = new HTTP\Request(array(
-            'HTTP_IF_MATCH' => '\\"abc123\\"',
-            'REQUEST_URI'   => '/foo'
-        ));
-        $server->httpRequest = $httpRequest;
-
-        $this->assertTrue($server->checkPreconditions());
+        $httpRequest = new HTTP\Request('GET', '/foo', ['If-Match' => '\\"abc123\\"']);
+        $httpResponse = new HTTP\Response();
+        $this->assertTrue($server->checkPreconditions($httpRequest, $httpResponse));
 
     }
 
     /**
-     * @covers \Sabre\DAV\Server::checkPreconditions
      */
     function testIfMatchMultiple() {
 
         $root = new SimpleCollection('root',array(new ServerPreconditionsNode()));
         $server = new Server($root);
-        $httpRequest = new HTTP\Request(array(
-            'HTTP_IF_MATCH' => '"hellothere", "abc123"',
-            'REQUEST_URI'   => '/foo'
-        ));
-        $server->httpRequest = $httpRequest;
-
-        $this->assertTrue($server->checkPreconditions());
+        $httpRequest = new HTTP\Request('GET', '/foo', ['If-Match' => '"hellothere", "abc123"']);
+        $httpResponse = new HTTP\Response();
+        $this->assertTrue($server->checkPreconditions($httpRequest, $httpResponse));
 
     }
 
     /**
-     * @covers \Sabre\DAV\Server::checkPreconditions
      */
     function testIfNoneMatchNoNode() {
 
         $root = new SimpleCollection('root',array(new ServerPreconditionsNode()));
         $server = new Server($root);
-        $httpRequest = new HTTP\Request(array(
-            'HTTP_IF_NONE_MATCH' => '*',
-            'REQUEST_URI'   => '/bar'
-        ));
-        $server->httpRequest = $httpRequest;
-
-        $this->assertTrue($server->checkPreconditions());
+        $httpRequest = new HTTP\Request('GET', '/bar', ['If-None-Match' => '*']);
+        $httpResponse = new HTTP\Response();
+        $this->assertTrue($server->checkPreconditions($httpRequest, $httpResponse));
 
     }
 
     /**
-     * @covers \Sabre\DAV\Server::checkPreconditions
      * @expectedException Sabre\DAV\Exception\PreconditionFailed
      */
     function testIfNoneMatchHasNode() {
 
         $root = new SimpleCollection('root',array(new ServerPreconditionsNode()));
         $server = new Server($root);
-        $httpRequest = new HTTP\Request(array(
-            'HTTP_IF_NONE_MATCH' => '*',
-            'REQUEST_URI'   => '/foo'
-        ));
-        $server->httpRequest = $httpRequest;
-
-        $server->checkPreconditions();
+        $httpRequest = new HTTP\Request('POST', '/foo', ['If-None-Match' => '*']);
+        $httpResponse = new HTTP\Response();
+        $server->checkPreconditions($httpRequest, $httpResponse);
 
     }
 
     /**
-     * @covers \Sabre\DAV\Server::checkPreconditions
      */
     function testIfNoneMatchWrongEtag() {
 
         $root = new SimpleCollection('root',array(new ServerPreconditionsNode()));
         $server = new Server($root);
-        $httpRequest = new HTTP\Request(array(
-            'HTTP_IF_NONE_MATCH' => '"1234"',
-            'REQUEST_URI'   => '/foo'
-        ));
-        $server->httpRequest = $httpRequest;
-
-        $this->assertTrue($server->checkPreconditions());
+        $httpRequest = new HTTP\Request('POST', '/foo', ['If-None-Match' => '"1234"']);
+        $httpResponse = new HTTP\Response();
+        $this->assertTrue($server->checkPreconditions($httpRequest, $httpResponse));
 
     }
 
     /**
-     * @covers \Sabre\DAV\Server::checkPreconditions
      */
     function testIfNoneMatchWrongEtagMultiple() {
 
         $root = new SimpleCollection('root',array(new ServerPreconditionsNode()));
         $server = new Server($root);
-        $httpRequest = new HTTP\Request(array(
-            'HTTP_IF_NONE_MATCH' => '"1234", "5678"',
-            'REQUEST_URI'   => '/foo'
-        ));
-        $server->httpRequest = $httpRequest;
-
-        $this->assertTrue($server->checkPreconditions());
+        $httpRequest = new HTTP\Request('POST', '/foo', ['If-None-Match' => '"1234", "5678"']);
+        $httpResponse = new HTTP\Response();
+        $this->assertTrue($server->checkPreconditions($httpRequest, $httpResponse));
 
     }
 
     /**
-     * @covers \Sabre\DAV\Server::checkPreconditions
      * @expectedException Sabre\DAV\Exception\PreconditionFailed
      */
     public function testIfNoneMatchCorrectEtag() {
 
         $root = new SimpleCollection('root',array(new ServerPreconditionsNode()));
         $server = new Server($root);
-        $httpRequest = new HTTP\Request(array(
-            'HTTP_IF_NONE_MATCH' => '"abc123"',
-            'REQUEST_URI'   => '/foo'
-        ));
-        $server->httpRequest = $httpRequest;
-
-        $server->checkPreconditions();
+        $httpRequest = new HTTP\Request('POST', '/foo', ['If-None-Match' => '"abc123"']);
+        $httpResponse = new HTTP\Response();
+        $server->checkPreconditions($httpRequest, $httpResponse);
 
     }
 
     /**
-     * @covers \Sabre\DAV\Server::checkPreconditions
      * @expectedException Sabre\DAV\Exception\PreconditionFailed
      */
     public function testIfNoneMatchCorrectEtagMultiple() {
 
         $root = new SimpleCollection('root',array(new ServerPreconditionsNode()));
         $server = new Server($root);
-        $httpRequest = new HTTP\Request(array(
-            'HTTP_IF_NONE_MATCH' => '"1234", "abc123"',
-            'REQUEST_URI'   => '/foo'
-        ));
-        $server->httpRequest = $httpRequest;
-
-        $server->checkPreconditions();
+        $httpRequest = new HTTP\Request('POST', '/foo', ['If-None-Match' => '"1234, "abc123"']);
+        $httpResponse = new HTTP\Response();
+        $server->checkPreconditions($httpRequest, $httpResponse);
 
     }
 
     /**
-     * @covers \Sabre\DAV\Server::checkPreconditions
      */
     public function testIfNoneMatchCorrectEtagAsGet() {
 
         $root = new SimpleCollection('root',array(new ServerPreconditionsNode()));
         $server = new Server($root);
-        $httpRequest = new HTTP\Request(array(
-            'HTTP_IF_NONE_MATCH' => '"abc123"',
-            'REQUEST_URI'   => '/foo'
-        ));
-        $server->httpRequest = $httpRequest;
+        $httpRequest = new HTTP\Request('GET', '/foo', ['If-None-Match' => '"abc123"']);
         $server->httpResponse = new HTTP\ResponseMock();
 
-        $this->assertFalse($server->checkPreconditions(true));
-        $this->assertEquals('HTTP/1.1 304 Not Modified',$server->httpResponse->status);
+        $this->assertFalse($server->checkPreconditions($httpRequest, $server->httpResponse));
+        $this->assertEquals(304, $server->httpResponse->getStatus());
+        $this->assertEquals(['ETag' => ['"abc123"']], $server->httpResponse->getHeaders());
 
     }
 
     /**
-     * @covers \Sabre\DAV\Server::checkPreconditions
+     * This was a test written for issue #515.
+     */
+    public function testNoneMatchCorrectEtagEnsureSapiSent() {
+
+        $root = new SimpleCollection('root',array(new ServerPreconditionsNode()));
+        $server = new Server($root);
+        $server->sapi = new HTTP\SapiMock();
+        HTTP\SapiMock::$sent = 0;
+        $httpRequest = new HTTP\Request('GET', '/foo', ['If-None-Match' => '"abc123"']);
+        $server->httpRequest = $httpRequest;
+        $server->httpResponse = new HTTP\ResponseMock();
+
+        $server->exec();
+
+        $this->assertFalse($server->checkPreconditions($httpRequest, $server->httpResponse));
+        $this->assertEquals(304, $server->httpResponse->getStatus());
+        $this->assertEquals([
+            'ETag' => ['"abc123"'],
+            'X-Sabre-Version' => [Version::VERSION],
+        ], $server->httpResponse->getHeaders());
+        $this->assertEquals(1, HTTP\SapiMock::$sent);
+
+    }
+
+    /**
      */
     public function testIfModifiedSinceUnModified() {
 
         $root = new SimpleCollection('root',array(new ServerPreconditionsNode()));
         $server = new Server($root);
-        $httpRequest = new HTTP\Request(array(
+        $httpRequest = HTTP\Sapi::createFromServerArray(array(
             'HTTP_IF_MODIFIED_SINCE' => 'Sun, 06 Nov 1994 08:49:37 GMT',
             'REQUEST_URI'   => '/foo'
         ));
-        $server->httpRequest = $httpRequest;
         $server->httpResponse = new HTTP\ResponseMock();
-        $this->assertFalse($server->checkPreconditions());
+        $this->assertFalse($server->checkPreconditions($httpRequest, $server->httpResponse));
 
-        $this->assertEquals('HTTP/1.1 304 Not Modified',$server->httpResponse->status);
+        $this->assertEquals(304, $server->httpResponse->status);
         $this->assertEquals(array(
-            'Last-Modified' => 'Sat, 06 Apr 1985 23:30:00 GMT',
-        ), $server->httpResponse->headers);
+            'Last-Modified' => ['Sat, 06 Apr 1985 23:30:00 GMT'],
+        ), $server->httpResponse->getHeaders());
 
     }
 
 
     /**
-     * @covers \Sabre\DAV\Server::checkPreconditions
      */
     public function testIfModifiedSinceModified() {
 
         $root = new SimpleCollection('root',array(new ServerPreconditionsNode()));
         $server = new Server($root);
-        $httpRequest = new HTTP\Request(array(
+        $httpRequest = HTTP\Sapi::createFromServerArray(array(
             'HTTP_IF_MODIFIED_SINCE' => 'Tue, 06 Nov 1984 08:49:37 GMT',
             'REQUEST_URI'   => '/foo'
         ));
-        $server->httpRequest = $httpRequest;
-        $server->httpResponse = new HTTP\ResponseMock();
-        $this->assertTrue($server->checkPreconditions());
+
+        $httpResponse = new HTTP\ResponseMock();
+        $this->assertTrue($server->checkPreconditions($httpRequest, $httpResponse));
 
     }
 
     /**
-     * @covers \Sabre\DAV\Server::checkPreconditions
      */
     public function testIfModifiedSinceInvalidDate() {
 
         $root = new SimpleCollection('root',array(new ServerPreconditionsNode()));
         $server = new Server($root);
-        $httpRequest = new HTTP\Request(array(
+        $httpRequest = HTTP\Sapi::createFromServerArray(array(
             'HTTP_IF_MODIFIED_SINCE' => 'Your mother',
             'REQUEST_URI'   => '/foo'
         ));
-        $server->httpRequest = $httpRequest;
-        $server->httpResponse = new HTTP\ResponseMock();
+        $httpResponse = new HTTP\ResponseMock();
 
         // Invalid dates must be ignored, so this should return true
-        $this->assertTrue($server->checkPreconditions());
+        $this->assertTrue($server->checkPreconditions($httpRequest, $httpResponse));
 
     }
 
     /**
-     * @covers \Sabre\DAV\Server::checkPreconditions
      */
     public function testIfModifiedSinceInvalidDate2() {
 
         $root = new SimpleCollection('root',array(new ServerPreconditionsNode()));
         $server = new Server($root);
-        $httpRequest = new HTTP\Request(array(
+        $httpRequest = HTTP\Sapi::createFromServerArray(array(
             'HTTP_IF_MODIFIED_SINCE' => 'Sun, 06 Nov 1994 08:49:37 EST',
             'REQUEST_URI'   => '/foo'
         ));
-        $server->httpRequest = $httpRequest;
-        $server->httpResponse = new HTTP\ResponseMock();
-        $this->assertTrue($server->checkPreconditions());
+        $httpResponse = new HTTP\ResponseMock();
+        $this->assertTrue($server->checkPreconditions($httpRequest, $httpResponse));
 
     }
 
 
     /**
-     * @covers \Sabre\DAV\Server::checkPreconditions
      */
     public function testIfUnmodifiedSinceUnModified() {
 
         $root = new SimpleCollection('root',array(new ServerPreconditionsNode()));
         $server = new Server($root);
-        $httpRequest = new HTTP\Request(array(
+        $httpRequest = HTTP\Sapi::createFromServerArray(array(
             'HTTP_IF_UNMODIFIED_SINCE' => 'Sun, 06 Nov 1994 08:49:37 GMT',
             'REQUEST_URI'   => '/foo'
         ));
-        $server->httpRequest = $httpRequest;
-        $this->assertTrue($server->checkPreconditions());
+        $httpResponse = new HTTP\Response();
+        $this->assertTrue($server->checkPreconditions($httpRequest, $httpResponse));
 
     }
 
 
     /**
-     * @covers \Sabre\DAV\Server::checkPreconditions
      * @expectedException Sabre\DAV\Exception\PreconditionFailed
      */
     public function testIfUnmodifiedSinceModified() {
 
         $root = new SimpleCollection('root',array(new ServerPreconditionsNode()));
         $server = new Server($root);
-        $httpRequest = new HTTP\Request(array(
+        $httpRequest = HTTP\Sapi::createFromServerArray(array(
             'HTTP_IF_UNMODIFIED_SINCE' => 'Tue, 06 Nov 1984 08:49:37 GMT',
             'REQUEST_URI'   => '/foo'
         ));
-        $server->httpRequest = $httpRequest;
-        $server->httpResponse = new HTTP\ResponseMock();
-        $server->checkPreconditions();
+        $httpResponse = new HTTP\ResponseMock();
+        $server->checkPreconditions($httpRequest, $httpResponse);
 
     }
 
     /**
-     * @covers \Sabre\DAV\Server::checkPreconditions
      */
     public function testIfUnmodifiedSinceInvalidDate() {
 
         $root = new SimpleCollection('root',array(new ServerPreconditionsNode()));
         $server = new Server($root);
-        $httpRequest = new HTTP\Request(array(
+        $httpRequest = HTTP\Sapi::createFromServerArray(array(
             'HTTP_IF_UNMODIFIED_SINCE' => 'Sun, 06 Nov 1984 08:49:37 CET',
             'REQUEST_URI'   => '/foo'
         ));
-        $server->httpRequest = $httpRequest;
-        $server->httpResponse = new HTTP\ResponseMock();
-        $this->assertTrue($server->checkPreconditions());
+        $httpResponse = new HTTP\ResponseMock();
+        $this->assertTrue($server->checkPreconditions($httpRequest, $httpResponse));
 
     }
 

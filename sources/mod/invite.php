@@ -53,10 +53,10 @@ function invite_post(&$a) {
 		else
 			$nmessage = $message;
 
-		$account = $a->get_account();
+		$account = App::get_account();
 
 
-		$res = mail($recip, sprintf( t('Please join us on $Projectname'), $a->config['sitename']),
+		$res = mail($recip, sprintf( t('Please join us on $Projectname'), App::$config['sitename']),
 			$nmessage,
 			"From: " . $account['account_email'] . "\n"
 			. 'Content-type: text/plain; charset=UTF-8' . "\n"
@@ -118,11 +118,11 @@ function invite_content(&$a) {
 			}
 		}
 
-	$ob = $a->get_observer();
+	$ob = App::get_observer();
 	if(! $ob)
 		return $o;
 
-	$channel = $a->get_channel();
+	$channel = App::get_channel();
 
 	$o = replace_macros($tpl, array(
 		'$form_security_token' => get_form_security_token("send_invite"),

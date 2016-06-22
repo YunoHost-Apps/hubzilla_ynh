@@ -6,12 +6,12 @@ function hcard_init(&$a) {
         $which = argv(1);
     else {
         notice( t('Requested profile is not available.') . EOL );
-        $a->error = 404;
+        App::$error = 404;
         return;
     }
 
     $profile = '';
-    $channel = $a->get_channel();
+    $channel = App::get_channel();
 
     if((local_channel()) && (argc() > 2) && (argv(2) === 'view')) {
         $which = $channel['channel_address'];
@@ -25,14 +25,14 @@ function hcard_init(&$a) {
         $profile = $r[0]['profile_guid'];
     }
 
-    $a->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . $a->get_baseurl() . '/feed/' . $which .'" />' . "\r\n" ;
+    App::$page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . z_root() . '/feed/' . $which .'" />' . "\r\n" ;
 
     if(! $profile) {
         $x = q("select channel_id as profile_uid from channel where channel_address = '%s' limit 1",
             dbesc(argv(1))
         );
         if($x) {
-            $a->profile = $x[0];
+            App::$profile = $x[0];
         }
     }
 

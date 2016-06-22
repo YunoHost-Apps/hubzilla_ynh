@@ -37,7 +37,7 @@ function tasks_post(&$a) {
 	if(! local_channel())
 		return;
 
-	$channel = $a->get_channel();
+	$channel = App::get_channel();
 
 	if((argc() > 2) && (argv(1) === 'complete') && intval(argv(2))) {
 		$ret = array('success' => false);

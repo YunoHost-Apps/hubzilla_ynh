@@ -30,6 +30,11 @@ class SimplePluginTest extends \PHPUnit_Framework_TestCase {
 
         $this->assertEquals(array('ACL'), $aclPlugin->getMethods(''));
 
+
+        $this->assertEquals(
+            'acl',
+            $aclPlugin->getPluginInfo()['name']
+        );
     }
 
     function testGetFlatPrivilegeSet() {
@@ -55,15 +60,15 @@ class SimplePluginTest extends \PHPUnit_Framework_TestCase {
             ),
             '{DAV:}read-acl' => array(
                 'privilege' => '{DAV:}read-acl',
-                'abstract' => true,
+                'abstract' => false,
                 'aggregates' => array(),
-                'concrete' => '{DAV:}read',
+                'concrete' => '{DAV:}read-acl',
             ),
             '{DAV:}read-current-user-privilege-set' => array(
                 'privilege' => '{DAV:}read-current-user-privilege-set',
-                'abstract' => true,
+                'abstract' => false,
                 'aggregates' => array(),
-                'concrete' => '{DAV:}read',
+                'concrete' => '{DAV:}read-current-user-privilege-set',
             ),
             '{DAV:}write' => array(
                 'privilege' => '{DAV:}write',
@@ -80,39 +85,39 @@ class SimplePluginTest extends \PHPUnit_Framework_TestCase {
             ),
             '{DAV:}write-acl' => array(
                 'privilege' => '{DAV:}write-acl',
-                'abstract' => true,
+                'abstract' => false,
                 'aggregates' => array(),
-                'concrete' => '{DAV:}write',
+                'concrete' => '{DAV:}write-acl',
             ),
             '{DAV:}write-properties' => array(
                 'privilege' => '{DAV:}write-properties',
-                'abstract' => true,
+                'abstract' => false,
                 'aggregates' => array(),
-                'concrete' => '{DAV:}write',
+                'concrete' => '{DAV:}write-properties',
             ),
             '{DAV:}write-content' => array(
                 'privilege' => '{DAV:}write-content',
-                'abstract' => true,
+                'abstract' => false,
                 'aggregates' => array(),
-                'concrete' => '{DAV:}write',
+                'concrete' => '{DAV:}write-content',
             ),
             '{DAV:}unlock' => array(
                 'privilege' => '{DAV:}unlock',
-                'abstract' => true,
+                'abstract' => false,
                 'aggregates' => array(),
-                'concrete' => '{DAV:}write',
+                'concrete' => '{DAV:}unlock',
             ),
             '{DAV:}bind' => array(
                 'privilege' => '{DAV:}bind',
-                'abstract' => true,
+                'abstract' => false,
                 'aggregates' => array(),
-                'concrete' => '{DAV:}write',
+                'concrete' => '{DAV:}bind',
             ),
             '{DAV:}unbind' => array(
                 'privilege' => '{DAV:}unbind',
-                'abstract' => true,
+                'abstract' => false,
                 'aggregates' => array(),
-                'concrete' => '{DAV:}write',
+                'concrete' => '{DAV:}unbind',
             ),
 
         );
@@ -148,11 +153,11 @@ class SimplePluginTest extends \PHPUnit_Framework_TestCase {
         $server = new DAV\Server($tree);
         $server->addPlugin($acl);
 
-        $auth = new DAV\Auth\Plugin(new DAV\Auth\Backend\Mock(),'SabreDAV');
+        $auth = new DAV\Auth\Plugin(new DAV\Auth\Backend\Mock());
         $server->addPlugin($auth);
 
         //forcing login
-        $auth->beforeMethod('GET','/');
+        $auth->beforeMethod(new HTTP\Request(), new HTTP\Response());
 
         $this->assertEquals(array('principals/admin'),$acl->getCurrentUserPrincipals());
 
@@ -175,11 +180,11 @@ class SimplePluginTest extends \PHPUnit_Framework_TestCase {
         $server = new DAV\Server($tree);
         $server->addPlugin($acl);
 
-        $auth = new DAV\Auth\Plugin(new DAV\Auth\Backend\Mock(),'SabreDAV');
+        $auth = new DAV\Auth\Plugin(new DAV\Auth\Backend\Mock());
         $server->addPlugin($auth);
 
         //forcing login
-        $auth->beforeMethod('GET','/');
+        $auth->beforeMethod(new HTTP\Request(), new HTTP\Response());
 
         $expected = array(
             'principals/admin',
@@ -252,11 +257,11 @@ class SimplePluginTest extends \PHPUnit_Framework_TestCase {
         $aclPlugin = new Plugin();
         $server->addPlugin($aclPlugin);
 
-        $auth = new DAV\Auth\Plugin(new DAV\Auth\Backend\Mock(),'SabreDAV');
+        $auth = new DAV\Auth\Plugin(new DAV\Auth\Backend\Mock());
         $server->addPlugin($auth);
 
         //forcing login
-        $auth->beforeMethod('GET','/');
+        $auth->beforeMethod(new HTTP\Request(), new HTTP\Response());
 
         $expected = array(
             '{DAV:}write',
@@ -306,7 +311,7 @@ class SimplePluginTest extends \PHPUnit_Framework_TestCase {
         $aclPlugin = new Plugin();
         $server->addPlugin($aclPlugin);
 
-        $auth = new DAV\Auth\Plugin(new DAV\Auth\Backend\Mock(),'SabreDAV');
+        $auth = new DAV\Auth\Plugin(new DAV\Auth\Backend\Mock());
         $server->addPlugin($auth);
 
         //forcing login

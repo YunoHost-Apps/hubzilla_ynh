@@ -48,7 +48,7 @@ class Conversation extends BaseObject {
 
 		$a = $this->get_app();
 
-		$this->observer = $a->get_observer();
+		$this->observer = App::get_observer();
 		$ob_hash = (($this->observer) ? $this->observer['xchan_hash'] : '');
 
 		switch($mode) {
@@ -57,7 +57,7 @@ class Conversation extends BaseObject {
 				$this->writable = true;
 				break;
 			case 'channel':
-				$this->profile_owner = $a->profile['profile_uid'];
+				$this->profile_owner = App::$profile['profile_uid'];
 				$this->writable = perm_is_allowed($this->profile_owner,$ob_hash,'post_comments');
 				break;
 			case 'display':
@@ -67,7 +67,7 @@ class Conversation extends BaseObject {
 				$this->writable = perm_is_allowed($this->profile_owner,$ob_hash,'post_comments');
 				break;
 			case 'page':
-				$this->profile_owner = $a->profile['uid'];
+				$this->profile_owner = App::$profile['uid'];
 				$this->writable = perm_is_allowed($this->profile_owner,$ob_hash,'post_comments');
 				break;
 			default:

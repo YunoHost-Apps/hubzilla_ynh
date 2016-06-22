@@ -1,0 +1,4 @@
+url: $baseurl/chess
+requires: local_channel
+name: Chess
+photo: $baseurl/addon/chess/chess.png

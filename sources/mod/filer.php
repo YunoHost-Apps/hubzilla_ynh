@@ -12,7 +12,7 @@ function filer_content(&$a) {
 	}
 
 	$term = unxmlify(trim($_GET['term']));
-	$item_id = (($a->argc > 1) ? intval($a->argv[1]) : 0);
+	$item_id = ((App::$argc > 1) ? intval(App::$argv[1]) : 0);
 
 	logger('filer: tag ' . $term . ' item ' . $item_id);
 

@@ -28,11 +28,11 @@ class Issue33Test extends \PHPUnit_Framework_TestCase {
             'HTTP_OVERWRITE' => 'F',
         );
 
-        $request = new HTTP\Request($serverVars);
+        $request = HTTP\Sapi::createFromServerArray($serverVars);
 
         $server->httpRequest = $request;
 
-        $info = $server->getCopyAndMoveInfo();
+        $info = $server->getCopyAndMoveInfo($request);
 
         $this->assertEquals('%C3%A0fo%C3%B3', urlencode($info['destination']));
         $this->assertFalse($info['destinationExists']);
@@ -47,7 +47,7 @@ class Issue33Test extends \PHPUnit_Framework_TestCase {
 
         $dir->createDirectory('bar');
 
-        $tree = new ObjectTree($dir);
+        $tree = new Tree($dir);
         $tree->move('bar',urldecode('%C3%A0fo%C3%B3'));
 
         $node = $tree->getNodeForPath(urldecode('%C3%A0fo%C3%B3'));
@@ -78,7 +78,7 @@ class Issue33Test extends \PHPUnit_Framework_TestCase {
             'HTTP_OVERWRITE' => 'F',
         );
 
-        $request = new HTTP\Request($serverVars);
+        $request = HTTP\Sapi::createFromServerArray($serverVars);
         $request->setBody('');
 
         $response = new HTTP\ResponseMock();
@@ -89,13 +89,14 @@ class Issue33Test extends \PHPUnit_Framework_TestCase {
 
         $dir->createDirectory('bar');
 
-        $tree = new ObjectTree($dir);
+        $tree = new Tree($dir);
 
         $server = new Server($tree);
         $server->setBaseUri('/webdav/');
 
         $server->httpRequest = $request;
         $server->httpResponse = $response;
+        $server->sapi = new HTTP\SapiMock();
         $server->exec();
 
         $this->assertTrue(file_exists(SABRE_TEMPDIR  . '/issue33/' . urldecode('%C3%A0fo%C3%B3')));

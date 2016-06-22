@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<schemaMeta xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:noNamespaceSchemaLocation="http://schemaspy.sourceforge.net/xmlschema/2011/02/05/schemaspy.meta.xsd">
+<comments>
+2015-11-04 - Hubzilla database schema with some corrected cross-table relationships supporting decentralized publishing. Haakon Meland Eriksen.
+</comments>
+
+   <tables>
+      <table name="abook">
+	 <column name="abook_xchan">
+	    <foreignKey table="xchan" column="xchan_hash" />
+	 </column>
+      </table>
+      <table name="account">
+      </table>
+      <table name="addon">
+      </table>
+      <table name="app">
+      </table>
+      <table name="attach">
+         <column name="hash">
+	    <foreignKey table="channel" column="channel_hash"/>
+	    <foreignKey table="hubloc" column="hubloc_hash"/>
+	    <foreignKey table="xchan" column="xchan_hash" />
+	 </column>	   
+      </table>
+      <table name="auth_codes">
+      </table>
+      <table name="cache">
+      </table>
+      <table name="channel">
+         <column name="channel_hash">
+	    <foreignKey table="xchan" column="xchan_hash" />
+	 </column>
+      </table>
+      <table name="chat">
+         <column name="chat_xchan">
+	    <foreignKey table="xchan" column="xchan_hash" />
+	 </column>	   
+      </table>
+      <table name="chatpresence">
+         <column name="cp_xchan">
+	    <foreignKey table="xchan" column="xchan_hash" />
+	 </column>	   
+       </table>
+      <table name="chatroom">
+      </table>
+      <table name="clients">
+      </table>
+      <table name="config">
+      </table>
+      <table name="conv">
+      </table>
+      <table name="dreport">
+	 <column name="dreport_xchan">
+	    <foreignKey table="xchan" column="xchan_hash" />
+	 </column>	   
+      </table>
+      <table name="event">
+         <column name="event_xchan">
+	    <foreignKey table="xchan" column="xchan_hash" />
+	 </column>	   
+         <column name="event_hash">
+	    <foreignKey table="channel" column="channel_hash"/>
+	    <foreignKey table="hubloc" column="hubloc_hash"/>
+	    <foreignKey table="xchan" column="xchan_hash" />
+	 </column>	   
+      </table>
+      <table name="fcontact">
+      </table>
+      <table name="ffinder">
+      </table>
+      <table name="fserver">
+      </table>
+      <table name="fsuggest">
+      </table>
+      <table name="group_member">
+         <column name="xchan">
+	    <foreignKey table="xchan" column="xchan_hash" />
+	 </column>	   
+      </table>
+      <table name="groups">
+         <column name="hash">
+	    <foreignKey table="channel" column="channel_hash"/>
+	    <foreignKey table="hubloc" column="hubloc_hash"/>
+	    <foreignKey table="xchan" column="xchan_hash" />
+	 </column>	   
+      </table>
+      <table name="hook">
+      </table>
+      <table name="hubloc">
+         <column name="hubloc_hash">
+	    <foreignKey table="channel" column="channel_hash"/>
+	    <foreignKey table="hubloc" column="hubloc_hash"/>
+	    <foreignKey table="xchan" column="xchan_hash" />
+	 </column>
+      </table>
+      <table name="issue">
+      </table>
+      <table name="item">
+         <column name="owner_xchan">
+	    <foreignKey table="xchan" column="xchan_hash" />
+	 </column>
+         <column name="author_xchan">
+	    <foreignKey table="xchan" column="xchan_hash" />
+	 </column>	   
+         <column name="source_xchan">
+	    <foreignKey table="xchan" column="xchan_hash" />
+	 </column>	   
+      </table>
+      <table name="item_id">
+      </table>
+      <table name="likes">
+      </table>
+      <table name="mail">
+         <column name="from_xchan">
+	    <foreignKey table="xchan" column="xchan_hash" />
+	 </column>	   
+         <column name="to_xchan">
+	    <foreignKey table="xchan" column="xchan_hash" />
+	 </column>
+      </table>
+      <table name="manage">
+         <column name="xchan">
+	    <foreignKey table="xchan" column="xchan_hash" />
+	 </column>	   
+       </table>
+      <table name="menu">
+      </table>
+      <table name="menu_item">
+      </table>
+      <table name="notify">
+         <column name="hash">
+	    <foreignKey table="channel" column="channel_hash"/>
+	    <foreignKey table="hubloc" column="hubloc_hash"/>
+	    <foreignKey table="xchan" column="xchan_hash" />
+	 </column>	   
+      </table>
+      <table name="obj">
+      </table>
+      <table name="outq">
+         <column name="outq_hash">
+	    <foreignKey table="channel" column="channel_hash"/>
+	    <foreignKey table="hubloc" column="hubloc_hash"/>
+	    <foreignKey table="xchan" column="xchan_hash" />
+	 </column>
+      </table>
+      <table name="pconfig">
+      </table>
+      <table name="photo">
+         <column name="xchan">
+	    <foreignKey table="xchan" column="xchan_hash" />
+	 </column>	   
+      </table>
+      <table name="poll">
+      </table>
+      <table name="poll_elm">
+      </table>
+      <table name="profdef">
+      </table>
+      <table name="profext">
+         <column name="hash">
+	    <foreignKey table="channel" column="channel_hash"/>
+	    <foreignKey table="hubloc" column="hubloc_hash"/>
+	    <foreignKey table="xchan" column="xchan_hash" />
+	 </column>	   
+       </table>
+      <table name="profile">
+      </table>
+      <table name="profile_check">
+      </table>
+      <table name="register">
+         <column name="hash">
+	    <foreignKey table="channel" column="channel_hash"/>
+	    <foreignKey table="hubloc" column="hubloc_hash"/>
+	    <foreignKey table="xchan" column="xchan_hash" />
+	 </column>	   
+      </table>
+      <table name="session">
+      </table>
+      <table name="shares">
+         <column name="share_xchan">
+	    <foreignKey table="xchan" column="xchan_hash" />
+	 </column>	   
+      </table>
+      <table name="sign">
+      </table>
+      <table name="site">
+      </table>
+      <table name="source">
+	 <column name="src_channel_xchan">
+	    <foreignKey table="xchan" column="xchan_hash" />
+	 </column>	   
+         <column name="src_xchan">
+	    <foreignKey table="xchan" column="xchan_hash" />
+	 </column>	   
+      </table>
+      <table name="spam">
+      </table>
+      <table name="sys_perms">
+      </table>
+      <table name="term">
+       <column name="term_hash">
+	    <foreignKey table="channel" column="channel_hash"/>
+	    <foreignKey table="hubloc" column="hubloc_hash"/>
+	    <foreignKey table="xchan" column="xchan_hash" />
+	 </column>	 
+         <column name="parent_hash">
+	    <foreignKey table="channel" column="channel_hash"/>
+	    <foreignKey table="hubloc" column="hubloc_hash"/>
+	    <foreignKey table="xchan" column="xchan_hash" />
+	 </column>
+      </table>
+      <table name="tokens">
+      </table>
+      <table name="updates">
+
+         <column name="ud_hash">
+	    <foreignKey table="channel" column="channel_hash"/>
+	    <foreignKey table="hubloc" column="hubloc_hash"/>
+	    <foreignKey table="xchan" column="xchan_hash" />
+	 </column>
+      </table>
+      <table name="verify">
+      </table>
+      <table name="vote">
+        <column name="vote_xchan">
+	    <foreignKey table="xchan" column="xchan_hash" />
+	 </column>
+      </table>
+      <table name="xchan">
+         <column name="xchan_hash">
+	   <foreignKey table="channel" column="channel_hash"/>
+	   <foreignKey table="hubloc" column="hubloc_hash"/>
+	 </column>
+      </table>
+      <table name="xchat">
+         
+         <column name="xchat_xchan">
+	    <foreignKey table="xchan" column="xchan_hash" />
+	 </column>         
+      </table>
+      <table name="xconfig">
+         
+         <column name="xchan">
+	    <foreignKey table="xchan" column="xchan_hash" />
+	 </column>         
+      </table>
+      <table name="xign">
+         
+         <column name="xchan">
+	   <foreignKey table="xchan" column="xchan_hash" />
+	 </column>
+         
+      </table>
+      <table name="xlink">
+         
+         <column name="xlink_xchan">
+	   <foreignKey table="xchan" column="xchan_hash" />
+	 </column>
+      </table>
+      <table name="xperm">
+         
+      </table>
+      <table name="xprof">
+         <column name="xprof_hash">
+	    <foreignKey table="channel" column="channel_hash"/>
+	    <foreignKey table="hubloc" column="hubloc_hash"/>
+	    <foreignKey table="xchan" column="xchan_hash" />
+	 </column>
+         
+      </table>
+      <table name="xtag">
+         
+         <column name="xtag_hash">
+	    <foreignKey table="channel" column="channel_hash"/>
+	    <foreignKey table="hubloc" column="hubloc_hash"/>
+	    <foreignKey table="xchan" column="xchan_hash" />
+	 </column>
+      </table>
+   </tables>
+
+</schemaMeta>

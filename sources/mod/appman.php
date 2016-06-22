@@ -67,7 +67,7 @@ function appman_content(&$a) {
 		return;
 	}
 
-	$channel = $a->get_channel();
+	$channel = App::get_channel();
 	$app = null;
 	$embed = null;
 	if($_REQUEST['appid']) {

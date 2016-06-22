@@ -17,7 +17,7 @@ function message_content(&$a) {
 		return login();
 	}
 
-	$channel = $a->get_channel();
+	$channel = App::get_channel();
 	head_set_icon($channel['xchan_photo_s']);
 
 	$cipher = get_pconfig(local_channel(),'system','default_cipher');
@@ -32,7 +32,7 @@ function message_content(&$a) {
 		$r = private_messages_drop(local_channel(), argv(2), true);
 		if($r)
 			info( t('Conversation removed.') . EOL );
-		goaway($a->get_baseurl(true) . '/mail/combined' );
+		goaway(z_root() . '/mail/combined' );
 	}
 
 	if(argc() == 2) {
@@ -56,7 +56,7 @@ function message_content(&$a) {
 
 		// private_messages_list() can do other more complicated stuff, for now keep it simple
 
-		$r = private_messages_list(local_channel(), $mailbox, $a->pager['start'], $a->pager['itemspage']);
+		$r = private_messages_list(local_channel(), $mailbox, App::$pager['start'], App::$pager['itemspage']);
 
 		if(! $r) {
 			info( t('No messages.') . EOL);

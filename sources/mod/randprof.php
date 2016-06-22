@@ -8,5 +8,5 @@ function randprof_init(&$a) {
 		goaway(chanlink_url($x));
 
 	/** FIXME this doesn't work at the moment as a fallback */
-	goaway($a->get_baseurl() . '/profile');
+	goaway(z_root() . '/profile');
 }

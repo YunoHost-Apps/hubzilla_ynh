@@ -10,7 +10,7 @@ function chat_init(&$a) {
 		$which = argv(1);
 	if(! $which) {
 		if(local_channel()) {
-			$channel = $a->get_channel();
+			$channel = App::get_channel();
 			if($channel && $channel['channel_address'])
 			$which = $channel['channel_address'];
 		}
@@ -21,14 +21,14 @@ function chat_init(&$a) {
 	}
 
 	$profile = 0;
-	$channel = $a->get_channel();
+	$channel = App::get_channel();
 
 	if((local_channel()) && (argc() > 2) && (argv(2) === 'view')) {
 		$which = $channel['channel_address'];
 		$profile = argv(1);		
 	}
 
-	$a->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . $a->get_baseurl() . '/feed/' . $which .'" />' . "\r\n" ;
+	App::$page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . z_root() . '/feed/' . $which .'" />' . "\r\n" ;
 
 	// Run profile_load() here to make sure the theme is set before
 	// we start loading content
@@ -45,7 +45,7 @@ function chat_post(&$a) {
 	if((! $room) || (! local_channel()))
 		return;
 
-	$channel = $a->get_channel();
+	$channel = App::get_channel();
 
 
 	if($_POST['action'] === 'drop') {
@@ -86,16 +86,16 @@ function chat_post(&$a) {
 function chat_content(&$a) {
 
 	if(local_channel())
-		$channel = $a->get_channel();
+		$channel = App::get_channel();
 
-	$ob = $a->get_observer();
+	$ob = App::get_observer();
 	$observer = get_observer_hash();
 	if(! $observer) {
 		notice( t('Permission denied.') . EOL);
 		return;
 	}
 
-	if(! perm_is_allowed($a->profile['profile_uid'],$observer,'chat')) {
+	if(! perm_is_allowed(App::$profile['profile_uid'],$observer,'chat')) {
 		notice( t('Permission denied.') . EOL);
 		return;
 	}
@@ -159,8 +159,9 @@ function chat_content(&$a) {
 			return;
 		$x = q("select * from chatroom where cr_id = %d and cr_uid = %d $sql_extra limit 1",
 			intval($room_id),
-			intval($a->profile['profile_uid'])
+			intval(App::$profile['profile_uid'])
 		);
+
 		if($x) {
 			$acl = new Zotlabs\Access\AccessList(false);
 			$acl->set($x[0]);
@@ -175,6 +176,11 @@ function chat_content(&$a) {
 			return;
 		}
 
+		$cipher = get_pconfig(local_channel(),'system','default_cipher');
+		if(! $cipher)
+			$cipher = 'aes256';
+
+
 		$o = replace_macros(get_markup_template('chat.tpl'),array(
 			'$is_owner' => ((local_channel() && local_channel() == $x[0]['cr_uid']) ? true : false),
 			'$room_name' => $room_name,
@@ -183,53 +189,65 @@ function chat_content(&$a) {
 			'$nickname' => argv(1),
 			'$submit' => t('Submit'),
 			'$leave' => t('Leave Room'),
-			'$drop' => t('Delete This Room'),
+			'$drop' => t('Delete Room'),
 			'$away' => t('I am away right now'),
 			'$online' => t('I am online'),
 			'$bookmark_link' => $bookmark_link,
-			'$bookmark' => t('Bookmark this room')
-
+			'$bookmark' => t('Bookmark this room'),
+			'$feature_encrypt' => ((feature_enabled(local_channel(),'content_encrypt')) ? true : false),
+			'$cipher' => $cipher,
+			'$linkurl' => t('Please enter a link URL:'),
+			'$encrypt' => t('Encrypt text'),
+			'$insert' => t('Insert web link')
 		));
 		return $o;
 	}
-
-
-
-
-
-	if(local_channel() && argc() > 2 && argv(2) === 'new') {
-
-		$acl = new Zotlabs\Access\AccessList($channel);
-		$channel_acl = $acl->get();
-
-		require_once('include/acl_selectors.php');
-
-		$o = replace_macros(get_markup_template('chatroom_new.tpl'),array(
-			'$header' => t('New Chatroom'),
-			'$name' => array('room_name',t('Chatroom Name'),'', ''),
-			'$chat_expire' => array('chat_expire',t('Expiration of chats (minutes)'),120,''),
-			'$permissions' =>  t('Permissions'),
-			'$acl' => populate_acl($channel_acl,false),
-			'$submit' => t('Submit')
-		));
-		return $o;
-	}
-
 
 
 	require_once('include/conversation.php');
 
-	$o = profile_tabs($a,((local_channel() && local_channel() == $a->profile['profile_uid']) ? true : false),$a->profile['channel_address']);
+	$o = profile_tabs($a,((local_channel() && local_channel() == App::$profile['profile_uid']) ? true : false),App::$profile['channel_address']);
 
-	require_once('include/widgets.php');
+	if(! feature_enabled(App::$profile['profile_uid'],'ajaxchat')) {
+		notice( t('Feature disabled.') . EOL);
+		return $o;
+	}
+
+
+	$acl = new Zotlabs\Access\AccessList($channel);
+	$channel_acl = $acl->get();
+
+	$lockstate = (($channel_acl['allow_cid'] || $channel_acl['allow_gid'] || $channel_acl['deny_cid'] || $channel_acl['deny_gid']) ? 'lock' : 'unlock');
+	require_once('include/acl_selectors.php');
+	
+	$chatroom_new = '';
+	if(local_channel()) {
+		$chatroom_new = replace_macros(get_markup_template('chatroom_new.tpl'),array(
+			'$header' => t('New Chatroom'),
+			'$name' => array('room_name',t('Chatroom name'),'', ''),
+			'$chat_expire' => array('chat_expire',t('Expiration of chats (minutes)'),120,''),
+			'$permissions' =>  t('Permissions'),
+			'$acl' => populate_acl($channel_acl,false),
+			'$lockstate' => $lockstate,
+			'$submit' => t('Submit')
+
+		));
+	}
+
+	$rooms = chatroom_list(App::$profile['profile_uid']);
 
 	$o .= replace_macros(get_markup_template('chatrooms.tpl'), array(
-		'$header' => sprintf( t('%1$s\'s Chatrooms'), $a->profile['name']),
+		'$header' => sprintf( t('%1$s\'s Chatrooms'), App::$profile['name']),
+		'$name' => t('Name'),
 		'$baseurl' => z_root(),
-		'$nickname' => $channel['channel_address'],
-		'$rooms' => widget_chatroom_list(array()),
-		'$newroom' => t('New Chatroom'),
-		'$is_owner' => ((local_channel() && local_channel() == $a->profile['profile_uid']) ? 1 : 0)
+		'$nickname' => App::$profile['channel_address'],
+		'$rooms' => $rooms,
+		'$norooms' => t('No chatrooms available'),
+		'$newroom' => t('Create New'),
+		'$is_owner' => ((local_channel() && local_channel() == App::$profile['profile_uid']) ? 1 : 0),
+		'$chatroom_new' => $chatroom_new,
+		'$expire' => t('Expiration'),
+		'$expire_unit' => t('min') //minutes
 	));
  
 	return $o;

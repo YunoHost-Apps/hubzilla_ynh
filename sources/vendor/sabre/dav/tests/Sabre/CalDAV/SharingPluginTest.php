@@ -33,7 +33,7 @@ class SharingPluginTest extends \Sabre\DAVServerTest {
                 'id' => 3,
                 'uri' => 'cal3',
             ),
-        ); 
+        );
 
         parent::setUp();
 
@@ -46,6 +46,10 @@ class SharingPluginTest extends \Sabre\DAVServerTest {
     function testSimple() {
 
         $this->assertInstanceOf('Sabre\\CalDAV\\SharingPlugin', $this->server->getPlugin('caldav-sharing'));
+        $this->assertEquals(
+            'caldav-sharing',
+            $this->caldavSharingPlugin->getPluginInfo()['name']
+        );
 
     }
 
@@ -58,14 +62,14 @@ class SharingPluginTest extends \Sabre\DAVServerTest {
     function testBeforeGetShareableCalendar() {
 
         // Forcing the server to authenticate:
-        $this->authPlugin->beforeMethod('GET','');
+        $this->authPlugin->beforeMethod(new HTTP\Request(), new HTTP\Response());
         $props = $this->server->getProperties('calendars/user1/cal1', array(
             '{' . Plugin::NS_CALENDARSERVER . '}invite',
             '{' . Plugin::NS_CALENDARSERVER . '}allowed-sharing-modes',
         ));
 
-        $this->assertInstanceOf('Sabre\\CalDAV\\Property\\Invite', $props['{' . Plugin::NS_CALENDARSERVER . '}invite']);
-        $this->assertInstanceOf('Sabre\\CalDAV\\Property\\AllowedSharingModes', $props['{' . Plugin::NS_CALENDARSERVER . '}allowed-sharing-modes']);
+        $this->assertInstanceOf('Sabre\\CalDAV\\Xml\\Property\\Invite', $props['{' . Plugin::NS_CALENDARSERVER . '}invite']);
+        $this->assertInstanceOf('Sabre\\CalDAV\\Xml\\Property\\AllowedSharingModes', $props['{' . Plugin::NS_CALENDARSERVER . '}allowed-sharing-modes']);
 
     }
 
@@ -76,8 +80,8 @@ class SharingPluginTest extends \Sabre\DAVServerTest {
             '{' . Plugin::NS_CALENDARSERVER . '}invite',
         ));
 
-        $this->assertInstanceOf('Sabre\\CalDAV\\Property\\Invite', $props['{' . Plugin::NS_CALENDARSERVER . '}invite']);
-        $this->assertInstanceOf('Sabre\\DAV\\Property\\IHref', $props['{' . Plugin::NS_CALENDARSERVER . '}shared-url']);
+        $this->assertInstanceOf('Sabre\\CalDAV\\Xml\\Property\\Invite', $props['{' . Plugin::NS_CALENDARSERVER . '}invite']);
+        $this->assertInstanceOf('Sabre\\DAV\\Xml\\Property\\Href', $props['{' . Plugin::NS_CALENDARSERVER . '}shared-url']);
 
     }
 
@@ -92,15 +96,12 @@ class SharingPluginTest extends \Sabre\DAVServerTest {
             array()
         );
         $result = $this->server->updateProperties('calendars/user1/cal1', array(
-            '{DAV:}resourcetype' => new DAV\Property\ResourceType(array('{DAV:}collection'))
+            '{DAV:}resourcetype' => new DAV\Xml\Property\ResourceType(['{DAV:}collection'])
         ));
 
-        $this->assertEquals(array(
-            200 => array(
-                '{DAV:}resourcetype' => null,
-            ),
-            'href' => 'calendars/user1/cal1',
-        ), $result);
+        $this->assertEquals([
+            '{DAV:}resourcetype' => 200
+        ], $result);
 
         $this->assertEquals(0, count($this->caldavBackend->getShares(1)));
 
@@ -113,30 +114,27 @@ class SharingPluginTest extends \Sabre\DAVServerTest {
         ));
 
         $this->assertEquals(array(
-            403 => array(
-                '{DAV:}foo' => null,
-            ),
-            'href' => 'calendars/user1/cal3',
+            '{DAV:}foo' => 403,
         ), $result);
 
     }
 
     function testUnknownMethodNoPOST() {
 
-        $request = new HTTP\Request(array(
+        $request = HTTP\Sapi::createFromServerArray(array(
             'REQUEST_METHOD' => 'PATCH',
             'REQUEST_URI'    => '/',
         ));
 
         $response = $this->request($request);
 
-        $this->assertEquals('HTTP/1.1 501 Not Implemented', $response->status, $response->body);
+        $this->assertEquals(501, $response->status, $response->body);
 
     }
 
     function testUnknownMethodNoXML() {
 
-        $request = new HTTP\Request(array(
+        $request = HTTP\Sapi::createFromServerArray(array(
             'REQUEST_METHOD' => 'POST',
             'REQUEST_URI'    => '/',
             'CONTENT_TYPE'   => 'text/plain',
@@ -144,13 +142,13 @@ class SharingPluginTest extends \Sabre\DAVServerTest {
 
         $response = $this->request($request);
 
-        $this->assertEquals('HTTP/1.1 501 Not Implemented', $response->status, $response->body);
+        $this->assertEquals(501, $response->status, $response->body);
 
     }
 
     function testUnknownMethodNoNode() {
 
-        $request = new HTTP\Request(array(
+        $request = HTTP\Sapi::createFromServerArray(array(
             'REQUEST_METHOD' => 'POST',
             'REQUEST_URI'    => '/foo',
             'CONTENT_TYPE'   => 'text/xml',
@@ -158,13 +156,13 @@ class SharingPluginTest extends \Sabre\DAVServerTest {
 
         $response = $this->request($request);
 
-        $this->assertEquals('HTTP/1.1 501 Not Implemented', $response->status, $response->body);
+        $this->assertEquals(501, $response->status, $response->body);
 
     }
 
     function testShareRequest() {
 
-        $request = new HTTP\Request(array(
+        $request = HTTP\Sapi::createFromServerArray(array(
             'REQUEST_METHOD' => 'POST',
             'REQUEST_URI'    => '/calendars/user1/cal1',
             'CONTENT_TYPE'   => 'text/xml',
@@ -187,7 +185,7 @@ RRR;
         $request->setBody($xml);
 
         $response = $this->request($request);
-        $this->assertEquals('HTTP/1.1 200 OK', $response->status, $response->body);
+        $this->assertEquals(200, $response->status, $response->body);
 
         $this->assertEquals(array(array(
             'href' => 'mailto:joe@example.org',
@@ -207,7 +205,7 @@ RRR;
 
     function testShareRequestNoShareableCalendar() {
 
-        $request = new HTTP\Request(array(
+        $request = HTTP\Sapi::createFromServerArray(array(
             'REQUEST_METHOD' => 'POST',
             'REQUEST_URI'    => '/calendars/user1/cal2',
             'CONTENT_TYPE'   => 'text/xml',
@@ -229,13 +227,13 @@ RRR;
         $request->setBody($xml);
 
         $response = $this->request($request);
-        $this->assertEquals('HTTP/1.1 501 Not Implemented', $response->status, $response->body);
+        $this->assertEquals(501, $response->status, $response->body);
 
     }
 
     function testInviteReply() {
 
-        $request = new HTTP\Request(array(
+        $request = HTTP\Sapi::createFromServerArray(array(
             'REQUEST_METHOD' => 'POST',
             'REQUEST_URI'    => '/calendars/user1',
             'CONTENT_TYPE'   => 'text/xml',
@@ -250,13 +248,13 @@ RRR;
 
         $request->setBody($xml);
         $response = $this->request($request);
-        $this->assertEquals('HTTP/1.1 200 OK', $response->status, $response->body);
+        $this->assertEquals(200, $response->status, $response->body);
 
     }
 
     function testInviteBadXML() {
 
-        $request = new HTTP\Request(array(
+        $request = HTTP\Sapi::createFromServerArray(array(
             'REQUEST_METHOD' => 'POST',
             'REQUEST_URI'    => '/calendars/user1',
             'CONTENT_TYPE'   => 'text/xml',
@@ -268,13 +266,13 @@ RRR;
 ';
         $request->setBody($xml);
         $response = $this->request($request);
-        $this->assertEquals('HTTP/1.1 400 Bad request', $response->status, $response->body);
+        $this->assertEquals(400, $response->status, $response->body);
 
     }
 
     function testInviteWrongUrl() {
 
-        $request = new HTTP\Request(array(
+        $request = HTTP\Sapi::createFromServerArray(array(
             'REQUEST_METHOD' => 'POST',
             'REQUEST_URI'    => '/calendars/user1/cal1',
             'CONTENT_TYPE'   => 'text/xml',
@@ -287,7 +285,7 @@ RRR;
 ';
         $request->setBody($xml);
         $response = $this->request($request);
-        $this->assertEquals('HTTP/1.1 501 Not Implemented', $response->status, $response->body);
+        $this->assertEquals(501, $response->status, $response->body);
 
         // If the plugin did not handle this request, it must ensure that the
         // body is still accessible by other plugins.
@@ -297,7 +295,7 @@ RRR;
 
     function testPublish() {
 
-        $request = new HTTP\Request(array(
+        $request = HTTP\Sapi::createFromServerArray(array(
             'REQUEST_METHOD' => 'POST',
             'REQUEST_URI'    => '/calendars/user1/cal1',
             'CONTENT_TYPE'   => 'text/xml',
@@ -310,13 +308,13 @@ RRR;
         $request->setBody($xml);
 
         $response = $this->request($request);
-        $this->assertEquals('HTTP/1.1 202 Accepted', $response->status, $response->body);
+        $this->assertEquals(202, $response->status, $response->body);
 
     }
 
     function testUnpublish() {
 
-        $request = new HTTP\Request(array(
+        $request = HTTP\Sapi::createFromServerArray(array(
             'REQUEST_METHOD' => 'POST',
             'REQUEST_URI'    => '/calendars/user1/cal1',
             'CONTENT_TYPE'   => 'text/xml',
@@ -329,13 +327,13 @@ RRR;
         $request->setBody($xml);
 
         $response = $this->request($request);
-        $this->assertEquals('HTTP/1.1 200 OK', $response->status, $response->body);
+        $this->assertEquals(200, $response->status, $response->body);
 
     }
 
     function testPublishWrongUrl() {
 
-        $request = new HTTP\Request(array(
+        $request = HTTP\Sapi::createFromServerArray(array(
             'REQUEST_METHOD' => 'POST',
             'REQUEST_URI'    => '/calendars/user1/cal2',
             'CONTENT_TYPE'   => 'text/xml',
@@ -348,13 +346,13 @@ RRR;
         $request->setBody($xml);
 
         $response = $this->request($request);
-        $this->assertEquals('HTTP/1.1 501 Not Implemented', $response->status, $response->body);
+        $this->assertEquals(501, $response->status, $response->body);
 
     }
 
     function testUnpublishWrongUrl() {
 
-        $request = new HTTP\Request(array(
+        $request = HTTP\Sapi::createFromServerArray(array(
             'REQUEST_METHOD' => 'POST',
             'REQUEST_URI'    => '/calendars/user1/cal2',
             'CONTENT_TYPE'   => 'text/xml',
@@ -367,13 +365,13 @@ RRR;
         $request->setBody($xml);
 
         $response = $this->request($request);
-        $this->assertEquals('HTTP/1.1 501 Not Implemented', $response->status, $response->body);
+        $this->assertEquals(501, $response->status, $response->body);
 
     }
 
     function testUnknownXmlDoc() {
 
-        $request = new HTTP\Request(array(
+        $request = HTTP\Sapi::createFromServerArray(array(
             'REQUEST_METHOD' => 'POST',
             'REQUEST_URI'    => '/calendars/user1/cal2',
             'CONTENT_TYPE'   => 'text/xml',
@@ -385,7 +383,7 @@ RRR;
         $request->setBody($xml);
 
         $response = $this->request($request);
-        $this->assertEquals('HTTP/1.1 501 Not Implemented', $response->status, $response->body);
+        $this->assertEquals(501, $response->status, $response->body);
 
     }
 }

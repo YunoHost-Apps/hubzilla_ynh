@@ -49,23 +49,23 @@ function ratings_init(&$a) {
 	} 
 
 	if(array_key_exists('xchan_hash',$results['target']))
-		$a->poi = $results['target'];
+		App::$poi = $results['target'];
 	
 	$friends = array();
 	$others = array();
 
 	if($results['ratings']) {
 		foreach($results['ratings'] as $n) {
-			if(is_array($a->contacts) && array_key_exists($n['xchan_hash'],$a->contacts))
+			if(is_array(App::$contacts) && array_key_exists($n['xchan_hash'],App::$contacts))
 				$friends[] = $n;
 			else
 				$others[] = $n;
 		}
 	}
 
-	$a->data = array('target' => $results['target'], 'results' => array_merge($friends,$others));
+	App::$data = array('target' => $results['target'], 'results' => array_merge($friends,$others));
 
-	if(! $a->data['results']) {
+	if(! App::$data['results']) {
 		notice( t('No ratings') . EOL);
 	}
 
@@ -91,8 +91,8 @@ function ratings_content(&$a) {
 	if(! $poco_rating)
 		return;
 
-	$site_target = ((array_key_exists('target',$a->data) && array_key_exists('site_url',$a->data['target'])) ?
-		'<a href="' . $a->data['target']['site_url'] . '" >' . $a->data['target']['site_url'] . '</a>' : '');
+	$site_target = ((array_key_exists('target',App::$data) && array_key_exists('site_url',App::$data['target'])) ?
+		'<a href="' . App::$data['target']['site_url'] . '" >' . App::$data['target']['site_url'] . '</a>' : '');
 
 
 	$o = replace_macros(get_markup_template('prep.tpl'),array(
@@ -101,7 +101,7 @@ function ratings_content(&$a) {
 		'$website' => t('Website: '),
 		'$site' => $site_target,
 		'$rating_text_lbl' => t('Description: '),
-		'$raters' => $a->data['results']
+		'$raters' => App::$data['results']
 	));
 
 	return $o;

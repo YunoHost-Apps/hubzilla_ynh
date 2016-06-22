@@ -14,7 +14,7 @@ function follow_init(&$a) {
 	$return_url = $_SESSION['return_url'];
 	$confirm = intval($_REQUEST['confirm']);
 
-	$channel = $a->get_channel();
+	$channel = App::get_channel();
 
 	$result = new_contact($uid,$url,$channel,true,$confirm);
 	

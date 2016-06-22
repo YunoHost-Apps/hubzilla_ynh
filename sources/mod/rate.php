@@ -6,20 +6,20 @@ function rate_init(&$a) {
 	if(! local_channel())
 		return;
 
-	$channel = $a->get_channel();
+	$channel = App::get_channel();
 
 	$target = $_REQUEST['target'];
 	if(! $target)
 		return;
 
-	$a->data['target'] = $target;
+	App::$data['target'] = $target;
 
 	if($target) {
 		$r = q("SELECT * FROM xchan where xchan_hash like '%s' LIMIT 1",
 			dbesc($target)
 		);
 		if($r) {
-			$a->poi = $r[0];
+			App::$poi = $r[0];
 		}
 		else {
 			$r = q("select * from site where site_url like '%s' and site_type = %d",
@@ -27,8 +27,8 @@ function rate_init(&$a) {
 				intval(SITE_TYPE_ZOT)
 			);
 			if($r) {
-				$a->data['site'] = $r[0];
-				$a->data['site']['site_url'] = strtolower($r[0]['site_url']);
+				App::$data['site'] = $r[0];
+				App::$data['site']['site_url'] = strtolower($r[0]['site_url']);
 			}
 		}
 	}
@@ -44,13 +44,13 @@ function rate_post(&$a) {
 	if(! local_channel())
 		return;
 
-	if(! $a->data['target'])
+	if(! App::$data['target'])
 		return;
 
 	if(! $_REQUEST['execute'])
 		return;
 
-	$channel = $a->get_channel();
+	$channel = App::get_channel();
 
 	$rating = intval($_POST['rating']);
 	if($rating < (-10))
@@ -60,13 +60,13 @@ function rate_post(&$a) {
 
 	$rating_text = trim(escape_tags($_REQUEST['rating_text']));
 
-	$signed = $a->data['target'] . '.' . $rating . '.' . $rating_text;
+	$signed = App::$data['target'] . '.' . $rating . '.' . $rating_text;
 
 	$sig = base64url_encode(rsa_sign($signed,$channel['channel_prvkey']));
 
 	$z = q("select * from xlink where xlink_xchan = '%s' and xlink_link = '%s' and xlink_static = 1 limit 1",
 		dbesc($channel['channel_hash']),
-		dbesc($a->data['target'])
+		dbesc(App::$data['target'])
 	);
 
 	if($z) {
@@ -83,7 +83,7 @@ function rate_post(&$a) {
 	else {
 		$w = q("insert into xlink ( xlink_xchan, xlink_link, xlink_rating, xlink_rating_text, xlink_sig, xlink_updated, xlink_static ) values ( '%s', '%s', %d, '%s', '%s', '%s', 1 ) ",
 			dbesc($channel['channel_hash']),
-			dbesc($a->data['target']),
+			dbesc(App::$data['target']),
 			intval($rating),
 			dbesc($rating_text),
 			dbesc($sig),
@@ -91,7 +91,7 @@ function rate_post(&$a) {
 		);
 		$z = q("select * from xlink where xlink_xchan = '%s' and xlink_link = '%s' and xlink_static = 1 limit 1",
 			dbesc($channel['channel_hash']),
-			dbesc($a->data['target'])
+			dbesc(App::$data['target'])
 		);
 		if($z)
 			$record = $z[0]['xlink_id'];
@@ -112,7 +112,7 @@ function rate_content(&$a) {
 		return;
 	}
 
-//	if(! $a->data['target']) {
+//	if(! App::$data['target']) {
 //		notice( t('No recipients.') . EOL);
 //		return;
 //	}
@@ -123,14 +123,14 @@ function rate_content(&$a) {
 		return;
 	}
 
-	$channel = $a->get_channel();
+	$channel = App::get_channel();
 
 	$r = q("select * from xlink where xlink_xchan = '%s' and xlink_link = '%s' and xlink_static = 1",
 		dbesc($channel['channel_hash']),
-		dbesc($a->data['target'])
+		dbesc(App::$data['target'])
 	);
 	if($r) {
-		$a->data['xlink'] = $r[0];				
+		App::$data['xlink'] = $r[0];				
 		$rating_val = $r[0]['xlink_rating'];
 		$rating_text = $r[0]['xlink_rating_text'];
 	}
@@ -156,9 +156,9 @@ function rate_content(&$a) {
 	$o = replace_macros(get_markup_template('rating_form.tpl'),array(
 		'$header' => t('Rating'),
 		'$website' => t('Website:'),
-		'$site' => (($a->data['site']) ? '<a href="' . $a->data['site']['site_url'] . '" >' . $a->data['site']['site_url'] . '</a>' : ''),
-		'target' => $a->data['target'],
-		'$tgt_name' => (($a->poi && $a->poi['xchan_name']) ? $a->poi['xchan_name'] : sprintf( t('Remote Channel [%s] (not yet known on this site)'), substr($a->data['target'],0,16))),
+		'$site' => ((App::$data['site']) ? '<a href="' . App::$data['site']['site_url'] . '" >' . App::$data['site']['site_url'] . '</a>' : ''),
+		'target' => App::$data['target'],
+		'$tgt_name' => ((App::$poi && App::$poi['xchan_name']) ? App::$poi['xchan_name'] : sprintf( t('Remote Channel [%s] (not yet known on this site)'), substr(App::$data['target'],0,16))),
 		'$lbl_rating'     => t('Rating (this information is public)'),
 		'$lbl_rating_txt' => t('Optionally explain your rating (this information is public)'),
 		'$rating_txt'     => $rating_text,

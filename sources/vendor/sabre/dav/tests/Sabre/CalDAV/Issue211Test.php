@@ -7,7 +7,7 @@ use Sabre\VObject;
 /**
  * This unittest is created to check for an endless loop in Sabre\CalDAV\CalendarQueryValidator
  *
- * @copyright Copyright (C) 2007-2014 fruux GmbH (https://fruux.com/).
+ * @copyright Copyright (C) fruux GmbH (https://fruux.com/)
  * @author Evert Pot (http://evertpot.com/)
  * @license http://sabre.io/license/ Modified BSD License
  */
@@ -55,7 +55,7 @@ END:VCALENDAR
 
     function testIssue211() {
 
-        $request = new HTTP\Request(array(
+        $request = HTTP\Sapi::createFromServerArray(array(
             'REQUEST_METHOD' => 'REPORT',
             'HTTP_CONTENT_TYPE' => 'application/xml',
             'REQUEST_URI' => '/calendars/user1/calendar1',

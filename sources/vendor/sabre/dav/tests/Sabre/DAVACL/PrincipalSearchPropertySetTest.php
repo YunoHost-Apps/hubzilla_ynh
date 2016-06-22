@@ -17,9 +17,10 @@ class PrincipalSearchPropertySetTest extends \PHPUnit_Framework_TestCase {
         $principals = new PrincipalCollection($backend);
         $dir->addChild($principals);
 
-        $fakeServer = new DAV\Server(new DAV\ObjectTree($dir));
+        $fakeServer = new DAV\Server($dir);
+        $fakeServer->sapi = new HTTP\SapiMock();
         $fakeServer->httpResponse = new HTTP\ResponseMock();
-        $plugin = new Plugin($backend,'realm');
+        $plugin = new Plugin();
         $this->assertTrue($plugin instanceof Plugin);
         $fakeServer->addPlugin($plugin);
         $this->assertEquals($plugin, $fakeServer->getPlugin('acl'));
@@ -39,7 +40,7 @@ class PrincipalSearchPropertySetTest extends \PHPUnit_Framework_TestCase {
             'REQUEST_URI'    => '/principals',
         );
 
-        $request = new HTTP\Request($serverVars);
+        $request = HTTP\Sapi::createFromServerArray($serverVars);
         $request->setBody($xml);
 
         $server = $this->getServer();
@@ -47,10 +48,11 @@ class PrincipalSearchPropertySetTest extends \PHPUnit_Framework_TestCase {
 
         $server->exec();
 
-        $this->assertEquals('HTTP/1.1 400 Bad request', $server->httpResponse->status);
+        $this->assertEquals(400, $server->httpResponse->status);
         $this->assertEquals(array(
-            'Content-Type' => 'application/xml; charset=utf-8',
-        ), $server->httpResponse->headers);
+            'X-Sabre-Version' => [DAV\Version::VERSION],
+            'Content-Type' => ['application/xml; charset=utf-8'],
+        ), $server->httpResponse->getHeaders());
 
     }
 
@@ -65,7 +67,7 @@ class PrincipalSearchPropertySetTest extends \PHPUnit_Framework_TestCase {
             'REQUEST_URI'    => '/principals',
         );
 
-        $request = new HTTP\Request($serverVars);
+        $request = HTTP\Sapi::createFromServerArray($serverVars);
         $request->setBody($xml);
 
         $server = $this->getServer();
@@ -73,10 +75,11 @@ class PrincipalSearchPropertySetTest extends \PHPUnit_Framework_TestCase {
 
         $server->exec();
 
-        $this->assertEquals('HTTP/1.1 400 Bad request', $server->httpResponse->status, $server->httpResponse->body);
+        $this->assertEquals(400, $server->httpResponse->status, $server->httpResponse->body);
         $this->assertEquals(array(
-            'Content-Type' => 'application/xml; charset=utf-8',
-        ), $server->httpResponse->headers);
+            'X-Sabre-Version' => [DAV\Version::VERSION],
+            'Content-Type' => ['application/xml; charset=utf-8'],
+        ), $server->httpResponse->getHeaders());
 
     }
 
@@ -91,7 +94,7 @@ class PrincipalSearchPropertySetTest extends \PHPUnit_Framework_TestCase {
             'REQUEST_URI'    => '/principals',
         );
 
-        $request = new HTTP\Request($serverVars);
+        $request = HTTP\Sapi::createFromServerArray($serverVars);
         $request->setBody($xml);
 
         $server = $this->getServer();
@@ -99,10 +102,11 @@ class PrincipalSearchPropertySetTest extends \PHPUnit_Framework_TestCase {
 
         $server->exec();
 
-        $this->assertEquals('HTTP/1.1 200 OK', $server->httpResponse->status, $server->httpResponse->body);
+        $this->assertEquals(200, $server->httpResponse->status, $server->httpResponse->body);
         $this->assertEquals(array(
-            'Content-Type' => 'application/xml; charset=utf-8',
-        ), $server->httpResponse->headers);
+            'X-Sabre-Version' => [DAV\Version::VERSION],
+            'Content-Type' => ['application/xml; charset=utf-8'],
+        ), $server->httpResponse->getHeaders());
 
 
         $check = array(

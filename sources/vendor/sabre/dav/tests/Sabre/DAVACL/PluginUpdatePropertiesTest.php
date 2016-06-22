@@ -10,7 +10,7 @@ require_once 'Sabre/DAVACL/MockPrincipal.php';
 
 class PluginUpdatePropertiesTest extends \PHPUnit_Framework_TestCase {
 
-    public function testUpdatePropertiesPassthrough() {
+    function testUpdatePropertiesPassthrough() {
 
         $tree = array(
             new DAV\SimpleCollection('foo'),
@@ -23,17 +23,14 @@ class PluginUpdatePropertiesTest extends \PHPUnit_Framework_TestCase {
         ));
 
         $expected = array(
-            'href' => 'foo',
-            '403' => array(
-                '{DAV:}foo' => null,
-            ),
+            '{DAV:}foo' => 403,
         );
 
         $this->assertEquals($expected, $result);
 
     }
 
-    public function testRemoveGroupMembers() {
+    function testRemoveGroupMembers() {
 
         $tree = array(
             new MockPrincipal('foo','foo'),
@@ -46,10 +43,7 @@ class PluginUpdatePropertiesTest extends \PHPUnit_Framework_TestCase {
         ));
 
         $expected = array(
-            'href' => 'foo',
-            '200' => array(
-                '{DAV:}group-member-set' => null,
-            ),
+            '{DAV:}group-member-set' => 204
         );
 
         $this->assertEquals($expected, $result);
@@ -57,34 +51,31 @@ class PluginUpdatePropertiesTest extends \PHPUnit_Framework_TestCase {
 
     }
 
-    public function testSetGroupMembers() {
+    function testSetGroupMembers() {
 
-        $tree = array(
+        $tree = [
             new MockPrincipal('foo','foo'),
-        );
+        ];
         $server = new DAV\Server($tree);
         $server->addPlugin(new Plugin());
 
-        $result = $server->updateProperties('foo', array(
-            '{DAV:}group-member-set' => new DAV\Property\HrefList(array('/bar','/baz'), true),
-        ));
+        $result = $server->updateProperties('foo', [
+            '{DAV:}group-member-set' => new DAV\Xml\Property\Href(['/bar','/baz'], true),
+        ]);
 
-        $expected = array(
-            'href' => 'foo',
-            '200' => array(
-                '{DAV:}group-member-set' => null,
-            ),
-        );
+        $expected = [
+            '{DAV:}group-member-set' => 200
+        ];
 
         $this->assertEquals($expected, $result);
-        $this->assertEquals(array('bar','baz'),$tree[0]->getGroupMemberSet());
+        $this->assertEquals(['bar', 'baz'],$tree[0]->getGroupMemberSet());
 
     }
 
     /**
      * @expectedException Sabre\DAV\Exception
      */
-    public function testSetBadValue() {
+    function testSetBadValue() {
 
         $tree = array(
             new MockPrincipal('foo','foo'),
@@ -98,28 +89,21 @@ class PluginUpdatePropertiesTest extends \PHPUnit_Framework_TestCase {
 
     }
 
-    public function testSetBadNode() {
+    function testSetBadNode() {
 
-        $tree = array(
+        $tree = [
             new DAV\SimpleCollection('foo'),
-        );
+        ];
         $server = new DAV\Server($tree);
         $server->addPlugin(new Plugin());
 
-        $result = $server->updateProperties('foo', array(
-            '{DAV:}group-member-set' => new DAV\Property\HrefList(array('/bar','/baz'),false),
-            '{DAV:}bar' => 'baz',
-        ));
+        $result = $server->updateProperties('foo', [
+            '{DAV:}group-member-set' => new DAV\Xml\Property\Href(['/bar','/baz'],false),
+        ]);
 
-        $expected = array(
-            'href' => 'foo',
-            '403' => array(
-                '{DAV:}group-member-set' => null,
-            ),
-            '424' => array(
-                '{DAV:}bar' => null,
-            ),
-        );
+        $expected = [
+            '{DAV:}group-member-set' => 403,
+        ];
 
         $this->assertEquals($expected, $result);
 

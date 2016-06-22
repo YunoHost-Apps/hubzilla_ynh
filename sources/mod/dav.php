@@ -49,7 +49,7 @@ function dav_init(&$a) {
 
 	$profile = 0;
 
-	$a->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . $a->get_baseurl() . '/feed/' . $which . '" />' . "\r\n";
+	App::$page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . z_root() . '/feed/' . $which . '" />' . "\r\n";
 
 	if ($which)
 		profile_load($a, $which, $profile);
@@ -60,7 +60,7 @@ function dav_init(&$a) {
 
 	if ($ob_hash) {
 		if (local_channel()) {
-			$channel = $a->get_channel();
+			$channel = App::get_channel();
 			$auth->setCurrentUser($channel['channel_address']);
 			$auth->channel_id = $channel['channel_id'];
 			$auth->channel_hash = $channel['channel_hash'];
@@ -107,7 +107,7 @@ function dav_init(&$a) {
 
 	if ((! $auth->observer) && ($_SERVER['REQUEST_METHOD'] === 'GET')) {
 		try { 
-			$x = RedFileData('/' . $a->cmd, $auth);
+			$x = RedFileData('/' . App::$cmd, $auth);
 			if($x instanceof Zotlabs\Storage\File)
 				$isapublic_file = true;
 		}

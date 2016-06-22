@@ -84,7 +84,7 @@ function import_items_post(&$a) {
 		}
 	}
 
-	$channel = $a->get_channel();
+	$channel = App::get_channel();
 
 
 	if(array_key_exists('item',$data) && $data['item']) {

@@ -17,7 +17,7 @@ function match_content(&$a) {
 	if (! local_channel())
 		return;
 
-	$_SESSION['return_url'] = $a->get_baseurl() . '/' . $a->cmd;
+	$_SESSION['return_url'] = z_root() . '/' . App::$cmd;
 
 	$o .= '<h2>' . t('Profile Match') . '</h2>';
 
@@ -37,25 +37,25 @@ function match_content(&$a) {
 
 	if ($tags) {
 		$params['s'] = $tags;
-		if ($a->pager['page'] != 1)
-			$params['p'] = $a->pager['page'];
+		if (App::$pager['page'] != 1)
+			$params['p'] = App::$pager['page'];
 
 //		if(strlen(get_config('system','directory_submit_url')))
 //			$x = post_url('http://dir.friendica.com/msearch', $params);
 //		else
-//			$x = post_url($a->get_baseurl() . '/msearch', $params);
+//			$x = post_url(z_root() . '/msearch', $params);
 
 		$j = json_decode($x);
 
 		if ($j->total) {
-			$a->set_pager_total($j->total);
-			$a->set_pager_itemspage($j->items_page);
+			App::set_pager_total($j->total);
+			App::set_pager_itemspage($j->items_page);
 		}
 
 		if (count($j->results)) {
 			$tpl = get_markup_template('match.tpl');
 			foreach ($j->results as $jj) {
-				$connlnk = $a->get_baseurl() . '/follow/?url=' . $jj->url;
+				$connlnk = z_root() . '/follow/?url=' . $jj->url;
 				$o .= replace_macros($tpl,array(
 					'$url' => zid($jj->url),
 					'$name' => $jj->name,

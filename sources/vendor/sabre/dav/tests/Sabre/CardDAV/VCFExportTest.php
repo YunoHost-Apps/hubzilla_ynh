@@ -29,28 +29,35 @@ class VCFExportTest extends \Sabre\DAVServerTest {
     function setUp() {
 
         parent::setUp();
+        $plugin = new VCFExportPlugin();
         $this->server->addPlugin(
-            new VCFExportPlugin()
+            $plugin
         );
 
     }
 
     function testSimple() {
 
-        $this->assertInstanceOf('Sabre\\CardDAV\\VCFExportPlugin', $this->server->getPlugin('Sabre\\CardDAV\\VCFExportPlugin'));
+        $plugin = $this->server->getPlugin('vcf-export');
+        $this->assertInstanceOf('Sabre\\CardDAV\\VCFExportPlugin', $plugin);
+
+        $this->assertEquals(
+            'vcf-export',
+            $plugin->getPluginInfo()['name']
+        );
 
     }
 
     function testExport() {
 
-        $request = new HTTP\Request(array(
+        $request = HTTP\Sapi::createFromServerArray(array(
             'REQUEST_URI' => '/addressbooks/user1/book1?export',
             'QUERY_STRING' => 'export',
             'REQUEST_METHOD' => 'GET',
         ));
 
         $response = $this->request($request);
-        $this->assertEquals('HTTP/1.1 200 OK', $response->status, $response->body);
+        $this->assertEquals(200, $response->status, $response->body);
 
         $expected = "BEGIN:VCARD
 FN:Person1
@@ -69,6 +76,16 @@ END:VCARD
         $expected = str_replace("\n","\r\n", $expected);
 
         $this->assertEquals($expected, $response->body);
+
+    }
+
+    function testBrowserIntegration() {
+
+        $plugin = $this->server->getPlugin('vcf-export');
+        $actions = '';
+        $addressbook = new AddressBook($this->carddavBackend, []);
+        $this->server->emit('browserButtonActions', ['/foo', $addressbook, &$actions]);
+        $this->assertContains('/foo?export', $actions);
 
     }
 

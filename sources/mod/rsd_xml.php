@@ -10,7 +10,7 @@ function rsd_xml_content(&$a) {
      <engineName>Red</engineName>
      <engineLink>http://friendica.com/</engineLink>
      <apis>
-       <api name="Twitter" preferred="true" apiLink="'.$a->get_baseurl().'/api/" blogID="">
+       <api name="Twitter" preferred="true" apiLink="'.z_root().'/api/" blogID="">
          <settings>
            <docs>http://status.net/wiki/TwitterCompatibleAPI</docs>
            <setting name="OAuth">false</setting>

@@ -8,9 +8,9 @@ function wall_attach_post(&$a) {
 
 	$using_api = false;
 
-	if($a->data['api_info'] && array_key_exists('media',$_FILES)) {
+	if(App::$data['api_info'] && array_key_exists('media',$_FILES)) {
 		$using_api = true;
-		$user_info = $a->data['api_info'];
+		$user_info = App::$data['api_info'];
 		$nick = $user_info['screen_name'];
 		$channel = get_channel_by_nick($user_info['screen_name']);
 	}
@@ -20,25 +20,8 @@ function wall_attach_post(&$a) {
 	if(! $channel)
 		killme();
 
-	$observer = $a->get_observer();
+	$observer = App::get_observer();
 
-
-//	if($_FILES['userfile']['tmp_name']) {
-//		$x = @getimagesize($_FILES['userfile']['tmp_name']);
-//		logger('getimagesize: ' . print_r($x,true), LOGGER_DATA); 
-//		if(($x) && ($x[2] === IMAGETYPE_GIF || $x[2] === IMAGETYPE_JPEG || $x[2] === IMAGETYPE_PNG)) {
-//			$args = array( 'source' => 'editor', 'visible' => 0, 'contact_allow' => array($channel['channel_hash']));
-//			$ret = photo_upload($channel,$observer,$args);
-//			if($ret['success']) {
-//				echo  "\n\n" . $ret['body'] . "\n\n";
-//				killme();
-//			}
-//			if($using_api)
-//				return;
-//			notice($ret['message']);
-//			killme();
-//		}
-//	}
 
 	$def_album  = get_pconfig($channel['channel_id'],'system','photo_path');
 	$def_attach = get_pconfig($channel['channel_id'],'system','attach_path');

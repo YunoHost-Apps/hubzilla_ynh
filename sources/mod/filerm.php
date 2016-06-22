@@ -13,7 +13,7 @@ function filerm_content(&$a) {
 	if($category)
 		$term = $cat;
 
-	$item_id = (($a->argc > 1) ? intval($a->argv[1]) : 0);
+	$item_id = ((App::$argc > 1) ? intval(App::$argv[1]) : 0);
 
 	logger('filerm: tag ' . $term . ' item ' . $item_id);
 
@@ -27,7 +27,7 @@ function filerm_content(&$a) {
 	}
 
 	if(x($_SESSION,'return_url'))
-		goaway($a->get_baseurl() . '/' . $_SESSION['return_url']);
+		goaway(z_root() . '/' . $_SESSION['return_url']);
 	
 	killme();
 }

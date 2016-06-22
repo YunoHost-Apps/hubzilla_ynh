@@ -1,15 +1,15 @@
 <?php
 
-require_once('bbcode.php');
+require_once('include/bbcode.php');
 
 function tagrm_post(&$a) {
 
 	if(! local_channel())
-		goaway($a->get_baseurl() . '/' . $_SESSION['photo_return']);
+		goaway(z_root() . '/' . $_SESSION['photo_return']);
 
 
 	if((x($_POST,'submit')) && ($_POST['submit'] === t('Cancel')))
-		goaway($a->get_baseurl() . '/' . $_SESSION['photo_return']);
+		goaway(z_root() . '/' . $_SESSION['photo_return']);
 
 	$tag =  ((x($_POST,'tag'))  ? trim($_POST['tag'])       : '');
 	$item = ((x($_POST,'item')) ? intval($_POST['item'])    : 0 );
@@ -20,7 +20,7 @@ function tagrm_post(&$a) {
 	);
 
 	if(! $r)
-		goaway($a->get_baseurl() . '/' . $_SESSION['photo_return']);
+		goaway(z_root() . '/' . $_SESSION['photo_return']);
 
 	$r = fetch_post_tags($r,true);
 
@@ -42,7 +42,7 @@ function tagrm_post(&$a) {
 	item_store_update($item);
 
 	info( t('Tag removed') . EOL );
-	goaway($a->get_baseurl() . '/' . $_SESSION['photo_return']);
+	goaway(z_root() . '/' . $_SESSION['photo_return']);
 	
 	// NOTREACHED
 
@@ -53,7 +53,7 @@ function tagrm_post(&$a) {
 function tagrm_content(&$a) {
 
 	if(! local_channel()) {
-		goaway($a->get_baseurl() . '/' . $_SESSION['photo_return']);
+		goaway(z_root() . '/' . $_SESSION['photo_return']);
 		// NOTREACHED
 	}
 
@@ -69,7 +69,7 @@ function tagrm_content(&$a) {
 		);
 
 		if(! $r)
-			goaway($a->get_baseurl() . '/' . $_SESSION['photo_return']);
+			goaway(z_root() . '/' . $_SESSION['photo_return']);
 
 		$r = fetch_post_tags($r,true);
 
@@ -92,7 +92,7 @@ function tagrm_content(&$a) {
 		item_store_update($item);
 
 		info( t('Tag removed') . EOL );
-		goaway($a->get_baseurl() . '/' . $_SESSION['photo_return']);
+		goaway(z_root() . '/' . $_SESSION['photo_return']);
 
 	}
 
@@ -109,12 +109,12 @@ function tagrm_content(&$a) {
 		);
 
 		if(! $r)
-			goaway($a->get_baseurl() . '/' . $_SESSION['photo_return']);
+			goaway(z_root() . '/' . $_SESSION['photo_return']);
 
 		$r = fetch_post_tags($r,true);
 
 		if(! count($r[0]['term']))
-			goaway($a->get_baseurl() . '/' . $_SESSION['photo_return']);
+			goaway(z_root() . '/' . $_SESSION['photo_return']);
 
 		$o .= '<h3>' . t('Remove Item Tag') . '</h3>';
 
