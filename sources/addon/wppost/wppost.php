@@ -206,9 +206,9 @@ function wppost_send(&$a,&$b) {
 
 	if(is_array($b['term']) && $b['term']) {
 		foreach($b['term'] as $term) {
- 			if($term['type'] == TERM_CATEGORY)
+ 			if($term['ttype'] == TERM_CATEGORY)
 				$categories[] = $term['term'];
-			if($term['type'] == TERM_HASHTAG)
+			if($term['ttype'] == TERM_HASHTAG)
 				$tags[] = $term['term'];
 		}
 	}

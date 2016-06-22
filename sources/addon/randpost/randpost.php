@@ -22,7 +22,7 @@ function randpost_unload() {
 
 function randpost_enotify_store(&$a,&$b) {
 
-	if(! ($b['type'] == NOTIFY_COMMENT || $b['type'] == NOTIFY_TAGSELF))
+	if(! ($b['ntype'] == NOTIFY_COMMENT || $b['ntype'] == NOTIFY_TAGSELF))
 		return;
 
 	if(! get_pconfig($b['uid'],'randpost','enable'))
@@ -55,7 +55,7 @@ function randpost_enotify_store(&$a,&$b) {
 		return;
 
 
-	if($b['type'] == NOTIFY_TAGSELF)
+	if($b['ntype'] == NOTIFY_TAGSELF)
 		$my_conversation = true;
 	elseif($p[0]['author_xchan'] === $c[0]['channel_hash'])
 		$my_conversation = true;
@@ -215,7 +215,7 @@ function randpost_enotify_store(&$a,&$b) {
 
 	call_hooks('post_local_end', $x);
 
-	proc_run('php','include/notifier.php','comment-new',$post_id);	
+	Zotlabs\Daemon\Master::Summon(array('Notifier','comment-new',$post_id));	
 
 }
 
@@ -279,7 +279,7 @@ function randpost_fetch(&$a,&$b) {
 
 				call_hooks('post_local_end', $x);
 
-				proc_run('php','include/notifier.php','wall-new',$post_id);
+				Zotlabs\Daemon\Master::Summon(array('Notifier','wall-new',$post_id));
 			}
 		}
 	}

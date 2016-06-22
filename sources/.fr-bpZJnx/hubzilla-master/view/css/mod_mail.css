@@ -1,0 +1,34 @@
+.mail-conv-sender {
+	float: left;
+	margin-right: 10px;
+	margin-bottom: 10px;
+}
+
+.mail-conv-sender img{
+	width: 32px;
+	height: 32px;
+}
+
+.mail-conv-sender-name {
+	font-weight: bold;
+}
+
+.mail-conv-body {
+	margin-bottom: 10px;
+}
+
+.mail-conv-body img {
+	max-width: 100%;
+}
+
+#prvmail-rotator {
+	margin: 15px;
+}
+
+#prvmail-text {
+	height: 15.0em;
+}
+
+.mail-conv-outside-wrapper {
+	margin-bottom: 20px;
+}

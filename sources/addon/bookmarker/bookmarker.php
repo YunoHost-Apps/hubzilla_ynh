@@ -10,12 +10,12 @@
  * 
  */
 
-function bookmarker_install() {
+function bookmarker_load() {
 	register_hook('prepare_body', 'addon/bookmarker/bookmarker.php', 'bookmarker_prepare_body', 10);
 }
 
 
-function bookmarker_uninstall() {
+function bookmarker_unload() {
 	unregister_hook('prepare_body', 'addon/bookmarker/bookmarker.php', 'bookmarker_prepare_body');
 }
 

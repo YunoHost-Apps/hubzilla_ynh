@@ -18,6 +18,6 @@ function extcron_unload() {}
 function extcron_module() {}
 
 function extcron_init(&$a) {
-	proc_run('php','include/poller.php');
+	Zotlabs\Daemon\Master::Summon(array('Cron'));
 	killme();
 }

@@ -102,7 +102,7 @@ function visage_content(&$a) {
 
 	// let's play fair.
 
-	require_once('include/identity.php');
+	require_once('include/channel.php');
 
 	if(! is_public_profile())
 		return $o;

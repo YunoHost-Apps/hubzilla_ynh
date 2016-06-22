@@ -10,10 +10,6 @@
  */
 
 
-
-
-require_once('include/enotify.php');
-
 function hubwall_module() {}
 
 
@@ -59,7 +55,7 @@ function hubwall_post(&$a) {
 	foreach($recips as $recip) {
 
 
-		enotify::send(array(
+		\Zotlabs\Lib\Enotify::send(array(
 			'fromName'             => $sender_name,
 			'fromEmail'            => $sender_email,
 			'replyTo'              => $sender_email,

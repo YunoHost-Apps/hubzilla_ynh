@@ -167,7 +167,6 @@ function jappixmini_plugin_admin_post(&$a) {
 function jappixmini_module() {}
 function jappixmini_init(&$a) {
 
-	require_once('include/Contact.php');
 
 	// module page where other Friendica sites can submit Jabber addresses to and also 
 	// can query Jabber addresses of local users
@@ -579,7 +578,6 @@ function jappixmini_login(&$a, &$o) {
 
 function jappixmini_cron(&$a, $d) {
 
-	require_once('include/Contact.php');
 
 	// For autosubscribe/autoapprove, we need to maintain a list of jabber addresses of our contacts.
 

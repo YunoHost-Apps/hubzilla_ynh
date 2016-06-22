@@ -1,0 +1,16 @@
+.app-container {
+	float: left;
+	width: 125px;
+	height: 180px;
+	padding: 20px;
+}
+
+.app-detail {
+	height: 130px;
+	overflow-x: hidden;
+	overflow-y: hidden;
+}
+
+.app-tools {
+	margin-bottom: 0;
+}

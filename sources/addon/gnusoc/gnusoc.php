@@ -14,7 +14,6 @@
 require_once('include/crypto.php');
 require_once('include/items.php');
 require_once('include/bb2diaspora.php');
-require_once('include/contact_selectors.php');
 require_once('include/queue_fn.php');
 
 
@@ -515,8 +514,7 @@ function gnusoc_follow_from_feed(&$a,&$b) {
 				);
 		
 				if($new_connection) {
-					require_once('include/enotify.php');
-					notification(array(
+					\Zotlabs\Lib\Enotify::submit(array(
 						'type'       => NOTIFY_INTRO,
 						'from_xchan'   => $xchan['xchan_hash'],
 						'to_xchan'     => $importer['channel_hash'],
@@ -527,7 +525,7 @@ function gnusoc_follow_from_feed(&$a,&$b) {
 						// Send back a sharing notification to them
 						$deliver = gnusoc_remote_follow($importer,$new_connection[0]);
 						if($deliver)
-							proc_run('php','include/deliver.php',$deliver);
+							Zotlabs\Daemon\Master::Summon(array('Deliver',$deliver));
 
 					}
 

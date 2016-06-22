@@ -28,7 +28,7 @@ define( 'UNO', {{$uno}} );
 // Choose a legal default timezone. If you are unsure, use "America/Los_Angeles".
 // It can be changed later and only applies to timestamps for anonymous viewers.
 
-$default_timezone = '{{$timezone}}';
+App::$config['system']['timezone'] = '{{$timezone}}';
 
 // What is your site name?
 

@@ -1,0 +1,36 @@
+.photos-end {
+	clear: both;
+	margin-bottom: 25px;
+}
+
+.photo-item-tools-left,
+.photo-item-tools-right {
+	padding: 7px 10px;
+}
+
+.photo-like-rotator {
+	margin-top: 23px;
+	margin-right: 5px;
+}
+
+#photo-photo {
+	display: table;
+	margin: 0 auto;
+}
+
+#photo-edit,
+#photo-album-edit-wrapper,
+#photo-upload-form {
+	display: none;
+}
+
+#photos-upload-choose {
+	padding: 7px 10px;
+	width: 100%;
+}
+
+#photo-map {
+	position: absolute;
+	left: -9999px;
+	top: -9999px;
+}

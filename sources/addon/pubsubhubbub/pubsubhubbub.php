@@ -9,8 +9,6 @@
  * MinVersion: 1.2.2
  */
 
-require_once('include/Contact.php');
-
 
 function pubsubhubbub_install() {
 	$r = q("CREATE TABLE IF NOT EXISTS `push_subscriber` (

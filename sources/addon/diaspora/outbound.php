@@ -73,8 +73,11 @@ function diaspora_msg_build($msg,$channel,$contact,$prvkey,$pubkey,$public = fal
 
     $handle = $channel['channel_address'] . '@' . App::get_hostname();
 
-	$padded_data = pkcs5_pad($msg,16);
-	$inner_encrypted = mcrypt_encrypt(MCRYPT_RIJNDAEL_128, $inner_aes_key, $padded_data, MCRYPT_MODE_CBC, $inner_iv);
+
+	$inner_encrypted = AES256CBC_encrypt($msg,$inner_aes_key,$inner_iv);
+
+//	$padded_data = pkcs5_pad($msg,16);
+//	$inner_encrypted = mcrypt_encrypt(MCRYPT_RIJNDAEL_128, $inner_aes_key, $padded_data, MCRYPT_MODE_CBC, $inner_iv);
 
 	$b64_data = base64_encode($inner_encrypted);
 
@@ -102,9 +105,10 @@ $decrypted_header = <<< EOT
 </decrypted_header>
 EOT;
 
-	$decrypted_header = pkcs5_pad($decrypted_header,16);
+	$ciphertext = AES256CBC_encrypt($decrypted_header,$outer_aes_key,$outer_iv);
 
-	$ciphertext = mcrypt_encrypt(MCRYPT_RIJNDAEL_128, $outer_aes_key, $decrypted_header, MCRYPT_MODE_CBC, $outer_iv);
+//	$decrypted_header = pkcs5_pad($decrypted_header,16);
+//	$ciphertext = mcrypt_encrypt(MCRYPT_RIJNDAEL_128, $outer_aes_key, $decrypted_header, MCRYPT_MODE_CBC, $outer_iv);
 
 	$outer_json = json_encode(array('iv' => $b_outer_iv,'key' => $b_outer_aes_key));
 
@@ -433,6 +437,7 @@ function diaspora_send_upstream($item,$owner,$contact,$public_batch = false) {
 	else
 		return;
 
+	$xmlout = diaspora_fields_to_xml(get_iconfig($item,'diaspora','fields'));
 
 	if(($item['verb'] === ACTIVITY_LIKE) && ($parent['mid'] === $parent['parent_mid'])) {
 		$tpl = get_markup_template('diaspora_like.tpl','addon/diaspora');
@@ -448,7 +453,6 @@ function diaspora_send_upstream($item,$owner,$contact,$public_batch = false) {
 		$like = false;
 	}
 
-	$xmlout = diaspora_fields_to_xml(get_iconfig($item,'diaspora','fields'));
 	
 	if($item['diaspora_meta'] && ! $like) {
 		$diaspora_meta = json_decode($item['diaspora_meta'],true);
@@ -541,6 +545,9 @@ function diaspora_send_downstream($item,$owner,$contact,$public_batch = false) {
 		return;
 	}
 
+	$xmlout = diaspora_fields_to_xml(get_iconfig($item,'diaspora','fields'));
+
+
 	$like = false;
 	$relay_retract = false;
 	$sql_sign_id = 'iid';
@@ -553,7 +560,7 @@ function diaspora_send_downstream($item,$owner,$contact,$public_batch = false) {
 		$sql_sign_id = 'retract_iid';
 		$tpl = get_markup_template('diaspora_relayable_retraction.tpl','addon/diaspora');
 	}
-	elseif(($item['verb'] === ACTIVITY_LIKE) && (! $sublike)) {
+	elseif(($item['verb'] === ACTIVITY_LIKE) && (! $sublike) && ($xmlout)) {
 		$like = true;
 
 		$target_type = ( $parent['mid'] === $parent['parent_mid']  ? 'Post' : 'Comment');
@@ -610,7 +617,6 @@ function diaspora_send_downstream($item,$owner,$contact,$public_batch = false) {
 	}
 
 
-	$xmlout = diaspora_fields_to_xml(get_iconfig($item,'diaspora','fields'));
 
 	// The relayable may have arrived from somebody who provided no Diaspora Comment Virus. 
 	// We check for this above in bb2diaspora_itembody. In that case we will have generated 

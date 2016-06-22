@@ -1,0 +1,4 @@
+url: $baseurl/profile/$nick
+requires: local_channel
+name: View Profile
+photo: $baseurl/app/profile.png

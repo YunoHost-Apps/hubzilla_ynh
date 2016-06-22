@@ -15,7 +15,6 @@
 require_once('include/crypto.php');
 require_once('include/items.php');
 require_once('include/bb2diaspora.php');
-require_once('include/contact_selectors.php');
 require_once('include/queue_fn.php');
 
 require_once('addon/diaspora/inbound.php');
@@ -123,7 +122,15 @@ function diaspora_notifier_process(&$a,&$arr) {
 
 	// if it is a public post (reply, etc.), add the chosen relay channel to the recipients
 
-	if(! array_key_exists('item_wall',$item))
+	// If target_item isn't set it's likely to be refresh packet.
+
+	if(! ((array_key_exists('target_item',$arr)) && (is_array($arr['target_item'])))) {
+		return;
+	} 
+
+	// If item_wall doesn't exist, it's not a post - perhaps an email or other DB object
+
+	if(! array_key_exists('item_wall',$arr['target_item']))
 		return;
 
 	if(($arr['normal_mode']) && (! $arr['env_recips']) && (! $arr['private']) && (! $arr['relay_to_owner'])) {

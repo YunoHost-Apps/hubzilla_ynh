@@ -3,7 +3,6 @@
 require_once('include/crypto.php');
 require_once('include/items.php');
 require_once('include/follow.php');
-require_once('include/Contact.php');
 
 if(defined('SALMON_TEST')) {
 	function salmon_init(&$a) {

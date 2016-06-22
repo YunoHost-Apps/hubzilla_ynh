@@ -49,9 +49,14 @@ $attach_tmp = 'store/[data]/redfile_data_' . $channel_address;
 			killme();
 		}
 
-
-		file_put_contents($attach_tmp,(($j['attach']['data']) ? base64_decode($j['attach']['data']) : ''));
-
+		if(array_key_exists('content',$j['attach']) && $j['attach']['content']) {
+			file_put_contents($attach_tmp,base64_decode($j['attach']['content']));
+			unset($j['attach']['content']);
+		}
+		else {
+			file_put_contents($attach_tmp,(($j['attach']['data']) ? base64_decode($j['attach']['data']) : ''));
+			unset($j['attach']['data']);
+		}
 		$args = array();
 
 
@@ -73,8 +78,6 @@ $attach_tmp = 'store/[data]/redfile_data_' . $channel_address;
 		$args['folder'] = $j['attach']['folder'];
 		$args['revision'] = $j['attach']['revision'];
 		$args['is_dir'] = $j['attach']['is_dir'];
-
-		unset($j['attach']['data']);
 
 		logger('redfilehelper: ' . print_r($j,true));
 

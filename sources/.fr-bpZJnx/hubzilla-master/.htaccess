@@ -1,0 +1,34 @@
+Options -Indexes
+AddType application/x-java-archive .jar
+AddType audio/ogg .oga
+#SSLCipherSuite HIGH:AES256-SHA:AES128-SHA:RC4:!aNULL:!eNULL:!EDH
+
+# don't allow any web access to logfiles, even after rotation/compression
+<FilesMatch "\.(out|log|gz)$">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order deny,allow
+    Deny from all
+  </IfModule>
+</FilesMatch>
+
+<IfModule mod_rewrite.c>
+  RewriteEngine on
+  # Protect repository directory from browsing
+  RewriteRule "(^|/)\.git" - [F]
+  RewriteRule "(^|/)store" - [F]
+
+  # Rewrite current-style URLs of the form 'index.php?q=x'.
+  # Also place auth information into REMOTE_USER for sites running
+  # in CGI mode.
+
+  RewriteCond %{REQUEST_URI} ^/\.well\-known/.*
+  RewriteRule ^(.*)$ index.php?q=$1 [E=REMOTE_USER:%{HTTP:Authorization},L,QSA]
+
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^(.*)$ index.php?q=$1 [E=REMOTE_USER:%{HTTP:Authorization},L,QSA]
+</IfModule>
+

@@ -10,6 +10,12 @@
  * MinVersion: 1.1.3
  */
 
+/**
+ * This function uses some helper code in include/conversation; which handles filtering item authors. 
+ * Those function should ultimately be moved to this plugin.
+ */
+
+
 function superblock_load() {
 
 	register_hook('feature_settings', 'addon/superblock/superblock.php', 'superblock_addon_settings');
@@ -18,6 +24,7 @@ function superblock_load() {
 	register_hook('item_photo_menu', 'addon/superblock/superblock.php', 'superblock_item_photo_menu');
 	register_hook('enotify_store', 'addon/superblock/superblock.php', 'superblock_enotify_store');
 	register_hook('directory_item', 'addon/superblock/superblock.php', 'superblock_directory_item');
+	register_hook('api_format_items', 'addon/superblock/superblock.php', 'superblock_api_format_items');
 
 }
 
@@ -30,6 +37,7 @@ function superblock_unload() {
 	unregister_hook('item_photo_menu', 'addon/superblock/superblock.php', 'superblock_item_photo_menu');
 	unregister_hook('enotify_store', 'addon/superblock/superblock.php', 'superblock_enotify_store');
 	unregister_hook('directory_item', 'addon/superblock/superblock.php', 'superblock_directory_item');
+	unregister_hook('api_format_items', 'addon/superblock/superblock.php', 'superblock_api_format_items');
 
 }
 
@@ -116,6 +124,45 @@ function superblock_enotify_store(&$a,&$b) {
 	if($found) {
 		$b['abort'] = true;
 	}
+}
+
+function superblock_api_format_items(&$a,&$b) {
+
+	$arr = null;
+
+	$words = get_pconfig($b['api_user'],'system','blocked');
+	if($words) {
+		$arr = explode(',',$words);
+	}
+
+	if($arr)
+		return;
+
+	$ret = array();
+
+	for($x = 0; $x < count($b['items']); $x ++) {
+
+		$found = false;
+		foreach($arr as $word) {
+			if(! strlen(trim($word))) {
+				continue;
+			}
+
+			if(strpos($b['items'][$x]['owner_xchan'],$word) !== false) {
+				$found = true;
+				break;
+			}
+			if(strpos($b['items'][$x]['author_xchan'],$word) !== false) {
+				$found = true;
+				break;
+			}
+		}
+		if(! $found)
+			$ret[] = $b['items'][$x];
+	}
+
+	$b['items'] = $ret;
+
 }
 
 

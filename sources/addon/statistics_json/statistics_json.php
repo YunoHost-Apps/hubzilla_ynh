@@ -54,8 +54,8 @@ function statistics_json_init() {
 
 	$statistics = array(
 		"name" => get_config('system','sitename'),
-		"network" => Zotlabs\Project\System::get_platform_name(),
-		"version" => Zotlabs\Project\System::get_project_version(),
+		"network" => Zotlabs\Lib\System::get_platform_name(),
+		"version" => Zotlabs\Lib\System::get_project_version(),
 		"registrations_open" => (get_config('system','register_policy') != 0),
 		"total_users" => get_config('statistics_json','total_users'),
 		"active_users_halfyear" => get_config('statistics_json','active_users_halfyear'),
@@ -143,14 +143,14 @@ function statistics_json_cron($a,$b) {
 
 
 	$wordpress = false;
-	$r = q("select * from addon where hidden = 0 and name = 'wppost'");
+	$r = q("select * from addon where hidden = 0 and aname = 'wppost'");
 		if($r)
 		$wordpress = true;
 
 	set_config('statistics_json','wordpress', intval($wordpress));
 
 	$twitter = false;
-	$r = q("select * from addon where hidden = 0 and name = 'twitter'");
+	$r = q("select * from addon where hidden = 0 and aname = 'twitter'");
 	if($r)
 		$twitter = true;
 

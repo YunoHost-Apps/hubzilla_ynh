@@ -18,7 +18,7 @@ function diaspora_get_contact_by_handle($uid,$handle) {
 
 	if(diaspora_is_blacklisted($handle))
 		return false;
-	require_once('include/identity.php');
+	require_once('include/channel.php');
 
 	$sys = get_sys_channel();
 	if(($sys) && ($sys['channel_id'] == $uid)) {

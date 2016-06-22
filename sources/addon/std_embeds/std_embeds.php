@@ -35,7 +35,7 @@ function std_embeds_action(&$arr) {
 
 	$s = array(
 		'youtube'    => 'https://youtube.com',
-		'youtu.be'   => 'https://youtube.com',
+		'youtu.be'   => 'https://youtu.be',
 		'vimeo'      => 'https://vimeo.com',
 		'soundcloud' => 'https://soundcloud.com'
 	);

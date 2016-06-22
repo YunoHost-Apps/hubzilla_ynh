@@ -41,10 +41,10 @@ $cookies = 'store/[data]/frphoto_cookie_' . $channel_address;
 //		logger('frphotohelper: ' . print_r($j,true));
 
 		$args = array();
-		$args['data'] = base64_decode($j['data']);
+		$args['content'] = base64_decode(($j['content']) ? $j['content'] : $j['data']);
 		$args['filename'] = $j['filename'];
 		$args['resource_id'] = $j['resource-id'];
-		$args['scale'] = $j['scale'];
+		$args['imgscale'] = ((array_key_exists('imgscale',$j)) ? $j['imgscale'] : $j['scale']);
 		$args['album'] = $j['album'];
 		$args['visible'] = 0;
 		$args['created'] = $j['created'];

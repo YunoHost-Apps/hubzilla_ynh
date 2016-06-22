@@ -122,7 +122,7 @@ else {
 }
 function dirstats_cron(&$a, $b) {
     // Some hublocs are immortal and won't ever die - they all have null date for hubloc_connected and hubloc_updated
-	$r = q("SELECT count(distinct hubloc_host) as total FROM `hubloc` where not (hubloc_flags & %d) > 0 and not (hubloc_connected = %d and hubloc_updated = %d)",
+	$r = q("SELECT count(distinct hubloc_host) as total FROM `hubloc` where not (hubloc_flags & %d) > 0 and not (hubloc_connected = '%s' and hubloc_updated = '%s')",
         intval(HUBLOC_FLAGS_DELETED),
         dbesc(NULL_DATE),
         dbesc(NULL_DATE)
@@ -132,7 +132,7 @@ function dirstats_cron(&$a, $b) {
 		set_config('dirstats','hubcount',$hubcount);
 		}
 
-		$r = q("SELECT count(distinct hubloc_host) as total FROM `hubloc` where hubloc_network = 'zot' and not (hubloc_flags & %d) > 0 and not (hubloc_connected = %d and hubloc_updated = %d)",
+		$r = q("SELECT count(distinct hubloc_host) as total FROM `hubloc` where hubloc_network = 'zot' and not (hubloc_flags & %d) > 0 and not (hubloc_connected = '%s' and hubloc_updated = '%s')",
             intval(HUBLOC_FLAGS_DELETED),
             dbesc(NULL_DATE),
             dbesc(NULL_DATE)

@@ -47,8 +47,30 @@
 	background-image: linear-gradient(to bottom, #000 0px, #000 100%);
 }
 
+.section-content-info-wrapper {
+	color: #fff;
+	background-color:#000;
+	border: 1px solid #fff !important;
+}
+
+.modal-header {
+	border-bottom: 1px solid #000;
+}
+
+.modal-footer {
+	border-top: 1px solid #000;
+}
+
+#acl-select {
+       background-color: #000;
+       border: 1px solid #fff;
+       color: #fff;
+}
+
 .abook-self {
-	background-color: #000;
+	color: #333;
+	background-color: #111 !important;
+	border: 1px solid #111;
 }
 
 .acl-button-show,
@@ -56,16 +78,17 @@
 	color: #fff;
 }
 
-#acl-showall {
-	color: #fff;
+#acl-list {
+       border: 1px solid #000;
 }
 
-#acl-list {
-	border: 1px solid #000;
+#acl-search-wrapper {
+       border-bottom: 1px solid #000;
 }
 
 .acl-list-item {
-	border: 1px solid #000;
+	border: 1px solid #fff;
+	background-color:#000;
 }
 
 .modal-content {
@@ -246,10 +269,10 @@ pre {
 	background-image: none;
 }
 
-.open .dropdown-toggle.btn-default {
+.open .dropdown-toggle.btn-default, .open .dropdown-toggle.btn-default:focus {
     color: #fff; 
     background-color: #000; 
-    border-color: #000; 
+    border-color: #fff; 
 }
 
 .preview {

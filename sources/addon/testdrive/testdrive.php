@@ -45,7 +45,6 @@ function testdrive_register_account($a,$b) {
 
 
 function testdrive_cron($a,$b) {
-	require_once('include/enotify.php');
 
 	$r = q("select * from account where account_expires_on < %s + INTERVAL %s and
 		account_expire_notified = '%s' ",
@@ -69,7 +68,7 @@ function testdrive_cron($a,$b) {
 			if(! $x)
 				continue;
 
-			notification(array(
+			\Zotlabs\Lib\Enotify::submit(array(
 				'type' => NOTIFY_SYSTEM,
 				'system_type'  => 'testdrive_expire',
 				'from_xchan'   => $x[0]['channel_hash'],
@@ -92,7 +91,6 @@ function testdrive_cron($a,$b) {
 	);
 
 	if($r) {
-		require_once('include/Contact.php');
 		foreach($r as $rr)
 			account_remove($rr['account_id']);
 	}

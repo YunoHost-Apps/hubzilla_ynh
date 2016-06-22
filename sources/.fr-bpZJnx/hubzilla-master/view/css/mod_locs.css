@@ -1,0 +1,32 @@
+#locs-index {
+	width: 100%;
+}
+
+#locs-index th:nth-child(1),
+#locs-index td:nth-child(1){
+	padding: 7px 3px 7px 10px;
+}
+
+#locs-index th:nth-child(3),
+#locs-index td:nth-child(3){
+	padding: 7px 3px;
+}
+
+#locs-index th:nth-child(4),
+#locs-index td:nth-child(4){
+	padding: 7px 10px 7px 7px;
+}
+
+.primehub,
+.drophub {
+	font-size: 1.2em;
+}
+
+.primehub:hover {
+	cursor: pointer;
+}
+
+.drophub:hover {
+	cursor: pointer;
+	color: red;
+}

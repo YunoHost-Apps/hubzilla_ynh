@@ -1,0 +1,4 @@
+url: $baseurl/chat/$nick
+requires: local_channel
+name: My Chatrooms
+photo: $baseurl/app/chat.png

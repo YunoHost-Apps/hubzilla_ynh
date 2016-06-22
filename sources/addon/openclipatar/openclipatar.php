@@ -218,28 +218,46 @@ function openclipatar_content(&$a) {
 		// create a unique resource_id
 		$hash = photo_new_resource();
 		
+		$width  = $ph->getWidth();
+		$height = $ph->getHeight();
+
 		// save an original or "scale 0" image
-		$p = array('aid' => get_account_id(), 'uid' => local_channel(), 'resource_id' => $hash, 'filename' => $id.'.png', 'album' => t('Profile Photos'), 'scale' => 0);
+		$p = array('aid' => get_account_id(), 'uid' => local_channel(), 'resource_id' => $hash, 'filename' => $id.'.png', 'album' => t('Profile Photos'), 'imgscale' => 0);
 		$r = $ph->save($p);
 		if($r) {
-			// scale 0 success, continue 4, 5, 6
-			// we'll skip scales 1,2 (640, 320 rectangular formats as these images are all less than this)
-			
+			if(($width > 1024 || $height > 1024) && (! $errors))
+				$ph->scaleImage(1024);
+
+			$p['imgscale'] = 1;
+			$r1 = $ph->save($p);
+
+			if(($width > 640 || $height > 640) && (! $errors))
+				$ph->scaleImage(640);
+
+			$p['imgscale'] = 2;
+			$r2 = $ph->save($p);
+
+			if(($width > 320 || $height > 320) && (! $errors))
+				$ph->scaleImage(320);
+
+			$p['imgscale'] = 3;
+			$r3 = $ph->save($p);
+
 			// ensure squareness at first, subsequent scales keep ratio
 			$ph->scaleImageSquare(175);
-			$p['scale'] = 4;
+			$p['imgscale'] = 4;
 			$r = $ph->save($p);
 			if($r === false)
 				$photo_failure = true;
 
 			$ph->scaleImage(80);
-			$p['scale'] = 5;
+			$p['imgscale'] = 5;
 			$r = $ph->save($p);
 			if($r === false)
 				$photo_failure = true;
 
 			$ph->scaleImage(48);
-			$p['scale'] = 6;
+			$p['imgscale'] = 6;
 			$r = $ph->save($p);
 			if($r === false)
 				$photo_failure = true;
@@ -290,7 +308,7 @@ function openclipatar_content(&$a) {
 			dbesc($chan['xchan_hash'])
 		);
 		// tell everybody
-		proc_run('php','include/directory.php',local_channel());
+		Zotlabs\Daemon\Master::Summon(array('Directory',local_channel()));
 		
 		$returnafter = get_config('openclipatar', 'returnafter');
 		$returnafter_urls = array(

@@ -1,8 +1,6 @@
 <?php
 
 
-require_once('include/Contact.php');
-
 function pubsub_init(&$a) {
 
 

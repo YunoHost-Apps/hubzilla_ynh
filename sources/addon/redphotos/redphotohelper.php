@@ -47,7 +47,14 @@ $photo_tmp = 'store/[data]/redphoto_data_' . $channel_address;
 			killme();
 		}
 
-		file_put_contents($photo_tmp,base64_decode($j['photo']['data']));
+		if(array_key_exists('content',$j['photo'])) {
+			file_put_contents($photo_tmp,base64_decode($j['photo']['content']));
+			unset($j['photo']['content']);
+		}
+		else {
+			file_put_contents($photo_tmp,base64_decode($j['photo']['data']));
+			unset($j['photo']['data']);
+		}
 
 		$args = array();
 
@@ -58,7 +65,7 @@ $photo_tmp = 'store/[data]/redphoto_data_' . $channel_address;
 		if(! $args['filename'])
 			$args['filename'] = t('photo');
 		$args['hash'] = $j['photo']['hash'];
-		$args['scale'] = $j['photo']['scale'];
+		$args['imgscale'] = ((array_key_exists('imgscale',$j['photo'])) ? $j['photo']['imgscale'] : $j['photo']['scale']);
 		$args['album'] = $j['photo']['album'];
 		$args['visible'] = 0;
 		$args['created'] = $j['photo']['created'];
@@ -84,7 +91,6 @@ $photo_tmp = 'store/[data]/redphoto_data_' . $channel_address;
 
 		$args['item'] = (($j['item']) ? $j['item'] : false);
 
-		unset($j['photo']['data']);
 
 //		logger('redphotohelper: ' . print_r($j,true));
 

@@ -1,0 +1,34 @@
+.make-default-link,
+.make-default-link:hover {
+	color: inherit;
+	text-decoration: none;
+}
+
+.new-notification {
+	color: #c60032;
+}
+
+.channel-photo-wrapper {
+	display: table-cell;
+	table-layout: fixed;
+	vertical-align: top;
+}
+
+.channel-photo-wrapper img {
+	border-radius: 4px;
+}
+
+.channel-notifications-wrapper {
+	display: table-cell;
+	table-layout: fixed;
+	vertical-align: top;
+	padding-left: 10px;
+}
+
+.selected-channel {
+	color: green;
+}
+
+#all-channels-end {
+	margin-bottom: 20px;
+}

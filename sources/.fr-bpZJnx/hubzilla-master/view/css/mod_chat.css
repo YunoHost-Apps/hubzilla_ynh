@@ -1,0 +1,112 @@
+#chatroom-new {
+	display: none;
+}
+
+#chatrooms-index {
+	width: 100%;
+}
+
+#chatrooms-index th:nth-child(1),
+#chatrooms-index td:nth-child(1){
+	padding: 7px 3px 7px 10px;
+}
+
+#chatrooms-index th:nth-child(2),
+#chatrooms-index td:nth-child(2){
+	text-align: right;
+}
+
+#chatrooms-index th:nth-child(4),
+#chatrooms-index td:nth-child(4){
+	padding: 7px 10px 7px 7px;
+}
+
+.chatrooms-index-tool {
+	padding: 7px 10px;
+}
+
+section,
+aside {
+	padding-bottom: 0px;
+}
+
+#chat-destroy {
+	display: inline;
+}
+
+#chatTopBar {
+	width: 100%;
+	overflow-y: auto;
+}
+
+#chatroom_list,
+#chatroom_members {
+	display: none;
+}
+
+#chatMembers img {
+	float: left;
+	margin-right: 5px;
+}
+
+.name {
+	font-weight: bold;
+}
+
+#chatBottomBar {
+	position: relative;
+	bottom: 0;
+	margin-top: 10px;
+}
+
+.chat-item {
+	display: table;
+	float: left;
+}
+
+.chat-item-self {
+	display: table;
+	float: right;
+}
+
+.chat-item-photo,
+.chat-item-photo-self {
+	display: table-cell;
+	height: 32px;
+	width: 32px;
+	vertical-align: top;
+}
+
+.chat-body {
+	display: table-cell;
+	vertical-align: top;
+	padding: 0px 0px 20px 10px;
+}
+
+.chat-body-self {
+	display: table-cell;
+	vertical-align: top;
+	padding: 0px 10px 20px 0px;
+	text-align: right;
+}
+
+
+
+.chat-item-title,
+.chat-item-title-self {
+	display: inline-block;
+	padding: 3px;
+	margin-bottom: 3px;
+}
+
+.online {
+	color: green;
+}
+
+.away {
+	color: orange;
+}
+
+.leave {
+	color: red;
+}
