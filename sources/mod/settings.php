@@ -4,7 +4,7 @@ require_once('include/zot.php');
 
 function get_theme_config_file($theme){
 
-	$base_theme = get_app()->theme_info['extends'];
+	$base_theme = App::$theme_info['extends'];
 	
 	if (file_exists("view/theme/$theme/php/config.php")){
 		return "view/theme/$theme/php/config.php";
@@ -22,14 +22,14 @@ function settings_init(&$a) {
 	if($_SESSION['delegate'])
 		return;
 
-	$a->profile_uid = local_channel();
+	App::$profile_uid = local_channel();
 
 	// default is channel settings in the absence of other arguments
 
 	if(argc() == 1) {
 		// We are setting these values - don't use the argc(), argv() functions here
-		$a->argc = 2;
-		$a->argv[] = 'channel';
+		App::$argc = 2;
+		App::$argv[] = 'channel';
 	}
 
 
@@ -45,7 +45,7 @@ function settings_post(&$a) {
 	if($_SESSION['delegate'])
 		return;
 
-	$channel = $a->get_channel();
+	$channel = App::get_channel();
 
 	 logger('mod_settings: ' . print_r($_REQUEST,true));
 
@@ -57,7 +57,7 @@ function settings_post(&$a) {
 		q("DELETE FROM tokens WHERE id='%s' AND uid=%d",
 			dbesc($key),
 			local_channel());
-		goaway($a->get_baseurl(true)."/settings/oauth/");
+		goaway(z_root()."/settings/oauth/");
 		return;			
 	}
 
@@ -114,7 +114,7 @@ function settings_post(&$a) {
 				);
 			}
 		}
-		goaway($a->get_baseurl(true)."/settings/oauth/");
+		goaway(z_root()."/settings/oauth/");
 		return;
 	}
 
@@ -153,7 +153,7 @@ function settings_post(&$a) {
 		
 		check_form_security_token_redirectOnErr('/settings/display', 'settings_display');
 
-		$theme = ((x($_POST,'theme')) ? notags(trim($_POST['theme']))  : $a->channel['channel_theme']);
+		$theme = ((x($_POST,'theme')) ? notags(trim($_POST['theme']))  : App::$channel['channel_theme']);
 		$mobile_theme = ((x($_POST,'mobile_theme')) ? notags(trim($_POST['mobile_theme']))  : '');
 		$preload_images = ((x($_POST,'preload_images')) ? intval($_POST['preload_images'])  : 0);
 		$user_scalable = ((x($_POST,'user_scalable')) ? intval($_POST['user_scalable'])  : 0);
@@ -196,7 +196,7 @@ function settings_post(&$a) {
 		set_pconfig(local_channel(),'system','channel_divmore_height', $channel_divmore_height);
 		set_pconfig(local_channel(),'system','network_divmore_height', $network_divmore_height);
 
-		if ($theme == $a->channel['channel_theme']){
+		if ($theme == App::$channel['channel_theme']){
 			// call theme_post only if theme has not been changed
 			if( ($themeconfigfile = get_theme_config_file($theme)) != null){
 				require_once($themeconfigfile);
@@ -211,7 +211,7 @@ function settings_post(&$a) {
 	
 		call_hooks('display_settings_post', $_POST);
 		build_sync_packet();
-		goaway($a->get_baseurl(true) . '/settings/display' );
+		goaway(z_root() . '/settings/display' );
 		return; // NOTREACHED
 	}
 
@@ -226,14 +226,14 @@ function settings_post(&$a) {
 		$errs = array();
 
 		$email = ((x($_POST,'email')) ? trim(notags($_POST['email'])) : '');
-		$account = $a->get_account();
+		$account = App::get_account();
 		if($email != $account['account_email']) {
     	    if(! valid_email($email))
 				$errs[] = t('Not valid email.');
 			$adm = trim(get_config('system','admin_email'));
 			if(($adm) && (strcasecmp($email,$adm) == 0)) {
 				$errs[] = t('Protected email address. Cannot change to that email.');
-				$email = $a->user['email'];
+				$email = App::$user['email'];
 			}
 			if(! $errs) {
 				$r = q("update account set account_email = '%s' where account_id = %d",
@@ -294,7 +294,7 @@ function settings_post(&$a) {
 			foreach($errs as $err)
 				notice($err . EOL);
 		}
-		goaway($a->get_baseurl(true) . '/settings/account' );
+		goaway(z_root() . '/settings/account' );
 	}
 
 
@@ -428,7 +428,7 @@ function settings_post(&$a) {
 
 	$cal_first_day   = (((x($_POST,'first_day')) && (intval($_POST['first_day']) == 1)) ? 1: 0);
 
-	$channel = $a->get_channel();
+	$channel = App::get_channel();
 	$pageflags = $channel['channel_pageflags'];
 	$existing_adult = (($pageflags & PAGE_ADULT) ? 1 : 0);
 	if($adult != $existing_adult)
@@ -482,7 +482,7 @@ function settings_post(&$a) {
 
 	$always_show_in_notices = x($_POST,'always_show_in_notices') ? 1 : 0;
 
-	$channel = $a->get_channel();
+	$channel = App::get_channel();
 
 	$err = '';
 
@@ -556,14 +556,14 @@ function settings_post(&$a) {
 
 
 	//$_SESSION['theme'] = $theme;
-	if($email_changed && $a->config['system']['register_policy'] == REGISTER_VERIFY) {
+	if($email_changed && App::$config['system']['register_policy'] == REGISTER_VERIFY) {
 
 		// FIXME - set to un-verified, blocked and redirect to logout
 		// Why? Are we verifying people or email addresses?
 
 	}
 
-	goaway($a->get_baseurl(true) . '/settings' );
+	goaway(z_root() . '/settings' );
 	return; // NOTREACHED
 }
 		
@@ -581,7 +581,7 @@ function settings_content(&$a) {
 	}
 
 
-	$channel = $a->get_channel();
+	$channel = App::get_channel();
 	if($channel)
 		head_set_icon($channel['xchan_photo_s']);
 
@@ -637,7 +637,7 @@ function settings_content(&$a) {
 			$r = q("DELETE FROM clients WHERE client_id='%s' AND uid=%d",
 					dbesc(argv(3)),
 					local_channel());
-			goaway($a->get_baseurl(true)."/settings/oauth/");
+			goaway(z_root()."/settings/oauth/");
 			return;			
 		}
 		
@@ -653,7 +653,7 @@ function settings_content(&$a) {
 		$tpl = get_markup_template("settings_oauth.tpl");
 		$o .= replace_macros($tpl, array(
 			'$form_security_token' => get_form_security_token("settings_oauth"),
-			'$baseurl'	=> $a->get_baseurl(true),
+			'$baseurl'	=> z_root(),
 			'$title'	=> t('Connected Apps'),
 			'$add'		=> t('Add application'),
 			'$edit'		=> t('Edit'),
@@ -697,7 +697,7 @@ function settings_content(&$a) {
 		
 		call_hooks('account_settings', $account_settings);
 
-		$email      = $a->account['account_email'];
+		$email      = App::$account['account_email'];
 		
 		
 		$tpl = get_markup_template("settings_account.tpl");
@@ -847,7 +847,7 @@ function settings_content(&$a) {
 			'$d_cset'       => t('Content Settings'),
 			'$form_security_token' => get_form_security_token("settings_display"),
 			'$submit' 	=> t('Submit'),
-			'$baseurl' => $a->get_baseurl(true),
+			'$baseurl' => z_root(),
 			'$uid' => local_channel(),
 		
 			'$theme'	=> (($themes) ? array('theme', t('Display Theme:'), $theme_selected, '', $themes, 'preview') : false),
@@ -890,7 +890,7 @@ function settings_content(&$a) {
 
 		load_pconfig(local_channel(),'expire');
 
-		$channel = $a->get_channel();
+		$channel = App::get_channel();
 
 
 		$global_perms = get_perms();
@@ -935,8 +935,8 @@ function settings_content(&$a) {
 		$adult_flag = intval($channel['channel_pageflags'] & PAGE_ADULT);
 		$sys_expire = get_config('system','default_expire_days');
 
-//		$unkmail    = $a->user['unkmail'];
-//		$cntunkmail = $a->user['cntunkmail'];
+//		$unkmail    = App::$user['unkmail'];
+//		$cntunkmail = App::$user['cntunkmail'];
 
 		$hide_presence = intval(get_pconfig(local_channel(), 'system','hide_online_status'));
 
@@ -989,7 +989,7 @@ function settings_content(&$a) {
 
 		));
 
-		$subdir = ((strlen($a->get_path())) ? '<br />' . t('or') . ' ' . $a->get_baseurl(true) . '/channel/' . $nickname : '');
+		$subdir = ((strlen(App::get_path())) ? '<br />' . t('or') . ' ' . z_root() . '/channel/' . $nickname : '');
 
 		$tpl_addr = get_markup_template("settings_nick_set.tpl");
 
@@ -997,7 +997,7 @@ function settings_content(&$a) {
 			'$desc' => t('Your channel address is'),
 			'$nickname' => $nickname,
 			'$subdir' => $subdir,
-			'$basepath' => $a->get_hostname()
+			'$basepath' => App::get_hostname()
 		));
 
 		$stpl = get_markup_template('settings.tpl');
@@ -1039,7 +1039,7 @@ function settings_content(&$a) {
 			'$ptitle' 	=> t('Channel Settings'),
 
 			'$submit' 	=> t('Submit'),
-			'$baseurl' => $a->get_baseurl(true),
+			'$baseurl' => z_root(),
 			'$uid' => local_channel(),
 			'$form_security_token' => get_form_security_token("settings"),
 			'$nickname_block' => $prof_addr,

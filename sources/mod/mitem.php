@@ -10,7 +10,7 @@ function mitem_init(&$a) {
 	if(array_key_exists('sys',$_REQUEST) && $_REQUEST['sys'] && is_site_admin()) {
 		$sys = get_sys_channel();
 		$uid = intval($sys['channel_id']);
-		$a->is_sys = true;
+		App::$is_sys = true;
 	}
 
 	if(! $uid)
@@ -24,7 +24,7 @@ function mitem_init(&$a) {
 		notice( t('Menu not found.') . EOL);
 		return '';
 	}
-	$a->data['menu'] = $m;
+	App::$data['menu'] = $m;
 
 }
 
@@ -32,7 +32,7 @@ function mitem_post(&$a) {
 
 	$uid = local_channel();
 
-	if($a->is_sys && is_site_admin()) {
+	if(App::$is_sys && is_site_admin()) {
 		$sys = get_sys_channel();
 		$uid = intval($sys['channel_id']);
 	}
@@ -41,7 +41,7 @@ function mitem_post(&$a) {
 		return;
 	}
 
-	if(! $a->data['menu'])
+	if(! App::$data['menu'])
 		return;
 
 	if(!$_REQUEST['mitem_desc'] || !$_REQUEST['mitem_link']) {
@@ -50,7 +50,7 @@ function mitem_post(&$a) {
 	}
 
 	$_REQUEST['mitem_channel_id'] = $uid;
-	$_REQUEST['menu_id'] = $a->data['menu']['menu_id'];
+	$_REQUEST['menu_id'] = App::$data['menu']['menu_id'];
 
 	$_REQUEST['mitem_flags'] = 0;
 	if($_REQUEST['usezid'])
@@ -66,7 +66,7 @@ function mitem_post(&$a) {
 		if($r) {
 			menu_sync_packet($uid,get_observer_hash(),$_REQUEST['menu_id']);
 			//info( t('Menu element updated.') . EOL);
-			goaway(z_root() . '/mitem/' . $_REQUEST['menu_id'] . (($a->is_sys) ? '?f=&sys=1' : ''));
+			goaway(z_root() . '/mitem/' . $_REQUEST['menu_id'] . ((App::$is_sys) ? '?f=&sys=1' : ''));
 		}
 		else
 			notice( t('Unable to update menu element.') . EOL);
@@ -78,10 +78,10 @@ function mitem_post(&$a) {
 			menu_sync_packet($uid,get_observer_hash(),$_REQUEST['menu_id']);
 			//info( t('Menu element added.') . EOL);
 			if($_REQUEST['submit']) {
-				goaway(z_root() . '/menu' . (($a->is_sys) ? '?f=&sys=1' : ''));
+				goaway(z_root() . '/menu' . ((App::$is_sys) ? '?f=&sys=1' : ''));
 			}
 			if($_REQUEST['submit-more']) {
-				goaway(z_root() . '/mitem/' . $_REQUEST['menu_id'] . '?f=&display=block' . (($a->is_sys) ? '&sys=1' : '') );
+				goaway(z_root() . '/mitem/' . $_REQUEST['menu_id'] . '?f=&display=block' . ((App::$is_sys) ? '&sys=1' : '') );
 			}
 		}
 		else
@@ -95,12 +95,12 @@ function mitem_post(&$a) {
 function mitem_content(&$a) {
 
 	$uid = local_channel();
-	$channel = $a->get_channel();
-	$observer = $a->get_observer();
+	$channel = App::get_channel();
+	$observer = App::get_observer();
 
 	$ob_hash = (($observer) ? $observer['xchan_hash'] : '');
 
-	if($a->is_sys && is_site_admin()) {
+	if(App::$is_sys && is_site_admin()) {
 		$sys = get_sys_channel();
 		$uid = intval($sys['channel_id']);
 		$channel = $sys;
@@ -112,13 +112,13 @@ function mitem_content(&$a) {
 		return '';
 	}
 
-	if(argc() < 2 || (! $a->data['menu'])) {
+	if(argc() < 2 || (! App::$data['menu'])) {
 		notice( t('Not found.') . EOL);
 		return '';
 	}
 
-	$m = menu_fetch($a->data['menu']['menu_name'],$uid,$ob_hash);
-	$a->data['menu_item'] = $m;
+	$m = menu_fetch(App::$data['menu']['menu_name'],$uid,$ob_hash);
+	App::$data['menu_item'] = $m;
 
 	$menu_list = menu_list($uid);
 
@@ -133,7 +133,7 @@ function mitem_content(&$a) {
 
 	if(argc() == 2) {
 		$r = q("select * from menu_item where mitem_menu_id = %d and mitem_channel_id = %d order by mitem_order asc, mitem_desc asc",
-			intval($a->data['menu']['menu_id']),
+			intval(App::$data['menu']['menu_id']),
 			intval($uid)
 		);
 
@@ -145,7 +145,7 @@ function mitem_content(&$a) {
 		}
 
 		$create = replace_macros(get_markup_template('mitemedit.tpl'), array(
-			'$menu_id'     => $a->data['menu']['menu_id'],
+			'$menu_id'     => App::$data['menu']['menu_id'],
 			'$permissions' => t('Menu Item Permissions'),
 			'$permdesc'    => t("\x28click to open/close\x29"),
 			'$aclselect'   => populate_acl($acl->get(),false),
@@ -159,7 +159,7 @@ function mitem_content(&$a) {
 			'$display'     => $display,
 			'$lockstate'   => $lockstate,
 			'$menu_names'  => $menu_names,
-			'$sys'         => $a->is_sys
+			'$sys'         => App::$is_sys
 		));
 
 		$o .= replace_macros(get_markup_template('mitemlist.tpl'),array(
@@ -167,10 +167,10 @@ function mitem_content(&$a) {
 			'$create'      => $create,
 			'$nametitle'   => t('Link Name'),
 			'$targettitle' => t('Link Target'),
-			'$menuname'    => $a->data['menu']['menu_name'],
-			'$menudesc'    => $a->data['menu']['menu_desc'],
+			'$menuname'    => App::$data['menu']['menu_name'],
+			'$menudesc'    => App::$data['menu']['menu_desc'],
 			'$edmenu'      => t('Edit menu'),
-			'$menu_id'     => $a->data['menu']['menu_id'],
+			'$menu_id'     => App::$data['menu']['menu_id'],
 			'$mlist'       => $r,
 			'$edit'        => t('Edit element'),
 			'$drop'        => t('Drop element'),
@@ -196,7 +196,7 @@ function mitem_content(&$a) {
 
 			if(! $m) {
 				notice( t('Menu item not found.') . EOL);
-				goaway(z_root() . '/menu'. (($a->is_sys) ? '?f=&sys=1' : ''));
+				goaway(z_root() . '/menu'. ((App::$is_sys) ? '?f=&sys=1' : ''));
 			}
 
 			$mitem = $m[0];
@@ -212,13 +212,13 @@ function mitem_content(&$a) {
 				else
 					notice( t('Menu item could not be deleted.'). EOL);
 
-				goaway(z_root() . '/mitem/' . $mitem['mitem_menu_id'] . (($a->is_sys) ? '?f=&sys=1' : ''));
+				goaway(z_root() . '/mitem/' . $mitem['mitem_menu_id'] . ((App::$is_sys) ? '?f=&sys=1' : ''));
 			}
 
 			// edit menu item
 			$o = replace_macros(get_markup_template('mitemedit.tpl'), array(
 				'$header' => t('Edit Menu Element'),
-				'$menu_id' => $a->data['menu']['menu_id'],
+				'$menu_id' => App::$data['menu']['menu_id'],
 				'$permissions' => t('Menu Item Permissions'),
 				'$permdesc' => t("\x28click to open/close\x29"),
 				'$aclselect' => populate_acl($mitem,false),

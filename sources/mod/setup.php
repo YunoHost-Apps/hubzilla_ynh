@@ -60,7 +60,7 @@ function setup_post(&$a) {
 			return;
 			break; // just in case return don't return :)
 		case 3:
-			$urlpath = $a->get_path();
+			$urlpath = App::get_path();
 			$dbhost = trim($_POST['dbhost']);
 			$dbport = intval(trim($_POST['dbport']));
 			$dbuser = trim($_POST['dbuser']);
@@ -83,7 +83,7 @@ function setup_post(&$a) {
 			if(! $db->connected) {
 				echo 'Database Connect failed: ' . $db->error;
 				killme();
-				$a->data['db_conn_failed']=true;
+				App::$data['db_conn_failed']=true;
 			}
 			/*if(get_db_errno()) {
 				unset($db);
@@ -97,10 +97,10 @@ function setup_post(&$a) {
 						unset($db);
 						$db = new dba($dbhost, $dbport, $dbuser, $dbpass, $dbdata, true);
 					} else {
-						$a->data['db_create_failed']=true;
+						App::$data['db_create_failed']=true;
 					}
 				} else {
-					$a->data['db_conn_failed']=true;
+					App::$data['db_conn_failed']=true;
 					return;
 				}
 			}*/
@@ -111,7 +111,7 @@ function setup_post(&$a) {
 			return;
 			break;
 		case 4:
-			$urlpath = $a->get_path();
+			$urlpath = App::get_path();
 			$dbhost = notags(trim($_POST['dbhost']));
 			$dbport = intval(notags(trim($_POST['dbport'])));
 			$dbuser = notags(trim($_POST['dbuser']));
@@ -127,8 +127,8 @@ function setup_post(&$a) {
 			if($siteurl != z_root()) {
 				$test = z_fetch_url($siteurl."/setup/testrewrite");
 				if((! $test['success']) || ($test['body'] != 'ok'))  {
-					$a->data['url_fail'] = true;
-					$a->data['url_error'] = $test['error'];
+					App::$data['url_fail'] = true;
+					App::$data['url_error'] = $test['error'];
 					return;
 				}
 			}
@@ -159,15 +159,15 @@ function setup_post(&$a) {
 
 			$result = file_put_contents('.htconfig.php', $txt);
 			if(! $result) {
-				$a->data['txt'] = $txt;
+				App::$data['txt'] = $txt;
 			}
 
 			$errors = load_database($db);
 
 			if($errors)
-				$a->data['db_failed'] = $errors;
+				App::$data['db_failed'] = $errors;
 			else
-				$a->data['db_installed'] = true;
+				App::$data['db_installed'] = true;
 
 			return;
 			break;
@@ -196,31 +196,31 @@ function setup_content(&$a) {
 	$wizard_status = '';
 	$install_title = t('$Projectname Server - Setup');
 
-	if(x($a->data, 'db_conn_failed')) {
+	if(x(App::$data, 'db_conn_failed')) {
 		$install_wizard_pass = 2;
 		$wizard_status =  t('Could not connect to database.');
 	}
-	if(x($a->data, 'url_fail')) {
+	if(x(App::$data, 'url_fail')) {
 		$install_wizard_pass = 3;
 		$wizard_status =  t('Could not connect to specified site URL. Possible SSL certificate or DNS issue.');
-		if($a->data['url_error'])
-			$wizard_status .= ' ' . $a->data['url_error'];
+		if(App::$data['url_error'])
+			$wizard_status .= ' ' . App::$data['url_error'];
 	}
 
-	if(x($a->data, 'db_create_failed')) {
+	if(x(App::$data, 'db_create_failed')) {
 		$install_wizard_pass = 2;
 		$wizard_status =  t('Could not create table.');
 	}
 	$db_return_text = '';
-	if(x($a->data, 'db_installed')) {
+	if(x(App::$data, 'db_installed')) {
 		$txt = '<p style="font-size: 130%;">';
 		$txt .= t('Your site database has been installed.') . EOL;
 		$db_return_text .= $txt;
 	}
-	if(x($a->data, 'db_failed')) {
+	if(x(App::$data, 'db_failed')) {
 		$txt = t('You may need to import the file "install/schema_xxx.sql" manually using a database client.') . EOL;
 		$txt .= t('Please see the file "install/INSTALL.txt".') . EOL ."<hr>" ;
-		$txt .= "<pre>".$a->data['db_failed'] . "</pre>". EOL ;
+		$txt .= "<pre>".App::$data['db_failed'] . "</pre>". EOL ;
 		$db_return_text .= $txt;
 	}
 	if($db && $db->connected) {
@@ -236,7 +236,7 @@ function setup_content(&$a) {
 		}
 	}
 
-	if(x($a->data, 'txt') && strlen($a->data['txt'])) {
+	if(x(App::$data, 'txt') && strlen(App::$data['txt'])) {
 		$db_return_text .= manual_config($a);
 	}
 
@@ -291,7 +291,7 @@ function setup_content(&$a) {
 				'$next' => t('Next'),
 				'$reload' => t('Check again'),
 				'$phpath' => $phpath,
-				'$baseurl' => $a->get_baseurl(),
+				'$baseurl' => z_root(),
 			));
 			return $o;
 		}; break;
@@ -329,7 +329,7 @@ function setup_content(&$a) {
 				'$siteurl' => array('siteurl', t('Website URL'), z_root(), t('Please use SSL (https) URL if available.')),
 				'$lbl_10' => t('Please select a default timezone for your website'),
 
-				'$baseurl' => $a->get_baseurl(),
+				'$baseurl' => z_root(),
 
 				'$phpath' => $phpath,
 
@@ -372,7 +372,7 @@ function setup_content(&$a) {
 
 				'$timezone' => array('timezone', t('Please select a default timezone for your website'), $timezone, '', get_timezones()),
 
-				'$baseurl' => $a->get_baseurl(),
+				'$baseurl' => z_root(),
 
 				'$submit' => t('Submit'),
 			));
@@ -633,7 +633,7 @@ function check_htaccess(&$checks) {
 	$help = '';
 	$ssl_error = false;
 
-	$url = $a->get_baseurl() . '/setup/testrewrite';
+	$url = z_root() . '/setup/testrewrite';
 
 	if (function_exists('curl_init')){
 		$test = z_fetch_url($url);
@@ -676,7 +676,7 @@ function check_htaccess(&$checks) {
 
 
 function manual_config(&$a) {
-	$data = htmlspecialchars($a->data['txt'], ENT_COMPAT, 'UTF-8');
+	$data = htmlspecialchars(App::$data['txt'], ENT_COMPAT, 'UTF-8');
 	$o = t('The database configuration file ".htconfig.php" could not be written. Please use the enclosed text to create a configuration file in your web server root.');
 	$o .= "<textarea rows=\"24\" cols=\"80\" >$data</textarea>";
 
@@ -733,7 +733,7 @@ function what_next() {
 	require_once ('include/identity.php');
 	create_sys_channel();
 
-	$baseurl = $a->get_baseurl();
+	$baseurl = z_root();
 	return
 		t('<h1>What next</h1>')
 		."<p>".t('IMPORTANT: You will need to [manually] setup a scheduled task for the poller.')

@@ -1,0 +1,13 @@
+header #banner {
+	position: fixed;
+	top: 0px;
+	width: 33%;
+	margin-left: 33%;
+	margin-right: 33%;
+}
+
+section {
+	display: block;
+	min-height: 112px;	
+	margin: 50px 10px;
+}

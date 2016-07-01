@@ -93,7 +93,7 @@ function ping_init(&$a) {
 		$result['notice'] = array();
 
 
-	if($a->install) {
+	if(App::$install) {
 		echo json_encode($result);
 		killme();
 	}
@@ -224,7 +224,7 @@ function ping_init(&$a) {
 		if(count($z)) {
 			foreach($z as $zz) {
 				$notifs[] = array(
-					'notify_link' => $a->get_baseurl() . '/notify/view/' . $zz['id'], 
+					'notify_link' => z_root() . '/notify/view/' . $zz['id'], 
 					'name' => $zz['name'],
 					'url' => $zz['url'],
 					'photo' => $zz['photo'],
@@ -240,7 +240,7 @@ function ping_init(&$a) {
 	}
 
 	if(argc() > 1 && argv(1) === 'messages') {
-		$channel = $a->get_channel();
+		$channel = App::get_channel();
 		$t = q("select mail.*, xchan.* from mail left join xchan on xchan_hash = from_xchan 
 			where channel_id = %d and mail_seen = 0 and mail_deleted = 0 
 			and from_xchan != '%s' order by created desc limit 50",
@@ -251,7 +251,7 @@ function ping_init(&$a) {
 		if($t) {
 			foreach($t as $zz) {
 				$notifs[] = array(
-					'notify_link' => $a->get_baseurl() . '/mail/' . $zz['id'], 
+					'notify_link' => z_root() . '/mail/' . $zz['id'], 
 					'name' => $zz['xchan_name'],
 					'url' => $zz['xchan_url'],
 					'photo' => $zz['xchan_photo_s'],
@@ -299,7 +299,7 @@ function ping_init(&$a) {
 		if($r) {
 			foreach($r as $rr) {
 				$result[] = array(
-					'notify_link' => $a->get_baseurl() . '/connections/ifpending',
+					'notify_link' => z_root() . '/connections/ifpending',
 					'name' => $rr['xchan_name'],
 					'url' => $rr['xchan_url'],
 					'photo' => $rr['xchan_photo_s'],
@@ -341,7 +341,7 @@ function ping_init(&$a) {
 				$when = day_translate(datetime_convert('UTC', (($rr['adjust']) ? date_default_timezone_get() : 'UTC'), $rr['start'], $bd_format)) . (($today) ?  ' ' . t('[today]') : '');
 
 				$result[] = array(
-					'notify_link' => $a->get_baseurl() . '/events', // FIXME this takes you to an edit page and it may not be yours, we really want to just view the single event  --> '/events/event/' . $rr['event_hash'],
+					'notify_link' => z_root() . '/events', // FIXME this takes you to an edit page and it may not be yours, we really want to just view the single event  --> '/events/event/' . $rr['event_hash'],
 					'name'        => $rr['xchan_name'],
 					'url'         => $rr['xchan_url'],
 					'photo'       => $rr['xchan_photo_s'],
@@ -413,7 +413,7 @@ function ping_init(&$a) {
 	}
 
 	$t4 = dba_timer();
-	$channel = get_app()->get_channel();
+	$channel = App::get_channel();
 
 	if($vnotify & VNOTIFY_MAIL) {
 		$mails = q("SELECT count(id) as total from mail
@@ -426,7 +426,7 @@ function ping_init(&$a) {
 	}
 	
 	if($vnotify & VNOTIFY_REGISTER) {
-		if ($a->config['system']['register_policy'] == REGISTER_APPROVE && is_site_admin()) {
+		if (App::$config['system']['register_policy'] == REGISTER_APPROVE && is_site_admin()) {
 			$regs = q("SELECT count(account_id) as total from account where (account_flags & %d) > 0",
 				intval(ACCOUNT_PENDING)
 			);

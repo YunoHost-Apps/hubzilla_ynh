@@ -13,7 +13,7 @@ function probe_content(&$a) {
 	$o .= '<br /><br />';
 
 	if(x($_GET,'addr')) {
-		$channel = $a->get_channel();
+		$channel = App::get_channel();
 		$addr = trim($_GET['addr']);
 		$do_import = ((intval($_GET['import']) && is_site_admin()) ? true : false);
 		$res = zot_finger($addr,$channel,false);

@@ -13,7 +13,7 @@ function branchtopic_init(&$a) {
 	if(! $item_id)
 		return;
 
-	$channel = $a->get_channel();
+	$channel = App::get_channel();
 
 	if(! $channel)
 		return;

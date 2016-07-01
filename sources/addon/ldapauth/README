@@ -1,0 +1,43 @@
+/**
+ * 
+ * Module: LDAP Authenticate
+ *
+ * Authenticate a user against an LDAP directory
+ * Useful for Windows Active Directory and other LDAP-based organisations
+ * to maintain a single password across the organisation.
+ *
+ * Optionally authenticates only if a member of a given group in the directory.
+ *
+ * The person must have registered with Friendica using the normal registration 
+ * procedures in order to have a Friendica user record, contact, and profile.
+ *
+ * Note when using with Windows Active Directory and/or LDAP over TLS/SSL: you may
+ * need to set TLS_CACERT in your site ldap.conf file to the signing cert for your LDAP server.
+ * This is a fiddly setting which may require some research to set correctly.
+ * Typically on Linux installations this will be set to /etc/ssl/certs/ca-certificates.crt
+ * You may need to export the signing certificate from your domain controller 
+ * (which is often self-signed) and append that to this file.   
+ *
+ * In rare cases you may get around this (with a loss of SSL validation) by setting
+ *     TLS_REQCERT never
+ * but be aware that this configuration applies to all LDAP usage on the server and this could
+ * result in weaker security for other LDAP applications. 
+ * 
+ * The required configuration options for this module may be set in the .htconfig.php file
+ * e.g.:
+ *
+ * App::$config['ldapauth']['ldap_server'] = 'host.example.com';
+ *
+ * Parameters:
+ * ldap_server = DNS hostname of LDAP service, or URL e.g. ldaps://example.com
+ * ldap_binddn = LDAP DN of an account to bind with to search LDAP
+ * ldap_bindpw = password for LDAP bind DN
+ * ldap_searchdn = base DN for the search root of the LDAP directory
+ * ldap_userattr = the name of the attribute containing the username, e.g. SAMAccountName
+ * ldap_group = (optional) DN of group to check membership
+ * create_account = (optional) 1 or 0 (default), automatically create Hubzilla accounts based on the LDAP 'mail' attribute
+ *
+ */
+
+
+...etc.

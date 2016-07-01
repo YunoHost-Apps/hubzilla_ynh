@@ -13,7 +13,7 @@ function connections_init(&$a) {
 	if(! local_channel())
 		return;
 
-	$channel = $a->get_channel();
+	$channel = App::get_channel();
 	if($channel)
 		head_set_icon($channel['xchan_photo_s']);
 
@@ -40,7 +40,7 @@ function connections_content(&$a) {
 	$all         = false;
 
 	if(! $_REQUEST['aj'])
-		$_SESSION['return_url'] = $a->query_string;
+		$_SESSION['return_url'] = App::$query_string;
 
 	$search_flags = '';
 	$head = '';
@@ -82,14 +82,14 @@ function connections_content(&$a) {
 					$head = t('New');
 					$pending = true;
 					nav_set_selected('intros');
-					$a->argv[1] = 'pending';
+					App::$argv[1] = 'pending';
 				}
 				else {
 					$head = t('All');
 					$search_flags = '';
 					$all = true;
-					$a->argc = 1;
-					unset($a->argv[1]);
+					App::$argc = 1;
+					unset(App::$argv[1]);
 				}
 				nav_set_selected('intros');
 				break;
@@ -211,15 +211,15 @@ function connections_content(&$a) {
 		intval(local_channel())
 	);
 	if($r) {
-		$a->set_pager_total($r[0]['total']);
+		App::set_pager_total($r[0]['total']);
 		$total = $r[0]['total'];
 	}
 
 	$r = q("SELECT abook.*, xchan.* FROM abook left join xchan on abook.abook_xchan = xchan.xchan_hash
 		WHERE abook_channel = %d and abook_self = 0 and xchan_deleted = 0 and xchan_orphan = 0 $sql_extra $sql_extra2 ORDER BY xchan_name LIMIT %d OFFSET %d ",
 		intval(local_channel()),
-		intval($a->pager['itemspage']),
-		intval($a->pager['start'])
+		intval(App::$pager['itemspage']),
+		intval(App::$pager['start'])
 	);
 
 	$contacts = array();
@@ -304,7 +304,7 @@ function connections_content(&$a) {
 			'$finding' => (($searching) ? t('Connections search') . ": '" . $search . "'" : ""),
 			'$submit' => t('Find'),
 			'$edit' => t('Edit'),
-			'$cmd' => $a->cmd,
+			'$cmd' => App::$cmd,
 			'$contacts' => $contacts,
 			'$paginate' => paginate($a),
 

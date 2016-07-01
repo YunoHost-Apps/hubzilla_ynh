@@ -9,7 +9,7 @@ function dreport_content(&$a) {
 
 	$table = 'item';
 
-	$channel = $a->get_channel();
+	$channel = App::get_channel();
 	
 	$mid = ((argc() > 1) ? argv(1) : '');
 

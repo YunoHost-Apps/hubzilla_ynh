@@ -30,7 +30,7 @@ function wall_upload_post(&$a) {
 		killme();
 	}
 
-	$observer = $a->get_observer();
+	$observer = App::get_observer();
 
 	$args = array( 'source' => 'editor', 'visible' => 0, 'contact_allow' => array($channel['channel_hash']));
 

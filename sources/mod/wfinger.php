@@ -32,7 +32,7 @@ function wfinger_init(&$a) {
 			$channel = str_replace('acct:','',$resource);
 			if(strpos($channel,'@') !== false) {
 				$host = substr($channel,strpos($channel,'@')+1);
-				if(strcasecmp($host,get_app()->get_hostname())) {
+				if(strcasecmp($host,App::get_hostname())) {
 					goaway('https://' . $host . '/.well-known/webfinger?f=&resource=' . $resource . (($zot) ? '&zot=' . $zot : ''));
 				}
 				$channel = substr($channel,0,strpos($channel,'@'));

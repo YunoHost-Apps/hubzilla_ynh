@@ -82,7 +82,7 @@ class CardTest extends \PHPUnit_Framework_TestCase {
 
     function testGetContentType() {
 
-        $this->assertEquals('text/x-vcard; charset=utf-8', $this->card->getContentType());
+        $this->assertEquals('text/vcard; charset=utf-8', $this->card->getContentType());
 
     }
 
@@ -161,6 +161,37 @@ class CardTest extends \PHPUnit_Framework_TestCase {
                 'protected' => true,
             ),
         ), $this->card->getACL());
+
+    }
+    function testOverrideACL() {
+
+        $card = new Card(
+            $this->backend,
+            array(
+                'uri' => 'book1',
+                'id' => 'foo',
+                'principaluri' => 'principals/user1',
+            ),
+            array(
+                'uri' => 'card1',
+                'addressbookid' => 'foo',
+                'carddata' => 'card',
+                'acl' => array(
+                    array(
+                        'privilege' => '{DAV:}read',
+                        'principal' => 'principals/user1',
+                        'protected' => true,
+                    ),
+                ),
+            )
+        );
+        $this->assertEquals(array(
+            array(
+                'privilege' => '{DAV:}read',
+                'principal' => 'principals/user1',
+                'protected' => true,
+            ),
+        ), $card->getACL());
 
     }
 

@@ -2,7 +2,7 @@
 require_once("include/oembed.php");
 
 function oembed_init(&$a){
-	// logger('mod_oembed ' . $a->query_string, LOGGER_ALL);
+	// logger('mod_oembed ' . App::$query_string, LOGGER_ALL);
 
 	if(argc() > 1) {
 		if (argv(1) == 'b2h'){

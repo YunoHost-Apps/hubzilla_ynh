@@ -1,0 +1,31 @@
+#profile-upload-form {
+	display: none;
+}
+
+#profile-upload-choose {
+    padding: 7px 10px;
+    width: 100%;
+}
+
+.profile-listing-table {
+	display: table;
+	width: 100%;
+}
+
+.profile-listing-row {
+	display: table-row;
+}
+
+.profile-listing-cell {
+	display: table-cell;
+}
+
+.profile-listing-edit-link {
+	margin: 10px;
+}
+
+.profile-listing-photo {
+	width: 48px;
+	height: 48px;
+	margin: 10px 0px;
+}

@@ -113,9 +113,6 @@ pre code {
 }
 
 code {
-	font-size: 1em;
-	padding: 1em 1.5em;
-	border: 1px solid #ccc;
 	background: #ccc;
 	color: #000;
 }
@@ -199,6 +196,50 @@ header #banner #logo-img {
 header #banner #logo-text {
   font-size: 22px;
 }
+
+/* contextual help */
+.contextual-help-content {
+	display: none;
+
+}
+
+.contextual-help-content-open {
+	display: block;
+	position: fixed;
+	top: 51px;
+	width: 100%;
+	max-height: 50%;
+	background: $comment_item_colour;
+	padding: 20px;
+	border-bottom: #ccc 1px solid;
+	overflow: auto;
+	-moz-box-shadow: 0px 3px 3px rgba(0,0,0,0.2);
+	-webkit-box-shadow: 0px 3px 3px rgba(0,0,0,0.2);
+	box-shadow: 0px 3px 3px rgba(0,0,0,0.2);
+}
+
+.contextual-help-content dd {
+	margin-bottom: 1em;
+}
+
+.contextual-help-tool {
+	padding: 7px;
+	filter: alpha(opacity=20);
+	opacity: .2;
+}
+
+.contextual-help-tool:hover {
+	filter: alpha(opacity=50);
+	opacity: .5;
+	text-decoration: none;
+}
+
+.contextual-help-tool i {
+	color: #000;
+	font-size: 16px;
+}
+
+/* contextual help end */
 
 /* footer */
 
@@ -480,6 +521,10 @@ footer {
 
 #conversation-end {
 	clear: both;
+}
+
+#nav-notifications-template {
+	display: none;
 }
 
 #nav-searchbar {
@@ -868,32 +913,65 @@ a.rconnect:hover, a.rateme:hover, div.rateme:hover {
 	clear: both;
 }
 
+.modal-header .contextual-help-tool {
+	/* Mostly duplicating ".modal-header .close" and ".close" layout settings from bootstrap */
+	float: right;
+	font-size: 21px;
+	padding: 0;
+	margin-top: -4px;
+	margin-right: 15px;
+	line-height: 1;
+}
+
 #acl-search {
-	margin-top: 20px;
-	padding: 8px;
+	padding: 4px;
 	border: 1px solid #ccc;
 	width: 100%;
 }
 
 #acl-search::-webkit-input-placeholder {
-	font-family: FontAwesome;
+	/* non-fontawesome fonts set a fallback for text parts of the placeholder*/
+	font-family: FontAwesome, sans-serif, arial, freesans;
 }
 
 #acl-search::-moz-placeholder {
-	font-family: FontAwesome;
+	/* non-fontawesome fonts set a fallback for text parts of the placeholder*/
+	font-family: FontAwesome, sans-serif, arial, freesans;
+}
+
+#aclModal .modal-body {
+	padding-top: 10px;
+}
+
+#acl-showlimited-description {
+	font-size: 90%;
+	color: #888;
+	margin-left: 10px;
+	margin-bottom: 4px;
 }
 
 #acl-list {
-	display: block;
 	border: 1px solid #ccc;
-	overflow: auto;
-	clear: both;
-	min-height: 62px;
-	margin-top: 20px;
-	padding: 10px 10px 0px 0px;
 	-webkit-border-radius: $radiuspx ;
 	-moz-border-radius: $radiuspx;
 	border-radius: $radiuspx;
+}
+
+#acl-search-wrapper {
+	padding: 7px 10px;
+	background-color: $item_colour;
+	border-top-left-radius: $radiuspx;
+	border-top-right-radius: $radiuspx;
+	border-bottom: 1px solid #ccc;
+}
+
+#acl-list-content-wrapper {
+	display: block;
+	overflow: auto;
+	clear: both;
+	min-height: 62px;
+	padding: 10px 10px 0px 0px;
+
 }
 
 #jotnets-wrapper, #jotnets-collapse {
@@ -913,9 +991,18 @@ a.rconnect:hover, a.rateme:hover, div.rateme:hover {
 	-webkit-border-radius: $radiuspx ;
 	-moz-border-radius: $radiuspx;
 	border-radius: $radiuspx;
+	background-color: white;
 }
 
-.acl-list-item img{
+.acl-list-item.grouphide {
+	border: 1px solid red;
+}
+
+.acl-list-item.groupshow {
+	border: 1px solid green;
+}
+
+.acl-list-item img {
 	width: 40px;
 	height: 40px;
 	float: left;
@@ -941,6 +1028,34 @@ a.rconnect:hover, a.rateme:hover, div.rateme:hover {
 .acl-button-hide {
 	float: right;
 	margin-left: 5px;
+}
+
+#acl-showlimited-caption,
+#acl-showall-caption {
+	font-size: 115%;
+}
+
+#acl-radiowrapper-showall {
+	margin-top: 20px;
+	margin-bottom: 20px;
+}
+#acl-radiowrapper-showlimited {
+	margin-bottom: 0;
+}
+
+#acl-showall + i {
+	font-size: 140%;
+}
+
+#acl-info-icon,
+#acl-info-icon:active {
+	font-size: 110%;
+	color: $link_colour;
+	text-decoration: none;
+}
+
+#acl-showall-caption {
+	margin-left: 0.35em;
 }
 
 .contact-block-content {
@@ -1100,22 +1215,15 @@ img.mail-conv-sender-photo {
 }
 
 #profile-jot-text {
-	resize: none;
-	border-width: 0px;
 	border-radius: $radiuspx;
 }
 
-#profile-jot-text:focus {
-	resize: vertical;
-}
-
-
 #profile-jot-text::-webkit-input-placeholder {
-	font-size:16px;
+	font-size: 16px;
 }
 
 #profile-jot-text::-moz-placeholder {
-	font-size:16px;
+	font-size: 16px;
 }
 
 #profile-jot-text:focus::-webkit-input-placeholder {
@@ -1255,7 +1363,9 @@ img.mail-conv-sender-photo {
 
 .wall-item-content,
 .mail-conv-body,
-.page-body {
+.page-body,
+.chat-item-text,
+.chat-item-text-self {
 	font-size: $font_size;
 	clear: both;
 }
@@ -1336,9 +1446,8 @@ img.mail-conv-sender-photo {
 	-moz-border-radius: $radiuspx;
 }
 
-.profile-thing-list img, .thing-show img, .thing-edit-links a {
-	margin-top: 8px;
-	margin-right: 15px;
+.thing-show img {
+	margin: 10px;
 }
 
 .abook-self {
@@ -1354,13 +1463,19 @@ img.mail-conv-sender-photo {
 	cursor: pointer;
 }
 
-.chat-item-photo {
+.chat-item-photo,
+.chat-item-photo-self {
 	border-radius: $radiuspx;
 }
 
-.chat-item-text {
+.chat-item-title,
+.chat-item-title-self {
 	border-radius: $radiuspx;
-	background-color: #eee;
+	background-color: $item_colour;
+}
+
+#chatMembers img {
+	border-radius: $radiuspx;
 }
 
 /* nav bootstrap */
@@ -1502,6 +1617,36 @@ nav .dropdown-menu {
 	word-wrap: break-word;
 }
 
+main.fullscreen {
+	left: 0px;
+	width: 100%;
+	height: 100%;
+	max-width: none;
+}
+
+main.fullscreen .generic-content-wrapper {
+	position: absolute;
+	width: 100%;
+	top: 0px;
+	left: 0px;
+	border-radius: 0px;
+}
+
+main.fullscreen .section-title-wrapper {
+	border-radius: 0px;
+}
+
+main.fullscreen .section-content-wrapper,
+main.fullscreen .section-content-wrapper-np {
+	border-radius: 0px;
+}
+
+#inline-btn {
+	display: none;
+}
+
+.chatroom-index-row:hover td,
+.locs-index-row:hover td,
 [id^="cloud-index-"]:hover td,
 .cloud-index-active {
 	background-color: $item_colour;
@@ -1599,9 +1744,7 @@ nav .badge.mail-update:hover {
 
 
 .navbar-inverse .navbar-nav > li > a {
-	font-size: 12px;
 	color: $nav_icon_colour;
-	text-shadow: 0px 0px 0px;
 }
 
 .navbar-inverse .navbar-nav > li > a:hover,
@@ -1635,7 +1778,8 @@ nav .badge.mail-update:hover {
 }
 
 #expand-aside,
-#expand-tabs {
+#expand-tabs,
+#context-help-btn {
 	color: $nav_active_icon_colour;
 	padding: 7px 10px;
 }
@@ -1683,9 +1827,7 @@ nav .badge.mail-update:hover {
 	}
 
 	main {
-		-webkit-transition: all 0.25s ease-out;
-		-moz-transition: all 0.25s ease-out;
-		transition: all 0.25s ease-out;
+		transition: all 0.25s ease-in-out;
 	}
 
 	main {
@@ -1745,8 +1887,29 @@ nav .badge.mail-update:hover {
 	margin-top:-3px;
 }
 
+dl.bb-dl > dt { 
+	/* overriding the default dl style from bootstrap, as bootstrap's
+	   style of a bold unindented line followed by a plain unindented
+	   line is already acheivable in bbcode without dl */
+	font-weight: normal; 
+} 
+dl.dl-terms-monospace > dt { font-family:     monospace; }
+dl.dl-terms-bold      > dt { font-weight:     bold; }
+dl.dl-terms-italic    > dt { font-style:      italic; }
+dl.dl-terms-underline > dt { text-decoration: underline; }
+dl.dl-terms-large     > dt { font-size:       120%; }
+dl.bb-dl:not(.dl-horizontal) > dd {
+	display: block;
+	margin-left: 2em;
+}
+dl.bb-dl > dd > li {
+	/* adding some indent so bullet-list items will line up better with 
+	   dl descriptions if someone wants to be impure and combine them */
+	margin-left: 1em;
+}
+
 .bootstrap-tagsinput .tag:before {
-	/* Copied from icon-asterisk, is there a better way to do it? */
+	/* Copied from fa-asterisk, is there a better way to do it? */
 	font-family: FontAwesome;
 	font-weight: normal;
 	font-style: normal;
@@ -1771,7 +1934,10 @@ nav .badge.mail-update:hover {
 }
 
 /* Abusing theme-green is less work than makeing a new new one */
-.theme-green .back-bar .selected-bar { background-color: #000000; background-image: none; !important }
+.theme-green .back-bar .selected-bar {
+	background-color: #000000;
+	background-image: none !important;
+}
 
 
 /* Turn checkboxes into switches */
@@ -1846,10 +2012,6 @@ nav .badge.mail-update:hover {
     right: 0px;
     background-color: #337AB7;
 }
-
-/*.channels_ckbx, .pending_ckbx, .users_ckbx {
-	margin-top: -5px !important;
-}*/
 
 .help-searchlist {
 	list-style-type: none;

@@ -4,10 +4,12 @@ function bookmarks_init(&$a) {
 	if(! local_channel())
 		return;
 	$item_id = intval($_REQUEST['item']);
+	$burl = trim($_REQUEST['burl']);
+
 	if(! $item_id)
 		return;
 
-	$u = $a->get_channel();
+	$u = App::get_channel();
 
 	$item_normal = item_normal();
 
@@ -36,7 +38,14 @@ function bookmarks_init(&$a) {
 			killme();
 		}
 		foreach($terms as $t) {
-			bookmark_add($u,$s[0],$t,$item['item_private']);
+			if($burl) {
+				if($burl == $t['url']) {
+					bookmark_add($u,$s[0],$t,$item['item_private']);
+				}
+			}
+			else
+				bookmark_add($u,$s[0],$t,$item['item_private']);
+
 			info( t('Bookmark added') . EOL);
 		}
 	}
@@ -53,7 +62,7 @@ function bookmarks_content(&$a) {
 	require_once('include/menu.php');
 	require_once('include/conversation.php');
 
-	$channel = $a->get_channel();
+	$channel = App::get_channel();
 
 	$o = profile_tabs($a,true,$channel['channel_address']);
 

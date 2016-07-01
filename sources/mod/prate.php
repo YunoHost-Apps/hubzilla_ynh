@@ -7,7 +7,7 @@ function prate_init(&$a) {
 	if(! local_channel())
 		return;
 
-	$channel = $a->get_channel();
+	$channel = App::get_channel();
 
 	$target = argv(1);
 	if(! $target)
@@ -27,7 +27,7 @@ function prate_post(&$a) {
 	if(! local_channel())
 		return;
 
-	$channel = $a->get_channel();
+	$channel = App::get_channel();
 
 	$target = trim($_REQUEST['target']);
 	if(! $target)

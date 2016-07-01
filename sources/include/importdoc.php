@@ -9,7 +9,7 @@ function importdoc_run($argv, $argc){
 
 	cli_startup();
 
-	require_once('mod/help.php');
+	require_once('include/help.php');
 
 
 	update_docs_dir('doc/*');

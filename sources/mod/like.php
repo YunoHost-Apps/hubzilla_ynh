@@ -9,14 +9,14 @@ function like_content(&$a) {
 
 	$o = '';
 
-	$observer = $a->get_observer();
+	$observer = App::get_observer();
 	$interactive = $_REQUEST['interactive'];
 	if($interactive) {
 		$o .= '<h1>' . t('Like/Dislike') . '</h1>';
 		$o .= EOL . EOL;
 
 		if(! $observer) {
-			$_SESSION['return_url'] = $a->query_string;
+			$_SESSION['return_url'] = App::$query_string;
 			$o .= t('This action is restricted to members.') . EOL;
 			$o .= t('Please <a href="rmagic">login with your $Projectname ID</a> or <a href="register">register as a new $Projectname member</a> to continue.') . EOL;
 			return $o;
@@ -444,7 +444,7 @@ function like_content(&$a) {
 		$arr['thr_parent']   = $item['mid'];
 		$ulink = '[zrl=' . $item_author['xchan_url'] . ']' . $item_author['xchan_name'] . '[/zrl]';
 		$alink = '[zrl=' . $observer['xchan_url'] . ']' . $observer['xchan_name'] . '[/zrl]';
-		$plink = '[zrl=' . $a->get_baseurl() . '/display/' . $item['mid'] . ']' . $post_type . '[/zrl]';
+		$plink = '[zrl=' . z_root() . '/display/' . $item['mid'] . ']' . $post_type . '[/zrl]';
 		$allow_cid       = $item['allow_cid'];
 		$allow_gid       = $item['allow_gid'];
 		$deny_cid        = $item['deny_cid'];

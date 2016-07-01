@@ -5,7 +5,7 @@ function uexport_init(&$a) {
 		killme();
 
 	if(argc() > 1) {
-		$channel = $a->get_channel();
+		$channel = App::get_channel();
 
 		require_once('include/identity.php');
 

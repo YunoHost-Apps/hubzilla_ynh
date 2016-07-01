@@ -1,6 +1,6 @@
 <?php
 /**
- * load view/theme/$current_theme/style.php with Red context
+ * load view/theme/$current_theme/style.php with Hubzilla context
  */
  
 function view_init($a){

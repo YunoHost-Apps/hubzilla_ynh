@@ -5,11 +5,11 @@ function regmod_content(&$a) {
 
 	global $lang;
 
-	$_SESSION['return_url'] = $a->cmd;
+	$_SESSION['return_url'] = App::$cmd;
 
 	if(! local_channel()) {
 		info( t('Please login.') . EOL);
-		$o .= '<br /><br />' . login(($a->config['system']['register_policy'] == REGISTER_CLOSED) ? 0 : 1);
+		$o .= '<br /><br />' . login((App::$config['system']['register_policy'] == REGISTER_CLOSED) ? 0 : 1);
 		return $o;
 	}
 

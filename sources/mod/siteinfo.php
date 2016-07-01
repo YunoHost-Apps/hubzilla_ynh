@@ -24,7 +24,7 @@ function siteinfo_content(&$a) {
 	        $version = $commit = '';
 	}
 	$visible_plugins = array();
-	if(is_array($a->plugins) && count($a->plugins)) {
+	if(is_array(App::$plugins) && count(App::$plugins)) {
 		$r = q("select * from addon where hidden = 0");
 		if(count($r))
 			foreach($r as $rr)

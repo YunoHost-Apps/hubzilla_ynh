@@ -1,0 +1,22 @@
+Example of configuration in .htconfig.php 
+Uncomment hreflang and setup your on Language Code if you like to get index in teh search motors by Language 
+
+///////////////META TAGS CONFIGURATION HOME BASE////////////////////////////////
+//App::$config['metatag']['hreflang'] = '<link rel="alternate" href="https://blablanet.com/" hreflang="en" />';
+App::$config['metatag']['description'] = '<meta name="description" content="My Social NETWORK NAME Some description here." />
+';
+App::$config['metatag']['robots'] = '<meta name="robots" content="index" />';
+App::$config['metatag']['keywords'] = '<meta name="keywords" content="social, network, networking, service, friends, family, vpn, blogs, photos, videos, files, directory, encryption" />';
+//////Registration Description
+App::$config['metatag']['descriptionR'] = '<meta name="description" content="Register in My Social NETWORK NAME Some description here.." />';
+//////Login Description
+App::$config['metatag']['descriptionL'] = '<meta name="description" content="Login in My Social NETWORK NAME Some description here.." />';
+/////Directory Description
+App::$config['metatag']['descriptionD'] = '<meta name="description" content="Here My Social NETWORK NAME Some description here.." />';
+////Directory PUBLIC
+App::$config['metatag']['descriptionP'] = '<meta name=" The latest Public Sites." />';
+///Directory APPS
+App::$config['metatag']['descriptionA'] = '<meta name="description" content=" Apps, utils and extras for enjoy." />';
+////Latest News Yu can use that for any of your Aplications 
+App::$config['metatag']['descriptionN'] = '<meta name=" My Social NETWORK NAME Some description here.." />';
+

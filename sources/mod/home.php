@@ -12,7 +12,7 @@ function home_init(&$a) {
 
 	$splash = ((argc() > 1 && argv(1) === 'splash') ? true : false);
 
-	$channel = $a->get_channel();
+	$channel = App::get_channel();
 	if(local_channel() && $channel && $channel['xchan_url'] && ! $splash) {
 		$dest = $channel['channel_startpage'];
 		if(! $dest)
@@ -53,8 +53,8 @@ function home_content(&$a, $update = 0, $load = false) {
 		if(strpos($frontpage,'include:') !== false) {
 			$file = trim(str_replace('include:' , '', $frontpage));
 			if(file_exists($file)) {
-				$a->page['template'] = 'full';
-				$a->page['title'] = t('$Projectname');
+				App::$page['template'] = 'full';
+				App::$page['title'] = t('$Projectname');
 				$o .= file_get_contents($file);
 				return $o;
 			}
@@ -76,7 +76,7 @@ function home_content(&$a, $update = 0, $load = false) {
 
 	$loginbox = get_config('system','login_on_homepage');
 	if(intval($loginbox) || $loginbox === false)
-		$o .= login(($a->config['system']['register_policy'] == REGISTER_CLOSED) ? 0 : 1);
+		$o .= login((App::$config['system']['register_policy'] == REGISTER_CLOSED) ? 0 : 1);
 
 	return $o;
 

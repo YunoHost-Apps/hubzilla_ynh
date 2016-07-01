@@ -1,0 +1,10 @@
+[h2]Dokumentation für Hub-Administratoren[/h2]
+
+[zrl=[baseurl]/help/install]Installation[/zrl]
+[zrl=[baseurl]/help/red2pi]$Projectname auf einem Raspberry Pi installieren[/zrl]
+[zrl=[baseurl]/help/troubleshooting]Troubleshooting-Tipps[/zrl]
+[zrl=[baseurl]/help/hidden_configs]Versteckte Konfigurations-Optionen[/zrl]
+[zrl=[baseurl]/help/faq_admins]FAQ für Admins[/zrl]
+[zrl=[baseurl]/help/service_classes]Serviceklassen[/zrl]
+[zrl=[baseurl]/help/directories]Arbeit mit Verzeichnissen und ihre Konfiguration[/zrl]
+[zrl=[baseurl]/help/theme_management]Theme-Management[/zrl]

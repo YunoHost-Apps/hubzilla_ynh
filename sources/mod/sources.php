@@ -14,7 +14,7 @@ function sources_post(&$a) {
 	$frequency = $_REQUEST['frequency'];
 	$name = $_REQUEST['name'];
 
-	$channel = $a->get_channel();
+	$channel = App::get_channel();
 
 	if($name == '*')
 		$xchan = '*';

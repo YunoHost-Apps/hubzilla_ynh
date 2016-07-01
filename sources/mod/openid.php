@@ -66,9 +66,9 @@ function openid_content(&$a) {
 				$_SESSION['my_address'] = $r[0]['xchan_addr'];
 				$arr = array('xchan' => $r[0], 'session' => $_SESSION);
 				call_hooks('magic_auth_openid_success',$arr);
-				$a->set_observer($r[0]);
+				App::set_observer($r[0]);
 				require_once('include/security.php');
-				$a->set_groups(init_groups_visitor($_SESSION['visitor_id']));
+				App::set_groups(init_groups_visitor($_SESSION['visitor_id']));
 				info(sprintf( t('Welcome %s. Remote authentication successful.'),$r[0]['xchan_name']));
 				logger('mod_openid: remote auth success from ' . $r[0]['xchan_addr']); 
 				if($_SESSION['return_url'])
@@ -175,7 +175,7 @@ function openid_content(&$a) {
 					$_SESSION['my_address'] = $r[0]['xchan_addr'];
 					$arr = array('xchan' => $r[0], 'session' => $_SESSION);
 					call_hooks('magic_auth_openid_success',$arr);
-					$a->set_observer($r[0]);
+					App::set_observer($r[0]);
 					info(sprintf( t('Welcome %s. Remote authentication successful.'),$r[0]['xchan_name']));
 					logger('mod_openid: remote auth success from ' . $r[0]['xchan_addr']); 
 					if($_SESSION['return_url'])

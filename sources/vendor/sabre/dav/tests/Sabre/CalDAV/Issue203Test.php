@@ -1,14 +1,14 @@
 <?php
 
 namespace Sabre\CalDAV;
+
 use Sabre\HTTP;
 use Sabre\VObject;
 
 /**
  * This unittest is created to find out why an overwritten DAILY event has wrong DTSTART, DTEND, SUMMARY and RECURRENCEID
  *
- *
- * @copyright Copyright (C) 2007-2014 Rooftop Solutions. All rights reserved.
+ * @copyright Copyright (C) fruux GmbH (https://fruux.com/)
  * @author Evert Pot (http://evertpot.com/)
  * @license http://sabre.io/license/ Modified BSD License
  */
@@ -16,18 +16,18 @@ class Issue203Test extends \Sabre\DAVServerTest {
 
     protected $setupCalDAV = true;
 
-    protected $caldavCalendars = array(
-        array(
-            'id' => 1,
-            'name' => 'Calendar',
+    protected $caldavCalendars = [
+        [
+            'id'           => 1,
+            'name'         => 'Calendar',
             'principaluri' => 'principals/user1',
-            'uri' => 'calendar1',
-        )
-    );
+            'uri'          => 'calendar1',
+        ]
+    ];
 
-    protected $caldavCalendarObjects = array(
-        1 => array(
-            'event.ics' => array(
+    protected $caldavCalendarObjects = [
+        1 => [
+            'event.ics' => [
                 'calendardata' => 'BEGIN:VCALENDAR
 VERSION:2.0
 BEGIN:VEVENT
@@ -52,18 +52,18 @@ TRANSP:OPAQUE
 END:VEVENT
 END:VCALENDAR
 ',
-            ),
-        ),
-    );
+            ],
+        ],
+    ];
 
     function testIssue203() {
 
-        $request = new HTTP\Request(array(
-            'REQUEST_METHOD' => 'REPORT',
+        $request = HTTP\Sapi::createFromServerArray([
+            'REQUEST_METHOD'    => 'REPORT',
             'HTTP_CONTENT_TYPE' => 'application/xml',
-            'REQUEST_URI' => '/calendars/user1/calendar1',
-            'HTTP_DEPTH' => '1',
-        ));
+            'REQUEST_URI'       => '/calendars/user1/calendar1',
+            'HTTP_DEPTH'        => '1',
+        ]);
 
         $request->setBody('<?xml version="1.0" encoding="utf-8" ?>
 <C:calendar-query xmlns:D="DAV:" xmlns:C="urn:ietf:params:xml:ns:caldav">
@@ -90,26 +90,26 @@ END:VCALENDAR
             $start = strpos($response->body, 'BEGIN:VCALENDAR'),
             strpos($response->body, 'END:VCALENDAR') - $start + 13
         );
-        $body = str_replace('&#13;','',$body);
+        $body = str_replace('&#13;', '', $body);
 
         $vObject = VObject\Reader::read($body);
 
         $this->assertEquals(2, count($vObject->VEVENT));
 
 
-        $expectedEvents = array(
-            array(
+        $expectedEvents = [
+            [
                 'DTSTART' => '20120326T135200Z',
                 'DTEND'   => '20120326T145200Z',
                 'SUMMARY' => 'original summary',
-            ),
-            array(
+            ],
+            [
                 'DTSTART'       => '20120328T135200Z',
                 'DTEND'         => '20120328T145200Z',
                 'SUMMARY'       => 'overwritten summary',
                 'RECURRENCE-ID' => '20120327T135200Z',
-            )
-        );
+            ]
+        ];
 
         // try to match agains $expectedEvents array
         foreach ($expectedEvents as $expectedEvent) {
@@ -118,10 +118,8 @@ END:VCALENDAR
 
             foreach ($vObject->VEVENT as $vevent) {
                 /** @var $vevent Sabre\VObject\Component\VEvent */
-
-                foreach ($vevent->children as $child) {
+                foreach ($vevent->children() as $child) {
                     /** @var $child Sabre\VObject\Property */
-
                     if (isset($expectedEvent[$child->name])) {
                         if ($expectedEvent[$child->name] != $child->getValue()) {
                             continue 2;
@@ -133,7 +131,7 @@ END:VCALENDAR
                 break;
             }
 
-            $this->assertTrue($matching, 'Did not find the following event in the response: '.var_export($expectedEvent, true));
+            $this->assertTrue($matching, 'Did not find the following event in the response: ' . var_export($expectedEvent, true));
         }
     }
 }

@@ -1,0 +1,34 @@
+<?php
+
+App::$strings["Post to StatusNet"] = "Bei StatusNet veröffentlichen";
+App::$strings["Please contact your site administrator.<br />The provided API URL is not valid."] = "Bitte kontaktiere den Administrator des Servers.<br />Die angegebene API-URL ist nicht gültig.";
+App::$strings["We could not contact the StatusNet API with the Path you entered."] = "Die StatusNet-API konnte mit dem angegebenen Pfad nicht erreicht werden.";
+App::$strings["StatusNet settings updated."] = "StatusNet Einstellungen aktualisiert.";
+App::$strings["StatusNet Posting Settings"] = "StatusNet-Beitragseinstellungen";
+App::$strings["Globally Available StatusNet OAuthKeys"] = "Verfügbare OAuth Schlüssel für StatusNet";
+App::$strings["There are preconfigured OAuth key pairs for some StatusNet servers available. If you are useing one of them, please use these credentials. If not feel free to connect to any other StatusNet instance (see below)."] = "Für einige StatusNet Server sind voreingestellte OAuth Schlüsselpaare verfügbar. Solltest du einen dieser Server benutzen, dann verwende bitte diese Schlüssel. Falls nicht, stelle stattdessen eine Verbindung zu irgend einem anderen StatusNet Server her (siehe unten).";
+App::$strings["Submit"] = "Senden";
+App::$strings["Provide your own OAuth Credentials"] = "Eigene OAuth Schlüssel eintragen";
+App::$strings["No consumer key pair for StatusNet found. Register your Friendica Account as an desktop client on your StatusNet account, copy the consumer key pair here and enter the API base root.<br />Before you register your own OAuth key pair ask the administrator if there is already a key pair for this Friendica installation at your favorited StatusNet installation."] = "Kein Consumer-Schlüsselpaar für StatusNet gefunden. Registriere deinen Friendica-Account als Desktop-Client, kopiere das Consumer-Schlüsselpaar hierher und gib die API-URL ein.<br />Bevor du dein eigenes Consumer-Schlüsselpaar registrierst, frage den Administrator dieses Friendica-Servers, ob schon ein Schlüsselpaar für diesen Friendica-Server auf diesem StatusNet-Server existiert.";
+App::$strings["OAuth Consumer Key"] = "OAuth Consumer Key";
+App::$strings["OAuth Consumer Secret"] = "OAuth Consumer Secret";
+App::$strings["Base API Path (remember the trailing /)"] = "Basis-URL der StatusNet-API (vergiss den abschließenden / nicht)";
+App::$strings["To connect to your StatusNet account click the button below to get a security code from StatusNet which you have to copy into the input box below and submit the form. Only your <strong>public</strong> posts will be posted to StatusNet."] = "Um dein Konto mit einem StatusNet-Konto zu verknüpfen, klicke den Button an, um einen Sicherheitscode von StatusNet zu erhalten, und kopiere diesen in das Eingabefeld weiter unten. Es werden ausschließlich deine <strong>öffentlichen</strong> Nachrichten an StatusNet gesendet.";
+App::$strings["Log in with StatusNet"] = "Bei StatusNet anmelden";
+App::$strings["Copy the security code from StatusNet here"] = "Kopiere den Sicherheitscode von StatusNet hier hin";
+App::$strings["Cancel Connection Process"] = "Verbindungsprozess abbrechen";
+App::$strings["Current StatusNet API is"] = "Derzeitige StatusNet-API-URL lautet";
+App::$strings["Cancel StatusNet Connection"] = "Verbindung zum StatusNet Server abbrechen";
+App::$strings["Currently connected to: "] = "Momentan verbunden mit: ";
+App::$strings["If enabled all your <strong>public</strong> postings can be posted to the associated StatusNet account. You can choose to do so by default (here) or for every posting separately in the posting options when writing the entry."] = "Wenn aktiviert, können all deine <strong>öffentlichen</strong> Einträge auf dem verbundenen StatusNet-Konto veröffentlicht werden. Du kannst das (hier) als Standardverhalten einstellen oder beim Schreiben eines Beitrags in den Beitragsoptionen festlegen.";
+App::$strings["<strong>Note</strong>: Due your privacy settings (<em>Hide your profile details from unknown viewers?</em>) the link potentially included in public postings relayed to StatusNet will lead the visitor to a blank page informing the visitor that the access to your profile has been restricted."] = "<strong>Hinweis</strong>: Aufgrund deiner Privatsphären-Einstellungen (<em>Profil-Details vor unbekannten Betrachtern verbergen?</em>) wird der Link, der eventuell an deinen StatusNet-Beitrag angehängt wird, um auf den Originalbeitrag zu verweisen, den Betrachter auf eine leere Seite führen, die ihn darüber informiert, dass der Zugriff eingeschränkt wurde.";
+App::$strings["Allow posting to StatusNet"] = "Veröffentlichung bei StatusNet erlauben";
+App::$strings["Send public postings to StatusNet by default"] = "Veröffentliche öffentliche Beiträge standardmäßig bei StatusNet";
+App::$strings["Mirror all posts from statusnet that are no replies or repeated messages"] = "Spiegle alle Beiträge von StatusNet die keine Antworten oder wiederholten Nachrichten sind";
+App::$strings["Shortening method that optimizes the post"] = "Kürzungsverfahren, das den Beitrag optimiert";
+App::$strings["Send linked #-tags and @-names to StatusNet"] = "Sende verlinkte #-Tags und @-Namen nach StatusNet";
+App::$strings["Clear OAuth configuration"] = "OAuth-Konfiguration löschen";
+App::$strings["Site name"] = "Seitenname";
+App::$strings["API URL"] = "API-URL";
+App::$strings["Consumer Secret"] = "Consumer Secret";
+App::$strings["Consumer Key"] = "Consumer Key";

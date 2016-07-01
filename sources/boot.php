@@ -46,11 +46,10 @@ require_once('include/account.php');
 
 
 define ( 'PLATFORM_NAME',           'hubzilla' );
-define ( 'RED_VERSION',             trim(file_get_contents('version.inc')));
-define ( 'STD_VERSION',             '1.3.1' );
+define ( 'STD_VERSION',             '1.6' );
 define ( 'ZOT_REVISION',            1     );
 
-define ( 'DB_UPDATE_VERSION',       1165  );
+define ( 'DB_UPDATE_VERSION',       1168  );
 
 
 /**
@@ -76,10 +75,9 @@ define ( 'DIRECTORY_MODE_STANDALONE',  0x0100); // A detached (off the grid) hub
 // point to go out and find the rest of the world.
 
 define ( 'DIRECTORY_REALM',            'RED_GLOBAL');
-define ( 'DIRECTORY_FALLBACK_MASTER',  'https://zothub.com');
+define ( 'DIRECTORY_FALLBACK_MASTER',  'https://hub.pixelbits.de');
 
 $DIRECTORY_FALLBACK_SERVERS = array( 
-	'https://zothub.com', 
 	'https://hubzilla.site',
 	'https://hubzilla.zottel.net',
 	'https://hub.pixelbits.de',
@@ -93,7 +91,7 @@ $DIRECTORY_FALLBACK_SERVERS = array(
  *
  * Image storage quality. Lower numbers save space at cost of image detail.
  * For ease of upgrade, please do not change here. Change jpeg quality with
- * $a->config['system']['jpeg_quality'] = n;
+ * App::$config['system']['jpeg_quality'] = n;
  * in .htconfig.php, where n is netween 1 and 100, and with very poor results
  * below about 50
  *
@@ -101,7 +99,7 @@ $DIRECTORY_FALLBACK_SERVERS = array(
 
 define ( 'JPEG_QUALITY',            100  );
 /**
- * $a->config['system']['png_quality'] from 0 (uncompressed) to 9
+ * App::$config['system']['png_quality'] from 0 (uncompressed) to 9
  */
 define ( 'PNG_QUALITY',             8  );
 
@@ -136,7 +134,7 @@ define ( 'STORAGE_DEFAULT_PERMISSIONS',   0770 );
  * this length (on the longest side, the other side will be scaled appropriately).
  * Modify this value using
  *
- *    $a->config['system']['max_image_length'] = n;
+ *    App::$config['system']['max_image_length'] = n;
  *
  * in .htconfig.php
  *
@@ -271,9 +269,11 @@ define ( 'MENU_BOOKMARK',        0x0002 );
  * Network and protocol family types
  */
 
-define ( 'NETWORK_DFRN',             'friendica-over-diaspora');    // Friendica, Mistpark, other DFRN implementations
+define ( 'NETWORK_FRND',             'friendica-over-diaspora');    // Friendica, Mistpark, other DFRN implementations
+define ( 'NETWORK_DFRN',             'dfrn');    // Friendica, Mistpark, other DFRN implementations
 define ( 'NETWORK_ZOT',              'zot');     // Zot!
 define ( 'NETWORK_OSTATUS',          'stat');    // status.net, identi.ca, GNU-social, other OStatus implementations
+define ( 'NETWORK_GNUSOCIAL',        'gnusoc');    // status.net, identi.ca, GNU-social, other OStatus implementations
 define ( 'NETWORK_FEED',             'rss');    // RSS/Atom feeds with no known "post/notify" protocol
 define ( 'NETWORK_DIASPORA',         'diaspora');    // Diaspora
 define ( 'NETWORK_MAIL',             'mail');    // IMAP/POP
@@ -313,15 +313,14 @@ define ( 'PERMS_A_REPUBLISH',      0x10000);
 define ( 'PERMS_W_LIKE',           0x20000);
 
 // General channel permissions
-
-define ( 'PERMS_PUBLIC'     , 0x0001 );
-define ( 'PERMS_NETWORK'    , 0x0002 );
-define ( 'PERMS_SITE'       , 0x0004 );
-define ( 'PERMS_CONTACTS'   , 0x0008 );
-define ( 'PERMS_SPECIFIC'   , 0x0080 );
-define ( 'PERMS_AUTHED'     , 0x0100 );
-define ( 'PERMS_PENDING'    , 0x0200 );
-
+                                        // 0 = Only you
+define ( 'PERMS_PUBLIC'     , 0x0001 ); // anybody
+define ( 'PERMS_NETWORK'    , 0x0002 ); // anybody in this network
+define ( 'PERMS_SITE'       , 0x0004 ); // anybody on this site
+define ( 'PERMS_CONTACTS'   , 0x0008 ); // any of my connections
+define ( 'PERMS_SPECIFIC'   , 0x0080 ); // only specific connections
+define ( 'PERMS_AUTHED'     , 0x0100 ); // anybody authenticated (could include visitors from other networks)
+define ( 'PERMS_PENDING'    , 0x0200 ); // any connections including those who haven't yet been approved
 
 // Address book flags
 
@@ -453,7 +452,7 @@ define ( 'TERM_OBJ_APP',     7 );
 /**
  * various namespaces we may need to parse
  */
-
+define ( 'PROTOCOL_ZOT',              'http://purl.org/zot/protocol' );
 define ( 'NAMESPACE_ZOT',             'http://purl.org/zot' );
 define ( 'NAMESPACE_DFRN' ,           'http://purl.org/macgirvin/dfrn/1.0' );
 define ( 'NAMESPACE_THREAD' ,         'http://purl.org/syndication/thread/1.0' );
@@ -639,6 +638,29 @@ class ZotlabsAutoloader {
 
 
 /**
+ * class miniApp
+ *
+ * this is a transient structure which is needed to convert the $a->config settings
+ * from older (existing) htconfig files which used a global App ($a) into the updated App structure
+ * which is now static (although currently constructed at startup). We are only converting 
+ * 'system' config settings. 
+ */
+
+
+class miniApp {
+	public $config = array('system' => array());
+
+	public function convert() {
+		if($this->config['system']) {
+		    foreach($this->config['system'] as $k => $v)
+		        App::$config['system'][$k] = $v;
+		}
+	}
+}
+
+
+
+/**
  * class: App
  *
  * @brief Our main application structure for the life of this page.
@@ -652,61 +674,67 @@ class ZotlabsAutoloader {
  */
 class App {
 
-	public  $install    = false;           // true if we are installing the software
+	public  static $install    = false;           // true if we are installing the software
 
-	public  $account    = null;            // account record of the logged-in account
-	public  $channel    = null;            // channel record of the current channel of the logged-in account
-	public  $observer   = null;            // xchan record of the page observer
-	public  $profile_uid = 0;              // If applicable, the channel_id of the "page owner"
-	public  $poi        = null;            // "person of interest", generally a referenced connection
-	private $oauth_key  = null;            // consumer_id of oauth request, if used
-	public  $layout     = array();         // Comanche parsed template
-	public  $pdl        = null;            // Comanche page description
-	private $perms      = null;            // observer permissions
-	private $widgets    = array();         // widgets for this page
+	public  static $account    = null;            // account record of the logged-in account
+	public  static $channel    = null;            // channel record of the current channel of the logged-in account
+	public  static $observer   = null;            // xchan record of the page observer
+	public  static $profile_uid = 0;              // If applicable, the channel_id of the "page owner"
+	public  static $poi        = null;            // "person of interest", generally a referenced connection
+	private static $oauth_key  = null;            // consumer_id of oauth request, if used
+	public  static $layout     = array();         // Comanche parsed template
+	public  static $pdl        = null;            // Comanche page description
+	private static $perms      = null;            // observer permissions
+	private static $widgets    = array();         // widgets for this page
 
-	public  $groups;
-	public  $language;
-	public  $module_loaded = false;
-	public  $query_string;
-	public  $config;                       // config cache
-	public  $page;
-	public  $profile;
-	public  $user;
-	public  $cid;
-	public  $contact;
-	public  $contacts;
-	public  $content;
-	public  $data = array();
-	public  $error = false;
-	public  $cmd;
-	public  $argv;
-	public  $argc;
-	public  $module;
-	public  $pager;
-	public  $strings;
-	public  $hooks;
-	public  $timezone;
-	public  $interactive = true;
-	public  $plugins;
-	private $apps = array();
-	public  $identities;
-	public  $css_sources = array();
-	public  $js_sources = array();
-	public  $theme_info = array();
-	public  $is_sys = false;
-	public  $nav_sel;
+	public static  $groups;
+	public static  $language;
+	public static  $langsave;
+	public static  $plugins_admin;
+	public static  $module_loaded = false;
+	public static  $query_string;
+	public static  $config;                       // config cache
+	public static  $page;
+	public static  $profile;
+	public static  $user;
+	public static  $cid;
+	public static  $contact;
+	public static  $contacts;
+	public static  $content;
+	public static  $data = array();
+	public static  $error = false;
+	public static  $cmd;
+	public static  $argv;
+	public static  $argc;
+	public static  $module;
+	public static  $pager;
+	public static  $strings;
+	public static  $stringsave;   // used in push_lang() and pop_lang()
+	public static  $hooks;
+	public static  $timezone;
+	public static  $interactive = true;
+	public static  $plugins;
+	private static $apps = array();
+	public static  $identities;
+	public static  $css_sources = array();
+	public static  $js_sources = array();
+	public static  $theme_info = array();
+	public static  $is_sys = false;
+	public static  $nav_sel;
+	public static $is_mobile = false;
+	public static $is_tablet = false;
+	public static $comanche;
 
-	public  $category;
+	public static  $category;
 
 	// Allow themes to control internal parameters
 	// by changing App values in theme.php
 
-	public  $sourcename = '';
-	public  $videowidth = 425;
-	public  $videoheight = 350;
-	public  $force_max_items = 0;
-	public  $theme_thread_allow = true;
+	public static  $sourcename = '';
+	public static  $videowidth = 425;
+	public static  $videoheight = 350;
+	public static  $force_max_items = 0;
+	public static  $theme_thread_allow = true;
 
 	/**
 	 * @brief An array for all theme-controllable parameters
@@ -714,7 +742,7 @@ class App {
 	 * Mostly unimplemented yet. Only options 'template_engine' and
 	 * beyond are used.
 	 */
-	private $theme = array(
+	private static $theme = array(
 		'sourcename' => '',
 		'videowidth' => 425,
 		'videoheight' => 350,
@@ -727,46 +755,46 @@ class App {
 	/**
 	 * @brief An array of registered template engines ('name'=>'class name')
 	 */
-	public $template_engines = array();
+	public static $template_engines = array();
 	/**
 	 * @brief An array of instanced template engines ('name'=>'instance')
 	 */
-	public $template_engine_instance = array();
+	public static $template_engine_instance = array();
 
-	private $ldelim = array(
+	private static $ldelim = array(
 		'internal' => '',
 		'smarty3' => '{{'
 	);
-	private $rdelim = array(
+	private static $rdelim = array(
 		'internal' => '',
 		'smarty3' => '}}'
 	);
 
 	// These represent the URL which was used to access the page
 
-	private $scheme;
-	private $hostname;
-	private $path;
+	private static $scheme;
+	private static $hostname;
+	private static $path;
 
 	// This is our standardised URL - regardless of what was used
 	// to access the page
 
-	private $baseurl;
+	private static $baseurl;
 
-	private $meta;
+	private static $meta;
 
 	/**
 	 * App constructor.
 	 */
-	function __construct() {
+	function init() {
 		// we'll reset this after we read our config file
 		date_default_timezone_set('UTC');
 
-		$this->config = array('system'=>array());
-		$this->page = array();
-		$this->pager= array();
+		self::$config = array('system'=>array());
+		self::$page = array();
+		self::$pager= array();
 
-		$this->query_string = '';
+		self::$query_string = '';
 
 
 		startup();
@@ -777,64 +805,66 @@ class App {
 			. 'library/langdet' . PATH_SEPARATOR
 			. '.' );
 
-		$this->scheme = 'http';
+		self::$scheme = 'http';
 		if(x($_SERVER,'HTTPS') && $_SERVER['HTTPS'])
-			$this->scheme = 'https';
+			self::$scheme = 'https';
 		elseif(x($_SERVER,'SERVER_PORT') && (intval($_SERVER['SERVER_PORT']) == 443))
-			$this->scheme = 'https';
+			self::$scheme = 'https';
 
 		if(x($_SERVER,'SERVER_NAME')) {
-			$this->hostname = $_SERVER['SERVER_NAME'];
+			self::$hostname = $_SERVER['SERVER_NAME'];
 
 			if(x($_SERVER,'SERVER_PORT') && $_SERVER['SERVER_PORT'] != 80 && $_SERVER['SERVER_PORT'] != 443)
-				$this->hostname .= ':' . $_SERVER['SERVER_PORT'];
+				self::$hostname .= ':' . $_SERVER['SERVER_PORT'];
 			/**
 			 * Figure out if we are running at the top of a domain
 			 * or in a sub-directory and adjust accordingly
 			 */
 
 			$path = trim(dirname($_SERVER['SCRIPT_NAME']),'/\\');
-			if(isset($path) && strlen($path) && ($path != $this->path))
-				$this->path = $path;
+			if(isset($path) && strlen($path) && ($path != self::$path))
+				self::$path = $path;
 		}
 
-		set_include_path("include/$this->hostname" . PATH_SEPARATOR . get_include_path());
+		set_include_path("include/self::$hostname" . PATH_SEPARATOR . get_include_path());
 
 		if((x($_SERVER,'QUERY_STRING')) && substr($_SERVER['QUERY_STRING'], 0, 2) === "q=") {
-			$this->query_string = substr($_SERVER['QUERY_STRING'], 2);
+			self::$query_string = substr($_SERVER['QUERY_STRING'], 2);
 			// removing trailing / - maybe a nginx problem
-			if (substr($this->query_string, 0, 1) == "/")
-				$this->query_string = substr($this->query_string, 1);
+			if (substr(self::$query_string, 0, 1) == "/")
+				self::$query_string = substr(self::$query_string, 1);
 		}
 		if(x($_GET,'q'))
-			$this->cmd = trim($_GET['q'],'/\\');
+			self::$cmd = trim($_GET['q'],'/\\');
 
 		// unix style "homedir"
 
-		if(substr($this->cmd, 0, 1) === '~')
-			$this->cmd = 'channel/' . substr($this->cmd, 1);
+		if(substr(self::$cmd, 0, 1) === '~')
+			self::$cmd = 'channel/' . substr(self::$cmd, 1);
 
 		/*
 		 * Break the URL path into C style argc/argv style arguments for our
-		 * modules. Given "http://example.com/module/arg1/arg2", $this->argc
-		 * will be 3 (integer) and $this->argv will contain:
+		 * modules. Given "http://example.com/module/arg1/arg2", self::$argc
+		 * will be 3 (integer) and self::$argv will contain:
 		 *   [0] => 'module'
 		 *   [1] => 'arg1'
 		 *   [2] => 'arg2'
 		 *
 		 * There will always be one argument. If provided a naked domain
-		 * URL, $this->argv[0] is set to "home".
+		 * URL, self::$argv[0] is set to "home".
 		 */
 
-		$this->argv = explode('/', $this->cmd);
-		$this->argc = count($this->argv);
-		if ((array_key_exists('0', $this->argv)) && strlen($this->argv[0])) {
-			$this->module = str_replace(".", "_", $this->argv[0]);
-			$this->module = str_replace("-", "_", $this->module);
+		self::$argv = explode('/', self::$cmd);
+		self::$argc = count(self::$argv);
+		if ((array_key_exists('0', self::$argv)) && strlen(self::$argv[0])) {
+			self::$module = str_replace(".", "_", self::$argv[0]);
+			self::$module = str_replace("-", "_", self::$module);
+			if(strpos(self::$module,'_') === 0)
+				self::$module = substr(self::$module,1);
 		} else {
-			$this->argc = 1;
-			$this->argv = array('home');
-			$this->module = 'home';
+			self::$argc = 1;
+			self::$argv = array('home');
+			self::$module = 'home';
 		}
 
 		/*
@@ -842,22 +872,22 @@ class App {
 		 * pagination
 		 */
 
-		$this->pager['page'] = ((x($_GET,'page') && intval($_GET['page']) > 0) ? intval($_GET['page']) : 1);
-		$this->pager['itemspage'] = 60;
-		$this->pager['start'] = ($this->pager['page'] * $this->pager['itemspage']) - $this->pager['itemspage'];
-		if($this->pager['start'] < 0)
-			$this->pager['start'] = 0;
-		$this->pager['total'] = 0;
+		self::$pager['page'] = ((x($_GET,'page') && intval($_GET['page']) > 0) ? intval($_GET['page']) : 1);
+		self::$pager['itemspage'] = 60;
+		self::$pager['start'] = (self::$pager['page'] * self::$pager['itemspage']) - self::$pager['itemspage'];
+		if(self::$pager['start'] < 0)
+			self::$pager['start'] = 0;
+		self::$pager['total'] = 0;
 
 		/*
 		 * Detect mobile devices
 		 */
 
 		$mobile_detect = new Mobile_Detect();
-		$this->is_mobile = $mobile_detect->isMobile();
-		$this->is_tablet = $mobile_detect->isTablet();
+		self::$is_mobile = $mobile_detect->isMobile();
+		self::$is_tablet = $mobile_detect->isTablet();
 
-		$this->head_set_icon('/images/hz-32.png');
+		self::head_set_icon('/images/hz-32.png');
 
 		BaseObject::set_app($this);
 
@@ -867,146 +897,147 @@ class App {
 		$dc = get_declared_classes();
 		foreach ($dc as $k) {
 			if (in_array("ITemplateEngine", class_implements($k))){
-				$this->register_template_engine($k);
+				self::register_template_engine($k);
 			}
 		}
 
 		spl_autoload_register('ZotlabsAutoloader::loader');
 
-		$this->meta= new Zotlabs\Web\HttpMeta();
+		self::$meta= new Zotlabs\Web\HttpMeta();
+
 	}
 
-	function get_baseurl($ssl = false) {
-		if(is_array($this->config)
-			&& array_key_exists('system',$this->config)
-			&& is_array($this->config['system'])
-			&& array_key_exists('baseurl',$this->config['system'])
-			&& strlen($this->config['system']['baseurl'])) {
-			$url = $this->config['system']['baseurl'];
+	public static function get_baseurl($ssl = false) {
+		if(is_array(self::$config)
+			&& array_key_exists('system',self::$config)
+			&& is_array(self::$config['system'])
+			&& array_key_exists('baseurl',self::$config['system'])
+			&& strlen(self::$config['system']['baseurl'])) {
+			$url = self::$config['system']['baseurl'];
 			$url = trim($url,'\\/');
 			return $url;
 		}
 
-		$scheme = $this->scheme;
+		$scheme = self::$scheme;
 
-		$this->baseurl = $scheme . "://" . $this->hostname . ((isset($this->path) && strlen($this->path)) ? '/' . $this->path : '' );
+		self::$baseurl = $scheme . "://" . self::$hostname . ((isset(self::$path) && strlen(self::$path)) ? '/' . self::$path : '' );
 
-		return $this->baseurl;
+		return self::$baseurl;
 	}
 
-	function set_baseurl($url) {
-		if(is_array($this->config)
-			&& array_key_exists('system',$this->config)
-			&& is_array($this->config['system'])
-			&& array_key_exists('baseurl',$this->config['system'])
-			&& strlen($this->config['system']['baseurl'])) {
-			$url = $this->config['system']['baseurl'];
+	public static function set_baseurl($url) {
+		if(is_array(self::$config)
+			&& array_key_exists('system',self::$config)
+			&& is_array(self::$config['system'])
+			&& array_key_exists('baseurl',self::$config['system'])
+			&& strlen(self::$config['system']['baseurl'])) {
+			$url = self::$config['system']['baseurl'];
 			$url = trim($url,'\\/');
 		}
 
 		$parsed = @parse_url($url);
 
-		$this->baseurl = $url;
+		self::$baseurl = $url;
 
 		if($parsed) {
-			$this->scheme = $parsed['scheme'];
+			self::$scheme = $parsed['scheme'];
 
-			$this->hostname = $parsed['host'];
+			self::$hostname = $parsed['host'];
 			if(x($parsed,'port'))
-				$this->hostname .= ':' . $parsed['port'];
+				self::$hostname .= ':' . $parsed['port'];
 			if(x($parsed,'path'))
-				$this->path = trim($parsed['path'],'\\/');
+				self::$path = trim($parsed['path'],'\\/');
 		}
 	}
 
-	function get_scheme() {
-		return $this->scheme;
+	public static function get_scheme() {
+		return self::$scheme;
 	}
 
 
-	function get_hostname() {
-		return $this->hostname;
+	public static function get_hostname() {
+		return self::$hostname;
 	}
 
-	function set_hostname($h) {
-		$this->hostname = $h;
+	public static function set_hostname($h) {
+		self::$hostname = $h;
 	}
 
-	function set_path($p) {
-		$this->path = trim(trim($p), '/');
+	public static function set_path($p) {
+		self::$path = trim(trim($p), '/');
 	}
 
-	function get_path() {
-		return $this->path;
+	public static function get_path() {
+		return self::$path;
 	}
 
-	function set_account($acct) {
-		$this->account = $acct;
+	public static function set_account($acct) {
+		self::$account = $acct;
 	}
 
-	function get_account() {
-		return $this->account;
+	public static function get_account() {
+		return self::$account;
 	}
 
-	function set_channel($channel) {
-		$this->channel = $channel;
+	public static function set_channel($channel) {
+		self::$channel = $channel;
 	}
 
-	function get_channel() {
-		return $this->channel;
+	public static function get_channel() {
+		return self::$channel;
 	}
 
-	function set_observer($xchan) {
-		$this->observer = $xchan;
+	public static function set_observer($xchan) {
+		self::$observer = $xchan;
 	}
 
 
-	function get_observer() {
-		return $this->observer;
+	public static function get_observer() {
+		return self::$observer;
 	}
 
-	function set_perms($perms) {
-		$this->perms = $perms;
+	public static function set_perms($perms) {
+		self::$perms = $perms;
 	}
 
-	function get_perms() {
-		return $this->perms;
+	public static function get_perms() {
+		return self::$perms;
 	}
 
-	function set_oauth_key($consumer_id) {
-		$this->oauth_key = $consumer_id;
+	public static function set_oauth_key($consumer_id) {
+		self::$oauth_key = $consumer_id;
 	}
 
-	function get_oauth_key() {
-		return $this->oauth_key;
+	public static function get_oauth_key() {
+		return self::$oauth_key;
 	}
 
-	function get_apps() {
-		return $this->apps;
+	public static function get_apps() {
+		return self::$apps;
 	}
 
-	function set_apps($arr) {
-		$this->apps = $arr;
+	public static function set_apps($arr) {
+		self::$apps = $arr;
 	}
 
-	function set_groups($g) {
-		$this->groups = $g;
+	public static function set_groups($g) {
+		self::$groups = $g;
 	}
 
-	function get_groups() {
-		return $this->groups;
+	public static function get_groups() {
+		return self::$groups;
 	}
 
-	function set_pager_total($n) {
-		$this->pager['total'] = intval($n);
+	public static function set_pager_total($n) {
+		self::$pager['total'] = intval($n);
 	}
 
-	function set_pager_itemspage($n) {
-		$this->pager['itemspage'] = ((intval($n) > 0) ? intval($n) : 0);
-		$this->pager['start'] = ($this->pager['page'] * $this->pager['itemspage']) - $this->pager['itemspage'];
+	public static function set_pager_itemspage($n) {
+		self::$pager['itemspage'] = ((intval($n) > 0) ? intval($n) : 0);
+		self::$pager['start'] = (self::$pager['page'] * self::$pager['itemspage']) - self::$pager['itemspage'];
 	}
 
-	function build_pagehead() {
+	public static function build_pagehead() {
 
 		$user_scalable = ((local_channel()) ? get_pconfig(local_channel(),'system','user_scalable') : 1);
 		if ($user_scalable === false)
@@ -1020,36 +1051,38 @@ class App {
 		if($interval < 10000)
 			$interval = 80000;
 
-		if(! x($this->page,'title'))
-			$this->page['title'] = $this->config['system']['sitename'];
+		if(! x(self::$page,'title'))
+			self::$page['title'] = self::$config['system']['sitename'];
 
-		if(! $this->meta->get_field('og:title'))
-			$this->meta->set('og:title',$this->page['title']);
+		if(! self::$meta->get_field('og:title'))
+			self::$meta->set('og:title',self::$page['title']);
 
-		$this->meta->set('generator', Zotlabs\Project\System::get_platform_name());
+		self::$meta->set('generator', Zotlabs\Project\System::get_platform_name());
 
 		/* put the head template at the beginning of page['htmlhead']
 		 * since the code added by the modules frequently depends on it
 		 * being first
 		 */
 		$tpl = get_markup_template('head.tpl');
-		$this->page['htmlhead'] = replace_macros($tpl, array(
+		self::$page['htmlhead'] = replace_macros($tpl, array(
 			'$preload_images' => $preload_images,
 			'$user_scalable' => $user_scalable,
-			'$baseurl' => $this->get_baseurl(),
+			'$query' => urlencode(self::$query_string),
+			'$baseurl' => self::get_baseurl(),
 			'$local_channel' => local_channel(),
-			'$metas' => $this->meta->get(),
+			'$metas' => self::$meta->get(),
 			'$update_interval' => $interval,
+			'osearch' => sprintf( t('Search %1$s (%2$s)','opensearch'), Zotlabs\Project\System::get_site_name(), t('$Projectname','opensearch')), 
 			'$icon' => head_get_icon(),
 			'$head_css' => head_get_css(),
 			'$head_js' => head_get_js(),
 			'$js_strings' => js_strings(),
 			'$zid' => get_my_address(),
-			'$channel_id' => $this->profile['uid'],
-		)) . $this->page['htmlhead'];
+			'$channel_id' => self::$profile['uid'],
+		)) . self::$page['htmlhead'];
 
 		// always put main.js at the end
-		$this->page['htmlhead'] .= head_get_main_js();
+		self::$page['htmlhead'] .= head_get_main_js();
 	}
 
 	/**
@@ -1058,7 +1091,7 @@ class App {
 	* @param string $class
 	* @param string $name
 	*/
-	function register_template_engine($class, $name = '') {
+	public static function register_template_engine($class, $name = '') {
 		if ($name === ""){
 			$v = get_class_vars( $class );
 			if(x($v, "name")) $name = $v['name'];
@@ -1067,7 +1100,7 @@ class App {
 			echo "template engine <tt>$class</tt> cannot be registered without a name.\n";
 			killme();
 		}
-		$this->template_engines[$name] = $class;
+		self::$template_engines[$name] = $class;
 	}
 
 	/**
@@ -1078,23 +1111,23 @@ class App {
 	*
 	* @return object Template Engine instance
 	*/
-	function template_engine($name = ''){
+	public static function template_engine($name = ''){
 		if ($name !== "") {
 			$template_engine = $name;
 		} else {
 			$template_engine = 'smarty3';
-			if (x($this->theme, 'template_engine')) {
-				$template_engine = $this->theme['template_engine'];
+			if (x(self::$theme, 'template_engine')) {
+				$template_engine = self::$theme['template_engine'];
 			}
 		}
 
-		if (isset($this->template_engines[$template_engine])){
-			if(isset($this->template_engine_instance[$template_engine])){
-				return $this->template_engine_instance[$template_engine];
+		if (isset(self::$template_engines[$template_engine])){
+			if(isset(self::$template_engine_instance[$template_engine])){
+				return self::$template_engine_instance[$template_engine];
 			} else {
-				$class = $this->template_engines[$template_engine];
+				$class = self::$template_engines[$template_engine];
 				$obj = new $class;
-				$this->template_engine_instance[$template_engine] = $obj;
+				self::$template_engine_instance[$template_engine] = $obj;
 				return $obj;
 			}
 		}
@@ -1107,28 +1140,28 @@ class App {
 	 *
 	 * @return string
 	 */
-	function get_template_engine() {
-		return $this->theme['template_engine'];
+	public static function get_template_engine() {
+		return self::$theme['template_engine'];
 	}
 
-	function set_template_engine($engine = 'smarty3') {
-		$this->theme['template_engine'] = $engine;
+	public static function set_template_engine($engine = 'smarty3') {
+		self::$theme['template_engine'] = $engine;
 	}
 
-	function get_template_ldelim($engine = 'smarty3') {
-		return $this->ldelim[$engine];
+	public static function get_template_ldelim($engine = 'smarty3') {
+		return self::$ldelim[$engine];
 	}
 
-	function get_template_rdelim($engine = 'smarty3') {
-		return $this->rdelim[$engine];
+	public static function get_template_rdelim($engine = 'smarty3') {
+		return self::$rdelim[$engine];
 	}
 
-	function head_set_icon($icon) {
-		$this->data['pageicon'] = $icon;
+	public static function head_set_icon($icon) {
+		self::$data['pageicon'] = $icon;
 	}
 
-	function head_get_icon() {
-		$icon = $this->data['pageicon'];
+	public static function head_get_icon() {
+		$icon = self::$data['pageicon'];
 		if(! strpos($icon,'://'))
 			$icon = z_root() . $icon;
 		return $icon;
@@ -1197,7 +1230,7 @@ function system_unavailable() {
 function clean_urls() {
 	global $a;
 
-	//	if($a->config['system']['clean_urls'])
+	//	if(App::$config['system']['clean_urls'])
 	return true;
 	//	return false;
 }
@@ -1205,7 +1238,7 @@ function clean_urls() {
 function z_path() {
 	global $a;
 
-	$base = $a->get_baseurl();
+	$base = z_root();
 	if(! clean_urls())
 		$base .= '/?q=';
 
@@ -1221,7 +1254,7 @@ function z_path() {
  */
 function z_root() {
 	global $a;
-	return $a->get_baseurl();
+	return App::get_baseurl();
 }
 
 /**
@@ -1292,7 +1325,7 @@ function check_config(&$a) {
 	// This will actually set the url to the one stored in .htconfig, and ignore what
 	// we're passing - unless we are installing and it has never been set.
 
-	$a->set_baseurl($a->get_baseurl());
+	App::set_baseurl(z_root());
 
 	// Make sure each site has a system channel.  This is now created on install
 	// so we just need to keep this around a couple of weeks until the hubs that
@@ -1353,15 +1386,15 @@ function check_config(&$a) {
 
 							$email_tpl = get_intltext_template("update_fail_eml.tpl");
 							$email_msg = replace_macros($email_tpl, array(
-								'$sitename' => $a->config['system']['sitename'],
-								'$siteurl' =>  $a->get_baseurl(),
+								'$sitename' => App::$config['system']['sitename'],
+								'$siteurl' =>  z_root(),
 								'$update' => $x,
 								'$error' => sprintf( t('Update %s failed. See error logs.'), $x)
 							));
 
-							$subject = email_header_encode(sprintf(t('Update Error at %s'), $a->get_baseurl()));
+							$subject = email_header_encode(sprintf(t('Update Error at %s'), z_root()));
 
-							mail($a->config['system']['admin_email'], $subject, $email_msg,
+							mail(App::$config['system']['admin_email'], $subject, $email_msg,
 								'From: Administrator' . '@' . $_SERVER['SERVER_NAME'] . "\n"
 								. 'Content-type: text/plain; charset=UTF-8' . "\n"
 								. 'Content-transfer-encoding: 8bit' );
@@ -1381,7 +1414,7 @@ function check_config(&$a) {
 	 *
 	 * Synchronise plugins:
 	 *
-	 * $a->config['system']['addon'] contains a comma-separated list of names
+	 * App::$config['system']['addon'] contains a comma-separated list of names
 	 * of plugins/addons which are used on this system.
 	 * Go through the database list of already installed addons, and if we have
 	 * an entry, but it isn't in the config list, call the unload procedure
@@ -1403,7 +1436,7 @@ function check_config(&$a) {
 	if($plugins)
 		$plugins_arr = explode(',', str_replace(' ', '', $plugins));
 
-	$a->plugins = $plugins_arr;
+	App::$plugins = $plugins_arr;
 
 	$installed_arr = array();
 
@@ -1510,14 +1543,45 @@ function fix_system_urls($oldurl, $newurl) {
 				intval($c[0]['channel_id'])
 			);
 
+			$m = q("select abook_id, abook_instance from abook where abook_instance like '%s' and abook_channel = %d",
+				dbesc('%' . $oldurl . '%'),
+				intval($c[0]['channel_id'])
+			);
+			if($m) {
+				foreach($m as $mm) {
+					q("update abook set abook_instance = '%s' where abook_id = %d",
+						dbesc(str_replace($oldurl,$newurl,$mm['abook_instance'])),
+						intval($mm['abook_id'])
+					);
+				}
+			}
+
 			proc_run('php', 'include/notifier.php', 'refresh_all', $c[0]['channel_id']);
 		}
 	}
+
+	// now replace any remote xchans whose photos are stored locally (which will be most if not all remote xchans)
+
+	$r = q("select * from xchan where xchan_photo_l like '%s'",
+		dbesc($oldurl . '%')
+	);
+
+	if($r) {
+		foreach($r as $rr) {
+			$x = q("update xchan set xchan_photo_l = '%s', xchan_photo_m = '%s', xchan_photo_s = '%s' where xchan_hash = '%s'",
+				dbesc(str_replace($oldurl,$newurl,$rr['xchan_photo_l'])),
+				dbesc(str_replace($oldurl,$newurl,$rr['xchan_photo_m'])),
+				dbesc(str_replace($oldurl,$newurl,$rr['xchan_photo_s'])),
+				dbesc($rr['xchan_hash'])
+			);
+		}
+	}
+
 }
 
 
 // wrapper for adding a login box. If $register == true provide a registration
-// link. This will most always depend on the value of $a->config['system']['register_policy'].
+// link. This will most always depend on the value of App::$config['system']['register_policy'].
 // returns the complete html for inserting into the page
 
 function login($register = false, $form_id = 'main-login', $hiddens=false) {
@@ -1534,15 +1598,15 @@ function login($register = false, $form_id = 'main-login', $hiddens=false) {
 		'link' => (($register) ? $reglink : 'pubsites')
 	);
 
-	$dest_url = $a->get_baseurl(true) . '/' . $a->query_string;
+	$dest_url = z_root() . '/' . App::$query_string;
 
 	if(local_channel()) {
 		$tpl = get_markup_template("logout.tpl");
 	}
 	else {
 		$tpl = get_markup_template("login.tpl");
-		if(strlen($a->query_string))
-			$_SESSION['login_return_url'] = $a->query_string;
+		if(strlen(App::$query_string))
+			$_SESSION['login_return_url'] = App::$query_string;
 	}
 
 	$o .= replace_macros($tpl,array(
@@ -1552,7 +1616,7 @@ function login($register = false, $form_id = 'main-login', $hiddens=false) {
 		'$form_id'      => $form_id,
 		'$lname'        => array('username', t('Email') , '', ''),
 		'$lpassword'    => array('password', t('Password'), '', ''),
-		'$remember'     => array('remember', t('Remember me'), '', '',array(t('No'),t('Yes'))),
+		'$remember_me'  => array('remember_me', t('Remember me'), '', '',array(t('No'),t('Yes'))),
 		'$hiddens'      => $hiddens,
 		'$register'     => $reg,
 		'$lostpass'     => t('Forgot your password?'),
@@ -1569,7 +1633,16 @@ function login($register = false, $form_id = 'main-login', $hiddens=false) {
  * @brief Used to end the current process, after saving session state.
  */
 function killme() {
-	session_write_close();
+
+	// Ensure that closing the database is the last function on the shutdown stack.
+	// If it is closed prematurely sessions might not get saved correctly.
+	// Note the second arg to PHP's session_set_save_handler() seems to order that shutdown 
+	// procedure last despite our best efforts, so we don't use that and implictly
+	// call register_shutdown_function('session_write_close'); within Zotlabs\Web\Session::init()
+	// and then register the database close function here where nothing else can register
+	// after it.
+
+	register_shutdown_function('shutdown');
 	exit;
 }
 
@@ -1579,6 +1652,11 @@ function killme() {
 function goaway($s) {
 	header("Location: $s");
 	killme();
+}
+
+function shutdown() {
+	global $db;
+	$db->close();
 }
 
 /**
@@ -1594,8 +1672,8 @@ function get_account_id() {
 	if(intval($_SESSION['account_id']))
 		return intval($_SESSION['account_id']);
 
-	if(get_app()->account)
-		return intval(get_app()->account['account_id']);
+	if(App::$account)
+		return intval(App::$account['account_id']);
 
 	return false;
 }
@@ -1678,7 +1756,7 @@ function notice($s) {
 	if(in_array($s,$_SESSION['sysmsg']))
 		return;
 
-	if($a->interactive) {
+	if(App::$interactive) {
 		$_SESSION['sysmsg'][] = $s;
 	}
 
@@ -1694,7 +1772,7 @@ function notice($s) {
 function info($s) {
 	$a = get_app();
 	if(! x($_SESSION, 'sysmsg_info')) $_SESSION['sysmsg_info'] = array();
-	if($a->interactive)
+	if(App::$interactive)
 		$_SESSION['sysmsg_info'][] = $s;
 }
 
@@ -1747,12 +1825,12 @@ function proc_run($cmd){
 
 	$arr = array('args' => $args, 'run_cmd' => true);
 
-	call_hooks("proc_run", $arr);
+	call_hooks('proc_run', $arr);
 	if(! $arr['run_cmd'])
 		return;
 
 	if(count($args) && $args[0] === 'php')
-		$args[0] = ((x($a->config,'system')) && (x($a->config['system'],'php_path')) && (strlen($a->config['system']['php_path'])) ? $a->config['system']['php_path'] : 'php');
+		$args[0] = ((x(App::$config,'system')) && (x(App::$config['system'],'php_path')) && (strlen(App::$config['system']['php_path'])) ? App::$config['system']['php_path'] : 'php');
 
 	for($x = 0; $x < count($args); $x++)
 		$args[$x] = escapeshellarg($args[$x]);
@@ -1790,29 +1868,29 @@ function current_theme(){
 
 	// Find the theme that belongs to the channel whose stuff we are looking at
 
-	if($a->profile_uid && $a->profile_uid != local_channel()) {
+	if(App::$profile_uid && App::$profile_uid != local_channel()) {
 		$r = q("select channel_theme from channel where channel_id = %d limit 1",
-			intval($a->profile_uid)
+			intval(App::$profile_uid)
 		);
 		if($r)
 			$page_theme = $r[0]['channel_theme'];
 	}
 
-	if(array_key_exists('theme', $a->layout) && $a->layout['theme'])
-		$page_theme = $a->layout['theme'];
+	if(array_key_exists('theme', App::$layout) && App::$layout['theme'])
+		$page_theme = App::$layout['theme'];
 
 	// Allow folks to over-rule channel themes and always use their own on their own site.
 	// The default is for channel themes to take precedence over your own on pages belonging
 	// to that channel.
 
-	if($page_theme && local_channel() && local_channel() != $a->profile_url) {
+	if($page_theme && local_channel() && App::$profile_uid && local_channel() != App::$profile_uid) {
 		if(get_pconfig(local_channel(),'system','always_my_theme'))
 			$page_theme = null;
 	}
 
-	$is_mobile = $a->is_mobile || $a->is_tablet;
+	$is_mobile = App::$is_mobile || App::$is_tablet;
 
-	$standard_system_theme = ((isset($a->config['system']['theme'])) ? $a->config['system']['theme'] : '');
+	$standard_system_theme = ((isset(App::$config['system']['theme'])) ? App::$config['system']['theme'] : '');
 	$standard_theme_name = ((isset($_SESSION) && x($_SESSION,'theme')) ? $_SESSION['theme'] : $standard_system_theme);
 
 	if($is_mobile) {
@@ -1821,7 +1899,7 @@ function current_theme(){
 			$theme_name = $standard_theme_name;
 		}
 		else {
-			$system_theme = ((isset($a->config['system']['mobile_theme'])) ? $a->config['system']['mobile_theme'] : '');
+			$system_theme = ((isset(App::$config['system']['mobile_theme'])) ? App::$config['system']['mobile_theme'] : '');
 			$theme_name = ((isset($_SESSION) && x($_SESSION,'mobile_theme')) ? $_SESSION['mobile_theme'] : $system_theme);
 
 			if($theme_name === '' || $theme_name === '---' ) {
@@ -1872,8 +1950,8 @@ function current_theme_url($installing = false) {
 	$t = current_theme();
 
 	$opts = '';
-	$opts = (($a->profile_uid) ? '?f=&puid=' . $a->profile_uid : '');
-	$opts .= ((x($a->layout,'schema')) ? '&schema=' . $a->layout['schema'] : '');
+	$opts = ((App::$profile_uid) ? '?f=&puid=' . App::$profile_uid : '');
+	$opts .= ((x(App::$layout,'schema')) ? '&schema=' . App::$layout['schema'] : '');
 	if(file_exists('view/theme/' . $t . '/php/style.php'))
 		return('view/theme/' . $t . '/php/style.pcss' . $opts);
 
@@ -1894,8 +1972,8 @@ function is_site_admin() {
 		return false;
 
 	if((intval($_SESSION['authenticated']))
-		&& (is_array($a->account))
-		&& ($a->account['account_roles'] & ACCOUNT_ROLE_ADMIN))
+		&& (is_array(App::$account))
+		&& (App::$account['account_roles'] & ACCOUNT_ROLE_ADMIN))
 		return true;
 
 	return false;
@@ -1911,8 +1989,8 @@ function is_site_admin() {
 function is_developer() {
 	$a = get_app();
 	if((intval($_SESSION['authenticated']))
-		&& (is_array($a->account))
-		&& ($a->account['account_roles'] & ACCOUNT_ROLE_DEVELOPER))
+		&& (is_array(App::$account))
+		&& (App::$account['account_roles'] & ACCOUNT_ROLE_DEVELOPER))
 		return true;
 
 	return false;
@@ -1924,7 +2002,7 @@ function load_contact_links($uid) {
 
 	$ret = array();
 
-	if(! $uid || x($a->contacts,'empty'))
+	if(! $uid || x(App::$contacts,'empty'))
 		return;
 
 //	logger('load_contact_links');
@@ -1940,7 +2018,7 @@ function load_contact_links($uid) {
 	else
 		$ret['empty'] = true;
 
-	$a->contacts = $ret;
+	App::$contacts = $ret;
 }
 
 
@@ -1977,12 +2055,12 @@ function build_querystring($params, $name = null) {
 // much better way of dealing with c-style args
 
 function argc() {
-	return get_app()->argc;
+	return App::$argc;
 }
 
 function argv($x) {
-	if(array_key_exists($x,get_app()->argv))
-		return get_app()->argv[$x];
+	if(array_key_exists($x,App::$argv))
+		return App::$argv[$x];
 
 	return '';
 }
@@ -1997,7 +2075,7 @@ function dba_timer() {
  * @return string Empty if no observer, otherwise xchan_hash from observer
  */
 function get_observer_hash() {
-	$observer = get_app()->get_observer();
+	$observer = App::get_observer();
 	if(is_array($observer))
 		return $observer['xchan_hash'];
 
@@ -2036,7 +2114,7 @@ function curPageURL() {
  */
 function get_custom_nav(&$a, $navname) {
 	if (! $navname)
-		return $a->page['nav'];
+		return App::$page['nav'];
 	// load custom nav menu by name here
 }
 
@@ -2049,16 +2127,19 @@ function get_custom_nav(&$a, $navname) {
  * @param App &$a global application object
  */
 function load_pdl(&$a) {
-	require_once('include/comanche.php');
 
-	if (! count($a->layout)) {
+	App::$comanche = new Zotlabs\Render\Comanche();
 
-		$arr = array('module' => $a->module, 'layout' => '');
+	//	require_once('include/comanche.php');
+
+	if (! count(App::$layout)) {
+
+		$arr = array('module' => App::$module, 'layout' => '');
 		call_hooks('load_pdl',$arr);
 		$layout = $arr['layout'];
 
-		$n = 'mod_' . $a->module . '.pdl' ;
-		$u = comanche_get_channel_id();
+		$n = 'mod_' . App::$module . '.pdl' ;
+		$u = App::$comanche->get_channel_id();
 		if($u)
 			$s = get_pconfig($u, 'system', $n);
 		if(! $s)
@@ -2067,8 +2148,8 @@ function load_pdl(&$a) {
 		if((! $s) && (($p = theme_include($n)) != ''))
 			$s = @file_get_contents($p);
 		if($s) {
-			comanche_parser($a, $s);
-			$a->pdl = $s;
+			App::$comanche->parse($s);
+			App::$pdl = $s;
 		}
 	}
 
@@ -2076,10 +2157,10 @@ function load_pdl(&$a) {
 
 
 function exec_pdl(&$a) {
-	require_once('include/comanche.php');
+//	require_once('include/comanche.php');
 
-	if($a->pdl) {
-		comanche_parser($a, $a->pdl,1);
+	if(App::$pdl) {
+		App::$comanche->parse(App::$pdl,1);
 	}
 }
 
@@ -2095,126 +2176,126 @@ function construct_page(&$a) {
 
 	exec_pdl($a);
 
-	$comanche = ((count($a->layout)) ? true : false);
+	$comanche = ((count(App::$layout)) ? true : false);
 
 	require_once(theme_include('theme_init.php'));
 
 	$installing = false;
 
-	if ($a->module == 'setup') {
+	if (App::$module == 'setup') {
 		$installing = true;
 	} else {
 		nav($a);
 	}
 
 	if ($comanche) {
-		if ($a->layout['nav']) {
-			$a->page['nav'] = get_custom_nav($a, $a->layout['nav']);
+		if (App::$layout['nav']) {
+			App::$page['nav'] = get_custom_nav($a, App::$layout['nav']);
 		}
 	}
 
 	if (($p = theme_include(current_theme() . '.js')) != '')
 		head_add_js($p);
 
-	if (($p = theme_include('mod_' . $a->module . '.php')) != '')
+	if (($p = theme_include('mod_' . App::$module . '.php')) != '')
 		require_once($p);
 
 	require_once('include/js_strings.php');
 
-	if (x($a->page, 'template_style'))
-		head_add_css($a->page['template_style'] . '.css');
+	if (x(App::$page, 'template_style'))
+		head_add_css(App::$page['template_style'] . '.css');
 	else
-		head_add_css(((x($a->page, 'template')) ? $a->page['template'] : 'default' ) . '.css');
+		head_add_css(((x(App::$page, 'template')) ? App::$page['template'] : 'default' ) . '.css');
 
-	head_add_css('mod_' . $a->module . '.css');
+	head_add_css('mod_' . App::$module . '.css');
 	head_add_css(current_theme_url($installing));
 
-	head_add_js('mod_' . $a->module . '.js');
+	head_add_js('mod_' . App::$module . '.js');
 
-	$a->build_pagehead();
+	App::build_pagehead();
 
-	if($a->page['pdl_content']) {
-		$a->page['content'] = comanche_region($a,$a->page['content']);
+	if(App::$page['pdl_content']) {
+		App::$page['content'] = App::$comanche->region(App::$page['content']);
 	}
 
 	// Let's say we have a comanche declaration '[region=nav][/region][region=content]$nav $content[/region]'.
 	// The text 'region=' identifies a section of the layout by that name. So what we want to do here is leave
-	// $a->page['nav'] empty and put the default content from $a->page['nav'] and $a->page['section']
-	// into a new region called $a->data['content']. It is presumed that the chosen layout file for this comanche page
+	// App::$page['nav'] empty and put the default content from App::$page['nav'] and App::$page['section']
+	// into a new region called App::$data['content']. It is presumed that the chosen layout file for this comanche page
 	// has a '<content>' element instead of a '<section>'.
 
 	// This way the Comanche layout can include any existing content, alter the layout by adding stuff around it or changing the
 	// layout completely with a new layout definition, or replace/remove existing content.
 
 	if($comanche) {
-		$arr = array('module' => $a->module, 'layout' => $a->layout);
+		$arr = array('module' => App::$module, 'layout' => App::$layout);
 		call_hooks('construct_page', $arr);
-		$a->layout = $arr['layout'];
+		App::$layout = $arr['layout'];
 
 
-		foreach($a->layout as $k => $v) {
+		foreach(App::$layout as $k => $v) {
 			if((strpos($k, 'region_') === 0) && strlen($v)) {
 				if(strpos($v, '$region_') !== false) {
-					$v = preg_replace_callback('/\$region_([a-zA-Z0-9]+)/ism', 'comanche_replace_region', $v);
+					$v = preg_replace_callback('/\$region_([a-zA-Z0-9]+)/ism', array(App::$comanche,'replace_region'), $v);
 				}
 
 				// And a couple of convenience macros
 				if(strpos($v, '$htmlhead') !== false) {
-					$v = str_replace('$htmlhead', $a->page['htmlhead'], $v);
+					$v = str_replace('$htmlhead', App::$page['htmlhead'], $v);
 				}
 				if(strpos($v, '$nav') !== false) {
-					$v = str_replace('$nav', $a->page['nav'], $v);
+					$v = str_replace('$nav', App::$page['nav'], $v);
 				}
 				if(strpos($v, '$content') !== false) {
-					$v = str_replace('$content', $a->page['content'], $v);
+					$v = str_replace('$content', App::$page['content'], $v);
 				}
 
-				$a->page[substr($k, 7)] = $v;
+				App::$page[substr($k, 7)] = $v;
 			}
 		}
 	}
 
-	if($a->is_mobile || $a->is_tablet) {
+	if(App::$is_mobile || App::$is_tablet) {
 		if(isset($_SESSION['show_mobile']) && !$_SESSION['show_mobile']) {
-			$link = $a->get_baseurl() . '/toggle_mobile?f=&address=' . curPageURL();
+			$link = z_root() . '/toggle_mobile?f=&address=' . curPageURL();
 		}
 		else {
-			$link = $a->get_baseurl() . '/toggle_mobile?f=&off=1&address=' . curPageURL();
+			$link = z_root() . '/toggle_mobile?f=&off=1&address=' . curPageURL();
 		}
 		if ((isset($_SESSION) && $_SESSION['mobile_theme'] !='' && $_SESSION['mobile_theme'] !='---' ) ||
-			(isset($a->config['system']['mobile_theme']) && !isset($_SESSION['mobile_theme']))) {
-			$a->page['footer'] .= replace_macros(get_markup_template("toggle_mobile_footer.tpl"), array(
+			(isset(App::$config['system']['mobile_theme']) && !isset($_SESSION['mobile_theme']))) {
+			App::$page['footer'] .= replace_macros(get_markup_template("toggle_mobile_footer.tpl"), array(
 				'$toggle_link' => $link,
 				'$toggle_text' => t('toggle mobile')
 			));
 		}
 	}
 
-	$page    = $a->page;
-	$profile = $a->profile;
+	$page    = App::$page;
+	$profile = App::$profile;
 
 	header("Content-type: text/html; charset=utf-8");
 
 	// security headers - see https://securityheaders.io
 
-	if($a->get_scheme() === 'https' && $a->config['system']['transport_security_header'])
+	if(App::get_scheme() === 'https' && App::$config['system']['transport_security_header'])
 		header("Strict-Transport-Security: max-age=31536000");
 
-	if($a->config['system']['content_security_policy'])
+	if(App::$config['system']['content_security_policy'])
 		header("Content-Security-Policy: script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'");
 
-	if($a->config['system']['x_security_headers']) {
+	if(App::$config['system']['x_security_headers']) {
 		header("X-Frame-Options: SAMEORIGIN");
 		header("X-Xss-Protection: 1; mode=block;");
 		header("X-Content-Type-Options: nosniff");	
 	}
 
-	if($a->config['system']['public_key_pins']) {
-		header("Public-Key-Pins: " . $a->config['system']['public_key_pins']);
+	if(App::$config['system']['public_key_pins']) {
+		header("Public-Key-Pins: " . App::$config['system']['public_key_pins']);
 	}
 
 	require_once(theme_include(
-		((x($a->page, 'template')) ? $a->page['template'] : 'default' ) . '.php' )
+		((x(App::$page, 'template')) ? App::$page['template'] : 'default' ) . '.php' )
 	);
 }
 
@@ -2235,7 +2316,7 @@ function appdirpath() {
 function head_set_icon($icon) {
 	global $a;
 
-	$a->data['pageicon'] = $icon;
+	App::$data['pageicon'] = $icon;
 //	logger('head_set_icon: ' . $icon);
 }
 
@@ -2247,7 +2328,7 @@ function head_set_icon($icon) {
 function head_get_icon() {
 	global $a;
 
-	$icon = $a->data['pageicon'];
+	$icon = App::$data['pageicon'];
 	if(! strpos($icon, '://'))
 		$icon = z_root() . $icon;
 
@@ -2336,14 +2417,14 @@ function cert_bad_email() {
 
 	$email_tpl = get_intltext_template("cert_bad_eml.tpl");
 	$email_msg = replace_macros($email_tpl, array(
-		'$sitename' => $a->config['system']['sitename'],
-		'$siteurl' =>  $a->get_baseurl(),
+		'$sitename' => App::$config['system']['sitename'],
+		'$siteurl' =>  z_root(),
 		'$error' => t('Website SSL certificate is not valid. Please correct.')
 	));
 
-	$subject = email_header_encode(sprintf(t('[hubzilla] Website SSL error for %s'), $a->get_hostname()));
-	mail($a->config['system']['admin_email'], $subject, $email_msg,
-		'From: Administrator' . '@' . $a->get_hostname() . "\n"
+	$subject = email_header_encode(sprintf(t('[hubzilla] Website SSL error for %s'), App::get_hostname()));
+	mail(App::$config['system']['admin_email'], $subject, $email_msg,
+		'From: Administrator' . '@' . App::get_hostname() . "\n"
 		. 'Content-type: text/plain; charset=UTF-8' . "\n"
 		. 'Content-transfer-encoding: 8bit' );
 }
@@ -2376,15 +2457,15 @@ function check_cron_broken() {
 
 	$email_tpl = get_intltext_template("cron_bad_eml.tpl");
 	$email_msg = replace_macros($email_tpl, array(
-		'$sitename' => $a->config['system']['sitename'],
-		'$siteurl' =>  $a->get_baseurl(),
+		'$sitename' => App::$config['system']['sitename'],
+		'$siteurl' =>  z_root(),
 		'$error' => t('Cron/Scheduled tasks not running.'),
 		'$lastdate' => (($d)? $d : t('never'))
 	));
 
-	$subject = email_header_encode(sprintf(t('[hubzilla] Cron tasks not running on %s'), $a->get_hostname()));
-	mail($a->config['system']['admin_email'], $subject, $email_msg,
-		'From: Administrator' . '@' . $a->get_hostname() . "\n"
+	$subject = email_header_encode(sprintf(t('[hubzilla] Cron tasks not running on %s'), App::get_hostname()));
+	mail(App::$config['system']['admin_email'], $subject, $email_msg,
+		'From: Administrator' . '@' . App::get_hostname() . "\n"
 		. 'Content-type: text/plain; charset=UTF-8' . "\n"
 		. 'Content-transfer-encoding: 8bit' );
 	set_config('system','lastpollcheck',datetime_convert());

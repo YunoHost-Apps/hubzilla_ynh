@@ -62,11 +62,11 @@ function new_channel_post(&$a) {
 
 	$arr = $_POST;
 
-	$acc = $a->get_account();
+	$acc = App::get_account();
 	$arr['account_id'] = get_account_id();
 
 	// prevent execution by delegated channels as well as those not logged in. 
-	// get_account_id() returns the account_id from the session. But $a->account
+	// get_account_id() returns the account_id from the session. But App::$account
 	// may point to the original authenticated account. 
 
 	if((! $acc) || ($acc['account_id'] != $arr['account_id'])) {
@@ -94,7 +94,7 @@ function new_channel_post(&$a) {
 
 function new_channel_content(&$a) {
 
-	$acc = $a->get_account();
+	$acc = App::get_account();
 
 	if((! $acc) || $acc['account_id'] != get_account_id()) {
 		notice( t('Permission denied.') . EOL);
@@ -122,7 +122,7 @@ function new_channel_content(&$a) {
 	}
 
 	$name = array('name', t('Name or caption'), ((x($_REQUEST,'name')) ? $_REQUEST['name'] : ''), t('Examples: "Bob Jameson", "Lisa and her Horses", "Soccer", "Aviation Group"'));
-	$nickhub = '@' . str_replace(array('http://','https://','/'), '', get_config('system','baseurl'));
+	$nickhub = '@' . App::get_hostname();
 	$nickname = array('nickname', t('Choose a short nickname'), ((x($_REQUEST,'nickname')) ? $_REQUEST['nickname'] : ''), sprintf( t('Your nickname will be used to create an easy to remember channel address e.g. nickname%s'), $nickhub));
 	$privacy_role = ((x($_REQUEST,'permissions_role')) ? $_REQUEST['permissions_role'] :  "" );
 	$role = array('permissions_role' , t('Channel role and privacy'), ($privacy_role) ? $privacy_role : 'social', t('Select a channel role with your privacy requirements.') . ' <a href="help/roles" target="_blank">' . t('Read more about roles') . '</a>',get_roles());

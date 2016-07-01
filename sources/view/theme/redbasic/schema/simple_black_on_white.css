@@ -51,8 +51,21 @@
 	background-image: linear-gradient(to bottom, #fff 0px, #fff 100%);
 }
 
+#acl-select {
+       border: 1px solid #000;
+       color: #000;
+}
+
+.acl-list-item {
+	border: 1px solid #000;
+	background-color: #FFF;
+
+}
+
 .abook-self {
-	background-color: #fff;
+	border: 1px solid #EEE;
+	color: #ccc;
+	background-color: #EEE;
 }
 
 .acl-button-show,
@@ -60,15 +73,7 @@
 	color: #000;
 }
 
-#acl-showall {
-	color: #000;
-}
-
 #acl-list {
-	border: 1px solid #fff;
-}
-
-.acl-list-item {
 	border: 1px solid #fff;
 }
 
@@ -274,4 +279,14 @@ pre {
 .nav-tabs.nav-justified {
 	background-color: inherit;
 	border: none;
+}
+
+.help-content {
+	border-bottom: #000 thin solid;
+}
+
+.help-content-open {
+  	-moz-box-shadow: none;
+  	-webkit-box-shadow: none;
+  	box-shadow: none;
 }

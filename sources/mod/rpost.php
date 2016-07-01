@@ -1,6 +1,6 @@
 <?php /** @file */
 
-require_once('acl_selectors.php');
+require_once('include/acl_selectors.php');
 require_once('include/crypto.php');
 require_once('include/items.php');
 require_once('include/taxonomy.php');
@@ -37,9 +37,9 @@ function rpost_content(&$a) {
 			// by the wretched beast called 'suhosin'. All the browsers now allow long GET requests, but suhosin
 			// blocks them.
 
-			$url = get_rpost_path($a->get_observer());
+			$url = get_rpost_path(App::get_observer());
 			// make sure we're not looping to our own hub
-			if(($url) && (! stristr($url, $a->get_hostname()))) {
+			if(($url) && (! stristr($url, App::get_hostname()))) {
 				foreach($_REQUEST as $key => $arg) {
 					$url .= '&' . $key . '=' . $arg;
 				}
@@ -92,7 +92,7 @@ function rpost_content(&$a) {
 		$_REQUEST['body'] = html2bbcode($_REQUEST['body']); 
 	}
 
-	$channel = $a->get_channel();
+	$channel = App::get_channel();
 
 
 	$acl = new Zotlabs\Access\AccessList($channel);

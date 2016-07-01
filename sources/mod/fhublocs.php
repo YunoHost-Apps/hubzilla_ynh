@@ -38,7 +38,7 @@ function fhublocs_content(&$a) {
 			if($y)
 				$primary_address = $y[0]['xchan_addr'];
 
-			$hub_address = $rr['channel']['channel_address'] . '@' . get_app()->get_hostname();
+			$hub_address = $rr['channel']['channel_address'] . '@' . App::get_hostname();
 
 		
 			$primary = (($hub_address === $primary_address) ? 1 : 0);
@@ -57,11 +57,11 @@ function fhublocs_content(&$a) {
 				dbesc($rr['channel_guid']),
 				dbesc($rr['channel_guid_sig']),
 				dbesc($rr['channel_hash']),
-				dbesc($rr['channel_address'] . '@' . get_app()->get_hostname()),
+				dbesc($rr['channel_address'] . '@' . App::get_hostname()),
 				intval($primary),
 				dbesc(z_root()),
 				dbesc(base64url_encode(rsa_sign(z_root(),$rr['channel_prvkey']))),
-				dbesc(get_app()->get_hostname()),
+				dbesc(App::get_hostname()),
 				dbesc(z_root() . '/post'),
 				dbesc($sitekey),
 				dbesc('zot')

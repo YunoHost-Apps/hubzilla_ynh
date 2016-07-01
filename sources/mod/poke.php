@@ -22,7 +22,7 @@ function poke_init(&$a) {
 		return;
 
 	$uid = local_channel();
-	$channel = $a->get_channel();
+	$channel = App::get_channel();
 
 	$verb = notags(trim($_REQUEST['verb']));
 	

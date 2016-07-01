@@ -1,4 +1,13 @@
 @media screen and (min-width: 760px) {
+
+	aside {
+		padding-top: 52px;
+	}
+
+	section {
+		padding-top: 52px;
+	}
+
 	.navbar-nav > li > a {
 		padding-top:7px !important;
 		padding-bottom:3px !important;
@@ -55,5 +64,9 @@
 	#jGrowl.top-right {
 		top: 30px;
 		right: 15px;
+	}
+
+	.contextual-help-content-open {
+		top: 32px;
 	}
 }

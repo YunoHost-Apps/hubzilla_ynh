@@ -1,0 +1,18 @@
+.abook-them,
+.abook-me {
+	font-weight: bold;
+}
+
+.slider {
+	position: relative;
+	left: 1%;
+	padding-bottom: 15px;
+}
+
+#perms-tool-table {
+	width: 100%;
+}
+
+#perms-tool-table td {
+	vertical-align: top;
+}

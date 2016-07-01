@@ -1,0 +1,9 @@
+#!/usr/bin/env php
+<?php
+
+
+@include("../.htconfig.php");
+
+# -port is useless, ignored
+exec("java -jar schemaSpy_5.0.0.jar -t mysql -host $db_host -port $db_port -db $db_data -u $db_user -p $db_pass -dp mysql-connector-java-5.1.17.jar -meta zot.xml -o .");
+

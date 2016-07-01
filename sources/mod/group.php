@@ -20,11 +20,11 @@ function group_post(&$a) {
 			info( t('Privacy group created.') . EOL );
 			$r = group_byname(local_channel(),$name);
 			if($r)
-				goaway($a->get_baseurl() . '/group/' . $r);
+				goaway(z_root() . '/group/' . $r);
 		}
 		else
 			notice( t('Could not create privacy group.') . EOL );	
-		goaway($a->get_baseurl() . '/group');
+		goaway(z_root() . '/group');
 
 	}
 	if((argc() == 2) && (intval(argv(1)))) {
@@ -36,7 +36,7 @@ function group_post(&$a) {
 		);
 		if(! $r) {
 			notice( t('Privacy group not found.') . EOL );
-			goaway($a->get_baseurl() . '/connections');
+			goaway(z_root() . '/connections');
 
 		}
 		$group = $r[0];
@@ -62,7 +62,7 @@ function group_post(&$a) {
 function group_content(&$a) {
 	$change = false;
 
-	logger('mod_group: ' . $a->cmd,LOGGER_DEBUG);
+	logger('mod_group: ' . App::$cmd,LOGGER_DEBUG);
 	
 	if(! local_channel()) {
 		notice( t('Permission denied') . EOL);
@@ -108,7 +108,7 @@ function group_content(&$a) {
 			else
 				notice( t('Unable to remove privacy group.') . EOL);
 		}
-		goaway($a->get_baseurl() . '/group');
+		goaway(z_root() . '/group');
 		// NOTREACHED
 	}
 
@@ -135,7 +135,7 @@ function group_content(&$a) {
 		);
 		if(! $r) {
 			notice( t('Privacy group not found.') . EOL );
-			goaway($a->get_baseurl() . '/connections');
+			goaway(z_root() . '/connections');
 		}
 		$group = $r[0];
 

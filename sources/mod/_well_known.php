@@ -25,36 +25,36 @@ function _well_known_init(&$a){
 
 		switch(argv(1)) {
 			case 'zot-info':
-				$a->argc -= 1;
-				array_shift($a->argv);
-				$a->argv[0] = 'zfinger';
+				App::$argc -= 1;
+				array_shift(App::$argv);
+				App::$argv[0] = 'zfinger';
 				require_once('mod/zfinger.php');
 				zfinger_init($a);
 				break;
 
 			case 'webfinger':
-				$a->argc -= 1;
-				array_shift($a->argv);
-				$a->argv[0] = 'wfinger';
+				App::$argc -= 1;
+				array_shift(App::$argv);
+				App::$argv[0] = 'wfinger';
 				require_once('mod/wfinger.php');
 				wfinger_init($a);
 				break;
 
 			case 'host-meta':
-				$a->argc -= 1;
-				array_shift($a->argv);
-				$a->argv[0] = 'hostxrd';
+				App::$argc -= 1;
+				array_shift(App::$argv);
+				App::$argv[0] = 'hostxrd';
 				require_once('mod/hostxrd.php');
 				hostxrd_init($a);
 				break;
 
 			default:
-				if(file_exists($a->cmd)) {
-					echo file_get_contents($a->cmd); 
+				if(file_exists(App::$cmd)) {
+					echo file_get_contents(App::$cmd); 
 					killme();
 				}
-				elseif(file_exists($a->cmd . '.php'))
-					require_once($a->cmd . '.php');
+				elseif(file_exists(App::$cmd . '.php'))
+					require_once(App::$cmd . '.php');
 				break;
 
 		}

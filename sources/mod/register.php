@@ -206,7 +206,7 @@ function register_content(&$a) {
 
 	$tosurl = get_config('system','tos_url');
 	if(! $tosurl)
-		$tosurl = $a->get_baseurl() . '/help/TermsOfService';
+		$tosurl = z_root() . '/help/TermsOfService';
 
 	$toslink = '<a href="' . $tosurl . '" target="_blank">' . t('Terms of Service') . '</a>';
 

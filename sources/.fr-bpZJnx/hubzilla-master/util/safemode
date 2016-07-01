@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+if [ $# == 0 ] ; then 
+	echo Usage: $0 on '|' $0 off
+	echo on saves current addons to addons-safemode and uninstalls all of them
+	echo off installs all addons in addons-safemode
+	exit
+fi
+
+
+if [ $1 == 'on' ] ; then
+	util/addons list > addons-safemode
+	for a in `cat addons-safemode` ; do
+		util/addons uninstall $a
+	done
+	exit
+fi
+
+if [ $1 == 'off' ] ; then
+	for a in `cat addons-safemode` ; do
+		util/addons install $a
+	done
+	exit
+fi
+
+
+	

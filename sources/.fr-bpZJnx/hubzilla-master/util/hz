@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# Simple, minimalist command line tool to post status to hubzilla via the API. Requires curl.
+# Put it in your path, and sneeze your statuses to the zot network from your shell.
+
+CONF=${HOME}/.hubzilla
+
+usage () {
+echo "usage: hz [conffile]"
+echo "Create a conf file, either in .hubzilla in your home directory, or supplied as an arg"
+echo " USER=youruserame "
+echo " PASS=yourpass"
+echo " HUB=your.hub.domain.org"
+echo
+echo "Type \"hz\" (with or without a conf file as an arg), then enter your message. Use ctrl-D to send.."
+
+}
+
+CUR=`which curl`
+
+[ "$CUR" ] || { echo "curl is not installed or on your path"; usage; exit 1; }
+
+[ "$1" ] && CONF="$1"
+
+
+. ${CONF}
+
+[ "$USER" ] || { echo "no USER"; usage; exit 1; }
+[ "$PASS" ] || { echo "no PASS"; usage; exit 1; }
+[ "$HUB" ] || { echo "no HUB"; usage; exit 1; }
+
+echo "enter your message to be posted as $USER @ $HUB, then hit Ctrl-D to send."
+
+MSG=$(cat)
+
+curl -ssl -u${USER}:${PASS} --data-urlencode "status=${MSG}" https://${HUB}/api/statuses/update
+
+

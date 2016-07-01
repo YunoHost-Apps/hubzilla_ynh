@@ -4,7 +4,7 @@ require_once('include/dir_fns.php');
 
 
 function dirsearch_init(&$a) {
-	$a->set_pager_itemspage(60);
+	App::set_pager_itemspage(60);
 
 }
 
@@ -166,7 +166,7 @@ function dirsearch_content(&$a) {
 		$logic = 'true';
 
 	if($dirmode == DIRECTORY_MODE_STANDALONE) {
-		$sql_extra .= " and xchan_addr like '%%" . get_app()->get_hostname() . "' ";
+		$sql_extra .= " and xchan_addr like '%%" . App::get_hostname() . "' ";
 	}
 
 	$safesql = (($safe > 0) ? " and xchan_censored = 0 and xchan_selfcensored = 0 " : '');

@@ -68,7 +68,7 @@ function pconfig_content(&$a) {
 	if(argc() == 2) {
 		$content .= '<a href="pconfig">pconfig[' . local_channel() . ']</a>' . EOL;
 		load_pconfig(local_channel(),escape_tags(argv(1)));
-		foreach($a->config[local_channel()][escape_tags(argv(1))] as $k => $x) {
+		foreach(App::$config[local_channel()][escape_tags(argv(1))] as $k => $x) {
 			$content .= '<a href="pconfig/' . escape_tags(argv(1)) . '/' . $k . '" >pconfig[' . local_channel() . '][' . escape_tags(argv(1)) . '][' . $k . ']</a> = ' . escape_tags($x) . EOL;
 		}
 	}

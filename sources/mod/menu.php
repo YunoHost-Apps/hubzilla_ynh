@@ -7,7 +7,7 @@ function menu_init(&$a) {
 	if (array_key_exists('sys', $_REQUEST) && $_REQUEST['sys'] && is_site_admin()) {
 		$sys = get_sys_channel();
 		if ($sys && intval($sys['channel_id'])) {
-			$a->is_sys = true;
+			App::$is_sys = true;
 		}
 	}
 }
@@ -19,7 +19,7 @@ function menu_post(&$a) {
 	if(array_key_exists('sys', $_REQUEST) && $_REQUEST['sys'] && is_site_admin()) {
 		$sys = get_sys_channel();
 		$uid = intval($sys['channel_id']);
-		$a->is_sys = true;
+		App::$is_sys = true;
 	}
 
 	if(! $uid)
@@ -39,7 +39,7 @@ function menu_post(&$a) {
 		if($r) {
 			menu_sync_packet($uid,get_observer_hash(),$menu_id);
 			//info( t('Menu updated.') . EOL);
-			goaway(z_root() . '/mitem/' . $menu_id . (($a->is_sys) ? '?f=&sys=1' : '')); 
+			goaway(z_root() . '/mitem/' . $menu_id . ((App::$is_sys) ? '?f=&sys=1' : '')); 
 		}
 		else
 			notice( t('Unable to update menu.'). EOL);
@@ -50,7 +50,7 @@ function menu_post(&$a) {
 			menu_sync_packet($uid,get_observer_hash(),$r);
 
 			//info( t('Menu created.') . EOL);
-			goaway(z_root() . '/mitem/' . $r . (($a->is_sys) ? '?f=&sys=1' : '')); 
+			goaway(z_root() . '/mitem/' . $r . ((App::$is_sys) ? '?f=&sys=1' : '')); 
 		}
 		else
 			notice( t('Unable to create menu.'). EOL);
@@ -65,7 +65,7 @@ function menu_content(&$a) {
 
 	$uid = local_channel();
 
-	if ($a->is_sys && is_site_admin()) {
+	if (App::$is_sys && is_site_admin()) {
 		$sys = get_sys_channel();
 		$uid = intval($sys['channel_id']);
 	}
@@ -95,7 +95,7 @@ function menu_content(&$a) {
 			'$menu_desc' => array('menu_desc', t('Menu Title'), '', t('Visible on webpage - leave empty for no title'), ''),
 			'$menu_bookmark' => array('menu_bookmark', t('Allow Bookmarks'), 0 , t('Menu may be used to store saved bookmarks'), array(t('No'), t('Yes'))),
 			'$submit' => t('Submit and proceed'),
-			'$sys' => $a->is_sys,
+			'$sys' => App::$is_sys,
 			'$display' => 'none'
 		));
 
@@ -115,7 +115,7 @@ function menu_content(&$a) {
 			'$hintdrop' => t('Delete this menu'),
 			'$hintcontent' => t('Edit menu contents'),
 			'$hintedit' => t('Edit this menu'),
-			'$sys' => $a->is_sys
+			'$sys' => App::$is_sys
 		));
 
 		return $o;
@@ -131,7 +131,7 @@ function menu_content(&$a) {
 				if(!$r)
 					notice( t('Menu could not be deleted.'). EOL);
 
-				goaway(z_root() . '/menu' . (($a->is_sys) ? '?f=&sys=1' : ''));
+				goaway(z_root() . '/menu' . ((App::$is_sys) ? '?f=&sys=1' : ''));
 			}
 
 			$m = menu_fetch_id(intval(argv(1)),$uid);
@@ -143,9 +143,9 @@ function menu_content(&$a) {
 
 			$o = replace_macros(get_markup_template('menuedit.tpl'), array(
 				'$header' => t('Edit Menu'),
-				'$sys' => $a->is_sys,
+				'$sys' => App::$is_sys,
 				'$menu_id' => intval(argv(1)),
-				'$menu_edit_link' => 'mitem/' . intval(argv(1)) . (($a->is_sys) ? '?f=&sys=1' : ''),
+				'$menu_edit_link' => 'mitem/' . intval(argv(1)) . ((App::$is_sys) ? '?f=&sys=1' : ''),
 				'$hintedit' => t('Add or remove entries to this menu'),
 				'$editcontents' => t('Edit menu contents'),
 				'$menu_name' => array('menu_name', t('Menu name'), $m['menu_name'], t('Must be unique, only seen by you'), '*'),

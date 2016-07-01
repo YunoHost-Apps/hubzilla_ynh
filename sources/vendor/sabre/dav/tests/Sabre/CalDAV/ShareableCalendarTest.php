@@ -15,10 +15,8 @@ class ShareableCalendarTest extends \PHPUnit_Framework_TestCase {
             'id' => 1,
         );
 
-        $this->backend = new Backend\Mock(
-            array($props),
-            array(),
-            array()
+        $this->backend = new Backend\MockSharing(
+            array($props)
         );
         $this->backend->updateShares(1, array(
             array(
@@ -55,8 +53,8 @@ class ShareableCalendarTest extends \PHPUnit_Framework_TestCase {
 
     function testPublish() {
 
-        $this->instance->setPublishStatus(true);
-        $this->instance->setPublishStatus(false);
+        $this->assertNull($this->instance->setPublishStatus(true));
+        $this->assertNull($this->instance->setPublishStatus(false));
 
     }
 }

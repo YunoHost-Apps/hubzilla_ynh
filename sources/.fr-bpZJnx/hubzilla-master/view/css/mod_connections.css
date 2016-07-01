@@ -1,0 +1,35 @@
+#contacts-search-form {
+	display: none;
+}
+
+.section-subtitle-wrapper .btn-xs {
+	margin-top: -2px;
+}
+
+.contact-search {
+	height: 22px;
+	border-top-right-radius: 0px;
+	border-bottom-right-radius: 0px;
+}
+
+.directory-photo-img.archived {
+	opacity: 0.3;
+	filter:alpha(opacity=30);
+}
+
+.contact-photo-wrapper {
+	display: table-cell;
+	table-layout: fixed;
+	vertical-align: top;
+}
+
+.contact-info {
+	display: table-cell;
+	table-layout: fixed;
+	vertical-align: top;
+	padding-left: 10px;
+}
+
+.contact-info-label {
+	font-weight: bold;
+}

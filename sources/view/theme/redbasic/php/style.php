@@ -1,6 +1,6 @@
 <?php
 
-if(! $a->install) {
+if(! App::$install) {
 
 	// Get the UID of the channel owner
 	$uid = get_theme_uid();
@@ -218,5 +218,5 @@ if($schemecss) {
 
 // Set the schema to the default schema in derived themes. See the documentation for creating derived themes how to override this. 
 
-if(local_channel() && $a->channel && $a->channel['channel_theme'] != 'redbasic')
+if(local_channel() && App::$channel && App::$channel['channel_theme'] != 'redbasic')
 	set_pconfig(local_channel(), 'redbasic', 'schema', '---');

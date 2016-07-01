@@ -10,8 +10,8 @@ class SimpleFileTest extends \PHPUnit_Framework_TestCase {
 
         $this->assertEquals('filename.txt', $file->getName());
         $this->assertEquals('contents', $file->get());
-        $this->assertEquals('8', $file->getSize());
-        $this->assertEquals('"' . md5('contents') . '"', $file->getETag());
+        $this->assertEquals(8, $file->getSize());
+        $this->assertEquals('"' . sha1('contents') . '"', $file->getETag());
         $this->assertEquals('text/plain', $file->getContentType());
 
     }

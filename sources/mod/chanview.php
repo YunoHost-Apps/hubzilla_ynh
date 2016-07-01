@@ -5,7 +5,7 @@ require_once('include/zot.php');
 
 function chanview_content(&$a) {
 
-	$observer = $a->get_observer();
+	$observer = App::get_observer();
 	$xchan = null;
 
 	$r = null;
@@ -38,7 +38,7 @@ function chanview_content(&$a) {
 		);
 	}
 	if($r) {
-		$a->poi = $r[0];
+		App::$poi = $r[0];
 	}
 
 
@@ -47,7 +47,7 @@ function chanview_content(&$a) {
 	// address, we can and should try to import it. If it's just a hash, we can't continue, but we 
 	// probably wouldn't have a hash if we don't already have an xchan for this channel.
 
-	if(! $a->poi) {
+	if(! App::$poi) {
 		logger('mod_chanview: fallback');
 		// This is hackish - construct a zot address from the url
 		if($_REQUEST['url']) {
@@ -67,13 +67,13 @@ function chanview_content(&$a) {
 					dbesc($_REQUEST['address'])
 				);
 				if($r)
-					$a->poi = $r[0];
+					App::$poi = $r[0];
 			}
 
 		}
 	}
 
-	if(! $a->poi) {
+	if(! App::$poi) {
 //		We don't know who this is, and we can't figure it out from the URL
 //		On the plus side, there's a good chance we know somebody else at that 
 //		hub so sending them there with a Zid will probably work anyway.
@@ -82,8 +82,8 @@ function chanview_content(&$a) {
 			$url = zid($url);
 	}
 
-	if ($a->poi) {
-	$url = $a->poi['xchan_url'];
+	if (App::$poi) {
+	$url = App::$poi['xchan_url'];
 	if($observer)
 		$url = zid($url);
 	}

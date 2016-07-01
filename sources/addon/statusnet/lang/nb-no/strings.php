@@ -1,0 +1,32 @@
+<?php
+
+App::$strings["Post to StatusNet"] = "Post til StatusNet";
+App::$strings["Please contact your site administrator.<br />The provided API URL is not valid."] = "Vennligst kontakt administratoren på nettstedet ditt.<br />Den oppgitter API URL-en er ikke gyldig.";
+App::$strings["We could not contact the StatusNet API with the Path you entered."] = "Vi kunne ikke kontakte StatusNet API-en med den banen du oppgav.";
+App::$strings["StatusNet settings updated."] = "StatusNet-innstillinger er oppdatert.";
+App::$strings["StatusNet Posting Settings"] = "Innstillinger for posting til StatusNet";
+App::$strings["Globally Available StatusNet OAuthKeys"] = "Globalt tilgjengelige StatusNet OAuthKeys";
+App::$strings["There are preconfigured OAuth key pairs for some StatusNet servers available. If you are useing one of them, please use these credentials. If not feel free to connect to any other StatusNet instance (see below)."] = "Det finnes ferdig konfigurerte OAuth nøkkelpar tilgjengelig for noen StatusNet-tjenere. Hvis du bruker en av disse, vennligst bruk disse som legitimasjon. Hvis ikke, så er du fri til å opprette en forbindelse til enhver annen StatusNet-forekomst (se nedenfor).";
+App::$strings["Submit"] = "Lagre";
+App::$strings["Provide your own OAuth Credentials"] = "Oppgi din egen OAuth-legitimasjon";
+App::$strings["No consumer key pair for StatusNet found. Register your Friendica Account as an desktop client on your StatusNet account, copy the consumer key pair here and enter the API base root.<br />Before you register your own OAuth key pair ask the administrator if there is already a key pair for this Friendica installation at your favorited StatusNet installation."] = "";
+App::$strings["OAuth Consumer Key"] = "OAuth Consumer Key";
+App::$strings["OAuth Consumer Secret"] = "OAuth Consumer Secret";
+App::$strings["Base API Path (remember the trailing /)"] = "Base API Path (husk / på slutten)";
+App::$strings["To connect to your StatusNet account click the button below to get a security code from StatusNet which you have to copy into the input box below and submit the form. Only your <strong>public</strong> posts will be posted to StatusNet."] = "For å koble din StatusNet-konto, klikk knappen under for å få en sikkerhetskode fra StatusNet som du må kopiere inn i tekstfeltet under, og send inn skjemaet. Det er bare dine <strong>offentlige</strong> meldinger som blir postet til StatusNet.";
+App::$strings["Log in with StatusNet"] = "Logg inn med StatusNet";
+App::$strings["Copy the security code from StatusNet here"] = "Kopier sikkerhetskoden fra StatusNet hit";
+App::$strings["Cancel Connection Process"] = "Avbryt forbindelsesprosessen";
+App::$strings["Current StatusNet API is"] = "Gjeldende StatusNet API er";
+App::$strings["Cancel StatusNet Connection"] = "Avbryt StatusNet-forbindelsen";
+App::$strings["Currently connected to: "] = "For øyeblikket tilkoblet til:";
+App::$strings["If enabled all your <strong>public</strong> postings can be posted to the associated StatusNet account. You can choose to do so by default (here) or for every posting separately in the posting options when writing the entry."] = "Aktivering gjør at alle dine <strong>offentlige</strong> innlegg kan postes til den tilknyttede StatusNet-kontoen. Du kan velge å gjøre dette som standard (her), eller for hvert enkelt innlegg separat i valgmulighetene for posting når du skriver et innlegg.";
+App::$strings["<strong>Note</strong>: Due your privacy settings (<em>Hide your profile details from unknown viewers?</em>) the link potentially included in public postings relayed to StatusNet will lead the visitor to a blank page informing the visitor that the access to your profile has been restricted."] = "";
+App::$strings["Allow posting to StatusNet"] = "Tillat innlegg til StatusNet";
+App::$strings["Send public postings to StatusNet by default"] = "Send offentlige innlegg til StatusNet som standard";
+App::$strings["Send linked #-tags and @-names to StatusNet"] = "";
+App::$strings["Clear OAuth configuration"] = "Fjern OAuth-konfigurasjon";
+App::$strings["Site name"] = "Nettstedets navn";
+App::$strings["API URL"] = "API URL";
+App::$strings["Consumer Secret"] = "Consumer Secret";
+App::$strings["Consumer Key"] = "Consumer Key";
