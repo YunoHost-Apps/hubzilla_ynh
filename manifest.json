@@ -18,7 +18,7 @@
                 "name": "domain",
                 "ask": {
                     "en": "Choose a domain for your Hubzilla hub. Hubzilla must run in the root of this domain."
-                    "fr": "Choisissez un nom de domaine pour votre 'hub' Hubzilla. Hubzilla doit ếtre installer dans la racine de votre de domaine.
+                    "fr": "Choisissez un nom de domaine pour votre 'hub' Hubzilla. Hubzilla doit ếtre installer dans la racine de votre de domaine."
                 },
                 "example": "hub.example.com"
             },
@@ -42,7 +42,7 @@
                 "name": "is_public",
                 "ask": {
                     "en": "Is it a public application ?"
-                    "fr": "Est-ce une application publique ?
+                    "fr": "Est-ce une application publique ?"
                 },
                 "choices": ["Yes", "No"],
                 "default": "Yes"
