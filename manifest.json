@@ -18,7 +18,7 @@
                 "name": "domain",
                 "ask": {
                     "en": "Choose a domain for your Hubzilla hub. Hubzilla must run in the root of this domain.",
-                    "fr": "Choisissez un nom de domaine pour votre 'hub' Hubzilla. Hubzilla doit ếtre installé à la racine de votre domaine."
+                    "fr": "Choisissez un nom de domaine pour votre 'hub' Hubzilla. L'application Hubzilla doit ếtre installée à la racine de votre domaine."
                 },
                 "example": "hub.example.com"
             },
