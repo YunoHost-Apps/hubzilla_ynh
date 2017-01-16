@@ -2,7 +2,7 @@
     "name": "Hubzilla",
     "id": "hubzilla",
     "description": {
-        "en": "Hubzilla is a decentralized publication platform and social network."
+        "en": "Hubzilla is a decentralized publication platform and social network.",
         "fr": "Hubzilla est une plateforme de publication décentralisée et un réseau social."
     },
     "licence": "CopyLeft",
@@ -17,7 +17,7 @@
             {
                 "name": "domain",
                 "ask": {
-                    "en": "Choose a domain for your Hubzilla hub. Hubzilla must run in the root of this domain."
+                    "en": "Choose a domain for your Hubzilla hub. Hubzilla must run in the root of this domain.",
                     "fr": "Choisissez un nom de domaine pour votre 'hub' Hubzilla. Hubzilla doit ếtre installer dans la racine de votre de domaine."
                 },
                 "example": "hub.example.com"
@@ -25,7 +25,7 @@
             {
                 "name": "admin",
                 "ask": {
-                    "en": "Choose an admin user"
+                    "en": "Choose an admin user",
                     "fr": "Choisissez un administrateur"
                 },
                 "example": "johndoe"
@@ -33,7 +33,7 @@
             {
                 "name": "adminemail",
                 "ask": {
-                    "en": "Email address for the Hubzilla hub admin"
+                    "en": "Email address for the Hubzilla hub admin",
                     "fr": "Adresse mail pour l'administrateur du 'hub'."
                 },
                 "example": "johndoe@example.com"
@@ -41,7 +41,7 @@
             {
                 "name": "is_public",
                 "ask": {
-                    "en": "Is it a public application ?"
+                    "en": "Is it a public application ?",
                     "fr": "Est-ce une application publique ?"
                 },
                 "choices": ["Yes", "No"],
