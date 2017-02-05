@@ -1,6 +1,6 @@
 <div id="photo-upload-form">
 	<div class="section-content-tools-wrapper">
-		<form action="photos/{{$nickname}}" enctype="multipart/form-data" method="post" name="photos-upload-form" id="photos-upload-form">
+		<form action="photos/{{$nickname}}" enctype="multipart/form-data" method="post" name="photos-upload-form" id="photos-upload-form" class="acl-form" data-form_id="photos-upload-form" data-allow_cid='{{$allow_cid}}' data-allow_gid='{{$allow_gid}}' data-deny_cid='{{$deny_cid}}' data-deny_gid='{{$deny_gid}}'>
 			<input type="hidden" id="photos-upload-source" name="source" value="photos" />
 
 			<div class="form-group">
@@ -14,9 +14,6 @@
 				{{/foreach}}
 				</datalist>
 			</div>
-
-			{{$aclselect}}
-
 			{{if $default}}
 			<div class="form-group">
 				<input id="photos-upload-choose" type="file" name="userfile" />
@@ -59,5 +56,6 @@
 			{{/if}}
 		</form>
 	</div>
+	{{$aclselect}}
 	<div id="photos-upload-end" class="clear"></div>
 </div>

@@ -28,6 +28,19 @@ class Home extends \Zotlabs\Web\Controller {
 	
 			goaway($dest);
 		}
+
+		if(remote_channel() && (! $splash) && $_SESSION['atoken']) {
+			$r = q("select * from atoken where atoken_id = %d",
+				intval($_SESSION['atoken'])
+			);
+			if($r) {
+				$x = channelx_by_n($r[0]['atoken_uid']);
+				if($x) {
+					goaway(z_root() . '/channel/' . $x['channel_address']);
+				}
+			}
+		} 
+
 	
 		if(get_account_id() && ! $splash) {
 			goaway(z_root() . '/new_channel');

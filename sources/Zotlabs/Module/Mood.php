@@ -97,7 +97,7 @@ class Mood extends \Zotlabs\Web\Controller {
 		$item_id = $post['item_id'];
 	
 		if($item_id) {
-			proc_run('php',"include/notifier.php","activity", $item_id);
+			\Zotlabs\Daemon\Master::Summon(array('Notifier','activity', $item_id));
 		}
 	
 		call_hooks('post_local_end', $arr);

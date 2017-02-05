@@ -1,0 +1,23 @@
+<dl class="dl-horizontal">
+    <dt>Guest Access Tokens</dt>
+    <dd>
+        In order to facilitate sharing of private resources with non-members or members of federation nodes with limited identification discovery, Hubzilla should provide members with a mechanism to create and manage temporary ("throwaway") logins, aka "Zot Access Tokens". These tokens/credentials may be used to authenticate to a hubzilla site for the sole purpose of accessing privileged or access controlled resources (files, photos, posts, webpages, chatrooms, etc.).
+    </dd>
+    <dt>Create a token</dt>
+        <dd>
+            The form to create/edit accepts three parameters, a human readable name, a password or access token, and an 
+            optional expiration. Once expired, the access token is no longer valid, may no longer be used, and will be 
+            automatically purged from the list of temporary accounts. The password field in the create/edit forms 
+            displays the text of the access token and not an obscured password.
+        </dd>
+    <dt>Share a token</dt>
+        <dd>
+            We do not specify mechanisms for sharing these tokens with others. Any communication method may be used. Any tokens you have created are added to the Access Control List selector and may be used anywhere that Access Control Lists are provided.
+
+            <b>Example</b>: A visitor arrives at your site. She has an access token you have provided, and attempts to visit one of your photo albums (which is restricted to be viewed only by yourself and one temporary identity). Permission is denied.
+
+            The visitor now selects "Login" from the menu navigation bar. This presents a login page. She enters the name and password you have provided her, and she can now view the restricted photo album.
+
+            Alternatively, you may share a link to a protected file by adding a parameter "&zat=abc123" to the URL, where the string "abc123" is the access token or password for the temporary login. No further negotiation is required, and the file is presented.
+        </dd>
+</dl>

@@ -11,7 +11,7 @@
 [/td][/tr]
 [tr][td]cp_status[/td][td]text status description e.g. "online"[/td][td]char(255)[/td][td]NO[/td][td]MUL[/td][td]NULL[/td][td]
 [/td][/tr]
-[tr][td]cp_client[/td][td][/td]IP address of this client[td]char(128)[/td][td]NO[/td][td][/td][td][/td][td]
+[tr][td]cp_client[/td][td]IP address of this client[/td][td]char(128)[/td][td]NO[/td][td][/td][td][/td][td]
 [/td][/tr]
 [/table]
 

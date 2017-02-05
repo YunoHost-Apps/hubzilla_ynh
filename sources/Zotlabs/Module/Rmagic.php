@@ -2,7 +2,6 @@
 namespace Zotlabs\Module;
 
 
-
 class Rmagic extends \Zotlabs\Web\Controller {
 
 	function init() {
@@ -24,25 +23,13 @@ class Rmagic extends \Zotlabs\Web\Controller {
 		}
 	}
 	
-		function post() {
+	function post() {
 	
 		$address = trim($_REQUEST['address']);
 	
 		if(strpos($address,'@') === false) {
 			$arr = array('address' => $address);
 			call_hooks('reverse_magic_auth', $arr);		
-	
-			try {
-				require_once('library/openid/openid.php');
-				$openid = new LightOpenID(z_root());
-				$openid->identity = $address;
-				$openid->returnUrl = z_root() . '/openid'; 
-				$openid->required = array('namePerson/friendly', 'namePerson');
-				$openid->optional = array('namePerson/first','media/image/aspect11','media/image/default');
-				goaway($openid->authUrl());
-			} catch (Exception $e) {
-				notice( t('We encountered a problem while logging in with the OpenID you provided. Please check the correct spelling of the ID.').'<br /><br >'. t('The error message was:').' '.$e->getMessage());
-			}
 	
 			// if they're still here...
 			notice( t('Authentication failed.') . EOL);		
@@ -82,7 +69,7 @@ class Rmagic extends \Zotlabs\Web\Controller {
 	}
 	
 	
-		function get() {
+	function get() {
 	
 		$o = replace_macros(get_markup_template('rmagic.tpl'),array(
 			'$title' => t('Remote Authentication'),

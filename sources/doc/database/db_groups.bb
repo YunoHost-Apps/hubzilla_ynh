@@ -11,7 +11,7 @@
 [/td][/tr]
 [tr][td]deleted[/td][td]1 indicates the group has been deleted[/td][td]tinyint(1)[/td][td]NO[/td][td]MUL[/td][td]0[/td][td]
 [/td][/tr]
-[tr][td]name[/td][td]human readable name of group[/td][td]char(255)[/td][td]NO[/td][td][/td][td]NULL[/td][td]
+[tr][td]gname[/td][td]human readable name of group[/td][td]char(255)[/td][td]NO[/td][td][/td][td]NULL[/td][td]
 [/td][/tr]
 [/table]
 

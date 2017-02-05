@@ -20,17 +20,15 @@ class Probe extends \Zotlabs\Web\Controller {
 			$channel = \App::get_channel();
 			$addr = trim($_GET['addr']);
 			$do_import = ((intval($_GET['import']) && is_site_admin()) ? true : false);
-			$res = zot_finger($addr,$channel,false);
+			
+			$j = \Zotlabs\Zot\Finger::run($addr,$channel,false);
+
 			$o .= '<pre>';
-			if($res['success'])
-				$j = json_decode($res['body'],true);
-			else {
+			if(! $j['success']) {
 				$o .= sprintf( t('Fetching URL returns error: %1$s'),$res['error'] . "\r\n\r\n");
 				$o .= "<strong>https connection failed. Trying again with auto failover to http.</strong>\r\n\r\n";
-				$res = zot_finger($addr,$channel,true);
-				if($res['success'])
-					$j = json_decode($res['body'],true);
-				else
+				$j = \Zotlabs\Zot\Finger::run($addr,$channel,true);
+				if(! $j['success']) 
 					$o .= sprintf( t('Fetching URL returns error: %1$s'),$res['error'] . "\r\n\r\n");
 	
 			}

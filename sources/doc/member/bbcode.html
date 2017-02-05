@@ -1,0 +1,316 @@
+<style>
+	section {
+		display: inline-block;
+		overflow-x: scroll;
+	}
+</style>
+<h3>Text Decoration</h3>
+<table class="table table-responsive table-bordered">
+	<tbody>
+		<tr>
+			<th>BBcode syntax</th><th>Rendered text</th>
+		</tr>
+		<tr>
+			<td><code>[b]bold[/b]</code></td><td><strong>bold</strong></td>
+		</tr>
+		<tr>
+			<td><code>[i]italic[/i]</code></td><td><em>italic</em></td>
+		</tr>
+		<tr>
+			<td><code>[u]underlined[/u]</code></td><td><u>underlined</u></td>
+		</tr>
+		<tr>
+			<td><code>[s]strike[/s]</code></td><td><strike>strike</strike></td>
+		</tr>
+		<tr>
+			<td><code>[color=red]red[/color]</code></td><td><span style="color:  red;">red</span></td>
+		</tr>
+		<tr>
+			<td><code>[font=courier]some text[/font] </code></td><td><span style="font-family: courier;">some text</span></td>
+		</tr>
+		<tr>
+			<td><code>[quote]quote[/quote]</code></td><td><blockquote>quote</blockquote></td>
+		</tr>
+		<tr>
+			<td><code>[quote=Author]Author? Me? No, no, no...[/quote]</code></td><td><strong class="author">Author wrote:</strong><blockquote>Author? Me? No, no, no...</blockquote></td>
+		</tr>
+		<tr>
+			<td><code>
+					[size=small]small text[/size]<br>
+					[size=xx-large]xx-large text[/size]<br>
+					[size=20]20px exactly[/size]<br>
+				</code>
+				Size options include: <strong>xx-small, small, medium, large, xx-large</strong></td><td><span style="font-size: small;">small text</span><br><span style="font-size: xx-large;">xx-large text</span><br><span style="font-size: 20px;">20px exactly</span></td>
+		</tr>
+		<tr>
+			<td><code>Add a horizontal bar
+[hr]
+Like this
+				</code></td><td>
+					Add a horizontal bar<br><hr><br>Like this
+				</td>
+		</tr>
+		<tr>
+			<td><code>This is
+[center]centered[/center]
+text</code></td><td>
+					This is<br><div style="text-align:center;">centered</div><br>text
+				</td>
+		</tr>
+	</tbody>
+</table>
+
+<h3>Code blocks</h3>
+Code can be rendered generically in a block or inline format (depending on if there are new line characters in the text), or you can specify a supported language for enhanced syntax highlighting. Supported languages include <strong>php, css, mysql, sql, abap, diff, html, perl, ruby, vbscript, avrc, dtd, java, xml, cpp, python, javascript, js, json, sh </strong>.
+<br><br>
+<table class="table table-responsive table-bordered">
+	<tbody>
+		<tr>
+			<th>BBcode syntax</th><th>Output</th>
+		</tr>
+		<tr>
+			<td><code>[code]function bbcode() { }[/code]</code></td><td><code>function bbcode() { }</code></td>
+		</tr>
+		<tr>
+			<td><code>[code=php]function bbcode() {<br>
+  $variable = true;<br>
+  if( $variable ) {<br>
+    echo "true";<br>
+  }<br>
+}[/code]</code></td><td><code><div class="hl-main"><ol class="hl-main"><li><span class="hl-code">&nbsp;</span><span class="hl-reserved">function</span><span class="hl-code"> </span><span class="hl-identifier">bbcode</span><span class="hl-brackets">(</span><span class="hl-brackets">)</span><span class="hl-code"> </span><span class="hl-brackets">{</span><span class="hl-code"></span></li><li><span class="hl-code">&nbsp;&nbsp;&nbsp;</span><span class="hl-var">$variable</span><span class="hl-code"> = </span><span class="hl-reserved">true</span><span class="hl-code">;</span></li><li><span class="hl-code">&nbsp;&nbsp;&nbsp;</span><span class="hl-reserved">if</span><span class="hl-brackets">(</span><span class="hl-code"> </span><span class="hl-var">$variable</span><span class="hl-code"> </span><span class="hl-brackets">)</span><span class="hl-code"> </span><span class="hl-brackets">{</span><span class="hl-code"></span></li><li><span class="hl-code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="hl-reserved">echo</span><span class="hl-code"> </span><span class="hl-quotes">"</span><span class="hl-string">true</span><span class="hl-quotes">"</span><span class="hl-code">;</span></li><li><span class="hl-code">&nbsp;&nbsp;&nbsp;</span><span class="hl-brackets">}</span><span class="hl-code"></span></li><li><span class="hl-code">&nbsp;</span><span class="hl-brackets">}</span></li></ol></div></code></td>
+		</tr>
+		<tr>
+			<td><code>[nobb][nobb]This is how [i]you[/i] can 
+[u]show[/u] how to use 
+[hl]BBcode[/hl] syntax[/nobb][/nobb]</code></td><td>[nobb]This is how [i]you[/i] can [u]show[/u] how to use [hl]BBcode[/hl] syntax[/nobb]</td>
+		</tr>
+	</tbody>
+</table>
+
+<h3>Lists</h3>
+<table class="table table-responsive table-bordered">
+	<tbody>
+		<tr>
+			<th>BBcode syntax</th><th>Rendered list</th>
+		</tr>
+		<tr>
+			<td><code>[ul]<br>
+[*] First list element<br>
+[*] Second list element<br>
+[/ul]</code></td><td><ul class="listbullet" style="list-style-type: circle;"><li> First list element</li><li> Second list element<br></li></ul></td>
+		</tr>
+		<tr>
+			<td><code>[ol]<br>
+[*] First list element<br>
+[*] Second list element<br>
+[/ol]</code></td><td><ul class="listdecimal" style="list-style-type: decimal;"><li> First list element</li><li> Second list element<br></li></ul></td>
+		</tr>
+		<tr>
+			<td><code>[list=A]<br>
+[*] First list element<br>
+[*] Second list element<br>
+[/list]</code>
+				The list type options are <code>1, i, I, a, A</code>.</td><td><ul class="listupperalpha" style="list-style-type: upper-alpha;"><li> First list element</li><li> Second list element</li></ul></td>
+		</tr>
+		<tr>
+			<td><code>[dl terms="b"]<br>
+[*= First element term] First element description<br>
+[*= Second element term] Second element description<br>
+[/dl]</code>
+				The <strong>terms</strong> style options can be any combination of:
+	<dl class="bb-dl dl-horizontal">
+	<dt>b</dt><dd>bold</dd>
+	<dt>i</dt><dd>italic</dd>
+	<dt>u</dt><dd>underline</dd>
+	<dt>m</dt><dd>monospace</dd>
+	<dt>l</dt><dd>large</dd>
+	<dt>h</dt><dd>horizontal &mdash; like <em>this</em> defintion list</dd>
+	</dl>
+			</td><td><dl class="bb-dl dl-terms-bold">
+<dt> First element term</dt><dd> First element description<br></dd>
+<dt> Second element term</dt><dd> Second element description<br></dd></dl></td>
+		</tr>
+	</tbody>
+</table>
+
+<h3>Tables</h3>
+
+<table class="table table-responsive table-bordered">
+	<tbody>
+		<tr>
+			<th>BBcode syntax</th><th>Rendered table</th>
+		</tr>
+		<tr>
+			<td><code>[table border=0]<br>
+[tr]<br>
+[th]Header 1[/th][th]Header 2[/th]<br>
+[/tr]<br>
+[tr][td]Content[/td][td]Content[/td][/tr]<br>
+[tr][td]Content[/td][td]Content[/td][/tr]<br>
+[/table]</code></td><td><table class="table table-responsive"><tbody><tr><th>Header 1</th><th>Header 2</th></tr>
+<tr><td>Content</td><td>Content</td></tr><tr><td>Content</td><td>Content</td></tr></tbody></table></td>
+		</tr>
+		<tr>
+			<td><code>[table border=1]<br>
+[tr]<br>
+[th]Header 1[/th][th]Header 2[/th]<br>
+[/tr]<br>
+[tr][td]Content[/td][td]Content[/td][/tr]<br>
+[tr][td]Content[/td][td]Content[/td][/tr]<br>
+[/table]</code></td><td><table class="table table-responsive table-bordered"><tbody><tr><th>Header 1</th><th>Header 2</th></tr>
+<tr><td>Content</td><td>Content</td></tr><tr><td>Content</td><td>Content</td></tr></tbody></table></td>
+		</tr>
+		<tr>
+			<td><code>[table]<br>
+[tr]<br>
+[th]Header 1[/th][th]Header 2[/th]<br>
+[/tr]<br>
+[tr][td]Content[/td][td]Content[/td][/tr]<br>
+[tr][td]Content[/td][td]Content[/td][/tr]<br>
+[/table]</code></td><td><table><tbody><tr><th>Header 1</th><th>Header 2</th></tr><tr><td>Content</td><td>Content</td></tr><tr><td>Content</td><td>Content</td></tr></tbody></table>
+</td>
+		</tr>
+	</tbody>
+</table>
+
+<h3>Links and Embedded Content</h3>
+
+<table class="table table-responsive table-bordered">
+	<tbody>
+		<tr>
+			<th>BBcode syntax</th><th>Output</th>
+		</tr>
+		<tr>
+			<td><code>[video]video URL[/video]<br>
+[audio]audio URL[/audio]</code></td><td></td>
+		</tr>
+		<tr>
+			<td><code>[url=https://hubzilla.org]Hubzilla[/url]</code></td><td><a href="https://hubzilla.org" target="_blank">Hubzilla</a></td>
+		</tr>
+		<tr>
+			<td><code>An image [img]url/of/image.jpg[/img] 
+in some text </code></td><td>
+				An image <img src="/images/default_profile_photos/rainbow_man/48.jpg" alt="Image/photo"> in some text
+			</td>
+		</tr>
+	</tbody>
+</table>
+	
+
+<h3>$Projectname specific codes</h3>
+
+<table class="table table-responsive table-bordered">
+	<tbody>
+		<tr>
+			<th>BBcode syntax</th><th>Output</th>
+		</tr>
+		<tr>
+			<td>Magic-auth version of [url] tag
+				<code>[zrl=https://hubzilla.org]Identity-aware link[/zrl]</code>
+			</td><td><code>https://hubzilla.org/?zid=[observer=1][observer.address][/observer][observer=0]your_channel@your.home.hub[/observer]</code></td>
+		</tr>
+		<tr>
+			<td>Magic-auth version of [img] tag
+				<code>[zmg]https://hubzilla.org/some/photo.jpg[/zmg]</code>
+			</td><td>Image is only viewable by those authenticated and with permission.</td>
+		</tr>
+		<tr>
+			<td>Observer-dependent output:<code>
+				[nobb][observer=1]Text to display if observer IS authenticated[/observer][/nobb]
+				</code></td><td></td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+				[nobb][observer=0]Text to display if observer IS NOT authenticated[/observer][/nobb]
+				</code>
+			</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+				[nobb][observer.url][/nobb] 
+				</code>
+			</td>
+			<td>channel URL of observer</td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+				[nobb][observer.baseurl][/nobb] 
+				</code>
+			</td>
+			<td>website of observer</td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+				[nobb][observer.name][/nobb] 
+				</code>
+			</td>
+			<td>name of observer</td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+				[nobb][observer.webname][/nobb] 
+				</code>
+			</td>
+			<td>short name in the url of the observer</td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+				[nobb][observer.address][/nobb] 
+				</code>
+			</td>
+			<td>address (ZOT-id) of observer</td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+				[nobb][observer.photo][/nobb] 
+				</code>
+			</td>
+			<td>profile photo of observer</td>
+		</tr>
+		<tr>
+			<td><code>What is a spoiler?<br>
+					[spoiler]Text you want to hide.[/spoiler]</code></td><td>
+					What is a spoiler? <div onclick="openClose('opendiv-1131603764'); return false;" class="fakelink">Click to open/close</div><blockquote id="opendiv-1131603764" style="display: none;">Text you want to hide.</blockquote>
+				</td>
+		</tr>
+		<tr>
+			<td><code>[toc data-toc='div.page-body' data-toc-headings='h1,h2']</code><br>
+Create a table of content in a webpage or wiki page. Please refer to the <a href="http://ndabas.github.io/toc/" target="_blank">original jQuery toc</a> to get more explanations.
+	<ul>
+		<li>Optional param: 'data-toc'. If omitted the default is 'body'</li>
+		<li>Optional param: 'data-toc-headings'. If omitted the default is 'h1,h2,h3'</li>
+	</ul></td><td></td>
+		</tr>
+		<tr>
+			<td><code>[nobb][rpost=title]Text to post[/rpost][/nobb]</code><br>
+The observer will be returned to their home hub to enter a post with the specified title and body. Both are optional</td><td><a href="[baseurl]/rpost?f=&amp;title=title&amp;body=Text+to+post" target="_blank">[baseurl]/rpost?f=&amp;title=title&amp;body=Text+to+post</a></td>
+		</tr>
+		<tr>
+			<td>This requires the <a href="https://github.com/redmatrix/hubzilla-addons/tree/master/qrator"><strong>qrator</strong></a> plugin.<br><code>[qr]text to post[/qr]</code></td><td><img src="/doc/member/assets/qr_text_to_post.png"></td>
+		</tr>
+		<tr>
+			<td>This requires a suitable map plugin such as <strong><a href="https://github.com/redmatrix/hubzilla-addons/tree/master/openstreetmap">openstreetmap</a></strong>.
+				<code>[map]</code></td><td>Generate an inline map using the current browser coordinates of the poster, if browser location is enabled</td>
+		</tr>
+		<tr>
+			<td>This requires a suitable map plugin such as <strong><a href="https://github.com/redmatrix/hubzilla-addons/tree/master/openstreetmap">openstreetmap</a></strong>.
+				<code>[map=latitude,longitude]</code></td><td>Generate a map using global coordinates.</td></tr>
+		<tr>
+			<td>This requires a suitable map plugin such as <strong><a href="https://github.com/redmatrix/hubzilla-addons/tree/master/openstreetmap">openstreetmap</a></strong>.
+				<code>[map]Place Name[/map]</code></td><td>
+Generate a map for a given named location. The first matching location is returned. For instance "Sydney" will usually return Sydney, Australia and not Sydney, Nova Scotia, Canada unless the more precise location is specified. It is highly recommended to use the post preview utility to ensure you have the correct location before submitting the post.
+</td>
+		</tr>
+		<tr>
+			<td><code>[&amp;copy;]</code></td><td> &copy; </td>
+		</tr>
+	</tbody>
+</table>

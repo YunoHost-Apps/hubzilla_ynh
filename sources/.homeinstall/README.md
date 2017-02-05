@@ -27,9 +27,9 @@ Software
 + Register your own domain (for example at selfHOST) or a free subdomain (for example at freeDNS)
 + Log on to your new debian (server)
   - apt-get install git
-  - mkdir -p /var/www/html
-  - cd /var/www/html
-  - git clone https://github.com/redmatrix/hubzilla.git .
+  - mkdir -p /var/www
+  - cd /var/www
+  - git clone https://github.com/redmatrix/hubzilla.git html
   - cp .homeinstall/hubzilla-config.txt.template .homeinstall/hubzilla-config.txt
   - nano .homeinstall/hubzilla-config.txt
     - Enter your values there: db pass, domain, values for dyn DNS

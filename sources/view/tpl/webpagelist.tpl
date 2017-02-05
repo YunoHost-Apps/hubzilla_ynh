@@ -2,7 +2,7 @@
 	<div class="section-title-wrapper">
 		{{if $editor}}
 		<div class="pull-right">
-			<button id="webpage-create-btn" class="btn btn-xs btn-success" onclick="openClose('webpage-editor');"><i class="fa fa-pencil-square-o"></i>&nbsp;{{$create}}</button>
+			<button id="webpage-create-btn" class="btn btn-xs btn-success acl-form-trigger" onclick="openClose('webpage-editor');" data-form_id="profile-jot-form"><i class="fa fa-pencil-square-o"></i>&nbsp;{{$create}}</button>
 		</div>
 		{{/if}}
 		<h2>{{$listtitle}}</h2>

@@ -1,7 +1,18 @@
 <?php
 namespace Zotlabs\Module;
 
-/* ACL selector json backend */
+/*
+ * ACL selector json backend 
+ * This module provides JSON lists of connections and local/remote channels
+ * (xchans) to populate various tools such as the ACL (AccessControlList) popup
+ * and various auto-complete functions (such as email recipients, search, and 
+ * mention targets.
+ * There are two primary output structural formats. One for the ACL widget and
+ * the other for auto-completion.
+ * Many of the  behaviour variations are triggered on the use of single character keys
+ * however this functionality has grown in an ad-hoc manner and has gotten quite messy over time.    
+ */
+
 require_once("include/acl_selectors.php");
 require_once("include/group.php");
 
@@ -10,40 +21,80 @@ class Acl extends \Zotlabs\Web\Controller {
 
 	function init(){
 	
-	//	logger('mod_acl: ' . print_r($_REQUEST,true));
+		//	logger('mod_acl: ' . print_r($_REQUEST,true));
 	
-		$start = (x($_REQUEST,'start')?$_REQUEST['start']:0);
-		$count = (x($_REQUEST,'count')?$_REQUEST['count']:100);
-		$search = (x($_REQUEST,'search')?$_REQUEST['search']:"");
-		$type = (x($_REQUEST,'type')?$_REQUEST['type']:"");
-		$noforums = (x($_REQUEST,'n') ? $_REQUEST['n'] : false);	
+		$start    = (x($_REQUEST,'start')  ? $_REQUEST['start']  : 0);
+		$count    = (x($_REQUEST,'count')  ? $_REQUEST['count']  : 500);
+		$search   = (x($_REQUEST,'search') ? $_REQUEST['search'] : '');
+		$type     = (x($_REQUEST,'type')   ? $_REQUEST['type']   : '');
+		$noforums = (x($_REQUEST,'n')      ? $_REQUEST['n']      : false);	
+
+
+		// $type = 
+		//  ''   =>  standard ACL request
+		//  'g'  =>  Groups only ACL request
+		//  'c'  =>  Connections only ACL request or editor (textarea) mention request
+		// $_REQUEST['search'] contains ACL search text.
+
+
+		// $type =
+		//  'm'  =>  autocomplete private mail recipient (checks post_mail permission)
+		//  'a'  =>  autocomplete connections (mod_connections, mod_poke, mod_sources, mod_photos)
+		//  'x'  =>  nav search bar autocomplete (match any xchan)
+		// $_REQUEST['query'] contains autocomplete search text.
 	
-		// List of channels whose connections to also suggest, e.g. currently viewed channel or channels mentioned in a post
+		// List of channels whose connections to also suggest, 
+		// e.g. currently viewed channel or channels mentioned in a post
+
 		$extra_channels = (x($_REQUEST,'extra_channels') ? $_REQUEST['extra_channels'] : array());
 	
-		// For use with jquery.autocomplete for private mail completion
+		// The different autocomplete libraries use different names for the search text
+		// parameter. Internaly we'll use $search to represent the search text no matter
+		// what request variable it was attached to. 
 	
-		if(x($_REQUEST,'query') && strlen($_REQUEST['query'])) {
-			if(! $type)
-				$type = 'm';
+		if(array_key_exists('query',$_REQUEST)) {
 			$search = $_REQUEST['query'];
 		}
 	
-		if(!(local_channel()))
-			if(!($type == 'x' || $type == 'c'))
-				killme();
-	
-		if ($search != "") {
-			$sql_extra = " AND `name` LIKE " . protect_sprintf( "'%" . dbesc($search) . "%'" ) . " ";
+		if( (! local_channel()) && (! ($type == 'x' || $type == 'c')))
+			killme();
+
+		$permitted = [];
+
+		if(in_array($type, [ 'm', 'a', 'c' ])) {
+
+			// These queries require permission checking. We'll create a simple array of xchan_hash for those with
+			// the requisite permissions which we can check against. 
+
+			$x = q("select xchan from abconfig where chan = %d and cat = 'their_perms' and k = '%s' and v = '1'",
+				intval(local_channel()),
+				dbesc(($type === 'm') ? 'post_mail' : 'tag_deliver')
+			);
+
+			$permitted = ids_to_array($x,'xchan');
+
+		}
+
+
+		if($search) {
+			$sql_extra = " AND groups.gname LIKE " . protect_sprintf( "'%" . dbesc($search) . "%'" ) . " ";
 			$sql_extra2 = "AND ( xchan_name LIKE " . protect_sprintf( "'%" . dbesc($search) . "%'" ) . " OR xchan_addr LIKE " . protect_sprintf( "'%" . dbesc($search) . ((strpos($search,'@') === false) ? "%@%'"  : "%'")) . ") ";
 	
-			// This horrible mess is needed because position also returns 0 if nothing is found. W/ould be MUCH easier if it instead returned a very large value
-			// Otherwise we could just order by LEAST(POSITION($search IN xchan_name),POSITION($search IN xchan_addr)).
-			$order_extra2 = "CASE WHEN xchan_name LIKE " . protect_sprintf( "'%" . dbesc($search) . "%'" ) ." then POSITION('".dbesc($search)."' IN xchan_name) else position('".dbesc($search)."' IN xchan_addr) end, ";
+			// This horrible mess is needed because position also returns 0 if nothing is found. 
+			// Would be MUCH easier if it instead returned a very large value
+			// Otherwise we could just 
+			// order by LEAST(POSITION($search IN xchan_name),POSITION($search IN xchan_addr)).
+
+			$order_extra2 = "CASE WHEN xchan_name LIKE " 
+					. protect_sprintf( "'%" . dbesc($search) . "%'" ) 
+					. " then POSITION('" . dbesc($search) 
+					. "' IN xchan_name) else position('" . dbesc($search) . "' IN xchan_addr) end, ";
+
 			$col = ((strpos($search,'@') !== false) ? 'xchan_addr' : 'xchan_name' );
 			$sql_extra3 = "AND $col like " . protect_sprintf( "'%" . dbesc($search) . "%'" ) . " ";
 	
-		} else {
+		}
+		else {
 			$sql_extra = $sql_extra2 = $sql_extra3 = "";
 		}
 		
@@ -51,36 +102,38 @@ class Acl extends \Zotlabs\Web\Controller {
 		$groups = array();
 		$contacts = array();
 		
-		if ($type=='' || $type=='g'){
+		if($type == '' || $type == 'g') {
 	
-			$r = q("SELECT `groups`.`id`, `groups`.`hash`, `groups`.`name`
-					FROM `groups`,`group_member` 
-					WHERE `groups`.`deleted` = 0 AND `groups`.`uid` = %d 
-					AND `group_member`.`gid`=`groups`.`id`
+			$r = q("SELECT groups.id, groups.hash, groups.gname
+					FROM groups, group_member 
+					WHERE groups.deleted = 0 AND groups.uid = %d 
+					AND group_member.gid = groups.id
 					$sql_extra
-					GROUP BY `groups`.`id`
-					ORDER BY `groups`.`name` 
+					GROUP BY groups.id
+					ORDER BY groups.gname 
 					LIMIT %d OFFSET %d",
 				intval(local_channel()),
 				intval($count),
 				intval($start)
 			);
-	
-			foreach($r as $g){
-	//		logger('acl: group: ' . $g['name'] . ' members: ' . group_get_members_xchan($g['id']));
-				$groups[] = array(
-					"type"  => "g",
-					"photo" => "images/twopeople.png",
-					"name"  => $g['name'],
-					"id"	=> $g['id'],
-					"xid"   => $g['hash'],
-					"uids"  => group_get_members_xchan($g['id']),
-					"link"  => ''
-				);
+
+			if($r) {	
+				foreach($r as $g){
+		//		logger('acl: group: ' . $g['gname'] . ' members: ' . group_get_members_xchan($g['id']));
+					$groups[] = array(
+						"type"  => "g",
+						"photo" => "images/twopeople.png",
+						"name"  => $g['gname'],
+						"id"	=> $g['id'],
+						"xid"   => $g['hash'],
+						"uids"  => group_get_members_xchan($g['id']),
+						"link"  => ''
+					);
+				}
 			}
 		}
 	
-		if ($type=='' || $type=='c') {
+		if($type == '' || $type == 'c') {
 			$extra_channels_sql  = ''; 
 			// Only include channels who allow the observer to view their permissions
 			foreach($extra_channels as $channel) {
@@ -94,13 +147,40 @@ class Acl extends \Zotlabs\Web\Controller {
 			if(local_channel()) {
 				if($extra_channels_sql != '')
 					$extra_channels_sql = " OR (abook_channel IN ($extra_channels_sql)) and abook_hidden = 0 ";
+
+				$r2 = null;
+
+				$r1 = q("select * from atoken where atoken_uid = %d",
+					intval(local_channel())
+				);
+				if($r1) {
+					require_once('include/security.php');
+					$r2 = array();
+					foreach($r1 as $rr) {
+						$x = atoken_xchan($rr);
+						$r2[] = [ 
+							'id' => 'a' . $rr['atoken_id'] ,
+							'hash' => $x['xchan_hash'],
+							'name' => $x['xchan_name'],
+							'micro' => $x['xchan_photo_m'],
+							'url' => z_root(),
+							'nick' => $x['xchan_addr'],
+							'abook_their_perms' => 0,
+							'abook_flags' => 0,
+							'abook_self' => 0
+						];
+					}
+				} 
+
 	
-				$r = q("SELECT abook_id as id, xchan_hash as hash, xchan_name as name, xchan_photo_s as micro, xchan_url as url, xchan_addr as nick, abook_their_perms, abook_flags, abook_self 
+				$r = q("SELECT abook_id as id, xchan_hash as hash, xchan_name as name, xchan_photo_s as micro, xchan_url as url, xchan_addr as nick, abook_their_perms, xchan_pubforum, abook_flags, abook_self 
 					FROM abook left join xchan on abook_xchan = xchan_hash 
 					WHERE (abook_channel = %d $extra_channels_sql) AND abook_blocked = 0 and abook_pending = 0 and xchan_deleted = 0 $sql_extra2 order by $order_extra2 xchan_name asc" ,
 					intval(local_channel())
 				);
-	
+				if($r2)
+					$r = array_merge($r2,$r);
+
 			}
 			else { // Visitors
 				$r = q("SELECT xchan_hash as id, xchan_hash as hash, xchan_name as name, xchan_photo_s as micro, xchan_url as url, xchan_addr as nick, 0 as abook_their_perms, 0 as abook_flags, 0 as abook_self
@@ -158,18 +238,26 @@ class Acl extends \Zotlabs\Web\Controller {
 			}
 		}
 		elseif($type == 'm') {
-	
-			$r = q("SELECT xchan_hash as id, xchan_name as name, xchan_addr as nick, xchan_photo_s as micro, xchan_url as url 
+
+			$r = array();
+			$z = q("SELECT xchan_hash as hash, xchan_name as name, xchan_addr as nick, xchan_photo_s as micro, xchan_url as url 
 				FROM abook left join xchan on abook_xchan = xchan_hash
-				WHERE abook_channel = %d and ( (abook_their_perms = null) or (abook_their_perms & %d )>0)
+				WHERE abook_channel = %d 
 				and xchan_deleted = 0
 				$sql_extra3
-				ORDER BY `xchan_name` ASC ",
-				intval(local_channel()),
-				intval(PERMS_W_MAIL)
+				ORDER BY xchan_name ASC ",
+				intval(local_channel())
 			);
+			if($z) {
+				foreach($z as $zz) {
+					if(in_array($zz['hash'],$permitted)) {
+						$r[] = $zz;
+					}
+				}
+			}
+			
 		}
-		elseif(($type == 'a') || ($type == 'p')) {
+		elseif($type == 'a') {
 	
 			$r = q("SELECT abook_id as id, xchan_name as name, xchan_hash as hash, xchan_addr as nick, xchan_photo_s as micro, xchan_network as network, xchan_url as url, xchan_addr as attag , abook_their_perms FROM abook left join xchan on abook_xchan = xchan_hash
 				WHERE abook_channel = %d
@@ -204,14 +292,14 @@ class Acl extends \Zotlabs\Web\Controller {
 		else
 			$r = array();
 	
-		if(count($r)) {
+		if($r) {
 			foreach($r as $g){
 	
 				// remove RSS feeds from ACLs - they are inaccessible
 				if(strpos($g['hash'],'/') && $type != 'a')
 					continue;
 	
-				if(($g['abook_their_perms'] & PERMS_W_TAGWALL) && $type == 'c' && (! $noforums)) {
+				if(in_array($g['hash'],$permitted) && $type == 'c' && (! $noforums)) {
 					$contacts[] = array(
 						"type"     => "c",
 						"photo"    => "images/twopeople.png",
@@ -260,7 +348,7 @@ class Acl extends \Zotlabs\Web\Controller {
 	
 	//	logger('navbar_complete');
 	
-		if((get_config('system','block_public')) && (! local_channel()) && (! remote_channel())) {
+		if(observer_prohibited()) {
 			return;
 		}
 	
@@ -294,7 +382,7 @@ class Acl extends \Zotlabs\Web\Controller {
 			$url = $directory['url'] . '/dirsearch';
 		}
 	
-		$count = (x($_REQUEST,'count')?$_REQUEST['count']:100);
+		$count = (x($_REQUEST,'count') ?  $_REQUEST['count'] : 100);
 		if($url) {
 			$query = $url . '?f=' ;
 			$query .= '&name=' . urlencode($search) . "&limit=$count" . (($address) ? '&address=' . urlencode($search) : '');

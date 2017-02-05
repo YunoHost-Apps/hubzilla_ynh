@@ -5,6 +5,7 @@
 nav .badge {
 	position: relative;
 	top: -49px;
+	left: 2px;
 	float: left;
 	font-size: 10px;
 	line-height: 20px;

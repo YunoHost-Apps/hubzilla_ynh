@@ -1,12 +1,12 @@
-Hubzilla Installation
+Software Installation
 
-We've tried very hard to ensure that Hubzilla will run on commodity
+We've tried very hard to ensure that this software will run on commodity
 hosting platforms - such as those used to host Wordpress blogs and Drupal 
 websites. It will run on most any Linux VPS system. Windows LAMP platforms
 such as XAMPP and WAMP are not officially supported at this time - however 
 we welcome patches if you manage to get it working. 
 
-Be aware that the Hubzilla is more than a simple web application. It is a 
+Be aware that this software is more than a simple web application. It is a 
 complex communications system which more closely resembles an email server 
 than a web server. For reliability and performance, messages are delivered in
 the background and are queued for later delivery when sites are down. This
@@ -17,20 +17,24 @@ with your hosting provider prior to installation. (And preferably before
 entering into a long-term contract.)
 
 If you encounter installation issues, please let us know via the Github issue 
-tracker (https://github.com/redmatrix/hubzilla/issues). Please be as clear as you 
-can about your operating environment and provide as much detail as possible
+tracker where you downloaded the software. Please be as clear as
+you can about your operating environment and provide as much detail as possible
 about any error messages you may see, so that we can prevent it from happening 
 in the future. Due to the large variety of operating systems and PHP platforms 
-in existence we may have only limited ability to debug your PHP installation or 
-acquire any missing modules - but we will do our best to solve any general code 
-issues.
+in existence we may have only limited ability to debug your PHP installation
+or acquire any missing modules - but we will do our best to solve any general
+code issues.
 
 
 
-Before you begin: Choose a domain name or subdomain name for your server.
+**Before you begin** 
 
-Hubzilla can only be installed into the root of a domain or
-sub-domain, and can not be installed using alternate TCP ports. 
+Choose a domain name or subdomain name for your server.
+
+The software can only be installed into the root of a domain or
+sub-domain, and can not be installed using alternate TCP ports. These 
+restrictions may be relaxed in the future, but will be inconvenient to work
+with, so we still STRONGLY recommend you abide by them. 
 
 Decide if you will use SSL and obtain an SSL certificate before software
 installation.  You SHOULD use SSL. If you use SSL, you MUST use a
@@ -46,12 +50,12 @@ This restriction is incorporated because public posts from you may contain
 references to images on your own hub. Other members viewing their stream on
 other hubs will get warnings if your certificate is not trusted by their web
 browser. This will confuse many people because this is a decentralised network
-and they will get the warning about your hub while viewing their own hub and may 
-think their own hub has an issue. These warnings are very technical and scary to 
-some folks, many of whom will not know how to proceed except to follow the browser
-advice. This is disruptive to the community. That said, we recognise the issues
-surrounding the current certificate infrastructure and agree there are many
-problems, but that doesn't change the requirement. 
+and they will get the warning about your hub while viewing their own hub and
+may think their own hub has an issue. These warnings are very technical and 
+scary to some folks, many of whom will not know how to proceed except to
+follow the browser advice. This is disruptive to the community. That said, we
+recognise the issues surrounding the current certificate infrastructure and
+agree there are many problems, but that doesn't change the requirement. 
 
 Free "browser-valid" certificates are available from providers such as StartSSL
 and LetsEncrypt. 
@@ -63,19 +67,42 @@ SSL port first, before falling back to a less secure connection.  If you do not
 use SSL, your webserver MUST NOT listen on port 443 at all.
 
 If you use LetsEncrypt to provide certificates and create a file under 
-.well-known/acme-challenge so that LetsEncrypt can verify your domain ownership, 
-please remove or rename the .well-known directory as soon as the certificate is 
-generated. Hubzilla will provide its own handler for ".well-known" services when
-it is installed, and an existing directory in this location may prevent some of 
-these services from working correctly. This should not be a problem with Apache,
-but may be an issue with nginx or other web server platforms.
+.well-known/acme-challenge so that LetsEncrypt can verify your domain
+ownership, please remove or rename the .well-known directory as soon as the
+certificate is generated. The software will provide its own handler for 
+".well-known" services when it is installed, and an existing directory in this
+location may prevent some of these services from working correctly. This
+should not be a problem with Apache, but may be an issue with nginx or other
+web server platforms.
 
+**Server Roles**
+
+During installation you will be asked to choose a server role. Your choices are
+1. Basic
+2. Standard
+3. Pro
+
+Basic is highly simplified, with almost all the advanced functionality and 
+complexity removed or permanently disabled.
+
+Standard is typically used for federated network use, when you wish to interact
+with other networks using other protocols. Not all the built in features and
+functionality work correctly when other networks are involved. All advanced
+and complex features are available to all members by default.  
+
+Pro is for sites that wish to make full use of the built-in abilities and
+features, but **not** to interact with other networks. Advanced features are
+enabled according to a per-account 'techlevel' which reduces complexity
+initially and allows members to adjust the software complexity to match their
+technical abilities.   
+
+**Installation**
 
 1. Requirements
     - Apache with mod-rewrite enabled and "AllowOverride All" so you can use a 
     local .htaccess file. Some folks have successfully used nginx and lighttpd.
-	Example config scripts are available for these platforms in doc/install.
-	Apache and nginx have the most support. 
+	Example config scripts are available for these platforms in the install 
+	directory. Apache and nginx have the most support. 
 
     - PHP 5.5 or later. 
 
@@ -96,7 +123,7 @@ but may be an issue with nginx or other web server platforms.
     - Installation into a top-level domain or sub-domain (without a 
     directory/path component in the URL) is REQUIRED.
 
-2. Unpack the Hubzilla files into the root of your web server document area.
+2. Unpack the project files into the root of your web server document area.
     
      If you copy the directory tree to your webserver, make sure that you 
     also copy .htaccess - as "dot" files are often hidden and aren't normally 
@@ -156,12 +183,21 @@ but may be an issue with nginx or other web server platforms.
 
 
 3. Create an empty database and note the access details (hostname, username, 
-password, database name). The MySQL client libraries will fallback to socket 
+password, database name). The PDO database libraries will fallback to socket 
 communication if the hostname is 'localhost' and some people have reported
 issues with the socket implementation. Use it if your requirements mandate. 
 Otherwise if the database is served on the local server, use '127.0.0.1' for
-the hostname. See https://dev.mysql.com/doc/refman/5.0/en/connecting.html
-for more information. 
+the hostname. 
+
+Internally we now use the PDO library for database connections. If you 
+encounter a database configuration which cannot be expressed on the setup form
+(for instance using MySQL with an unusual socket location); you can supply
+the PDO connection string as the database hostname. For instance
+	
+	mysql:unix_socket=/my/special/socket_path
+
+You should still fill in all other applicable form values as needed.  
+
 
 4. If you know in advance that it will be impossible for the web server to 
 write or create files in your web directory, create an empty file called 
@@ -223,7 +259,7 @@ You should also be sure that App::$config['system']['php_path'] is set correctly
 in your .htconfig.php file, it should look like (changing it to the correct 
 PHP location):
 
-App::$config['system']['php_path'] = '/usr/local/php55/bin/php';
+App::$config['system']['php_path'] = '/usr/local/php56/bin/php';
   
  
 #####################################################################
@@ -296,6 +332,21 @@ a lot of help available on the web. Google "mod-rewrite" along with the
 name of your operating system distribution or Apache package.
 
   
+#####################################################################
+- If you see an error during database setup that DNS lookup failed
+#####################################################################
+
+This is a known issue on some versions of FreeBSD, because 
+dns_get_record() fails for some lookups. Create a file in your top webserver 
+folder called '.htpreconfig.php' and inside it put the following:
+
+<?php
+App::$config['system']['do_not_check_dns'] = 1;
+
+This should allow installation to proceed. Once the database has been
+installed, add the same config statement (but not the '<?php' line) to the 
+.htconfig.php file which was created during installation. 
+
 #####################################################################
 - If you are unable to write the file .htconfig.php during installation 
 due to permissions issues:

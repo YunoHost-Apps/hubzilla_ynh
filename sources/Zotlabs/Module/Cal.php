@@ -6,14 +6,12 @@ require_once('include/bbcode.php');
 require_once('include/datetime.php');
 require_once('include/event.php');
 require_once('include/items.php');
-require_once('include/Contact.php');
-
 
 
 class Cal extends \Zotlabs\Web\Controller {
 
 	function init() {
-		if((get_config('system','block_public')) && (! local_channel()) && (! remote_channel())) {
+		if(observer_prohibited()) {
 			return;
 		}
 	
@@ -22,7 +20,7 @@ class Cal extends \Zotlabs\Web\Controller {
 		if(argc() > 1) {
 			$nick = argv(1);
 	
-			profile_load($a,$nick);
+			profile_load($nick);
 	
 			$channelx = channelx_by_nick($nick);
 	
@@ -47,13 +45,12 @@ class Cal extends \Zotlabs\Web\Controller {
 	
 	
 	
-		function get() {
+	function get() {
 	
-		if((get_config('system','block_public')) && (! local_channel()) && (! remote_channel())) {
+		if(observer_prohibited()) {
 			return;
 		}
-	
-	
+		
 		$channel = null;
 	
 		if(argc() > 1) {
@@ -94,7 +91,7 @@ class Cal extends \Zotlabs\Web\Controller {
 		$mode = 'view';
 		$y = 0;
 		$m = 0;
-		$ignored = ((x($_REQUEST,'ignored')) ? " and ignored = " . intval($_REQUEST['ignored']) . " "  : '');
+		$ignored = ((x($_REQUEST,'ignored')) ? " and dismissed = " . intval($_REQUEST['ignored']) . " "  : '');
 	
 		// logger('args: ' . print_r(\App::$argv,true));
 	
@@ -112,7 +109,7 @@ class Cal extends \Zotlabs\Web\Controller {
 	
 			/* edit/create form */
 			if($event_id) {
-				$r = q("SELECT * FROM `event` WHERE event_hash = '%s' AND `uid` = %d LIMIT 1",
+				$r = q("SELECT * FROM event WHERE event_hash = '%s' AND uid = %d LIMIT 1",
 					dbesc($event_id),
 					intval($channel['channel_id'])
 				);
@@ -149,7 +146,7 @@ class Cal extends \Zotlabs\Web\Controller {
 			$ftext = datetime_convert('UTC',$tz,$fdt);
 			$ftext = substr($ftext,0,14) . "00:00";
 	
-			$type = ((x($orig_event)) ? $orig_event['type'] : 'event');
+			$type = ((x($orig_event)) ? $orig_event['etype'] : 'event');
 	
 			$f = get_config('system','event_input_format');
 			if(! $f)
@@ -160,7 +157,7 @@ class Cal extends \Zotlabs\Web\Controller {
 	
 			$show_bd = perm_is_allowed($channel['channel_id'], get_observer_hash(), 'view_contacts');
 			if(! $show_bd) {
-				$sql_extra .= " and event.type != 'birthday' ";
+				$sql_extra .= " and event.etype != 'birthday' ";
 			}
 	
 	
@@ -212,6 +209,10 @@ class Cal extends \Zotlabs\Web\Controller {
 			$adjust_start = datetime_convert('UTC', date_default_timezone_get(), $start);
 			$adjust_finish = datetime_convert('UTC', date_default_timezone_get(), $finish);
 	
+
+			if(! perm_is_allowed(\App::$profile['uid'],get_observer_hash(),'view_contacts'))
+				$sql_extra .= " and etype != 'birthday' ";
+
 			if (x($_GET,'id')){
 			  	$r = q("SELECT event.*, item.plink, item.item_flags, item.author_xchan, item.owner_xchan
 	                                from event left join item on resource_id = event_hash where resource_type = 'event' and event.uid = %d and event.id = %d $sql_extra limit 1",
@@ -227,9 +228,9 @@ class Cal extends \Zotlabs\Web\Controller {
 	
 				$r = q("SELECT event.*, item.plink, item.item_flags, item.author_xchan, item.owner_xchan
 	                              from event left join item on event_hash = resource_id 
-					where resource_type = 'event' and event.uid = %d $ignored 
-					AND (( adjust = 0 AND ( finish >= '%s' or nofinish = 1 ) AND start <= '%s' ) 
-					OR  (  adjust = 1 AND ( finish >= '%s' or nofinish = 1 ) AND start <= '%s' )) $sql_extra ",
+					where resource_type = 'event' and event.uid = %d and event.uid = item.uid $ignored 
+					AND (( adjust = 0 AND ( dtend >= '%s' or nofinish = 1 ) AND dtstart <= '%s' ) 
+					OR  (  adjust = 1 AND ( dtend >= '%s' or nofinish = 1 ) AND dtstart <= '%s' )) $sql_extra ",
 					intval($channel['channel_id']),
 					dbesc($start),
 					dbesc($finish),
@@ -250,7 +251,7 @@ class Cal extends \Zotlabs\Web\Controller {
 	
 			if($r) {
 				foreach($r as $rr) {
-					$j = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['start'], 'j') : datetime_convert('UTC','UTC',$rr['start'],'j'));
+					$j = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['dtstart'], 'j') : datetime_convert('UTC','UTC',$rr['dtstart'],'j'));
 					if(! x($links,$j)) 
 						$links[$j] = z_root() . '/' . \App::$cmd . '#link-' . $j;
 				}
@@ -265,15 +266,15 @@ class Cal extends \Zotlabs\Web\Controller {
 	
 				foreach($r as $rr) {
 					
-					$j = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['start'], 'j') : datetime_convert('UTC','UTC',$rr['start'],'j'));
-					$d = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['start'], $fmt) : datetime_convert('UTC','UTC',$rr['start'],$fmt));
+					$j = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['dtstart'], 'j') : datetime_convert('UTC','UTC',$rr['dtstart'],'j'));
+					$d = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['dtstart'], $fmt) : datetime_convert('UTC','UTC',$rr['dtstart'],$fmt));
 					$d = day_translate($d);
 					
-					$start = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['start'], 'c') : datetime_convert('UTC','UTC',$rr['start'],'c'));
+					$start = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['dtstart'], 'c') : datetime_convert('UTC','UTC',$rr['dtstart'],'c'));
 					if ($rr['nofinish']){
 						$end = null;
 					} else {
-						$end = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['finish'], 'c') : datetime_convert('UTC','UTC',$rr['finish'],'c'));
+						$end = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['dtend'], 'c') : datetime_convert('UTC','UTC',$rr['dtend'],'c'));
 					}
 					
 					

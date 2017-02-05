@@ -260,12 +260,12 @@ function channel_remove($channel_id, $local = true, $unset_session=false) {
 	
 	if(! $local) {
 
-		$r = q("update channel set channel_deleted = '%s', channel_removed = 1, channel_r_stream = 0, channel_r_profile = 0,
-			channel_r_photos = 0, channel_r_abook = 0, channel_w_stream = 0, channel_w_wall = 0, channel_w_tagwall = 0,
-			channel_w_comment = 0, channel_w_mail = 0, channel_w_photos = 0, channel_w_chat = 0, channel_a_delegate = 0,
-			channel_r_storage = 0, channel_w_storage = 0, channel_r_pages = 0, channel_w_pages = 0, channel_a_republish = 0 
-			where channel_id = %d",
+		$r = q("update channel set channel_deleted = '%s', channel_removed = 1 where channel_id = %d",
 			dbesc(datetime_convert()),
+			intval($channel_id)
+		);
+
+		q("delete from pconfig where uid = %d",
 			intval($channel_id)
 		);
 
@@ -283,18 +283,30 @@ function channel_remove($channel_id, $local = true, $unset_session=false) {
 		Zotlabs\Daemon\Master::Summon(array('Notifier','purge_all',$channel_id));
 	}
 
-	q("DELETE FROM `groups` WHERE `uid` = %d", intval($channel_id));
-	q("DELETE FROM `group_member` WHERE `uid` = %d", intval($channel_id));
-	q("DELETE FROM `event` WHERE `uid` = %d", intval($channel_id));
-	q("DELETE FROM `item` WHERE `uid` = %d", intval($channel_id));
-	q("DELETE FROM `item_id` WHERE `uid` = %d", intval($channel_id));
-	q("DELETE FROM `mail` WHERE `channel_id` = %d", intval($channel_id));
-	q("DELETE FROM `notify` WHERE `uid` = %d", intval($channel_id));
-	q("DELETE FROM `photo` WHERE `uid` = %d", intval($channel_id));
-	q("DELETE FROM `attach` WHERE `uid` = %d", intval($channel_id));
-	q("DELETE FROM `profile` WHERE `uid` = %d", intval($channel_id));
-	q("DELETE FROM `pconfig` WHERE `uid` = %d", intval($channel_id));
-	q("DELETE FROM `spam` WHERE `uid` = %d", intval($channel_id));
+
+	$r = q("select * from iconfig left join item on item.id = iconfig.iid
+		where item.uid = %d",
+		intval($channel_id)
+	);
+	if($r) {
+		foreach($r as $rr) {
+			q("delete from iconfig where iid = %d",
+				intval($rr['iid'])
+			);
+		}
+	}
+
+
+	q("DELETE FROM groups WHERE uid = %d", intval($channel_id));
+	q("DELETE FROM group_member WHERE uid = %d", intval($channel_id));
+	q("DELETE FROM event WHERE uid = %d", intval($channel_id));
+	q("DELETE FROM item WHERE uid = %d", intval($channel_id));
+	q("DELETE FROM mail WHERE channel_id = %d", intval($channel_id));
+	q("DELETE FROM notify WHERE uid = %d", intval($channel_id));
+	q("DELETE FROM photo WHERE uid = %d", intval($channel_id));
+	q("DELETE FROM attach WHERE uid = %d", intval($channel_id));
+	q("DELETE FROM profile WHERE uid = %d", intval($channel_id));
+	q("DELETE FROM pconfig WHERE uid = %d", intval($channel_id));
 
 	// @FIXME At this stage we need to remove the file resources located under /store/$nickname
 
@@ -554,6 +566,7 @@ function contact_remove($channel_id, $abook_id) {
 			drop_item($rr['id'],false);
 		}
 	}
+
 	
 	q("delete from abook where abook_id = %d and abook_channel = %d",
 		intval($abook['abook_id']),
@@ -576,6 +589,11 @@ function contact_remove($channel_id, $abook_id) {
 		intval($channel_id)
 	);
 
+	$r = q("delete from abconfig where chan = %d and xchan = '%s'",
+			intval($channel_id),
+			dbesc($abook['abook_xchan'])
+	);
+
 	return true;
 }
 
@@ -590,7 +608,7 @@ function random_profile() {
 
 	for($i = 0; $i < $retryrandom; $i++) {
 
-		$r = q("select xchan_url from xchan left join hubloc on hubloc_hash = xchan_hash where xchan_addr not like '%s' and hubloc_connected > %s - interval %s order by $randfunc limit 1",
+		$r = q("select xchan_url from xchan left join hubloc on hubloc_hash = xchan_hash where xchan_addr not like '%s' and xchan_hidden = 0 and hubloc_connected > %s - interval %s order by $randfunc limit 1",
 			dbesc('sys@%'),
 			db_utcnow(), db_quoteinterval('30 day')
 		);

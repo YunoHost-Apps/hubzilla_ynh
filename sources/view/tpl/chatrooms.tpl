@@ -1,7 +1,7 @@
 <div class="generic-content-wrapper">
 	<div class="section-title-wrapper">
 		{{if $is_owner}}
-		<button type="button" class="btn btn-success btn-xs pull-right" onclick="openClose('chatroom-new');"><i class="fa fa-plus-circle"></i>&nbsp;{{$newroom}}</button>
+		<button type="button" class="btn btn-success btn-xs pull-right acl-form-trigger" onclick="openClose('chatroom-new');" data-form_id="chatroom-new-form"><i class="fa fa-plus-circle"></i>&nbsp;{{$newroom}}</button>
 		{{/if}}
 		<h2>{{$header}}</h2>
 	</div>

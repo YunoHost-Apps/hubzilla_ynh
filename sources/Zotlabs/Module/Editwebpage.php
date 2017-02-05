@@ -1,10 +1,9 @@
 <?php
 namespace Zotlabs\Module;
 
-require_once('include/identity.php');
+require_once('include/channel.php');
 require_once('include/acl_selectors.php');
 require_once('include/conversation.php');
-require_once('include/PermissionDescription.php');
 
 
 class Editwebpage extends \Zotlabs\Web\Controller {
@@ -23,7 +22,7 @@ class Editwebpage extends \Zotlabs\Web\Controller {
 		else
 			return;
 
-		profile_load($a,$which);
+		profile_load($which);
 
 	}
 
@@ -96,7 +95,7 @@ class Editwebpage extends \Zotlabs\Web\Controller {
 
 		$sql_extra = item_permissions_sql($owner);
 
-		$itm = q("SELECT * FROM `item` WHERE `id` = %d and uid = %s $sql_extra LIMIT 1",
+		$itm = q("SELECT * FROM item WHERE id = %d and uid = %s $sql_extra LIMIT 1",
 			intval($post_id),
 			intval($owner)
 		);
@@ -109,16 +108,16 @@ class Editwebpage extends \Zotlabs\Web\Controller {
 		if(intval($itm[0]['item_obscured'])) {
 			$key = get_config('system','prvkey');
 			if($itm[0]['title'])
-				$itm[0]['title'] = crypto_unencapsulate(json_decode_plus($itm[0]['title']),$key);
+				$itm[0]['title'] = crypto_unencapsulate(json_decode($itm[0]['title'],true),$key);
 			if($itm[0]['body'])
-				$itm[0]['body'] = crypto_unencapsulate(json_decode_plus($itm[0]['body']),$key);
+				$itm[0]['body'] = crypto_unencapsulate(json_decode($itm[0]['body'],true),$key);
 		}
 
-		$item_id = q("select * from item_id where service = 'WEBPAGE' and iid = %d limit 1",
+		$item_id = q("select * from iconfig where cat = 'system' and k = 'WEBPAGE' and iid = %d limit 1",
 			intval($itm[0]['id'])
 		);
 		if($item_id)
-			$page_title = $item_id[0]['sid'];
+			$page_title = $item_id[0]['v'];
 
 		$mimetype = $itm[0]['mimetype'];
 
@@ -151,7 +150,8 @@ class Editwebpage extends \Zotlabs\Web\Controller {
 			'body' => undo_post_tagging($itm[0]['body']),
 			'post_id' => $post_id,
 			'visitor' => ($is_owner) ? true : false,
-			'acl' => populate_acl($itm[0],false,\PermissionDescription::fromGlobalPermission('view_pages')),
+			'acl' => populate_acl($itm[0],false,\Zotlabs\Lib\PermissionDescription::fromGlobalPermission('view_pages')),
+			'permissions' => $itm[0],
 			'showacl' => ($is_owner) ? true : false,
 			'mimetype' => $mimetype,
 			'mimeselect' => true,

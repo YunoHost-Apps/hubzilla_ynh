@@ -134,6 +134,7 @@ The options are:
  - Anybody on this website.
  - Anybody in this network.
  - Anybody authenticated.
+ - Specific people you provide a Guest Access Token to in order to access a specific item.
  - Anybody on the Internet.
 
 

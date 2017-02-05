@@ -1,7 +1,7 @@
 <?php
 namespace Zotlabs\Module;
 
-require_once('include/identity.php');
+require_once('include/channel.php');
 require_once('include/conversation.php');
 require_once('include/acl_selectors.php');
 
@@ -22,12 +22,12 @@ class Blocks extends \Zotlabs\Web\Controller {
 		else
 			return;
 	
-		profile_load($a,$which);
+		profile_load($which);
 	
 	}
 	
 	
-		function get() {
+	function get() {
 	
 		if(! \App::$profile) {
 			notice( t('Requested profile is not available.') . EOL );
@@ -111,8 +111,11 @@ class Blocks extends \Zotlabs\Web\Controller {
 	
 		$editor = status_editor($a,$x);
 	
-		$r = q("select iid, sid, mid, title, body, mimetype, created, edited from item_id left join item on item_id.iid = item.id
-			where item_id.uid = %d and service = 'BUILDBLOCK' and item_type = %d order by item.created desc",
+
+		$r = q("select iconfig.iid, iconfig.k, iconfig.v, mid, title, body, mimetype, created, edited from iconfig 
+			left join item on iconfig.iid = item.id
+			where uid = %d and iconfig.cat = 'system' and iconfig.k = 'BUILDBLOCK' 
+			and item_type = %d order by item.created desc",
 			intval($owner),
 			intval(ITEM_TYPE_BLOCK)
 		);
@@ -129,12 +132,12 @@ class Blocks extends \Zotlabs\Web\Controller {
 					'created'   => $rr['created'],
 					'edited'    => $rr['edited'],
 					'mimetype'  => $rr['mimetype'],
-					'pagetitle' => $rr['sid'],
+					'pagetitle' => $rr['v'],
 					'mid'       => $rr['mid']
 				);
 				$pages[$rr['iid']][] = array(
 					'url' => $rr['iid'],
-					'name' => $rr['sid'],
+					'name' => $rr['v'],
 					'title' => $rr['title'],
 					'created' => $rr['created'],
 					'edited' => $rr['edited'],

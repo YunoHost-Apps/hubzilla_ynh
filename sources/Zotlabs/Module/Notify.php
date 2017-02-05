@@ -39,7 +39,7 @@ class Notify extends \Zotlabs\Web\Controller {
 		$not_tpl = get_markup_template('notify.tpl');
 		require_once('include/bbcode.php');
 	
-		$r = q("SELECT * from notify where uid = %d and seen = 0 order by date desc",
+		$r = q("SELECT * from notify where uid = %d and seen = 0 order by created desc",
 			intval(local_channel())
 		);
 			
@@ -49,7 +49,7 @@ class Notify extends \Zotlabs\Web\Controller {
 					'$item_link' => z_root().'/notify/view/'. $it['id'],
 					'$item_image' => $it['photo'],
 					'$item_text' => strip_tags(bbcode($it['msg'])),
-					'$item_when' => relative_date($it['date'])
+					'$item_when' => relative_date($it['created'])
 				));
 			}
 		} 

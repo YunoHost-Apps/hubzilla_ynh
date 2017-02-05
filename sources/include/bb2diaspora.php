@@ -123,12 +123,15 @@ function diaspora_mention_callback($matches) {
  * @param boolean $use_zrl default false
  * @return string
  */
-function diaspora2bb($s, $use_zrl = false) {
+function markdown_to_bb($s, $use_zrl = false) {
 
 	$s = str_replace("&#xD;","\r",$s);
 	$s = str_replace("&#xD;\n&gt;","",$s);
 
 	$s = html_entity_decode($s,ENT_COMPAT,'UTF-8');
+
+	// if empty link text replace with the url
+	$s = preg_replace("/\[\]\((.*?)\)/ism",'[$1]($1)',$s);
 
 	// first try plustags
 
@@ -155,22 +158,19 @@ function diaspora2bb($s, $use_zrl = false) {
 	// Convert everything that looks like a link to a link
 	if($use_zrl) {
 		$s = str_replace(array('[img','/img]'),array('[zmg','/zmg]'),$s);
-		$s = preg_replace("/([^\]\=]|^)(https?\:\/\/)([a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,]+)/ism", '$1[zrl=$2$3]$2$3[/zrl]',$s);
+		$s = preg_replace("/([^\]\=]|^)(https?\:\/\/)([a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,\(\)]+)/ism", '$1[zrl=$2$3]$2$3[/zrl]',$s);
 	}
 	else {
-		$s = preg_replace("/([^\]\=]|^)(https?\:\/\/)([a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,]+)/ism", '$1[url=$2$3]$2$3[/url]',$s);
+		$s = preg_replace("/([^\]\=]|^)(https?\:\/\/)([a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,\(\)]+)/ism", '$1[url=$2$3]$2$3[/url]',$s);
 	}
 
-	//$s = preg_replace("/([^\]\=]|^)(https?\:\/\/)(vimeo|youtu|www\.youtube|soundcloud)([a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,]+)/ism", '$1[url=$2$3$4]$2$3$4[/url]',$s);
-	$s = bb_tag_preg_replace("/\[url\=?(.*?)\]https?:\/\/www.youtube.com\/watch\?v\=(.*?)\[\/url\]/ism",'[embed]https://www.youtube.com/watch?v=$2[/embed]','url',$s);
-	$s = bb_tag_preg_replace("/\[url\=https?:\/\/www.youtube.com\/watch\?v\=(.*?)\].*?\[\/url\]/ism",'[embed]https://www.youtube.com/watch?v=$1[/embed]','url',$s);
-	$s = bb_tag_preg_replace("/\[url\=?(.*?)\]https?:\/	\/vimeo.com\/([0-9]+)(.*?)\[\/url\]/ism",'[embed]https://vimeo.com/$2[/embed]','url',$s);
-	$s = bb_tag_preg_replace("/\[url\=https?:\/\/vimeo.com\/([0-9]+)\](.*?)\[\/url\]/ism",'[embed]https://vimeo.com/$1[/embed]','url',$s);
 	// remove duplicate adjacent code tags
 	$s = preg_replace("/(\[code\])+(.*?)(\[\/code\])+/ism","[code]$2[/code]", $s);
 
 	// Don't show link to full picture (until it is fixed)
 	$s = scale_external_images($s, false);
+
+	call_hooks('markdown_to_bb',$s);
 
 	return $s;
 }
@@ -268,7 +268,7 @@ function bb2dmention_callback($match) {
 }
 
 
-function bb2diaspora_itemwallwall(&$item) {
+function bb2diaspora_itemwallwall(&$item,$uplink = false) {
 
 	// We will provide wallwall (embedded author on the Diaspora side) if
 	//  1. It is a wall-to-wall post
@@ -302,13 +302,19 @@ function bb2diaspora_itemwallwall(&$item) {
 		}
 	}
 
-	if(($wallwall) && (is_array($item['author'])) && $item['author']['xchan_url'] && $item['author']['xchan_name'] && $item['author']['xchan_photo_m']) {
+	if($uplink)
+		$wallwall = true;
+
+	if(($wallwall) && (is_array($item['author'])) && $item['author']['xchan_url'] && $item['author']['xchan_name'] && $item['author']['xchan_photo_s']) {
 		logger('bb2diaspora_itemwallwall: wall to wall post',LOGGER_DEBUG);
 		// post will come across with the owner's identity. Throw a preamble onto the post to indicate the true author.
 		$item['body'] = "\n\n" 
-			. '[img]' . $item['author']['xchan_photo_m'] . '[/img]' 
-			. '[url=' . $item['author']['xchan_url'] . ']' . $item['author']['xchan_name'] . '[/url]' . "\n\n" 
-			. $item['body'];
+			. '[quote]' 
+			. '[img]' . $item['author']['xchan_photo_s'] . '[/img]' 
+			. ' ' 
+			. '[url=' . $item['author']['xchan_url'] . '][b]' . $item['author']['xchan_name'] . '[/b][/url]' . "\n\n" 
+			. $item['body'] 
+			. '[/quote]';
 	}
 
 	// $item['author'] might cause a surprise further down the line if it wasn't expected to be here.
@@ -318,7 +324,7 @@ function bb2diaspora_itemwallwall(&$item) {
 }
 
 
-function bb2diaspora_itembody($item, $force_update = false, $have_channel = false) {
+function bb2diaspora_itembody($item, $force_update = false, $have_channel = false, $uplink = false) {
 
 
 	if(! get_iconfig($item,'diaspora','fields')) {
@@ -362,7 +368,7 @@ function bb2diaspora_itembody($item, $force_update = false, $have_channel = fals
 	}
 
 	if(! $have_channel)
-		bb2diaspora_itemwallwall($newitem);
+		bb2diaspora_itemwallwall($newitem,$uplink);
 
 	$title = $newitem['title'];
 	$body  = preg_replace('/\#\^http/i', 'http', $newitem['body']);
@@ -424,6 +430,12 @@ function bb2diaspora($Text,$preserve_nl = false, $fordiaspora = true) {
 
 	$Text = preg_replace_callback('/\@\!?\[([zu])rl\=(\w+.*?)\](\w+.*?)\[\/([zu])rl\]/i', 'bb2dmention_callback', $Text);
 
+	// strip map tags, as the rendering is performed in bbcode() and the resulting output
+	// is not compatible with Diaspora (at least in the case of openstreetmap and probably
+	// due to the inclusion of an html iframe)
+
+	$Text = preg_replace("/\[map\=(.*?)\]/ism", '$1', $Text);
+	$Text = preg_replace("/\[map\](.*?)\[\/map\]/ism", '$1', $Text);
 
 	// Converting images with size parameters to simple images. Markdown doesn't know it.
 	$Text = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $Text);
@@ -445,6 +457,8 @@ function bb2diaspora($Text,$preserve_nl = false, $fordiaspora = true) {
 	// Now convert HTML to Markdown
 	$md = new Markdownify(false, false, false);
 	$Text = $md->parseString($Text);
+
+
 
 	// It also adds backslashes to our attempt at getting around the html entity preservation for some weird reason. 
 

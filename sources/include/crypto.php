@@ -48,18 +48,113 @@ function pkcs5_unpad($text)
 function AES256CBC_encrypt($data,$key,$iv) {
 
 	return openssl_encrypt($data,'aes-256-cbc',str_pad($key,32,"\0"),OPENSSL_RAW_DATA,str_pad($iv,16,"\0"));
-
 }
 
 function AES256CBC_decrypt($data,$key,$iv) {
 
 	return openssl_decrypt($data,'aes-256-cbc',str_pad($key,32,"\0"),OPENSSL_RAW_DATA,str_pad($iv,16,"\0"));
+}
 
+function AES128CBC_encrypt($data,$key,$iv) {
+	$key = substr($key,0,16);
+	$iv = substr($iv,0,16);
+	return openssl_encrypt($data,'aes-128-cbc',str_pad($key,16,"\0"),OPENSSL_RAW_DATA,str_pad($iv,16,"\0"));
+}
+
+function AES128CBC_decrypt($data,$key,$iv) {
+	$key = substr($key,0,16);
+	$iv = substr($iv,0,16);
+	return openssl_decrypt($data,'aes-128-cbc',str_pad($key,16,"\0"),OPENSSL_RAW_DATA,str_pad($iv,16,"\0"));
+}
+
+function STD_encrypt($data,$key,$iv) {
+	$key = substr($key,0,32);
+	$iv = substr($iv,0,16);
+	return openssl_encrypt($data,'aes-256-cbc',str_pad($key,32,"\0"),OPENSSL_RAW_DATA,str_pad($iv,16,"\0"));
+}
+
+function STD_decrypt($data,$key,$iv) {
+	$key = substr($key,0,32);
+	$iv = substr($iv,0,16);
+	return openssl_decrypt($data,'aes-256-cbc',str_pad($key,32,"\0"),OPENSSL_RAW_DATA,str_pad($iv,16,"\0"));
+}
+
+function CAST5CBC_encrypt($data,$key,$iv) {
+	$key = substr($key,0,16);
+	$iv = substr($iv,0,8);
+	return openssl_encrypt($data,'cast5-cbc',str_pad($key,16,"\0"),OPENSSL_RAW_DATA,str_pad($iv,8,"\0"));
+}
+
+function CAST5CBC_decrypt($data,$key,$iv) {
+	$key = substr($key,0,16);
+	$iv = substr($iv,0,8);
+	return openssl_decrypt($data,'cast5-cbc',str_pad($key,16,"\0"),OPENSSL_RAW_DATA,str_pad($iv,8,"\0"));
 }
 
 function crypto_encapsulate($data,$pubkey,$alg='aes256cbc') {
+	$fn = strtoupper($alg) . '_encrypt';
+	
 	if($alg === 'aes256cbc')
 		return aes_encapsulate($data,$pubkey);
+
+	return other_encapsulate($data,$pubkey,$alg);
+
+}
+
+function other_encapsulate($data,$pubkey,$alg) {
+	if(! $pubkey)
+		logger('no key. data: ' . $data);
+
+	$fn = strtoupper($alg) . '_encrypt';
+	if(function_exists($fn)) {
+
+		// A bit hesitant to use openssl_random_pseudo_bytes() as we know
+		// it has been historically targeted by US agencies for 'weakening'.
+		// It is still arguably better than trying to come up with an
+		// alternative cryptographically secure random generator.
+		// There is little point in using the optional second arg to flag the
+		// assurance of security since it is meaningless if the source algorithms
+		// have been compromised. Also none of this matters if RSA has been
+		// compromised by state actors and evidence is mounting that this has
+		// already happened.   
+
+		$key = openssl_random_pseudo_bytes(256);
+		$iv  = openssl_random_pseudo_bytes(256);
+		$result['data'] = base64url_encode($fn($data,$key,$iv),true);
+		// log the offending call so we can track it down
+		if(! openssl_public_encrypt($key,$k,$pubkey)) {
+			$x = debug_backtrace();
+			logger('RSA failed. ' . print_r($x[0],true));
+		}
+
+		$result['alg'] = $alg;
+	 	$result['key'] = base64url_encode($k,true);
+		openssl_public_encrypt($iv,$i,$pubkey);
+		$result['iv'] = base64url_encode($i,true);
+		return $result;
+	}
+	else {
+		$x = [ 'data' => $data, 'pubkey' => $pubkey, 'alg' => $alg, 'result' => $data ];
+		call_hooks('other_encapsulate', $x);
+		return $x['result'];
+	}
+}
+
+function crypto_methods() {
+
+	if(\Zotlabs\Lib\System::get_server_role() !== 'pro')
+		return [ 'aes256cbc' ];
+
+	// 'std' is the new project standard which is aes256cbc but transmits/receives 256-byte key and iv. 
+	// aes256cbc is provided for compatibility with earlier zot implementations which assume 32-byte key and 16-byte iv. 
+	// other_encapsulate() now produces these longer keys/ivs by default so that it is difficult to guess a
+	// particular implementation or choice of underlying implementations based on the key/iv length. 
+	// The actual methods are responsible for deriving the actual key/iv from the provided parameters;
+	// possibly by truncation or segmentation - though many other methods could be used.  
+
+	$r = [ 'std', 'aes256cbc', 'aes128cbc', 'cast5cbc' ];
+	call_hooks('crypto_methods',$r);
+	return $r;
 
 }
 
@@ -67,8 +162,8 @@ function crypto_encapsulate($data,$pubkey,$alg='aes256cbc') {
 function aes_encapsulate($data,$pubkey) {
 	if(! $pubkey)
 		logger('aes_encapsulate: no key. data: ' . $data);
-	$key = random_string(32,RANDOM_STRING_TEXT);
-	$iv  = random_string(16,RANDOM_STRING_TEXT);
+	$key = openssl_random_pseudo_bytes(32);
+	$iv  = openssl_random_pseudo_bytes(16);
 	$result['data'] = base64url_encode(AES256CBC_encrypt($data,$key,$iv),true);
 	// log the offending call so we can track it down
 	if(! openssl_public_encrypt($key,$k,$pubkey)) {
@@ -89,6 +184,22 @@ function crypto_unencapsulate($data,$prvkey) {
 	if($alg === 'aes256cbc')
 		return aes_unencapsulate($data,$prvkey);
 
+	return other_unencapsulate($data,$prvkey,$alg);
+
+}
+
+function other_unencapsulate($data,$prvkey,$alg) {
+	$fn = strtoupper($alg) . '_decrypt';
+	if(function_exists($fn)) {
+		openssl_private_decrypt(base64url_decode($data['key']),$k,$prvkey);
+		openssl_private_decrypt(base64url_decode($data['iv']),$i,$prvkey);
+		return $fn(base64url_decode($data['data']),$k,$i);
+	}
+	else {
+		$x = [ 'data' => $data, 'prvkey' => $prvkey, 'alg' => $alg, 'result' => $data ];
+		call_hooks('other_unencapsulate',$x);
+		return $x['result'];
+	}
 }
 
 

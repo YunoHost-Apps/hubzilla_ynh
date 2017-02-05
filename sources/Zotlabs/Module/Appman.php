@@ -2,8 +2,9 @@
 
 namespace Zotlabs\Module; 
 
-require_once('include/apps.php');
+//require_once('include/apps.php');
 
+use \Zotlabs\Lib as Zlib;
 
 class Appman extends \Zotlabs\Web\Controller {
 
@@ -30,16 +31,16 @@ class Appman extends \Zotlabs\Web\Controller {
 				'categories' => escape_tags($_REQUEST['categories'])
 			);
 	
-			$_REQUEST['appid'] = app_install(local_channel(),$arr);
+			$_REQUEST['appid'] = Zlib\Apps::app_install(local_channel(),$arr);
 	
-			if(app_installed(local_channel(),$arr))
+			if(Zlib\Apps::app_installed(local_channel(),$arr))
 				info( t('App installed.') . EOL);
 	
 			return;
 		}
 	
 	
-		$papp = app_decode($_POST['papp']);
+		$papp = Zlib\Apps::app_decode($_POST['papp']);
 	
 		if(! is_array($papp)) {
 			notice( t('Malformed app.') . EOL);
@@ -47,13 +48,13 @@ class Appman extends \Zotlabs\Web\Controller {
 		}
 	
 		if($_POST['install']) {
-			app_install(local_channel(),$papp);
-			if(app_installed(local_channel(),$papp))
+			Zlib\Apps::app_install(local_channel(),$papp);
+			if(Zlib\Apps::app_installed(local_channel(),$papp))
 				info( t('App installed.') . EOL);
 		}
 	
 		if($_POST['delete']) {
-			app_destroy(local_channel(),$papp);
+			Zlib\Apps::app_destroy(local_channel(),$papp);
 		}
 	
 		if($_POST['edit']) {
@@ -100,7 +101,7 @@ class Appman extends \Zotlabs\Web\Controller {
 				}
 			}
 
-			$embed = array('embed', t('Embed code'), app_encode($app,true),'', 'onclick="this.select();"');
+			$embed = array('embed', t('Embed code'), Zlib\Apps::app_encode($app,true),'', 'onclick="this.select();"');
 	
 		}
 				

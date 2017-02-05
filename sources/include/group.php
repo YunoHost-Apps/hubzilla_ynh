@@ -14,11 +14,11 @@ function group_add($uid,$name,$public = 0) {
 			// access lists. What we're doing here is reviving the dead group, but old content which
 			// was restricted to this group may now be seen by the new group members. 
 
-			$z = q("SELECT * FROM `groups` WHERE `id` = %d LIMIT 1",
+			$z = q("SELECT * FROM groups WHERE id = %d LIMIT 1",
 				intval($r)
 			);
-			if(count($z) && $z[0]['deleted']) {
-				/*$r = q("UPDATE `groups` SET `deleted` = 0 WHERE `uid` = %d AND `gname` = '%s' LIMIT 1",
+			if(($z) && $z[0]['deleted']) {
+				/*$r = q("UPDATE groups SET deleted = 0 WHERE uid = %d AND gname = '%s'",
 					intval($uid),
 					dbesc($name)
 				);*/
@@ -32,13 +32,13 @@ function group_add($uid,$name,$public = 0) {
 			$dups = false;
 			$hash = random_string() . $name;
 
-			$r = q("SELECT id FROM `groups` WHERE hash = '%s' LIMIT 1", dbesc($hash));
+			$r = q("SELECT id FROM groups WHERE hash = '%s' LIMIT 1", dbesc($hash));
 			if($r)
 				$dups = true;
 		} while($dups == true);
 
 
-		$r = q("INSERT INTO `groups` ( hash, uid, visible, gname )
+		$r = q("INSERT INTO groups ( hash, uid, visible, gname )
 			VALUES( '%s', %d, %d, '%s' ) ",
 			dbesc($hash),
 			intval($uid),
@@ -57,7 +57,7 @@ function group_add($uid,$name,$public = 0) {
 function group_rmv($uid,$name) {
 	$ret = false;
 	if(x($uid) && x($name)) {
-		$r = q("SELECT id, hash FROM `groups` WHERE `uid` = %d AND `gname` = '%s' LIMIT 1",
+		$r = q("SELECT id, hash FROM groups WHERE uid = %d AND gname = '%s' LIMIT 1",
 			intval($uid),
 			dbesc($name)
 		);
@@ -102,13 +102,13 @@ function group_rmv($uid,$name) {
 		}
 
 		// remove all members
-		$r = q("DELETE FROM `group_member` WHERE `uid` = %d AND `gid` = %d ",
+		$r = q("DELETE FROM group_member WHERE uid = %d AND gid = %d ",
 			intval($uid),
 			intval($group_id)
 		);
 
 		// remove group
-		$r = q("UPDATE `groups` SET `deleted` = 1 WHERE `uid` = %d AND `gname` = '%s'",
+		$r = q("UPDATE groups SET deleted = 1 WHERE uid = %d AND gname = '%s'",
 			intval($uid),
 			dbesc($name)
 		);
@@ -125,11 +125,11 @@ function group_rmv($uid,$name) {
 function group_byname($uid,$name) {
 	if((! $uid) || (! strlen($name)))
 		return false;
-	$r = q("SELECT * FROM `groups` WHERE `uid` = %d AND `gname` = '%s' LIMIT 1",
+	$r = q("SELECT * FROM groups WHERE uid = %d AND gname = '%s' LIMIT 1",
 		intval($uid),
 		dbesc($name)
 	);
-	if(count($r))
+	if($r)
 		return $r[0]['id'];
 	return false;
 }
@@ -138,7 +138,7 @@ function group_byname($uid,$name) {
 function group_rec_byhash($uid,$hash) {
 	if((! $uid) || (! strlen($hash)))
 		return false;
-	$r = q("SELECT * FROM `groups` WHERE `uid` = %d AND `hash` = '%s' LIMIT 1",
+	$r = q("SELECT * FROM groups WHERE uid = %d AND hash = '%s' LIMIT 1",
 		intval($uid),
 		dbesc($hash)
 	);
@@ -153,7 +153,7 @@ function group_rmv_member($uid,$name,$member) {
 		return false;
 	if(! ( $uid && $gid && $member))
 		return false;
-	$r = q("DELETE FROM `group_member` WHERE `uid` = %d AND `gid` = %d AND xchan = '%s' ",
+	$r = q("DELETE FROM group_member WHERE uid = %d AND gid = %d AND xchan = '%s' ",
 		intval($uid),
 		intval($gid),
 		dbesc($member)
@@ -173,17 +173,17 @@ function group_add_member($uid,$name,$member,$gid = 0) {
 	if((! $gid) || (! $uid) || (! $member))
 		return false;
 
-	$r = q("SELECT * FROM `group_member` WHERE `uid` = %d AND `gid` = %d AND `xchan` = '%s' LIMIT 1",	
+	$r = q("SELECT * FROM group_member WHERE uid = %d AND gid = %d AND xchan = '%s' LIMIT 1",	
 		intval($uid),
 		intval($gid),
 		dbesc($member)
 	);
-	if(count($r))
+	if($r)
 		return true;	// You might question this, but 
 				// we indicate success because the group member was in fact created
 				// -- It was just created at another time
- 	if(! count($r))
-		$r = q("INSERT INTO `group_member` (`uid`, `gid`, `xchan`)
+ 	if(! $r)
+		$r = q("INSERT INTO group_member (uid, gid, xchan)
 			VALUES( %d, %d, '%s' ) ",
 			intval($uid),
 			intval($gid),
@@ -198,14 +198,14 @@ function group_add_member($uid,$name,$member,$gid = 0) {
 function group_get_members($gid) {
 	$ret = array();
 	if(intval($gid)) {
-		$r = q("SELECT * FROM `group_member` 
-			LEFT JOIN abook ON abook_xchan = `group_member`.`xchan` left join xchan on xchan_hash = abook_xchan
-			WHERE `gid` = %d AND abook_channel = %d and `group_member`.`uid` = %d and xchan_deleted = 0 and abook_self = 0 and abook_blocked = 0 and abook_pending = 0 ORDER BY xchan_name ASC ",
+		$r = q("SELECT * FROM group_member 
+			LEFT JOIN abook ON abook_xchan = group_member.xchan left join xchan on xchan_hash = abook_xchan
+			WHERE gid = %d AND abook_channel = %d and group_member.uid = %d and xchan_deleted = 0 and abook_self = 0 and abook_blocked = 0 and abook_pending = 0 ORDER BY xchan_name ASC ",
 			intval($gid),
 			intval(local_channel()),
 			intval(local_channel())
 		);
-		if(count($r))
+		if($r)
 			$ret = $r;
 	}
 	return $ret;
@@ -218,7 +218,7 @@ function group_get_members_xchan($gid) {
 			intval($gid),
 			intval(local_channel())
 		);
-		if(count($r)) {
+		if($r) {
 			foreach($r as $rr) {
 				$ret[] = $rr['xchan'];
 			}
@@ -232,11 +232,11 @@ function mini_group_select($uid,$group = '') {
 	$grps = array();
 	$o = '';
 
-	$r = q("SELECT * FROM `groups` WHERE `deleted` = 0 AND `uid` = %d ORDER BY `gname` ASC",
+	$r = q("SELECT * FROM groups WHERE deleted = 0 AND uid = %d ORDER BY gname ASC",
 		intval($uid)
 	);
 	$grps[] = array('name' => '', 'hash' => '0', 'selected' => '');
-	if(count($r)) {
+	if($r) {
 		foreach($r as $rr) {
 			$grps[] = array('name' => $rr['gname'], 'id' => $rr['hash'], 'selected' => (($group == $rr['hash']) ? 'true' : ''));
 		}
@@ -271,7 +271,7 @@ function group_side($every="connections",$each="group",$edit = false, $group_id 
 	);
 
 
-	$r = q("SELECT * FROM `groups` WHERE `deleted` = 0 AND `uid` = %d ORDER BY `gname` ASC",
+	$r = q("SELECT * FROM groups WHERE deleted = 0 AND uid = %d ORDER BY gname ASC",
 		intval($_SESSION['uid'])
 	);
 	$member_of = array();
@@ -279,7 +279,7 @@ function group_side($every="connections",$each="group",$edit = false, $group_id 
 		$member_of = groups_containing(local_channel(),$cid);
 	} 
 
-	if(count($r)) {
+	if($r) {
 		foreach($r as $rr) {
 			$selected = (($group_id == $rr['id']) ? ' group-selected' : '');
 			
@@ -328,7 +328,7 @@ function expand_groups($a) {
 	$groups = implode(',', $x);
 
 	if($groups)
-		$r = q("SELECT xchan FROM group_member WHERE gid IN ( select id from `groups` where hash in ( $groups ))");
+		$r = q("SELECT xchan FROM group_member WHERE gid IN ( select id from groups where hash in ( $groups ))");
 	$ret = array();
 
 	if($r)
@@ -340,7 +340,7 @@ function expand_groups($a) {
 
 function member_of($c) {
 
-	$r = q("SELECT `groups`.`gname`, `groups`.`id` FROM `groups` LEFT JOIN `group_member` ON `group_member`.`gid` = `groups`.`id` WHERE `group_member`.`xchan` = '%s' AND `groups`.`deleted` = 0 ORDER BY `groups`.`gname`  ASC ",
+	$r = q("SELECT groups.gname, groups.id FROM groups LEFT JOIN group_member ON group_member.gid = groups.id WHERE group_member.xchan = '%s' AND groups.deleted = 0 ORDER BY groups.gname  ASC ",
 		dbesc($c)
 	);
 
@@ -350,13 +350,13 @@ function member_of($c) {
 
 function groups_containing($uid,$c) {
 
-	$r = q("SELECT `gid` FROM `group_member` WHERE `uid` = %d AND `group_member`.`xchan` = '%s' ",
+	$r = q("SELECT gid FROM group_member WHERE uid = %d AND group_member.xchan = '%s' ",
 		intval($uid),
 		dbesc($c)
 	);
 
 	$ret = array();
-	if(count($r)) {
+	if($r) {
 		foreach($r as $rr)
 			$ret[] = $rr['gid'];
 	}

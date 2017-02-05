@@ -1,8 +1,6 @@
-<div class="generic-content-wrapper">
+<div class="{{if !$no_fullscreen_btn}}generic-content-wrapper{{/if}}">
 	<div class="section-title-wrapper">
 		<div class="pull-right">
-			<button id="fullscreen-btn" type="button" class="btn btn-default btn-xs" onclick="makeFullScreen();"><i class="fa fa-expand"></i></button>
-			<button id="inline-btn" type="button" class="btn btn-default btn-xs" onclick="makeFullScreen(false);"><i class="fa fa-compress"></i></button>
 			{{if $order}}
 			<a class="btn btn-default btn-xs" href="{{$order.1}}" title="{{$order.0}}"><i class="fa fa-sort"></i></a>
 			{{/if}}
@@ -14,6 +12,10 @@
 				<button class="btn btn-xs btn-success btn-xs" title="{{$usage}}" onclick="openClose('photo-upload-form'); closeMenu('photo-album-edit-wrapper');"><i class="fa fa-arrow-circle-o-up"></i>&nbsp;{{$upload.0}}</button>
 				{{/if}}
 			</div>
+			{{if !$no_fullscreen_btn}}
+			<button id="fullscreen-btn" type="button" class="btn btn-default btn-xs" onclick="makeFullScreen();"><i class="fa fa-expand"></i></button>
+			<button id="inline-btn" type="button" class="btn btn-default btn-xs" onclick="makeFullScreen(false);"><i class="fa fa-compress"></i></button>
+			{{/if}}
 		</div>
 		<h2>{{$album}}</h2>
 		<div class="clear"></div>

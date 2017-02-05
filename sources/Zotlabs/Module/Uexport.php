@@ -11,7 +11,7 @@ class Uexport extends \Zotlabs\Web\Controller {
 		if(argc() > 1) {
 			$channel = \App::get_channel();
 	
-			require_once('include/identity.php');
+			require_once('include/channel.php');
 	
 			if(argc() > 1 && intval(argv(1)) > 1900) {
 				$year = intval(argv(1));
@@ -44,7 +44,7 @@ class Uexport extends \Zotlabs\Web\Controller {
 		}
 	}
 		
-		function get() {
+	function get() {
 	
 		$y = datetime_convert('UTC',date_default_timezone_get(),'now','Y');
 	

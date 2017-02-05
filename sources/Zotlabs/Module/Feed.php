@@ -31,7 +31,7 @@ class Feed extends \Zotlabs\Web\Controller {
 	
 			$channel = $r[0];
 	
-			if((intval(get_config('system','block_public'))) && (! get_account_id()))
+			if(observer_prohibited(true))
 				killme();
 	 
 			logger('mod_feed: public feed request from ' . $_SERVER['REMOTE_ADDR'] . ' for ' . $channel['channel_address']);

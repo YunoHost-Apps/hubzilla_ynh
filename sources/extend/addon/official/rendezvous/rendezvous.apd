@@ -1,0 +1,4 @@
+url: $baseurl/rendezvous
+requires: local_channel
+name: Rendezvous
+photo: $baseurl/addon/rendezvous/view/img/rendezvous.png

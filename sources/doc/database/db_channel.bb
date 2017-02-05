@@ -35,6 +35,8 @@
 [/td][/tr]
 [tr][td]channel_dirdate[/td][td]time when directory was last pinged. Must do this once a month[/td][td]datetime[/td][td]NO[/td][td]MUL[/td][td]0000-00-00 00:00:00[/td][td]
 [/td][/tr]
+[tr][td]channel_lastpost[/td][td]date of last post for this channel. May not be fully implemented[/td][td]datetime[/td][td]NO[/td][td]MUL[/td][td]0000-00-00 00:00:00[/td][td]
+[/td][/tr]
 [tr][td]channel_deleted[/td][td]time when channel was deleted[/td][td]datetime[/td][td]NO[/td][td]MUL[/td][td]0000-00-00 00:00:00[/td][td]
 [/td][/tr]
 [tr][td]channel_max_anon_mail[/td][td]unused[/td][td]int(10) unsigned[/td][td]NO[/td][td]MUL[/td][td]10[/td][td]
@@ -94,6 +96,8 @@
 [tr][td]channel_removed[/td][td]if 1, this channel has been deleted[/td][td]int(10) unsigned[/td][td]NO[/td][td]MUL[/td][td]128[/td][td]
 [/td][/tr]
 [tr][td]channel_system[/td][td]if 1, this is the special system channel on this site[/td][td]int(10) unsigned[/td][td]NO[/td][td]MUL[/td][td]128[/td][td]
+[/td][/tr]
+[tr][td]channel_moved[/td][td]URL of relocated channel, making this instance abandoned if set[/td][td]char(255)[/td][td]NO[/td][td]MUL[/td][td][/td][td]
 [/td][/tr]
 [/table]
 

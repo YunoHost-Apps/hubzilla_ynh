@@ -15,7 +15,7 @@ class Zotfeed extends \Zotlabs\Web\Controller {
 		if(! $mindate)
 			$mindate = datetime_convert('UTC','UTC', 'now - 14 days');
 	
-		if(get_config('system','block_public') && (! get_account_id()) && (! remote_channel())) {
+		if(observer_prohibited()) {
 			$result['message'] = 'Public access denied';
 			json_return_and_die($result);
 		}
@@ -45,8 +45,6 @@ class Zotfeed extends \Zotlabs\Web\Controller {
 		$result['messages'] = zot_feed($r[0]['channel_id'],$observer['xchan_hash'],array('mindate' => $mindate));
 		$result['success'] = true;
 		json_return_and_die($result);
-	
-	
 	}
 	
 }

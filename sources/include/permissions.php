@@ -1,9 +1,18 @@
 <?php
+
+require_once('include/security.php');
+
 /**
  * @file include/permissions.php
  *
  * This file conntains functions to check and work with permissions.
+ * 
+ * Most of this file is obsolete and has been superceded by extensible permissions in v1.12; it is left here 
+ * for reference and because we haven't yet checked that all functions have been replaced and are available 
+ * elsewhere (typically Zotlabs/Access/*).
  */
+
+
 
 /**
  * @brief Return an array with all available permissions.
@@ -67,7 +76,7 @@ function get_all_perms($uid, $observer_xchan, $internal_use = true) {
 	if($api)
 		return get_all_api_perms($uid,$api);	
 
-	$global_perms = get_perms();
+	$global_perms = \Zotlabs\Access\Permissions::Perms();
 
 	// Save lots of individual lookups
 
@@ -81,11 +90,13 @@ function get_all_perms($uid, $observer_xchan, $internal_use = true) {
 
 	$ret = array();
 
+	$abperms = (($uid && $observer_xchan) ? load_abconfig($uid,$observer_xchan,'my_perms') : array());
+
 	foreach($global_perms as $perm_name => $permission) {
 
 		// First find out what the channel owner declared permissions to be.
 
-		$channel_perm = $permission[0];
+		$channel_perm = \Zotlabs\Access\PermissionLimits::Get($uid,$perm_name);
 
 		if(! $channel_checked) {
 			$r = q("select * from channel where channel_id = %d limit 1",
@@ -105,7 +116,7 @@ function get_all_perms($uid, $observer_xchan, $internal_use = true) {
 		// These take priority over all other settings.
 
 		if($observer_xchan) {
-			if($r[0][$channel_perm] & PERMS_AUTHED) {
+			if($channel_perm & PERMS_AUTHED) {
 				$ret[$perm_name] = true;
 				continue;
 			}
@@ -117,10 +128,21 @@ function get_all_perms($uid, $observer_xchan, $internal_use = true) {
 					dbesc($observer_xchan)
 				);
 				if(! $x) {
-					// not in address book, see if they've got an xchan
-					$y = q("select xchan_network from xchan where xchan_hash = '%s' limit 1",
-						dbesc($observer_xchan)
-					);
+					// see if they've got a guest access token; these are treated as connections
+					$y = atoken_abook($uid,$observer_xchan);
+					if($y)
+						$x = array($y);
+
+					if(! $x) {
+						// not in address book and no guest token, see if they've got an xchan
+						// these *may* have individual (PERMS_SPECIFIC) permissions, but are not connections
+						$y = q("select xchan_network from xchan where xchan_hash = '%s' limit 1",
+							dbesc($observer_xchan)
+						);
+						if($y) {
+							$x = array(pseudo_abook($y[0]));
+						}
+					}
 				}
 
 				$abook_checked = true;
@@ -136,7 +158,10 @@ function get_all_perms($uid, $observer_xchan, $internal_use = true) {
 			// Check if this is a write permission and they are being ignored
 			// This flag is only visible internally.
 
-			if(($x) && ($internal_use) && (! $global_perms[$perm_name][2]) && intval($x[0]['abook_ignored'])) {
+			$blocked_anon_perms = \Zotlabs\Access\Permissions::BlockedAnonPerms();
+
+
+			if(($x) && ($internal_use) && in_array($perm_name,$blocked_anon_perms) && intval($x[0]['abook_ignored'])) {
 				$ret[$perm_name] = false;
 				continue;
 			}
@@ -154,7 +179,7 @@ function get_all_perms($uid, $observer_xchan, $internal_use = true) {
 		// if you've moved elsewhere, you will only have read only access
 
 		if(($observer_xchan) && ($r[0]['channel_hash'] === $observer_xchan)) {
-			if($r[0]['channel_moved'] && (! $permission[2]))
+			if($r[0]['channel_moved'] && (in_array($perm_name,$blocked_anon_perms)))
 				$ret[$perm_name] = false;
 			else
 				$ret[$perm_name] = true;
@@ -163,7 +188,7 @@ function get_all_perms($uid, $observer_xchan, $internal_use = true) {
 
 		// Anybody at all (that wasn't blocked or ignored). They have permission.
 
-		if($r[0][$channel_perm] & PERMS_PUBLIC) {
+		if($channel_perm & PERMS_PUBLIC) {
 			$ret[$perm_name] = true;
 			continue;
 		}
@@ -178,8 +203,8 @@ function get_all_perms($uid, $observer_xchan, $internal_use = true) {
 
 		// If we're still here, we have an observer, check the network.
 
-		if($r[0][$channel_perm] & PERMS_NETWORK) {
-			if(($x && $x[0]['xchan_network'] === 'zot') || ($y && $y[0]['xchan_network'] === 'zot')) {
+		if($channel_perm & PERMS_NETWORK) {
+			if($x && $x[0]['xchan_network'] === 'zot') {
 				$ret[$perm_name] = true;
 				continue;
 			}
@@ -187,7 +212,7 @@ function get_all_perms($uid, $observer_xchan, $internal_use = true) {
 
 		// If PERMS_SITE is specified, find out if they've got an account on this hub
 
-		if($r[0][$channel_perm] & PERMS_SITE) {
+		if($channel_perm & PERMS_SITE) {
 			if(! $onsite_checked) {
 				$c = q("select channel_hash from channel where channel_hash = '%s' limit 1",
 					dbesc($observer_xchan)
@@ -214,7 +239,7 @@ function get_all_perms($uid, $observer_xchan, $internal_use = true) {
 
 		// They are in your address book, but haven't been approved
 
-		if($r[0][$channel_perm] & PERMS_PENDING) {
+		if($channel_perm & PERMS_PENDING) {
 			$ret[$perm_name] = true;
 			continue;
 		}
@@ -226,16 +251,27 @@ function get_all_perms($uid, $observer_xchan, $internal_use = true) {
 
 		// They're a contact, so they have permission
 
-		if($r[0][$channel_perm] & PERMS_CONTACTS) {
+		if($channel_perm & PERMS_CONTACTS) {
+			// it was a fake abook entry, not really a connection
+			if(array_key_exists('abook_pseudo',$x[0]) && intval($x[0]['abook_pseudo'])) {
+				$ret[$perm_name] = false;
+				continue;
+			}
+				
 			$ret[$perm_name] = true;
 			continue;
 		}
 
 		// Permission granted to certain channels. Let's see if the observer is one of them
 
-		if($r[0][$channel_perm] & PERMS_SPECIFIC) {
-			if(($x[0]['abook_my_perms'] & $global_perms[$perm_name][1])) {
-				$ret[$perm_name] = true;
+		if($channel_perm & PERMS_SPECIFIC) {
+			if($abperms) {
+				foreach($abperms as $ab) {
+					if(($ab['cat'] == 'my_perms') && ($ab['k'] == $perm_name)) {
+						$ret[$perm_name] = (intval($ab['v']) ? true : false);
+						break;
+					}
+				}
 				continue;
 			}
 		}
@@ -284,21 +320,23 @@ function perm_is_allowed($uid, $observer_xchan, $permission) {
 	if($arr['result'])
 		return true;
 
-	$global_perms = get_perms();
+	$global_perms = \Zotlabs\Access\Permissions::Perms();
 
 	// First find out what the channel owner declared permissions to be.
 
-	$channel_perm = $global_perms[$permission][0];
+	$channel_perm = \Zotlabs\Access\PermissionLimits::Get($uid,$permission);
 
-	$r = q("select %s, channel_pageflags, channel_moved, channel_hash from channel where channel_id = %d limit 1",
-		dbesc($channel_perm),
+	$r = q("select channel_pageflags, channel_moved, channel_hash from channel where channel_id = %d limit 1",
 		intval($uid)
 	);
 	if(! $r)
 		return false;
 
+
+	$blocked_anon_perms = \Zotlabs\Access\Permissions::BlockedAnonPerms();
+
 	if($observer_xchan) {
-		if($r[0][$channel_perm] & PERMS_AUTHED)
+		if($channel_perm & PERMS_AUTHED)
 			return true;
 
 		$x = q("select abook_my_perms, abook_blocked, abook_ignored, abook_pending, xchan_network from abook left join xchan on abook_xchan = xchan_hash 
@@ -312,16 +350,29 @@ function perm_is_allowed($uid, $observer_xchan, $permission) {
 		if(($x) && intval($x[0]['abook_blocked']))
 			return false;
 
-		if(($x) && (! $global_perms[$permission][2]) && intval($x[0]['abook_ignored']))
+		if(($x) && in_array($permission,$blocked_anon_perms) && intval($x[0]['abook_ignored']))
 			return false;
 
 		if(! $x) {
-			// not in address book, see if they've got an xchan
-			$y = q("select xchan_network from xchan where xchan_hash = '%s' limit 1",
-				dbesc($observer_xchan)
-			);
+			// see if they've got a guest access token
+			$y = atoken_abook($uid,$observer_xchan);
+			if($y)
+				$x = array($y);
+
+			if(! $x) {
+				// not in address book and no guest token, see if they've got an xchan
+				$y = q("select xchan_network from xchan where xchan_hash = '%s' limit 1",
+					dbesc($observer_xchan)
+				);
+				if($y) {
+					$x = array(pseudo_abook($y[0]));
+				}
+			}
+
 		}
+		$abperms = load_abconfig($uid,$observer_xchan,'my_perms');
 	}
+	
 
 	// system is blocked to anybody who is not authenticated
 
@@ -333,13 +384,13 @@ function perm_is_allowed($uid, $observer_xchan, $permission) {
 	// in which case you will have read_only access
 
 	if($r[0]['channel_hash'] === $observer_xchan) {
-		if($r[0]['channel_moved'] && (! $global_perms[$permission][2]))
+		if($r[0]['channel_moved'] && (in_array($permission,$blocked_anon_perms)))
 			return false;
 		else
 			return true;
 	}
 
-	if($r[0][$channel_perm] & PERMS_PUBLIC)
+	if($channel_perm & PERMS_PUBLIC)
 		return true;
 
 	// If it's an unauthenticated observer, we only need to see if PERMS_PUBLIC is set
@@ -350,14 +401,14 @@ function perm_is_allowed($uid, $observer_xchan, $permission) {
 
 	// If we're still here, we have an observer, check the network.
 
-	if($r[0][$channel_perm] & PERMS_NETWORK) {
+	if($channel_perm & PERMS_NETWORK) {
 		if (($x && $x[0]['xchan_network'] === 'zot') || ($y && $y[0]['xchan_network'] === 'zot'))
 			return true;
 	}
 
 	// If PERMS_SITE is specified, find out if they've got an account on this hub
 
-	if($r[0][$channel_perm] & PERMS_SITE) {
+	if($channel_perm & PERMS_SITE) {
 		$c = q("select channel_hash from channel where channel_hash = '%s' limit 1",
 			dbesc($observer_xchan)
 		);
@@ -376,7 +427,7 @@ function perm_is_allowed($uid, $observer_xchan, $permission) {
 
 	// They are in your address book, but haven't been approved
 
-	if($r[0][$channel_perm] & PERMS_PENDING) {
+	if($channel_perm & PERMS_PENDING) {
 		return true;
 	}
 
@@ -386,15 +437,24 @@ function perm_is_allowed($uid, $observer_xchan, $permission) {
 
 	// They're a contact, so they have permission
 
-	if($r[0][$channel_perm] & PERMS_CONTACTS) {
+	if($channel_perm & PERMS_CONTACTS) {
+		// it was a fake abook entry, not really a connection
+		if(array_key_exists('abook_pseudo',$x[0]) && intval($x[0]['abook_pseudo'])) {
+			return false;
+		}
 		return true;
 	}
 
 	// Permission granted to certain channels. Let's see if the observer is one of them
 
-	if(($r) && $r[0][$channel_perm] & PERMS_SPECIFIC) {
-		if($x[0]['abook_my_perms'] & $global_perms[$permission][1])
-			return true;
+	if(($r) && ($channel_perm & PERMS_SPECIFIC)) {
+		if($abperms) {
+			foreach($abperms as $ab) {
+				if($ab['cat'] == 'my_perms' && $ab['k'] == $permission) {
+					return ((intval($ab['v'])) ? true : false);
+				}
+			}
+		}
 	}
 
 	// No permissions allowed.
@@ -560,28 +620,28 @@ function get_role_perms($role) {
 			$ret['default_collection'] = false;
 			$ret['directory_publish'] = true;
 			$ret['online'] = true;
-			$ret['perms_follow'] = PERMS_R_STREAM|PERMS_R_PROFILE|PERMS_R_ABOOK
-				|PERMS_W_STREAM|PERMS_W_WALL|PERMS_W_COMMENT|PERMS_W_MAIL|PERMS_W_CHAT
-				|PERMS_R_STORAGE|PERMS_R_PAGES|PERMS_A_REPUBLISH|PERMS_W_LIKE;
-			$ret['perms_accept'] = PERMS_R_STREAM|PERMS_R_PROFILE|PERMS_R_ABOOK
-				|PERMS_W_STREAM|PERMS_W_WALL|PERMS_W_COMMENT|PERMS_W_MAIL|PERMS_W_CHAT
-				|PERMS_R_STORAGE|PERMS_R_PAGES|PERMS_A_REPUBLISH|PERMS_W_LIKE;
-			$ret['channel_r_stream']    = PERMS_PUBLIC;
-			$ret['channel_r_profile']   = PERMS_PUBLIC;
-			$ret['channel_r_abook']     = PERMS_PUBLIC;
-			$ret['channel_w_stream']    = PERMS_SPECIFIC;
-			$ret['channel_w_wall']      = PERMS_SPECIFIC;
-			$ret['channel_w_tagwall']   = PERMS_SPECIFIC;
-			$ret['channel_w_comment']   = PERMS_SPECIFIC;
-			$ret['channel_w_mail']      = PERMS_SPECIFIC;
-			$ret['channel_w_chat']      = PERMS_SPECIFIC;
-			$ret['channel_a_delegate']  = PERMS_SPECIFIC;
-			$ret['channel_r_storage']   = PERMS_PUBLIC;
-			$ret['channel_w_storage']   = PERMS_SPECIFIC;
-			$ret['channel_r_pages']     = PERMS_PUBLIC;
-			$ret['channel_w_pages']     = PERMS_SPECIFIC;
-			$ret['channel_a_republish'] = PERMS_SPECIFIC;
-			$ret['channel_w_like']      = PERMS_NETWORK;
+			$ret['perms_connect'] = [ 
+				'view_stream', 'view_profile', 'view_contacts', 'view_storage',
+				'view_pages', 'send_stream', 'post_wall', 'post_comments', 
+				'post_mail', 'chat', 'post_like', 'republish' ];
+			$ret['limits'] = [
+				'view_stream'    => PERMS_PUBLIC,
+				'view_profile'   => PERMS_PUBLIC,
+				'view_contacts'  => PERMS_PUBLIC,
+				'view_storage'   => PERMS_PUBLIC,
+				'view_pages'     => PERMS_PUBLIC,
+				'send_stream'    => PERMS_SPECIFIC,
+				'post_wall'      => PERMS_SPECIFIC,
+				'post_comments'  => PERMS_SPECIFIC,
+				'post_mail'      => PERMS_SPECIFIC,
+				'post_like'      => PERMS_SPECIFIC,
+				'tag_deliver'    => PERMS_SPECIFIC,
+				'chat'           => PERMS_SPECIFIC,
+				'write_storage'  => PERMS_SPECIFIC,
+				'write_pages'    => PERMS_SPECIFIC,
+				'republish'      => PERMS_SPECIFIC,
+				'delegate'       => PERMS_SPECIFIC
+			];
 
 			break;
 
@@ -590,28 +650,29 @@ function get_role_perms($role) {
 			$ret['default_collection'] = true;
 			$ret['directory_publish'] = true;
 			$ret['online'] = true;
-			$ret['perms_follow'] = PERMS_R_STREAM|PERMS_R_PROFILE|PERMS_R_ABOOK
-				|PERMS_W_STREAM|PERMS_W_WALL|PERMS_W_COMMENT|PERMS_W_MAIL|PERMS_W_CHAT
-				|PERMS_R_STORAGE|PERMS_R_PAGES|PERMS_W_LIKE;
-			$ret['perms_accept'] = PERMS_R_STREAM|PERMS_R_PROFILE|PERMS_R_ABOOK
-				|PERMS_W_STREAM|PERMS_W_WALL|PERMS_W_COMMENT|PERMS_W_MAIL|PERMS_W_CHAT
-				|PERMS_R_STORAGE|PERMS_R_PAGES|PERMS_W_LIKE;
-			$ret['channel_r_stream']    = PERMS_PUBLIC;
-			$ret['channel_r_profile']   = PERMS_PUBLIC;
-			$ret['channel_r_abook']     = PERMS_PUBLIC;
-			$ret['channel_w_stream']    = PERMS_SPECIFIC;
-			$ret['channel_w_wall']      = PERMS_SPECIFIC;
-			$ret['channel_w_tagwall']   = PERMS_SPECIFIC;
-			$ret['channel_w_comment']   = PERMS_SPECIFIC;
-			$ret['channel_w_mail']      = PERMS_SPECIFIC;
-			$ret['channel_w_chat']      = PERMS_SPECIFIC;
-			$ret['channel_a_delegate']  = PERMS_SPECIFIC;
-			$ret['channel_r_storage']   = PERMS_PUBLIC;
-			$ret['channel_w_storage']   = PERMS_SPECIFIC;
-			$ret['channel_r_pages']     = PERMS_PUBLIC;
-			$ret['channel_w_pages']     = PERMS_SPECIFIC;
-			$ret['channel_a_republish'] = PERMS_SPECIFIC;
-			$ret['channel_w_like']      = PERMS_SPECIFIC;
+			$ret['perms_connect'] = [ 
+				'view_stream', 'view_profile', 'view_contacts', 'view_storage',
+				'view_pages', 'send_stream', 'post_wall', 'post_comments', 
+				'post_mail', 'chat', 'post_like' ];
+			$ret['limits'] = [
+				'view_stream'    => PERMS_PUBLIC,
+				'view_profile'   => PERMS_PUBLIC,
+				'view_contacts'  => PERMS_PUBLIC,
+				'view_storage'   => PERMS_PUBLIC,
+				'view_pages'     => PERMS_PUBLIC,
+				'send_stream'    => PERMS_SPECIFIC,
+				'post_wall'      => PERMS_SPECIFIC,
+				'post_comments'  => PERMS_SPECIFIC,
+				'post_mail'      => PERMS_SPECIFIC,
+				'post_like'      => PERMS_SPECIFIC,
+				'tag_deliver'    => PERMS_SPECIFIC,
+				'chat'           => PERMS_SPECIFIC,
+				'write_storage'  => PERMS_SPECIFIC,
+				'write_pages'    => PERMS_SPECIFIC,
+				'republish'      => PERMS_SPECIFIC,
+				'delegate'       => PERMS_SPECIFIC
+			];
+
 
 			break;
 
@@ -620,28 +681,28 @@ function get_role_perms($role) {
 			$ret['default_collection'] = true;
 			$ret['directory_publish'] = false;
 			$ret['online'] = false;
-			$ret['perms_follow'] = PERMS_R_STREAM|PERMS_R_PROFILE|PERMS_R_ABOOK
-				|PERMS_W_STREAM|PERMS_W_WALL|PERMS_W_COMMENT|PERMS_W_MAIL|PERMS_W_CHAT
-				|PERMS_R_STORAGE|PERMS_R_PAGES|PERMS_W_LIKE;
-			$ret['perms_accept'] = PERMS_R_STREAM|PERMS_R_PROFILE|PERMS_R_ABOOK
-				|PERMS_W_STREAM|PERMS_W_WALL|PERMS_W_COMMENT|PERMS_W_MAIL|PERMS_W_CHAT
-				|PERMS_R_STORAGE|PERMS_R_PAGES|PERMS_W_LIKE;
-			$ret['channel_r_stream']    = PERMS_PUBLIC;
-			$ret['channel_r_profile']   = PERMS_PUBLIC;
-			$ret['channel_r_abook']     = PERMS_SPECIFIC;
-			$ret['channel_w_stream']    = PERMS_SPECIFIC;
-			$ret['channel_w_wall']      = PERMS_SPECIFIC;
-			$ret['channel_w_tagwall']   = PERMS_SPECIFIC;
-			$ret['channel_w_comment']   = PERMS_SPECIFIC;
-			$ret['channel_w_mail']      = PERMS_SPECIFIC;
-			$ret['channel_w_chat']      = PERMS_SPECIFIC;
-			$ret['channel_a_delegate']  = PERMS_SPECIFIC;
-			$ret['channel_r_storage']   = PERMS_SPECIFIC;
-			$ret['channel_w_storage']   = PERMS_SPECIFIC;
-			$ret['channel_r_pages']     = PERMS_PUBLIC;
-			$ret['channel_w_pages']     = PERMS_SPECIFIC;
-			$ret['channel_a_republish'] = PERMS_SPECIFIC;
-			$ret['channel_w_like']      = PERMS_SPECIFIC;
+			$ret['perms_connect'] = [ 
+				'view_stream', 'view_profile', 'view_contacts', 'view_storage',
+				'view_pages', 'send_stream', 'post_wall', 'post_comments', 
+				'post_mail', 'post_like' ];
+			$ret['limits'] = [
+				'view_stream'    => PERMS_PUBLIC,
+				'view_profile'   => PERMS_PUBLIC,
+				'view_contacts'  => PERMS_SPECIFIC,
+				'view_storage'   => PERMS_SPECIFIC,
+				'view_pages'     => PERMS_PUBLIC,
+				'send_stream'    => PERMS_SPECIFIC,
+				'post_wall'      => PERMS_SPECIFIC,
+				'post_comments'  => PERMS_SPECIFIC,
+				'post_mail'      => PERMS_SPECIFIC,
+				'post_like'      => PERMS_SPECIFIC,
+				'tag_deliver'    => PERMS_SPECIFIC,
+				'chat'           => PERMS_SPECIFIC,
+				'write_storage'  => PERMS_SPECIFIC,
+				'write_pages'    => PERMS_SPECIFIC,
+				'republish'      => PERMS_SPECIFIC,
+				'delegate'       => PERMS_SPECIFIC
+			];
 
 			break;
 
@@ -650,28 +711,28 @@ function get_role_perms($role) {
 			$ret['default_collection'] = false;
 			$ret['directory_publish'] = true;
 			$ret['online'] = false;
-			$ret['perms_follow'] = PERMS_R_STREAM|PERMS_R_PROFILE|PERMS_R_ABOOK
-				|PERMS_W_WALL|PERMS_W_COMMENT|PERMS_W_MAIL|PERMS_W_CHAT
-				|PERMS_R_STORAGE|PERMS_R_PAGES|PERMS_A_REPUBLISH|PERMS_W_LIKE|PERMS_W_TAGWALL;
-			$ret['perms_accept'] = PERMS_R_STREAM|PERMS_R_PROFILE|PERMS_R_ABOOK
-				|PERMS_W_WALL|PERMS_W_COMMENT|PERMS_W_MAIL|PERMS_W_CHAT
-				|PERMS_R_STORAGE|PERMS_R_PAGES|PERMS_A_REPUBLISH|PERMS_W_LIKE|PERMS_W_TAGWALL;
-			$ret['channel_r_stream']    = PERMS_PUBLIC;
-			$ret['channel_r_profile']   = PERMS_PUBLIC;
-			$ret['channel_r_abook']     = PERMS_PUBLIC;
-			$ret['channel_w_stream']    = PERMS_SPECIFIC;
-			$ret['channel_w_wall']      = PERMS_SPECIFIC;
-			$ret['channel_w_tagwall']   = PERMS_SPECIFIC;
-			$ret['channel_w_comment']   = PERMS_SPECIFIC;
-			$ret['channel_w_mail']      = PERMS_SPECIFIC;
-			$ret['channel_w_chat']      = PERMS_SPECIFIC;
-			$ret['channel_a_delegate']  = PERMS_SPECIFIC;
-			$ret['channel_r_storage']   = PERMS_PUBLIC;
-			$ret['channel_w_storage']   = PERMS_SPECIFIC;
-			$ret['channel_r_pages']     = PERMS_PUBLIC;
-			$ret['channel_w_pages']     = PERMS_SPECIFIC;
-			$ret['channel_a_republish'] = PERMS_SPECIFIC;
-			$ret['channel_w_like']      = PERMS_NETWORK;
+			$ret['perms_connect'] = [ 
+				'view_stream', 'view_profile', 'view_contacts', 'view_storage',
+				'view_pages', 'post_wall', 'post_comments', 'tag_deliver',
+				'post_mail', 'post_like' , 'republish', 'chat' ];
+			$ret['limits'] = [
+				'view_stream'    => PERMS_PUBLIC,
+				'view_profile'   => PERMS_PUBLIC,
+				'view_contacts'  => PERMS_PUBLIC,
+				'view_storage'   => PERMS_PUBLIC,
+				'view_pages'     => PERMS_PUBLIC,
+				'send_stream'    => PERMS_SPECIFIC,
+				'post_wall'      => PERMS_SPECIFIC,
+				'post_comments'  => PERMS_SPECIFIC,
+				'post_mail'      => PERMS_SPECIFIC,
+				'post_like'      => PERMS_SPECIFIC,
+				'tag_deliver'    => PERMS_SPECIFIC,
+				'chat'           => PERMS_SPECIFIC,
+				'write_storage'  => PERMS_SPECIFIC,
+				'write_pages'    => PERMS_SPECIFIC,
+				'republish'      => PERMS_SPECIFIC,
+				'delegate'       => PERMS_SPECIFIC
+			];
 
 			break;
 
@@ -680,28 +741,28 @@ function get_role_perms($role) {
 			$ret['default_collection'] = true;
 			$ret['directory_publish'] = true;
 			$ret['online'] = false;
-			$ret['perms_follow'] = PERMS_R_STREAM|PERMS_R_PROFILE|PERMS_R_ABOOK
-				|PERMS_W_STREAM|PERMS_W_WALL|PERMS_W_COMMENT|PERMS_W_MAIL|PERMS_W_CHAT
-				|PERMS_R_STORAGE|PERMS_R_PAGES|PERMS_W_LIKE|PERMS_W_TAGWALL;
-			$ret['perms_accept'] = PERMS_R_STREAM|PERMS_R_PROFILE|PERMS_R_ABOOK
-				|PERMS_W_STREAM|PERMS_W_WALL|PERMS_W_COMMENT|PERMS_W_MAIL|PERMS_W_CHAT
-				|PERMS_R_STORAGE|PERMS_R_PAGES|PERMS_W_LIKE|PERMS_W_TAGWALL;
-			$ret['channel_r_stream']    = PERMS_PUBLIC;
-			$ret['channel_r_profile']   = PERMS_PUBLIC;
-			$ret['channel_r_abook']     = PERMS_PUBLIC;
-			$ret['channel_w_stream']    = PERMS_SPECIFIC;
-			$ret['channel_w_wall']      = PERMS_SPECIFIC;
-			$ret['channel_w_tagwall']   = PERMS_SPECIFIC;
-			$ret['channel_w_comment']   = PERMS_SPECIFIC;
-			$ret['channel_w_mail']      = PERMS_SPECIFIC;
-			$ret['channel_w_chat']      = PERMS_SPECIFIC;
-			$ret['channel_a_delegate']  = PERMS_SPECIFIC;
-			$ret['channel_r_storage']   = PERMS_PUBLIC;
-			$ret['channel_w_storage']   = PERMS_SPECIFIC;
-			$ret['channel_r_pages']     = PERMS_PUBLIC;
-			$ret['channel_w_pages']     = PERMS_SPECIFIC;
-			$ret['channel_a_republish'] = PERMS_SPECIFIC;
-			$ret['channel_w_like']      = PERMS_SPECIFIC;
+			$ret['perms_connect'] = [ 
+				'view_stream', 'view_profile', 'view_contacts', 'view_storage',
+				'view_pages', 'post_wall', 'post_comments', 'tag_deliver',
+				'post_mail', 'post_like' , 'chat' ];
+			$ret['limits'] = [
+				'view_stream'    => PERMS_PUBLIC,
+				'view_profile'   => PERMS_PUBLIC,
+				'view_contacts'  => PERMS_PUBLIC,
+				'view_storage'   => PERMS_PUBLIC,
+				'view_pages'     => PERMS_PUBLIC,
+				'send_stream'    => PERMS_SPECIFIC,
+				'post_wall'      => PERMS_SPECIFIC,
+				'post_comments'  => PERMS_SPECIFIC,
+				'post_mail'      => PERMS_SPECIFIC,
+				'post_like'      => PERMS_SPECIFIC,
+				'tag_deliver'    => PERMS_SPECIFIC,
+				'chat'           => PERMS_SPECIFIC,
+				'write_storage'  => PERMS_SPECIFIC,
+				'write_pages'    => PERMS_SPECIFIC,
+				'republish'      => PERMS_SPECIFIC,
+				'delegate'       => PERMS_SPECIFIC
+			];
 
 			break;
 
@@ -710,28 +771,29 @@ function get_role_perms($role) {
 			$ret['default_collection'] = true;
 			$ret['directory_publish'] = false;
 			$ret['online'] = false;
-			$ret['perms_follow'] = PERMS_R_STREAM|PERMS_R_PROFILE|PERMS_R_ABOOK
-				|PERMS_W_STREAM|PERMS_W_WALL|PERMS_W_COMMENT|PERMS_W_MAIL|PERMS_W_CHAT
-				|PERMS_R_STORAGE|PERMS_R_PAGES|PERMS_W_LIKE;
-			$ret['perms_accept'] = PERMS_R_STREAM|PERMS_R_PROFILEPERMS_R_ABOOK
-				|PERMS_W_STREAM|PERMS_W_WALL|PERMS_W_COMMENT|PERMS_W_MAIL|PERMS_W_CHAT
-				|PERMS_R_STORAGE|PERMS_R_PAGES|PERMS_W_LIKE;
-			$ret['channel_r_stream']    = PERMS_PUBLIC;
-			$ret['channel_r_profile']   = PERMS_SPECIFIC;
-			$ret['channel_r_abook']     = PERMS_SPECIFIC;
-			$ret['channel_w_stream']    = PERMS_SPECIFIC;
-			$ret['channel_w_wall']      = PERMS_SPECIFIC;
-			$ret['channel_w_tagwall']   = PERMS_SPECIFIC;
-			$ret['channel_w_comment']   = PERMS_SPECIFIC;
-			$ret['channel_w_mail']      = PERMS_SPECIFIC;
-			$ret['channel_w_chat']      = PERMS_SPECIFIC;
-			$ret['channel_a_delegate']  = PERMS_SPECIFIC;
-			$ret['channel_r_storage']   = PERMS_SPECIFIC;
-			$ret['channel_w_storage']   = PERMS_SPECIFIC;
-			$ret['channel_r_pages']     = PERMS_SPECIFIC;
-			$ret['channel_w_pages']     = PERMS_SPECIFIC;
-			$ret['channel_a_republish'] = PERMS_SPECIFIC;
-			$ret['channel_w_like']      = PERMS_SPECIFIC;
+
+			$ret['perms_connect'] = [ 
+				'view_stream', 'view_profile', 'view_contacts', 'view_storage',
+				'view_pages', 'post_wall', 'post_comments',
+				'post_mail', 'post_like' , 'chat' ];
+			$ret['limits'] = [
+				'view_stream'    => PERMS_PUBLIC,
+				'view_profile'   => PERMS_SPECIFIC,
+				'view_contacts'  => PERMS_SPECIFIC,
+				'view_storage'   => PERMS_SPECIFIC,
+				'view_pages'     => PERMS_SPECIFIC,
+				'send_stream'    => PERMS_SPECIFIC,
+				'post_wall'      => PERMS_SPECIFIC,
+				'post_comments'  => PERMS_SPECIFIC,
+				'post_mail'      => PERMS_SPECIFIC,
+				'post_like'      => PERMS_SPECIFIC,
+				'tag_deliver'    => PERMS_SPECIFIC,
+				'chat'           => PERMS_SPECIFIC,
+				'write_storage'  => PERMS_SPECIFIC,
+				'write_pages'    => PERMS_SPECIFIC,
+				'republish'      => PERMS_SPECIFIC,
+				'delegate'       => PERMS_SPECIFIC
+			];
 
 			break;
 
@@ -740,28 +802,29 @@ function get_role_perms($role) {
 			$ret['default_collection'] = false;
 			$ret['directory_publish'] = true;
 			$ret['online'] = false;
-			$ret['perms_follow'] = PERMS_R_STREAM|PERMS_R_PROFILE|PERMS_R_ABOOK
-				|PERMS_W_STREAM|PERMS_W_WALL|PERMS_W_COMMENT|PERMS_W_MAIL
-				|PERMS_R_STORAGE|PERMS_R_PAGES|PERMS_A_REPUBLISH|PERMS_W_LIKE;
-			$ret['perms_accept'] = PERMS_R_STREAM|PERMS_R_PROFILE|PERMS_R_ABOOK
-				|PERMS_W_STREAM|PERMS_W_WALL|PERMS_W_COMMENT|PERMS_W_MAIL
-				|PERMS_R_STORAGE|PERMS_R_PAGES|PERMS_A_REPUBLISH|PERMS_W_LIKE;
-			$ret['channel_r_stream']    = PERMS_PUBLIC;
-			$ret['channel_r_profile']   = PERMS_PUBLIC;
-			$ret['channel_r_abook']     = PERMS_PUBLIC;
-			$ret['channel_w_stream']    = PERMS_SPECIFIC;
-			$ret['channel_w_wall']      = PERMS_SPECIFIC;
-			$ret['channel_w_tagwall']   = PERMS_SPECIFIC;
-			$ret['channel_w_comment']   = PERMS_SPECIFIC;
-			$ret['channel_w_mail']      = PERMS_SPECIFIC;
-			$ret['channel_w_chat']      = PERMS_SPECIFIC;
-			$ret['channel_a_delegate']  = PERMS_SPECIFIC;
-			$ret['channel_r_storage']   = PERMS_PUBLIC;
-			$ret['channel_w_storage']   = PERMS_SPECIFIC;
-			$ret['channel_r_pages']     = PERMS_PUBLIC;
-			$ret['channel_w_pages']     = PERMS_SPECIFIC;
-			$ret['channel_a_republish'] = PERMS_NETWORK;
-			$ret['channel_w_like']      = PERMS_NETWORK;
+
+			$ret['perms_connect'] = [ 
+				'view_stream', 'view_profile', 'view_contacts', 'view_storage',
+				'view_pages', 'send_stream', 'post_wall', 'post_comments', 
+				'post_mail', 'post_like' , 'republish' ];
+			$ret['limits'] = [
+				'view_stream'    => PERMS_PUBLIC,
+				'view_profile'   => PERMS_PUBLIC,
+				'view_contacts'  => PERMS_PUBLIC,
+				'view_storage'   => PERMS_PUBLIC,
+				'view_pages'     => PERMS_PUBLIC,
+				'send_stream'    => PERMS_SPECIFIC,
+				'post_wall'      => PERMS_SPECIFIC,
+				'post_comments'  => PERMS_SPECIFIC,
+				'post_mail'      => PERMS_SPECIFIC,
+				'post_like'      => PERMS_SPECIFIC,
+				'tag_deliver'    => PERMS_SPECIFIC,
+				'chat'           => PERMS_SPECIFIC,
+				'write_storage'  => PERMS_SPECIFIC,
+				'write_pages'    => PERMS_SPECIFIC,
+				'republish'      => PERMS_SPECIFIC,
+				'delegate'       => PERMS_SPECIFIC
+			];
 
 			break;
 
@@ -770,28 +833,28 @@ function get_role_perms($role) {
 			$ret['default_collection'] = true;
 			$ret['directory_publish'] = false;
 			$ret['online'] = false;
-			$ret['perms_follow'] = PERMS_R_STREAM|PERMS_R_PROFILE|PERMS_R_ABOOK
-				|PERMS_W_STREAM|PERMS_W_WALL|PERMS_W_COMMENT|PERMS_W_MAIL
-				|PERMS_R_STORAGE|PERMS_R_PAGES|PERMS_W_LIKE;
-			$ret['perms_accept'] = PERMS_R_STREAM|PERMS_R_PROFILE|PERMS_R_ABOOK
-				|PERMS_W_STREAM|PERMS_W_WALL|PERMS_W_COMMENT|PERMS_W_MAIL
-				|PERMS_R_STORAGE|PERMS_R_PAGES|PERMS_W_LIKE;
-			$ret['channel_r_stream']    = PERMS_PUBLIC;
-			$ret['channel_r_profile']   = PERMS_PUBLIC;
-			$ret['channel_r_abook']     = PERMS_PUBLIC;
-			$ret['channel_w_stream']    = PERMS_SPECIFIC;
-			$ret['channel_w_wall']      = PERMS_SPECIFIC;
-			$ret['channel_w_tagwall']   = PERMS_SPECIFIC;
-			$ret['channel_w_comment']   = PERMS_SPECIFIC;
-			$ret['channel_w_mail']      = PERMS_SPECIFIC;
-			$ret['channel_w_chat']      = PERMS_SPECIFIC;
-			$ret['channel_a_delegate']  = PERMS_SPECIFIC;
-			$ret['channel_r_storage']   = PERMS_PUBLIC;
-			$ret['channel_w_storage']   = PERMS_SPECIFIC;
-			$ret['channel_r_pages']     = PERMS_PUBLIC;
-			$ret['channel_w_pages']     = PERMS_SPECIFIC;
-			$ret['channel_a_republish'] = PERMS_SPECIFIC;
-			$ret['channel_w_like']      = PERMS_NETWORK;
+			$ret['perms_connect'] = [ 
+				'view_stream', 'view_profile', 'view_contacts', 'view_storage',
+				'view_pages', 'send_stream', 'post_wall', 'post_comments', 
+				'post_mail', 'post_like' , 'republish' ];
+			$ret['limits'] = [
+				'view_stream'    => PERMS_PUBLIC,
+				'view_profile'   => PERMS_PUBLIC,
+				'view_contacts'  => PERMS_PUBLIC,
+				'view_storage'   => PERMS_PUBLIC,
+				'view_pages'     => PERMS_PUBLIC,
+				'send_stream'    => PERMS_SPECIFIC,
+				'post_wall'      => PERMS_SPECIFIC,
+				'post_comments'  => PERMS_SPECIFIC,
+				'post_mail'      => PERMS_SPECIFIC,
+				'post_like'      => PERMS_SPECIFIC,
+				'tag_deliver'    => PERMS_SPECIFIC,
+				'chat'           => PERMS_SPECIFIC,
+				'write_storage'  => PERMS_SPECIFIC,
+				'write_pages'    => PERMS_SPECIFIC,
+				'republish'      => PERMS_SPECIFIC,
+				'delegate'       => PERMS_SPECIFIC
+			];
 
 			break;
 
@@ -800,26 +863,29 @@ function get_role_perms($role) {
 			$ret['default_collection'] = false;
 			$ret['directory_publish'] = true;
 			$ret['online'] = false;
-			$ret['perms_follow'] = PERMS_R_STREAM|PERMS_R_PROFILE|PERMS_R_ABOOK
-				|PERMS_R_STORAGE|PERMS_R_PAGES|PERMS_A_REPUBLISH|PERMS_W_LIKE;
-			$ret['perms_accept'] = PERMS_R_STREAM|PERMS_R_PROFILE|PERMS_R_ABOOK
-				|PERMS_R_STORAGE|PERMS_R_PAGES|PERMS_A_REPUBLISH|PERMS_W_LIKE;
-			$ret['channel_r_stream']    = PERMS_PUBLIC;
-			$ret['channel_r_profile']   = PERMS_PUBLIC;
-			$ret['channel_r_abook']     = PERMS_PUBLIC;
-			$ret['channel_w_stream']    = PERMS_SPECIFIC;
-			$ret['channel_w_wall']      = PERMS_SPECIFIC;
-			$ret['channel_w_tagwall']   = PERMS_SPECIFIC;
-			$ret['channel_w_comment']   = PERMS_SPECIFIC;
-			$ret['channel_w_mail']      = PERMS_SPECIFIC;
-			$ret['channel_w_chat']      = PERMS_SPECIFIC;
-			$ret['channel_a_delegate']  = PERMS_SPECIFIC;
-			$ret['channel_r_storage']   = PERMS_PUBLIC;
-			$ret['channel_w_storage']   = PERMS_SPECIFIC;
-			$ret['channel_r_pages']     = PERMS_PUBLIC;
-			$ret['channel_w_pages']     = PERMS_SPECIFIC;
-			$ret['channel_a_republish'] = PERMS_SPECIFIC;
-			$ret['channel_w_like']      = PERMS_NETWORK;
+
+			$ret['perms_connect'] = [ 
+				'view_stream', 'view_profile', 'view_contacts', 'view_storage',
+				'view_pages', 'post_like' , 'republish' ];
+
+			$ret['limits'] = [
+				'view_stream'    => PERMS_PUBLIC,
+				'view_profile'   => PERMS_PUBLIC,
+				'view_contacts'  => PERMS_PUBLIC,
+				'view_storage'   => PERMS_PUBLIC,
+				'view_pages'     => PERMS_PUBLIC,
+				'send_stream'    => PERMS_SPECIFIC,
+				'post_wall'      => PERMS_SPECIFIC,
+				'post_comments'  => PERMS_SPECIFIC,
+				'post_mail'      => PERMS_SPECIFIC,
+				'post_like'      => PERMS_SPECIFIC,
+				'tag_deliver'    => PERMS_SPECIFIC,
+				'chat'           => PERMS_SPECIFIC,
+				'write_storage'  => PERMS_SPECIFIC,
+				'write_pages'    => PERMS_SPECIFIC,
+				'republish'      => PERMS_SPECIFIC,
+				'delegate'       => PERMS_SPECIFIC
+			];
 
 			break;
 
@@ -828,28 +894,30 @@ function get_role_perms($role) {
 			$ret['default_collection'] = false;
 			$ret['directory_publish'] = true;
 			$ret['online'] = false;
-			$ret['perms_follow'] = PERMS_R_STREAM|PERMS_R_PROFILE|PERMS_R_ABOOK
-				|PERMS_W_STREAM|PERMS_W_WALL|PERMS_W_COMMENT|PERMS_W_MAIL|PERMS_W_CHAT
-				|PERMS_R_STORAGE|PERMS_W_STORAGE|PERMS_R_PAGES|PERMS_A_REPUBLISH|PERMS_W_LIKE|PERMS_W_TAGWALL;
-			$ret['perms_accept'] = PERMS_R_STREAM|PERMS_R_PROFILE|PERMS_R_ABOOK
-				|PERMS_W_STREAM|PERMS_W_WALL|PERMS_W_COMMENT|PERMS_W_MAIL|PERMS_W_CHAT
-				|PERMS_R_STORAGE|PERMS_W_STORAGE|PERMS_R_PAGES|PERMS_A_REPUBLISH|PERMS_W_LIKE|PERMS_W_TAGWALL;
-			$ret['channel_r_stream']    = PERMS_PUBLIC;
-			$ret['channel_r_profile']   = PERMS_PUBLIC;
-			$ret['channel_r_abook']     = PERMS_PUBLIC;
-			$ret['channel_w_stream']    = PERMS_SPECIFIC;
-			$ret['channel_w_wall']      = PERMS_SPECIFIC;
-			$ret['channel_w_tagwall']   = PERMS_SPECIFIC;
-			$ret['channel_w_comment']   = PERMS_SPECIFIC;
-			$ret['channel_w_mail']      = PERMS_SPECIFIC;
-			$ret['channel_w_chat']      = PERMS_SPECIFIC;
-			$ret['channel_a_delegate']  = PERMS_SPECIFIC;
-			$ret['channel_r_storage']   = PERMS_PUBLIC;
-			$ret['channel_w_storage']   = PERMS_SPECIFIC;
-			$ret['channel_r_pages']     = PERMS_PUBLIC;
-			$ret['channel_w_pages']     = PERMS_SPECIFIC;
-			$ret['channel_a_republish'] = PERMS_SPECIFIC;
-			$ret['channel_w_like']      = PERMS_NETWORK;
+
+			$ret['perms_connect'] = [ 
+				'view_stream', 'view_profile', 'view_contacts', 'view_storage',
+				'view_pages', 'write_storage', 'write_pages', 'post_wall', 'post_comments', 'tag_deliver',
+				'post_mail', 'post_like' , 'republish', 'chat' ];
+			$ret['limits'] = [
+				'view_stream'    => PERMS_PUBLIC,
+				'view_profile'   => PERMS_PUBLIC,
+				'view_contacts'  => PERMS_PUBLIC,
+				'view_storage'   => PERMS_PUBLIC,
+				'view_pages'     => PERMS_PUBLIC,
+				'send_stream'    => PERMS_SPECIFIC,
+				'post_wall'      => PERMS_SPECIFIC,
+				'post_comments'  => PERMS_SPECIFIC,
+				'post_mail'      => PERMS_SPECIFIC,
+				'post_like'      => PERMS_SPECIFIC,
+				'tag_deliver'    => PERMS_SPECIFIC,
+				'chat'           => PERMS_SPECIFIC,
+				'write_storage'  => PERMS_SPECIFIC,
+				'write_pages'    => PERMS_SPECIFIC,
+				'republish'      => PERMS_SPECIFIC,
+				'delegate'       => PERMS_SPECIFIC
+			];
+
 
 			break;
 

@@ -1,4 +1,0 @@
-url: $baseurl/manage
-requires: local_channel
-name: Channel Manager
-photo: $baseurl/app/manage.png

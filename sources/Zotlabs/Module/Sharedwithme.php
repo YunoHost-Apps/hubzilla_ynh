@@ -46,7 +46,7 @@ class Sharedwithme extends \Zotlabs\Web\Controller {
 		}
 	
 		//list files
-		$r = q("SELECT id, uid, object, item_unseen FROM item WHERE verb = '%s' AND obj_type = '%s' AND uid = %d AND owner_xchan != '%s'",
+		$r = q("SELECT id, uid, obj, item_unseen FROM item WHERE verb = '%s' AND obj_type = '%s' AND uid = %d AND owner_xchan != '%s'",
 			dbesc(ACTIVITY_POST),
 			dbesc(ACTIVITY_OBJ_FILE),
 			intval(local_channel()),
@@ -59,7 +59,7 @@ class Sharedwithme extends \Zotlabs\Web\Controller {
 		if($r) {
 	
 			foreach($r as $rr) {
-				$object = json_decode($rr['object'],true);
+				$object = json_decode($rr['obj'],true);
 	
 				$item = array();
 				$item['id'] = $rr['id'];

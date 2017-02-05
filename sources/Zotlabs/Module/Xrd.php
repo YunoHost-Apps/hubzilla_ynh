@@ -43,7 +43,7 @@ class Xrd extends \Zotlabs\Web\Controller {
 		header("Content-type: application/xrd+xml");
 	
 	
-		$aliases = array('acct:' . $r[0]['channel_address'] . '@' . \App::get_hostname(), z_root() . '/channel/' . $r[0]['channel_address'], z_root() . '/~' . $r[0]['channel_address']);
+		$aliases = array('acct:' . channel_reddress($r[0]), z_root() . '/channel/' . $r[0]['channel_address'], z_root() . '/~' . $r[0]['channel_address']);
 	
 		for($x = 0; $x < count($aliases); $x ++) {
 			if($aliases[$x] === $resource)

@@ -12,14 +12,25 @@ require_once('include/hubloc.php');
 function tryoembed($match) {
 	$url = ((count($match) == 2) ? $match[1] : $match[2]);
 
-
 	$o = oembed_fetch_url($url);
 
-	if ($o->type == 'error')
+	if ($o['type'] == 'error')
 		return $match[0];
 
 	$html = oembed_format_object($o);
 	return $html; 
+}
+
+
+function nakedoembed($match) {
+	$url = ((count($match) == 2) ? $match[1] : $match[2]);
+
+	$o = oembed_fetch_url($url);
+
+	if ($o['type'] == 'error')
+		return $match[0];
+
+	return '[embed]' . $url . '[/embed]';
 }
 
 function tryzrlaudio($match) {
@@ -242,6 +253,13 @@ function bb_ShareAttributes($match) {
 	if ($matches[1] != "")
 		$message_id = $matches[1];
 
+	if(! $message_id) {
+		preg_match("/guid='(.*?)'/ism", $attributes, $matches);
+		if ($matches[1] != "")
+			$message_id = $matches[1];
+	}
+
+
 	$reldate = '<span class="autotime" title="' . datetime_convert('UTC', date_default_timezone_get(), $posted, 'c') . '" >' . datetime_convert('UTC', date_default_timezone_get(), $posted, 'r') . '</span>';
 
 	$headline = '<div class="shared_container"> <div class="shared_header">';
@@ -385,6 +403,15 @@ function bb_definitionList_unescapeBraces($match) {
 	return '<dt>' . str_replace('\]', ']', $match[1]) . '</dt>';
 }
 
+
+function bb_checklist($match) {
+	$str = $match[1];
+	$str = str_replace("[]", "<li><input type=\"checkbox\" disabled=\"disabled\">", $str);
+	$str = str_replace("[x]", "<li><input type=\"checkbox\" checked=\"checked\" disabled=\"disabled\">", $str);
+	return '<ul class="checklist" style="list-style-type: none;">' . $str . '</ul>';
+}
+
+
 /**
  * @brief Sanitize style properties from BBCode to HTML.
  *
@@ -484,12 +511,75 @@ function bb_code($match) {
 		return '<code class="inline-code">' . trim($match[1]) . '</code>';
 }
 
+function bb_highlight($match) {
+	$lang = ((in_array(strtolower($match[1]),['php','css','mysql','sql','abap','diff','html','perl','ruby',
+		'vbscript','avrc','dtd','java','xml','cpp','python','javascript','js','json','sh']))
+		? strtolower($match[1]) : 'php' );
+	return text_highlight($match[2],$lang);
+}
 
+function bb_fixtable_lf($match) {
+
+	// remove extraneous whitespace between table element tags since newlines will all
+	// be converted to '<br />' and turn your neatly crafted tables into a whole lot of
+	// empty space.
+ 
+	$x = preg_replace("/\]\s+\[/",'][',$match[1]);
+	return '[table]' . $x . '[/table]';
+
+}
+
+function parseIdentityAwareHTML($Text) {
+   
+	// process [observer] tags before we do anything else because we might
+	// be stripping away stuff that then doesn't need to be worked on anymore
+
+        $observer = App::get_observer();
+
+	if ((strpos($Text,'[/observer]') !== false) || (strpos($Text,'[/rpost]') !== false)) {
+		if ($observer) {
+			$Text = preg_replace("/\[observer\=1\](.*?)\[\/observer\]/ism", '$1', $Text);
+			$Text = preg_replace("/\[observer\=0\].*?\[\/observer\]/ism", '', $Text);
+			$Text = preg_replace_callback("/\[rpost(=(.*?))?\](.*?)\[\/rpost\]/ism", 'rpost_callback', $Text);
+		} else {
+			$Text = preg_replace("/\[observer\=1\].*?\[\/observer\]/ism", '', $Text);
+			$Text = preg_replace("/\[observer\=0\](.*?)\[\/observer\]/ism", '$1', $Text);
+			$Text = preg_replace("/\[rpost(=.*?)?\](.*?)\[\/rpost\]/ism", '', $Text);
+		}
+	} 
+	// replace [observer.baseurl]
+	if ($observer) {
+		$s1 = '<span class="bb_observer" title="' . t('Different viewers will see this text differently') . '">';
+		$s2 = '</span>';
+		$obsBaseURL = $observer['xchan_connurl'];
+		$obsBaseURL = preg_replace("/\/poco\/.*$/", '', $obsBaseURL);
+		$Text = str_replace('[observer.baseurl]', $obsBaseURL, $Text);
+		$Text = str_replace('[observer.url]',$observer['xchan_url'], $Text);
+		$Text = str_replace('[observer.name]',$s1 . $observer['xchan_name'] . $s2, $Text);
+		$Text = str_replace('[observer.address]',$s1 . $observer['xchan_addr'] . $s2, $Text);
+		$Text = str_replace('[observer.webname]', substr($observer['xchan_addr'],0,strpos($observer['xchan_addr'],'@')), $Text);
+		$Text = str_replace('[observer.photo]',$s1 . '[zmg]'.$observer['xchan_photo_l'].'[/zmg]' . $s2, $Text);
+	} else {
+		$Text = str_replace('[observer.baseurl]', '', $Text);
+		$Text = str_replace('[observer.url]','', $Text);
+		$Text = str_replace('[observer.name]','', $Text);
+		$Text = str_replace('[observer.address]','', $Text);
+		$Text = str_replace('[observer.webname]','',$Text);
+		$Text = str_replace('[observer.photo]','', $Text);
+	}
+        
+        $Text = str_replace(array('[baseurl]','[sitename]'),array(z_root(),get_config('system','sitename')),$Text);
+        
+        return $Text;
+}
 
 	// BBcode 2 HTML was written by WAY2WEB.net
 	// extended to work with Mistpark/Friendica/Redmatrix/Hubzilla - Mike Macgirvin
 
 function bbcode($Text, $preserve_nl = false, $tryoembed = true, $cache = false) {
+
+
+	call_hooks('bbcode_filter', $Text);
 
 	// Hide all [noparse] contained bbtags by spacefying them
 	if (strpos($Text,'[noparse]') !== false) {
@@ -510,7 +600,6 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $cache = false) 
 
 	// process [observer] tags before we do anything else because we might
 	// be stripping away stuff that then doesn't need to be worked on anymore
-
 
 	if($cache)
 		$observer = false;
@@ -559,6 +648,15 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $cache = false) 
 	$Text = str_replace(">", "&gt;", $Text);
 
 
+	// Check for [code] text here, before the linefeeds are messed with.
+	// The highlighter will unescape and re-escape the content.
+
+	if (strpos($Text,'[code=') !== false) {
+		$Text = preg_replace_callback("/\[code=(.*?)\](.*?)\[\/code\]/ism", 'bb_highlight', $Text);
+	}
+
+	$Text = preg_replace_callback("/\[table\](.*?)\[\/table\]/ism",'bb_fixtable_lf',$Text);
+
 	// Convert new line chars to html <br /> tags
 
 	// nlbr seems to be hopelessly messed up
@@ -605,9 +703,12 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $cache = false) 
 
 	// Perform URL Search
 
-	$urlchars = '[a-zA-Z0-9\:\/\-\?\&\;\.\=\@\_\~\#\%\$\!\+\,\@]';
+	$urlchars = '[a-zA-Z0-9\:\/\-\?\&\;\.\=\@\_\~\#\%\$\!\+\,\@\(\)]';
 
 	if (strpos($Text,'http') !== false) {
+		if($tryoembed) {
+			$Text = preg_replace_callback("/([^\]\='".'"'."\/]|^|\#\^)(https?\:\/\/$urlchars+)/ism", 'tryoembed', $Text);
+		}
 		$Text = preg_replace("/([^\]\='".'"'."\/]|^|\#\^)(https?\:\/\/$urlchars+)/ism", '$1<a href="$2" target="_blank" >$2</a>', $Text);
 	}
 
@@ -632,8 +733,7 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $cache = false) 
 		$Text = preg_replace("/\[zrl\=([$URLSearchString]*)\](.*?)\[\/zrl\]/ism", '<a class="zrl" href="$1" target="_blank" >$2</a>', $Text);
 	}
 
-	// Remove bookmarks from UNO
-	if (UNO)
+	if (get_account_techlevel() < 2)
 		$Text = str_replace('<span class="bookmark-identifier">#^</span>', '', $Text);
 
 	// Perform MAIL Search
@@ -687,6 +787,12 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $cache = false) 
 	if (strpos($Text,'[/color]') !== false) {
 		$Text = preg_replace("(\[color=(.*?)\](.*?)\[\/color\])ism", "<span style=\"color: $1;\">$2</span>", $Text);
 	}
+	// Check for colored text
+	if (strpos($Text,'[/hl]') !== false) {
+		$Text = preg_replace("(\[hl\](.*?)\[\/hl\])ism", "<span style=\"background-color: yellow;\">$1</span>", $Text);
+		$Text = preg_replace("(\[hl=(.*?)\](.*?)\[\/hl\])ism", "<span style=\"background-color: $1;\">$2</span>", $Text);
+	}
+
 	// Check for sized text
 	// [size=50] --> font-size: 50px (with the unit).
 	if (strpos($Text,'[/size]') !== false) {
@@ -718,12 +824,14 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $cache = false) 
 		$Text = preg_replace("(\[h6\](.*?)\[\/h6\])ism",'<h6>$1</h6>',$Text);
 	}
 	// Check for table of content without params
-	if (strpos($Text,'[toc]') !== false) {
-		$Text = preg_replace("/\[toc\]/ism",'<ul id="toc"></ul>',$Text);
+	while(strpos($Text,'[toc]') !== false) {
+		$toc_id = 'toc-' . random_string(10);
+		$Text = preg_replace("/\[toc\]/ism", '<ul id="' . $toc_id . '" class="toc" data-toc=".section-content-wrapper"></ul><script>$("#' . $toc_id . '").toc();</script>', $Text, 1);
 	}
 	// Check for table of content with params
-	if (strpos($Text,'[toc') !== false) {
-		$Text = preg_replace("/\[toc([^\]]+?)\]/ism",'<ul$1></ul>',$Text);
+	while(strpos($Text,'[toc') !== false) {
+		$toc_id = 'toc-' . random_string(10);
+		$Text = preg_replace("/\[toc([^\]]+?)\]/ism", '<ul id="' . $toc_id . '" class="toc"$1></ul><script>$("#' . $toc_id . '").toc();</script>', $Text, 1);
 	}
 	// Check for centered text
 	if (strpos($Text,'[/center]') !== false) {
@@ -734,6 +842,9 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $cache = false) 
 		$Text = preg_replace("(\[footer\](.*?)\[\/footer\])ism", "<div class=\"wall-item-footer\">$1</div>", $Text);
 	}
 	// Check for list text
+
+	$Text = preg_replace("/<br \/>\[\*\]/ism",'[*]',$Text);
+
 	$Text = str_replace("[*]", "<li>", $Text);
 
  	// handle nested lists
@@ -753,6 +864,7 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $cache = false) 
 		$Text = preg_replace("/\[list=((?-i)A)\](.*?)\[\/list\]/ism", '<ul class="listupperalpha" style="list-style-type: upper-alpha;">$2</ul>', $Text);
 		$Text = preg_replace("/\[ul\](.*?)\[\/ul\]/ism", '<ul class="listbullet" style="list-style-type: circle;">$1</ul>', $Text);
 		$Text = preg_replace("/\[ol\](.*?)\[\/ol\]/ism", '<ul class="listdecimal" style="list-style-type: decimal;">$1</ul>', $Text);
+		$Text = preg_replace("/\[\/li\]<br \/>\[li\]/ism",'[/li][li]',$Text);
 		$Text = preg_replace("/\[li\](.*?)\[\/li\]/ism", '<li>$1</li>', $Text);
 
 		// [dl] tags have an optional [dl terms="bi"] form where bold/italic/underline/mono/large
@@ -761,7 +873,13 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $cache = false) 
 		//   "[dl" <optional-whitespace> <optional-termStyles> "]" <matchGroup2> "[/dl]"
 		// where optional-termStyles are: "terms=" <optional-quote> <matchGroup1> <optional-quote>
 		$Text = preg_replace_callback('/\[dl[[:space:]]*(?:terms=(?:&quot;|")?([a-zA-Z]+)(?:&quot;|")?)?\](.*?)\[\/dl\]/ism', 'bb_definitionList', $Text);
+
 	}
+
+	if (strpos($Text,'[checklist]') !== false) {
+		$Text = preg_replace_callback("/\[checklist\](.*?)\[\/checklist\]/ism", 'bb_checklist', $Text);
+	}
+
 	if (strpos($Text,'[th]') !== false) {
 		$Text = preg_replace("/\[th\](.*?)\[\/th\]/sm", '<th>$1</th>', $Text);
 	}
@@ -908,13 +1026,13 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $cache = false) 
 		$Text = preg_replace_callback("/\[video\](.*?\.(ogg|ogv|oga|ogm|webm|mp4|mpeg|mpg))\[\/video\]/ism", 'tryzrlvideo', $Text);
 	}
 	if (strpos($Text,'[/audio]') !== false) {
-		$Text = preg_replace_callback("/\[audio\](.*?\.(ogg|ogv|oga|ogm|webm|mp4|mp3|opus))\[\/audio\]/ism", 'tryzrlaudio', $Text);
+		$Text = preg_replace_callback("/\[audio\](.*?\.(ogg|ogv|oga|ogm|webm|mp4|mp3|opus|m4a))\[\/audio\]/ism", 'tryzrlaudio', $Text);
 	}
 	if (strpos($Text,'[/zvideo]') !== false) {
 		$Text = preg_replace_callback("/\[zvideo\](.*?\.(ogg|ogv|oga|ogm|webm|mp4|mpeg|mpg))\[\/zvideo\]/ism", 'tryzrlvideo', $Text);
 	}
 	if (strpos($Text,'[/zaudio]') !== false) {
-		$Text = preg_replace_callback("/\[zaudio\](.*?\.(ogg|ogv|oga|ogm|webm|mp4|mp3|opus))\[\/zaudio\]/ism", 'tryzrlaudio', $Text);
+		$Text = preg_replace_callback("/\[zaudio\](.*?\.(ogg|ogv|oga|ogm|webm|mp4|mp3|opus|m4a))\[\/zaudio\]/ism", 'tryzrlaudio', $Text);
 	}
 
 	// Try to Oembed
@@ -949,15 +1067,15 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $cache = false) 
 		$Text = preg_replace("/\[zaudio\](.*?)\[\/zaudio\]/", '<a class="zid" href="$1" target="_blank" >$1</a>', $Text);
 	}
 
-	if ($tryoembed){
-		if (strpos($Text,'[/iframe]') !== false) {
-			$Text = preg_replace_callback("/\[iframe\](.*?)\[\/iframe\]/ism", 'bb_iframe', $Text);
-		}
-	} else {
-		if (strpos($Text,'[/iframe]') !== false) {
-			$Text = preg_replace("/\[iframe\](.*?)\[\/iframe\]/ism", '<a href="$1" target="_blank" >$1</a>', $Text);
-		}
-	}
+//	if ($tryoembed){
+//		if (strpos($Text,'[/iframe]') !== false) {
+//			$Text = preg_replace_callback("/\[iframe\](.*?)\[\/iframe\]/ism", 'bb_iframe', $Text);
+//		}
+//	} else {
+//		if (strpos($Text,'[/iframe]') !== false) {
+//			$Text = preg_replace("/\[iframe\](.*?)\[\/iframe\]/ism", '<a href="$1" target="_blank" >$1</a>', $Text);
+//		}
+//	}
 
 	// oembed tag
 	$Text = oembed_bbcode2html($Text);
@@ -970,7 +1088,7 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $cache = false) 
 	// Summary (e.g. title) is required, earlier revisions only required description (in addition to 
 	// start which is always required). Allow desc with a missing summary for compatibility.
 
-	if ((x($ev,'desc') || x($ev,'summary')) && x($ev,'start')) {
+	if ((x($ev,'desc') || x($ev,'summary')) && x($ev,'dtstart')) {
 
 		$sub = format_event_html($ev);
 

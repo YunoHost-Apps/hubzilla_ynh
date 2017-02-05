@@ -11,7 +11,7 @@
 [/td][/tr]
 [tr][td]otype[/td][td]type of linked thing[/td][td]tinyint(3) unsigned[/td][td]NO[/td][td]MUL[/td][td]NULL[/td][td]
 [/td][/tr]
-[tr][td]type[/td][td]taxonomy type (See Tag/term types in boot.php)[/td][td]tinyint(3) unsigned[/td][td]NO[/td][td]MUL[/td][td]NULL[/td][td]
+[tr][td]ttype[/td][td]taxonomy type (See Tag/term types in boot.php)[/td][td]tinyint(3) unsigned[/td][td]NO[/td][td]MUL[/td][td]NULL[/td][td]
 [/td][/tr]
 [tr][td]term[/td][td]the actual taxonomy term[/td][td]char(255)[/td][td]NO[/td][td]MUL[/td][td]NULL[/td][td]
 [/td][/tr]

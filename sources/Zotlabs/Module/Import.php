@@ -4,10 +4,11 @@ namespace Zotlabs\Module;
 // Import a channel, either by direct file upload or via
 // connection to original server. 
 
-require_once('include/Contact.php');
+
 require_once('include/zot.php');
-require_once('include/identity.php');
+require_once('include/channel.php');
 require_once('include/import.php');
+require_once('include/perm_upgrade.php');
 
 
 
@@ -76,23 +77,27 @@ class Import extends \Zotlabs\Web\Controller {
 	
 			$channelname = substr($old_address,0,strpos($old_address,'@'));
 			$servername  = substr($old_address,strpos($old_address,'@')+1);
-	
-			$scheme = 'https://';
-			$api_path = '/api/red/channel/export/basic?f=&channel=' . $channelname;
+
+			$api_path = probe_api_path($servername);
+			if(! $api_path) {
+				notice( t('Unable to download data from old server') . EOL);
+				return;
+			}
+
+			$api_path .= 'channel/export/basic?f=&channel=' . $channelname;
 			if($import_posts)
 				$api_path .= '&posts=1';
 			$binary = false;
 			$redirects = 0;
 			$opts = array('http_auth' => $email . ':' . $password);
-			$url = $scheme . $servername . $api_path;
-			$ret = z_fetch_url($url, $binary, $redirects, $opts);
-			if(! $ret['success'])
-				$ret = z_fetch_url('http://' . $servername . $api_path, $binary, $redirects, $opts);
-			if($ret['success'])
+			$ret = z_fetch_url($api_path, $binary, $redirects, $opts);
+			if($ret['success']) {
 				$data = $ret['body'];
-			else
+			}
+			else {
 				notice( t('Unable to download data from old server') . EOL);
-	
+				return;
+			}
 		}
 	
 		if(! $data) {
@@ -131,6 +136,8 @@ class Import extends \Zotlabs\Web\Controller {
 	
 		// import channel
 	
+		$relocate = ((array_key_exists('relocate',$data)) ? $data['relocate'] : null);
+
 		if(array_key_exists('channel',$data)) {
 	
 			if($completed < 1) {
@@ -206,7 +213,7 @@ class Import extends \Zotlabs\Web\Controller {
 				dbesc($channel['channel_guid']),
 				dbesc($channel['channel_guid_sig']),
 				dbesc($channel['channel_hash']),
-				dbesc($channel['channel_address'] . '@' . \App::get_hostname()),
+				dbesc(channel_reddress($channel)),
 				dbesc('zot'),
 				intval(($seize) ? 1 : 0),
 				dbesc(z_root()),
@@ -249,7 +256,7 @@ class Import extends \Zotlabs\Web\Controller {
 					dbesc(z_root() . "/photo/profile/l/" . $channel['channel_id']),
 					dbesc(z_root() . "/photo/profile/m/" . $channel['channel_id']),
 					dbesc(z_root() . "/photo/profile/s/" . $channel['channel_id']),
-					dbesc($channel['channel_address'] . '@' . \App::get_hostname()),
+					dbesc(channel_reddress($channel)),
 					dbesc(z_root() . '/channel/' . $channel['channel_address']),
 					dbesc(z_root() . '/follow?f=&url=%s'),
 					dbesc(z_root() . '/poco/' . $channel['channel_address']),
@@ -291,15 +298,8 @@ class Import extends \Zotlabs\Web\Controller {
 					);
 					if($r)
 						continue;
-	
-					dbesc_array($xchan);
-			
-					$r = dbq("INSERT INTO xchan (`" 
-						. implode("`, `", array_keys($xchan)) 
-						. "`) VALUES ('" 
-						. implode("', '", array_values($xchan)) 
-						. "')" );
-	
+
+					create_table_from_array('xchan',$xchan);	
 		
 					require_once('include/photo/photo_driver.php');
 					$photos = import_xchan_photo($xchan['xchan_photo_l'],$xchan['xchan_hash']);
@@ -337,6 +337,8 @@ class Import extends \Zotlabs\Web\Controller {
 			$abooks = $data['abook'];
 			if($abooks) {
 				foreach($abooks as $abook) {
+
+					$abook_copy = $abook;
 	
 					$abconfig = null;
 					if(array_key_exists('abconfig',$abook) && is_array($abook['abconfig']) && count($abook['abconfig']))
@@ -345,6 +347,10 @@ class Import extends \Zotlabs\Web\Controller {
 					unset($abook['abook_id']);
 					unset($abook['abook_rating']);
 					unset($abook['abook_rating_text']);
+					unset($abook['abconfig']);
+					unset($abook['abook_their_perms']);
+					unset($abook['abook_my_perms']);
+
 					$abook['abook_account'] = $account_id;
 					$abook['abook_channel'] = $channel['channel_id'];
 					if(! array_key_exists('abook_blocked',$abook)) {
@@ -373,22 +379,18 @@ class Import extends \Zotlabs\Web\Controller {
 							continue;
 					}
 	
-					dbesc_array($abook);
-					$r = dbq("INSERT INTO abook (`" 
-						. implode("`, `", array_keys($abook)) 
-						. "`) VALUES ('" 
-						. implode("', '", array_values($abook)) 
-						. "')" );
-	
+					create_table_from_array('abook',$abook);
+
 					$friends ++;
 					if(intval($abook['abook_feed']))
 						$feeds ++;
+
+					translate_abook_perms_inbound($channel,$abook_copy);
 	
 					if($abconfig) {
 						// @fixme does not handle sync of del_abconfig
 						foreach($abconfig as $abc) {
-							if($abc['chan'] === $channel['channel_hash'])
-								set_abconfig($abc['chan'],$abc['xchan'],$abc['cat'],$abc['k'],$abc['v']);
+							set_abconfig($channel['channel_id'],$abc['xchan'],$abc['cat'],$abc['k'],$abc['v']);
 						}
 					}
 	
@@ -408,16 +410,16 @@ class Import extends \Zotlabs\Web\Controller {
 				$saved = array();
 				foreach($groups as $group) {
 					$saved[$group['hash']] = array('old' => $group['id']);
+					if(array_key_exists('name',$group)) {
+						$group['gname'] = $group['name'];
+						unset($group['name']);
+					}
 					unset($group['id']);
 					$group['uid'] = $channel['channel_id'];
-					dbesc_array($group);
-					$r = dbq("INSERT INTO groups (`" 
-						. implode("`, `", array_keys($group)) 
-						. "`) VALUES ('" 
-						. implode("', '", array_values($group)) 
-						. "')" );
+
+					create_table_from_array('groups',$group);
 				}
-				$r = q("select * from `groups` where uid = %d",
+				$r = q("select * from groups where uid = %d",
 					intval($channel['channel_id'])
 				);
 				if($r) {
@@ -437,12 +439,7 @@ class Import extends \Zotlabs\Web\Controller {
 						if($x['old'] == $group_member['gid'])
 							$group_member['gid'] = $x['new'];
 					}
-					dbesc_array($group_member);
-					$r = dbq("INSERT INTO group_member (`" 
-						. implode("`, `", array_keys($group_member)) 
-						. "`) VALUES ('" 
-						. implode("', '", array_values($group_member)) 
-						. "')" );
+					create_table_from_array('group_member',$group_member);
 				}
 			}
 			logger('import step 9');
@@ -471,7 +468,7 @@ class Import extends \Zotlabs\Web\Controller {
 			import_events($channel,$data['event']);
 	
 		if(is_array($data['event_item']))
-			import_items($channel,$data['event_item']);
+			import_items($channel,$data['event_item'],false,$relocate);
 	
 		if(is_array($data['menu']))
 			import_menus($channel,$data['menu']);
@@ -482,7 +479,7 @@ class Import extends \Zotlabs\Web\Controller {
 		$saved_notification_flags = notifications_off($channel['channel_id']);
 	
 		if($import_posts && array_key_exists('item',$data) && $data['item'])
-			import_items($channel,$data['item']);
+			import_items($channel,$data['item'],false,$relocate);
 	
 		notifications_on($channel['channel_id'],$saved_notification_flags);
 	
@@ -496,11 +493,11 @@ class Import extends \Zotlabs\Web\Controller {
 		// send out refresh requests
 		// notify old server that it may no longer be primary.
 	
-		proc_run('php','include/notifier.php','location',$channel['channel_id']);
+		\Zotlabs\Daemon\Master::Summon(array('Notifier','location',$channel['channel_id']));
 	
 		// This will indirectly perform a refresh_all *and* update the directory
 	
-		proc_run('php', 'include/directory.php', $channel['channel_id']);
+		\Zotlabs\Daemon\Master::Summon(array('Directory', $channel['channel_id']));
 	
 	
 		notice( t('Import completed.') . EOL);

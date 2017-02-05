@@ -1,4 +1,4 @@
-[size=large][b]The $Projectname FAQ[/b][/size]
+[size=large][b]$Projectname FAQ[/b][/size]
 
 [toc]
 

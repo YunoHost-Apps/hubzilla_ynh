@@ -245,10 +245,10 @@ function common_friends($uid,$xchan,$start = 0,$limit=100000000,$shuffle = false
 
 function count_common_friends_zcid($uid,$zcid) {
 
-	$r = q("SELECT count(*) as `total` 
-		FROM `glink` left join `gcontact` on `glink`.`gcid` = `gcontact`.`id`
-		where `glink`.`zcid` = %d
-		and `gcontact`.`nurl` in (select nurl from contact where uid = %d and self = 0 and blocked = 0 and hidden = 0 ) ",
+	$r = q("SELECT count(*) as total 
+		FROM glink left join gcontact on glink.gcid = gcontact.id
+		where glink.zcid = %d
+		and gcontact.nurl in (select nurl from contact where uid = %d and self = 0 and blocked = 0 and hidden = 0 ) ",
 		intval($zcid),
 		intval($uid)
 	);
@@ -264,12 +264,12 @@ function common_friends_zcid($uid,$zcid,$start = 0, $limit = 9999,$shuffle = fal
 	if($shuffle)
 		$sql_extra = " order by rand() ";
 	else
-		$sql_extra = " order by `gcontact`.`name` asc "; 
+		$sql_extra = " order by gcontact.name asc "; 
 
-	$r = q("SELECT `gcontact`.* 
-		FROM `glink` left join `gcontact` on `glink`.`gcid` = `gcontact`.`id`
-		where `glink`.`zcid` = %d
-		and `gcontact`.`nurl` in (select nurl from contact where uid = %d and self = 0 and blocked = 0 and hidden = 0 ) 
+	$r = q("SELECT gcontact.* 
+		FROM glink left join gcontact on glink.gcid = gcontact.id
+		where glink.zcid = %d
+		and gcontact.nurl in (select nurl from contact where uid = %d and self = 0 and blocked = 0 and hidden = 0 ) 
 		$sql_extra limit %d offset %d",
 		intval($zcid),
 		intval($uid),
@@ -283,9 +283,9 @@ function common_friends_zcid($uid,$zcid,$start = 0, $limit = 9999,$shuffle = fal
 
 function count_all_friends($uid,$cid) {
 
-	$r = q("SELECT count(*) as `total`
-		FROM `glink` left join `gcontact` on `glink`.`gcid` = `gcontact`.`id`
-		where `glink`.`cid` = %d and `glink`.`uid` = %d ",
+	$r = q("SELECT count(*) as total
+		FROM glink left join gcontact on glink.gcid = gcontact.id
+		where glink.cid = %d and glink.uid = %d ",
 		intval($cid),
 		intval($uid)
 	);
@@ -299,10 +299,10 @@ function count_all_friends($uid,$cid) {
 
 function all_friends($uid,$cid,$start = 0, $limit = 80) {
 
-	$r = q("SELECT `gcontact`.* 
-		FROM `glink` left join `gcontact` on `glink`.`gcid` = `gcontact`.`id`
-		where `glink`.`cid` = %d and `glink`.`uid` = %d 
-		order by `gcontact`.`name` asc LIMIT %d OFFSET %d ",
+	$r = q("SELECT gcontact.* 
+		FROM glink left join gcontact on glink.gcid = gcontact.id
+		where glink.cid = %d and glink.uid = %d 
+		order by gcontact.name asc LIMIT %d OFFSET %d ",
 		intval($cid),
 		intval($uid),
 		intval($limit),
@@ -319,7 +319,7 @@ function suggestion_query($uid, $myxchan, $start = 0, $limit = 80) {
 	if((! $uid) || (! $myxchan))
 		return array();
 
-	$r = q("SELECT count(xlink_xchan) as `total`, xchan.* from xchan
+	$r = q("SELECT count(xlink_xchan) as total, xchan.* from xchan
 		left join xlink on xlink_link = xchan_hash
 		where xlink_xchan in ( select abook_xchan from abook where abook_channel = %d )
 		and not xlink_link in ( select abook_xchan from abook where abook_channel = %d )
@@ -339,7 +339,7 @@ function suggestion_query($uid, $myxchan, $start = 0, $limit = 80) {
 	if($r && count($r) >= ($limit -1))
 		return $r;
 
-	$r2 = q("SELECT count(xlink_link) as `total`, xchan.* from xchan
+	$r2 = q("SELECT count(xlink_link) as total, xchan.* from xchan
 		left join xlink on xlink_link = xchan_hash
 		where xlink_xchan = ''
 		and not xlink_link in ( select abook_xchan from abook where abook_channel = %d )
@@ -465,11 +465,11 @@ function poco($a,$extended = false) {
 		$sql_extra = sprintf(" and abook_id = %d and abook_hidden = 0 ",intval($cid));
 
 	if($system_mode) {
-		$r = q("SELECT count(*) as `total` from abook where abook_self = 1 
+		$r = q("SELECT count(*) as total from abook where abook_self = 1 
 			and abook_channel in (select uid from pconfig where cat = 'system' and k = 'suggestme' and v = '1') ");
 	}
 	else {
-		$r = q("SELECT count(*) as `total` from abook where abook_channel = %d 
+		$r = q("SELECT count(*) as total from abook where abook_channel = %d 
 			$sql_extra ",
 			intval($channel_id)
 		);

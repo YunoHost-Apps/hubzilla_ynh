@@ -21,17 +21,18 @@ namespace Zotlabs\Module;
 
 
 
-require_once('include/Contact.php');
 require_once('include/attach.php');
 
 
 class Getfile extends \Zotlabs\Web\Controller {
 
 	function post() {
+
+		logger('post: ' . print_r($_POST,true),LOGGER_DEBUG,LOG_INFO);
 	
-		$hash = $_POST['hash'];
-		$time = $_POST['time'];
-		$sig = $_POST['signature'];
+		$hash     = $_POST['hash'];
+		$time     = $_POST['time'];
+		$sig      = $_POST['signature'];
 		$resource = $_POST['resource'];
 		$revision = intval($_POST['revision']);
 	
@@ -39,9 +40,11 @@ class Getfile extends \Zotlabs\Web\Controller {
 			killme();
 	
 		$channel = channelx_by_hash($hash);
-	
-		if((! $channel) || (! $time) || (! $sig))
+
+		if((! $channel) || (! $time) || (! $sig)) {
+			logger('error: missing info');
 			killme();
+		}
 	
 		$slop = intval(get_pconfig($channel['channel_id'],'system','getfile_time_slop'));
 		if($slop < 1)
@@ -59,16 +62,15 @@ class Getfile extends \Zotlabs\Web\Controller {
 			logger('verify failed.');
 			killme();
 		}
-	
-	
-		$r = attach_by_hash($resource,$revision);
+		
+		$r = attach_by_hash($resource,$channel['channel_hash'],$revision);
 	
 		if(! $r['success']) {
+			logger('attach_by_hash failed: ' . $r['message']);
 			notice( $r['message'] . EOL);
 			return;
 		}
-		
-	
+			
 		$unsafe_types = array('text/html','text/css','application/javascript');
 	
 		if(in_array($r['data']['filetype'],$unsafe_types)) {
@@ -77,10 +79,10 @@ class Getfile extends \Zotlabs\Web\Controller {
 		else {
 			header('Content-type: ' . $r['data']['filetype']);
 		}
-	
+
 		header('Content-disposition: attachment; filename="' . $r['data']['filename'] . '"');
 		if(intval($r['data']['os_storage'])) {
-			$fname = dbunescbin($r['data']['data']);
+			$fname = dbunescbin($r['data']['content']);
 			if(strpos($fname,'store') !== false)
 				$istream = fopen($fname,'rb');
 			else
@@ -92,11 +94,9 @@ class Getfile extends \Zotlabs\Web\Controller {
 				fclose($ostream);
 			}
 		}
-		else
-			echo dbunescbin($r['data']['data']);
+		else {
+			echo dbunescbin($r['data']['content']);
+		}
 		killme();
-	
-	
-	
 	}
 }

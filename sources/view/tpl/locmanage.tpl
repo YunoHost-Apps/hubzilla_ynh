@@ -22,7 +22,7 @@
 		<table id="locs-index">
 			<tr>
 				<th>{{$addr}}</th>
-				<th class="hidden-xs">{{$loc}}</th>
+				<th class="hidden-xs hidden-sm">{{$loc}}</th>
 				<th>{{$mkprm}}</th>
 				<th>{{$drop}}</th>
 			</tr>
@@ -30,7 +30,7 @@
 			{{if ! $hub.deleted }}
 			<tr class="locs-index-row">
 				<td>{{$hub.hubloc_addr}}</td>
-				<td class="hidden-xs">{{$hub.hubloc_url}}</td>
+				<td class="hidden-xs hidden-sm">{{$hub.hubloc_url}}</td>
 				<td>{{if $hub.primary}}<i class="fa fa-check-square-o"></i>{{else}}<i class="fa fa-square-o primehub" onclick="primehub({{$hub.hubloc_id}}); return false;"></i>{{/if}}</td>
 				<td><i class="fa fa-trash-o drophub" onclick="drophub({{$hub.hubloc_id}}); return false;"></i></td>
 			</tr>

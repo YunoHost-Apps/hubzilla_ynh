@@ -41,7 +41,7 @@ Options are:
   [*= system.block_public_search ] Similar to block_public, except only blocks public access to  search features.  Useful for sites that want to be public, but keep getting hammered by search engines.
   [*= system.cron_hour ] Specify an hour in which to run cron_daily.  By default with no config, this will run at midnight UTC.
   [*= system.default_permissions_role ] If set to a valid permissions role name, use that role for the first channel created by a new account and don't ask for the "Channel Type" on the channel creation form. Examples of valid names are: 'social', 'social_restricted', 'social_private',  'forum', 'forum_restricted' and 'forum_private'.  Read more about permissions roles [zrl=[baseurl]/help/roles]here[/zrl].
-  [*= system.default_photo_profile ] Set the profile photo that new channels start with. This should contain the name of a directory located under [font=courier]images/default_profile_photos/[/font], or be left unset. If not set then 'rainbow_man' is assumed.
+  [*= system.default_profile_photo ] Set the profile photo that new channels start with. This should contain the name of a directory located under [font=courier]images/default_profile_photos/[/font], or be left unset. If not set then 'rainbow_man' is assumed.
   [*= system.directorytags ] Set the number of keyword tags displayed on the directory page. Default is 50 unless set to a  positive integer.
   [*= system.disable_directory_keywords ] If '1', do not show directory keywords. If the hub is a directory server, prevent returning tags to any directory clients. Please do not set this for directory servers in the RED_GLOBAL realm. 
   [*= system.disable_discover_tab ] This allows you to completely disable the ability to discover public content from external sites.
@@ -67,7 +67,7 @@ Options are:
   [*= system.paranoia ] As the pconfig, but on a site-wide basis.  Can be overwritten by member settings.
   [*= system.photo_cache_time ] How long to cache photos, in seconds. Default is 86400 (1 day). Longer time increases performance, but it also means it takes longer for changed permissions to apply.
   [*= system.platform_name ] What to report as the platform name in webpages and statistics. (*) Must be set in .htconfig.php
-  [*= system.poco_rating_enable ] Distributed reputation reporting and data collection may be disabled. If your site does not participate  in distributed reputation you will also not be able to make use of the data from your connections on  other sites. By default and in the absence of any setting it is enabled. Individual members can opt out  by restricting who can see their connections or by not providing any reputation information for their  connections.
+  [*= system.rating_enabled ] Distributed reputation reporting and data collection. This feature is currently being re-worked.
   [*= system.poke_basic ] Reduce the number of poke verbs to exactly 1 ("poke"). Disable other verbs. 
   [*= system.proc_run_use_exec ] If 1, use the exec system call in proc_run to run background tasks. By default we use proc_open and proc_close. On some (currently rare) systems this does not work well.
   [*= system.projecthome ] Display the project page on your home page for logged out viewers.

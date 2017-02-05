@@ -21,7 +21,7 @@ class Common extends \Zotlabs\Web\Controller {
 		);
 	
 		if($x)
-			profile_load($a,$x[0]['channel_address'],0);
+			profile_load($x[0]['channel_address'],0);
 	
 	}
 	

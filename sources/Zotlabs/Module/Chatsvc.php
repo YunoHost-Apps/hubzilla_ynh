@@ -1,14 +1,16 @@
-<?php
-namespace Zotlabs\Module; /** @file */
+<?php /** @file */
+
+namespace Zotlabs\Module; 
 
 require_once('include/security.php');
 
+use \Zotlabs\Lib as Zlib;
 
 class Chatsvc extends \Zotlabs\Web\Controller {
 
 	function init() {
 	
-	//logger('chatsvc');
+		//logger('chatsvc');
 	
 		$ret = array('success' => false);
 	
@@ -27,7 +29,7 @@ class Chatsvc extends \Zotlabs\Web\Controller {
 	
 	}
 	
-		function post() {
+	function post() {
 	
 		$ret = array('success' => false);
 	
@@ -65,7 +67,7 @@ class Chatsvc extends \Zotlabs\Web\Controller {
 		json_return_and_die($ret);
 	}
 	
-		function get() {
+	function get() {
 	
 		$status = strip_tags($_REQUEST['status']);
 		$room_id = intval(\App::$data['chat']['room_id']);

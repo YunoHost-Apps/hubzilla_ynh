@@ -58,7 +58,9 @@ class Ratingsearch extends \Zotlabs\Web\Controller {
 		$ret['success'] = true;
 	
 		$r = q("select * from xlink left join xchan on xlink_xchan = xchan_hash 
-			where xlink_link = '%s' and xlink_rating != 0 and xlink_static = 1 order by xchan_name asc",
+			where xlink_link = '%s' and xlink_rating != 0 and xlink_static = 1 
+			and xchan_hidden = 0 and xchan_orphan = 0 and xchan_deleted = 0 
+			order by xchan_name asc",
 			dbesc($target)
 		);
 	

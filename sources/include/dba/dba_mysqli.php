@@ -4,7 +4,7 @@ require_once('include/dba/dba_driver.php');
 
 class dba_mysqli extends dba_driver {
 
-	function connect($server,$port,$user,$pass,$db) {
+	function connect($server,$scheme,$port,$user,$pass,$db) {
 		if($port)
 			$this->db = new mysqli($server,$user,$pass,$db, $port);
 		else

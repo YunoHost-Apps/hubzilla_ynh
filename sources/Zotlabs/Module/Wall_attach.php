@@ -2,7 +2,7 @@
 namespace Zotlabs\Module;
 
 require_once('include/attach.php');
-require_once('include/identity.php');
+require_once('include/channel.php');
 require_once('include/photos.php');
 
 
@@ -12,15 +12,20 @@ class Wall_attach extends \Zotlabs\Web\Controller {
 	
 		$using_api = false;
 	
-		if(\App::$data['api_info'] && array_key_exists('media',$_FILES)) {
+		if($_REQUEST['api_source'] && array_key_exists('media',$_FILES)) {
 			$using_api = true;
-			$user_info = \App::$data['api_info'];
-			$nick = $user_info['screen_name'];
-			$channel = get_channel_by_nick($user_info['screen_name']);
 		}
-		elseif(argc() > 1)
-			$channel = get_channel_by_nick(argv(1));
-	
+
+		if($using_api) {
+			require_once('include/api.php');
+			if(api_user())
+				$channel = channelx_by_n(api_user());
+		}
+		else {
+			if(argc() > 1)
+				$channel = channelx_by_nick(argv(1));
+		}
+
 		if(! $channel)
 			killme();
 	

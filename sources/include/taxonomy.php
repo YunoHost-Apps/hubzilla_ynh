@@ -386,7 +386,7 @@ function get_things($profile_hash,$uid) {
 			$things[$k] = null;
 		foreach($r as $rr) {
 
-			$l = q("select xchan_name, xchan_photo_s, xchan_url from likes left join xchan on likee = xchan_hash where
+			$l = q("select xchan_name, xchan_photo_s, xchan_url from likes left join xchan on liker = xchan_hash where
 				target_type = '%s' and target_id = '%s' and channel_id = %d",
 				dbesc(ACTIVITY_OBJ_THING),
 				dbesc($rr['obj_obj']),
@@ -400,7 +400,7 @@ function get_things($profile_hash,$uid) {
 			if(! $things[$rr['obj_verb']])
 				$things[$rr['obj_verb']] = array();
 
-			$things[$rr['obj_verb']][] = array('term' => $rr['obj_term'],'url' => $rr['obj_url'],'img' => $rr['obj_imgurl'], 'profile' => $rr['profile_name'],'term_hash' => $rr['obj_obj'], 'likes' => $l,'like_count' => count($l),'like_label' => tt('Like','Likes',count($l),'noun'));
+			$things[$rr['obj_verb']][] = array('term' => $rr['obj_term'],'url' => $rr['obj_url'],'img' => $rr['obj_imgurl'], 'editurl' => z_root() . '/thing/' . $rr['obj_obj'], 'profile' => $rr['profile_name'],'term_hash' => $rr['obj_obj'], 'likes' => $l,'like_count' => count($l),'like_label' => tt('Like','Likes',count($l),'noun'));
 		} 
 		$sorted_things = array();
 		if($things) {

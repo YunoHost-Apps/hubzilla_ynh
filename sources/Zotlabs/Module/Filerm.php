@@ -22,7 +22,7 @@ class Filerm extends \Zotlabs\Web\Controller {
 		logger('filerm: tag ' . $term . ' item ' . $item_id);
 	
 		if($item_id && strlen($term)) {
-			$r = q("delete from term where uid = %d and type = %d and oid = %d and term = '%s'",
+			$r = q("delete from term where uid = %d and ttype = %d and oid = %d and term = '%s'",
 				intval(local_channel()),
 				intval(($category) ? TERM_CATEGORY : TERM_FILE),
 				intval($item_id),

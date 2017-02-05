@@ -5,7 +5,6 @@ namespace Hubzilla\Import;
 /**
  * @brief Class Import
  *
- * @package Hubzilla\Import
  */
 class Import {
 

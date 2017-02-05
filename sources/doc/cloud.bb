@@ -1,6 +1,6 @@
 [b]Personal Cloud Storage[/b]
 
-The $Projectname provides an ability to store privately and/or share arbitrary files with friends.
+$Projectname provides an ability to store privately and/or share arbitrary files with friends.
 
 You may either upload files from your computer into your storage area, or copy them directly from the operating system using the WebDAV protocol.
 

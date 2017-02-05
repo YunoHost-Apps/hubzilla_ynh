@@ -47,11 +47,9 @@ class Magic extends \Zotlabs\Web\Controller {
 			 *
 			 */
 	
-			$ret = zot_finger((($addr) ? $addr : '[system]@' . $parsed['host']),null);
-			if($ret['success']) {
-				$j = json_decode($ret['body'],true);
-				if($j)
-					import_xchan($j);
+			$j = \Zotlabs\Zot\Finger::run((($addr) ? $addr : '[system]@' . $parsed['host']),null);
+			if($j['success']) {
+				import_xchan($j);
 	
 				// Now try again
 	
@@ -142,7 +140,7 @@ class Magic extends \Zotlabs\Web\Controller {
 	
 			\Zotlabs\Zot\Verify::create('auth',$channel['channel_id'],$token,$x[0]['hubloc_url']);
 	
-			$target_url = $x[0]['hubloc_callback'] . '/?f=&auth=' . urlencode($channel['channel_address'] . '@' . \App::get_hostname())
+			$target_url = $x[0]['hubloc_callback'] . '/?f=&auth=' . urlencode(channel_reddress($channel))
 				. '&sec=' . $token . '&dest=' . urlencode($dest) . '&version=' . ZOT_REVISION;
 	
 			if($delegate)

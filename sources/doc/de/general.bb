@@ -2,8 +2,6 @@
 
 [zrl=[baseurl]/help/Privacy]Informationen zum Datenschutz[/zrl]
 
-[zrl=[baseurl]/help/history]Zur Geschichte von $Projectname[/zrl]
-
 [h3]Externe Ressourcen[/h3]
 [zrl=[baseurl]/help/external-resource-links]Links zu externen Ressourcen[/zrl]
 

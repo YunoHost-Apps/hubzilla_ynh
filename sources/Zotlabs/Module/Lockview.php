@@ -1,17 +1,31 @@
 <?php
 namespace Zotlabs\Module;
 
-
+require_once('include/security.php');
 
 class Lockview extends \Zotlabs\Web\Controller {
 
 	function get() {
+
+		$atokens = array();
+
+		if(local_channel()) {
+			$at = q("select * from atoken where atoken_uid = %d",
+				intval(local_channel())
+			);
+			if($at) {
+				foreach($at as $t) {
+					$atokens[] = atoken_xchan($t);
+				}
+			}
+		}
 	  
 		$type = ((argc() > 1) ? argv(1) : 0);
 		if (is_numeric($type)) {
 			$item_id = intval($type);
 			$type='item';
-		} else {
+		} 
+		else {
 			$item_id = ((argc() > 2) ? intval(argv(2)) : 0);
 		}
 	  
@@ -88,28 +102,45 @@ class Lockview extends \Zotlabs\Web\Controller {
 		stringify_array_elms($deny_users,true);
 	
 		if(count($allowed_groups)) {
-			$r = q("SELECT name FROM `groups` WHERE hash IN ( " . implode(', ', $allowed_groups) . " )");
+			$r = q("SELECT gname FROM groups WHERE hash IN ( " . implode(', ', $allowed_groups) . " )");
 			if($r)
 				foreach($r as $rr) 
-					$l[] = '<li><b>' . $rr['name'] . '</b></li>';
+					$l[] = '<li><b>' . $rr['gname'] . '</b></li>';
 		}
 		if(count($allowed_users)) {
 			$r = q("SELECT xchan_name FROM xchan WHERE xchan_hash IN ( " . implode(', ',$allowed_users) . " )");
 			if($r)
 				foreach($r as $rr) 
 					$l[] = '<li>' . $rr['xchan_name'] . '</li>';
+			if($atokens) {
+				foreach($atokens as $at) {
+					if(in_array("'" . $at['xchan_hash'] . "'",$allowed_users)) {	
+						$l[] = '<li>' . $at['xchan_name'] . '</li>';
+					}
+				}
+			}
 		}
 		if(count($deny_groups)) {
-			$r = q("SELECT name FROM `groups` WHERE hash IN ( " . implode(', ', $deny_groups) . " )");
+			$r = q("SELECT gname FROM groups WHERE hash IN ( " . implode(', ', $deny_groups) . " )");
 			if($r)
 				foreach($r as $rr) 
-					$l[] = '<li><b><strike>' . $rr['name'] . '</strike></b></li>';
+					$l[] = '<li><b><strike>' . $rr['gname'] . '</strike></b></li>';
 		}
 		if(count($deny_users)) {
 			$r = q("SELECT xchan_name FROM xchan WHERE xchan_hash IN ( " . implode(', ', $deny_users) . " )");
 			if($r)
 				foreach($r as $rr) 
 					$l[] = '<li><strike>' . $rr['xchan_name'] . '</strike></li>';
+
+			if($atokens) {
+				foreach($atokens as $at) {
+					if(in_array("'" . $at['xchan_hash'] . "'",$deny_users)) {	
+						$l[] = '<li><strike>' . $at['xchan_name'] . '</strike></li>';
+					}
+				}
+			}
+
+
 		}
 	
 		echo $o . implode($l);

@@ -35,3 +35,4 @@ attach_upload_limit - maximum file upload storage (bytes)
 minimum_feedcheck_minutes - lowest setting allowed for polling rss feeds
 chatrooms - maximum chatrooms
 chatters_inroom - maximum chatters per room
+access_tokens - maximum number of Guest Access Tokens per channel

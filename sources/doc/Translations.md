@@ -1,4 +1,4 @@
-Translating the $Projectname
+Translating $Projectname
 ==========================
 
 Translation Process

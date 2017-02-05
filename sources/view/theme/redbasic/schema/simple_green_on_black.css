@@ -3,6 +3,31 @@
 	background-color: transparent;
 }
 
+textarea, input, select
+{
+  color: $font_colour !important;
+  background: $bgcolour !important;
+  border: 1px solid #143D12 !important;
+ }
+
+#profile-jot-submit-wrapper {
+	border-top: none;
+	padding: 10px 0;
+}
+
+#jot-title-wrap {
+	border-bottom: none;
+	margin-bottom: 5px;
+}
+
+optgroup {
+	color: #32962D !important; 
+}
+
+option {
+	color: $link_colour !important;
+}
+
 .vcard, #contact-block, .widget {
 	background-color: transparent;
 	border: none;
@@ -153,22 +178,22 @@ input[type="submit"] {
 	color: #50f148 !important;
 }
 
-nav .dropdown-menu>li>a{
+nav .dropdown-menu>li>a {
 	color: #50f148;
 }
 
-nav .dropdown-menu>li>a:hover,nav .dropdown-menu>li>a:focus{
+nav .dropdown-menu>li>a:hover,nav .dropdown-menu>li>a:focus {
 	color: #50f148;
 	background-color: #143D12;
 	background-image: none;
 }
 
 
-nav .dropdown-menu .divider{
+nav .dropdown-menu .divider {
 	background-color: #143D12;
 }
 
-nav .dropdown-menu>li>a:hover,nav .dropdown-menu>li>a:focus{
+nav .dropdown-menu>li>a:hover,nav .dropdown-menu>li>a:focus {
 	color: #50f148;
 	background-color: #143D12;
 	background-image: none;
@@ -338,4 +363,23 @@ pre {
   	-moz-box-shadow: none;
   	-webkit-box-shadow: none;
   	box-shadow: none;
+}
+
+.contextual-help-content-open {
+	background: $nav_bg;
+	top: 50px;
+	border-bottom: #1C5419 1px solid;
+	box-shadow: 0px 3px 3px rgba(28,84,25,0.2);
+}
+
+.contextual-help-tool {
+	opacity: 0.5;
+}
+
+.contextual-help-tool:hover {
+	opacity: 1;
+}
+
+.contextual-help-tool i {
+	color: $link_colour;
 }

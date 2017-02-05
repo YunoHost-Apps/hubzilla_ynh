@@ -1,0 +1,4 @@
+url: $baseurl/cdav/addressbook
+requires: local_channel
+name: CardDAV
+photo: $baseurl/addon/cdav/addressbook.png

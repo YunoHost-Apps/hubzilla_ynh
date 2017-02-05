@@ -66,11 +66,10 @@ function new_contact($uid,$url,$channel,$interactive = false, $confirm = false) 
 
 	$role = get_pconfig($uid,'system','permissions_role');
 	if($role) {
-		$x = get_role_perms($role);
-		if($x['perms_follow'])
-			$my_perms = $x['perms_follow'];
+		$x = \Zotlabs\Access\PermissionRoles::role_perms($role);
+		if($x['perms_connect'])
+			$my_perms = $x['perms_connect'];
 	}
-
 
 	if($is_red && $j) {
 
@@ -104,10 +103,6 @@ function new_contact($uid,$url,$channel,$interactive = false, $confirm = false) 
 
 		$xchan_hash = $x['hash'];
 
-		$their_perms = 0;
-
-		$global_perms = get_perms();
-
 		if( array_key_exists('permissions',$j) && array_key_exists('data',$j['permissions'])) {
 			$permissions = crypto_unencapsulate(array(
 				'data' => $j['permissions']['data'],
@@ -121,16 +116,14 @@ function new_contact($uid,$url,$channel,$interactive = false, $confirm = false) 
 		else
 			$permissions = $j['permissions'];
 
-
-		foreach($permissions as $k => $v) {
-			if($v) {
-				$their_perms = $their_perms | intval($global_perms[$k][1]);
+		if(is_array($permissions) && $permissions) {
+			foreach($permissions as $k => $v) {
+				set_abconfig($channel['channel_uid'],$xchan_hash,'their_perms',$k,intval($v));
 			}
 		}
 	}
 	else {
 
-		$their_perms = 0;
 		$xchan_hash = '';
 
 		$r = q("select * from xchan where xchan_hash = '%s' or xchan_url = '%s' limit 1",
@@ -190,6 +183,7 @@ function new_contact($uid,$url,$channel,$interactive = false, $confirm = false) 
 		$result['message'] = t('Protocol disabled.');
 		return $result;
 	}
+
 	$singleton = intval($x['singleton']);
 
 	$aid = $channel['channel_account_id'];
@@ -217,10 +211,19 @@ function new_contact($uid,$url,$channel,$interactive = false, $confirm = false) 
 		return $result;
 	}
 
-	$r = q("select abook_xchan, abook_instance from abook where abook_xchan = '%s' and abook_channel = %d limit 1",
+	$r = q("select abook_id, abook_xchan, abook_pending, abook_instance from abook where abook_xchan = '%s' and abook_channel = %d limit 1",
 		dbesc($xchan_hash),
 		intval($uid)
 	);
+
+	if($is_http) {
+
+		// Always set these "remote" permissions for feeds since we cannot interact with them
+		// to negotiate a suitable permission response
+
+		set_abconfig($uid,$xchan_hash,'their_perms','view_stream',1);
+		set_abconfig($uid,$xchan_hash,'their_perms','republish',1);
+	}
 
 	if($r) {
 		$abook_instance = $r[0]['abook_instance'];
@@ -231,26 +234,44 @@ function new_contact($uid,$url,$channel,$interactive = false, $confirm = false) 
 			$abook_instance .= z_root();
 		}
 
-		$x = q("update abook set abook_their_perms = %d, abook_instance = '%s' where abook_id = %d",
-			intval($their_perms),
+		$x = q("update abook set abook_instance = '%s' where abook_id = %d",
 			dbesc($abook_instance),
 			intval($r[0]['abook_id'])
-		);		
+		);
+
+		if(intval($r[0]['abook_pending'])) {
+
+			$abook_my_perms = get_channel_default_perms($uid);
+            $role = get_pconfig($uid,'system','permissions_role');
+            if($role) {
+                $x = \Zotlabs\Access\PermissionRoles::role_perms($role);
+                if($x['perms_connect']) {
+                    $abook_my_perms = $x['perms_connect'];
+                }
+            }
+
+            $filled_perms = \Zotlabs\Access\Permissions::FilledPerms($abook_my_perms);
+            foreach($filled_perms as $k => $v) {
+                set_abconfig($uid,$r[0]['abook_xchan'],'my_perms',$k,$v);
+            }
+
+			$x = q("update abook set abook_pending = 0 where abook_id = %d",
+				intval($r[0]['abook_id'])
+			);
+		}
 	}
 	else {
 		$closeness = get_pconfig($uid,'system','new_abook_closeness');
 		if($closeness === false)
 			$closeness = 80;
 
-		$r = q("insert into abook ( abook_account, abook_channel, abook_closeness, abook_xchan, abook_feed, abook_their_perms, abook_my_perms, abook_created, abook_updated, abook_instance )
-			values( %d, %d, %d, '%s', %d, %d, %d, '%s', '%s', '%s' ) ",
+		$r = q("insert into abook ( abook_account, abook_channel, abook_closeness, abook_xchan, abook_feed, abook_created, abook_updated, abook_instance )
+			values( %d, %d, %d, '%s', %d, '%s', '%s', '%s' ) ",
 			intval($aid),
 			intval($uid),
 			intval($closeness),
 			dbesc($xchan_hash),
 			intval(($is_http) ? 1 : 0),
-			intval(($is_http) ? $their_perms|PERMS_R_STREAM|PERMS_A_REPUBLISH : $their_perms),
-			intval($my_perms),
 			dbesc(datetime_convert()),
 			dbesc(datetime_convert()),
 			dbesc(($singleton) ? z_root() : '')
@@ -259,6 +280,16 @@ function new_contact($uid,$url,$channel,$interactive = false, $confirm = false) 
 
 	if(! $r)
 		logger('mod_follow: abook creation failed');
+
+	$all_perms = \Zotlabs\Access\Permissions::Perms();
+	if($all_perms) {
+		foreach($all_perms as $k => $v) {
+			if(in_array($k,$my_perms))
+				set_abconfig($uid,$xchan_hash,'my_perms',$k,1);
+			else
+				set_abconfig($uid,$xchan_hash,'my_perms',$k,0);
+		}
+	}
 
 	$r = q("select abook.*, xchan.* from abook left join xchan on abook_xchan = xchan_hash 
 		where abook_xchan = '%s' and abook_channel = %d limit 1",

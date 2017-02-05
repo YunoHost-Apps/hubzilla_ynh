@@ -1,4 +1,4 @@
-[b]How to install the $Projectname on a Raspberry Pi[/b]
+[b]How to install $Projectname on a Raspberry Pi[/b]
 
 You just bought a Raspberry Pi and want to run the RED Matrix with your own domain name?
 

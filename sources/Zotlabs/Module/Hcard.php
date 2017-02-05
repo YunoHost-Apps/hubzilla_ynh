@@ -40,7 +40,7 @@ class Hcard extends \Zotlabs\Web\Controller {
 	        }
 	    }
 	
-		profile_load($a,$which,$profile);
+		profile_load($which,$profile);
 	
 	
 	}

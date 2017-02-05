@@ -43,7 +43,7 @@ class Rate extends \Zotlabs\Web\Controller {
 	}
 	
 	
-		function post() {
+	function post() {
 	
 		if(! local_channel())
 			return;
@@ -102,14 +102,12 @@ class Rate extends \Zotlabs\Web\Controller {
 		}
 	
 		if($record) {
-			proc_run('php','include/ratenotif.php','rating',$record);
+			\Zotlabs\Daemon\Master::Summon(array('Ratenotif','rating',$record));
 		}
 	
 	}
 	
-	
-	
-		function get() {
+	function get() {
 	
 		if(! local_channel()) {
 			notice( t('Permission denied.') . EOL);
@@ -121,8 +119,8 @@ class Rate extends \Zotlabs\Web\Controller {
 	//		return;
 	//	}
 	
-		$poco_rating = get_config('system','poco_rating_enable');
-		if((! $poco_rating) && ($poco_rating !== false)) {
+		$rating_enabled = get_config('system','rating_enabled');
+		if(! $rating_enabled) {
 			notice('Ratings are disabled on this site.');
 			return;
 		}
@@ -143,11 +141,7 @@ class Rate extends \Zotlabs\Web\Controller {
 			$rating_text = '';
 		}
 	
-		// if unset default to enabled
-		if($poco_rating === false)
-			$poco_rating = true;
-	
-		if($poco_rating) {
+		if($rating_enabled) {
 			$rating = replace_macros(get_markup_template('rating_slider.tpl'),array(
 				'$min' => -10,
 				'$val' => $rating_val

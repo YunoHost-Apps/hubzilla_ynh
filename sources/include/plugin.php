@@ -41,7 +41,7 @@ function uninstall_plugin($plugin) {
 		$func();
 	}
 
-	q("DELETE FROM `addon` WHERE `aname` = '%s' ",
+	q("DELETE FROM addon WHERE aname = '%s' ",
 		dbesc($plugin)
 	);
 }
@@ -66,7 +66,7 @@ function install_plugin($plugin) {
 
 	$plugin_admin = (function_exists($plugin . '_plugin_admin') ? 1 : 0);
 
-	q("INSERT INTO `addon` (`aname`, `installed`, `tstamp`, `plugin_admin`) VALUES ( '%s', 1, %d , %d ) ",
+	q("INSERT INTO addon (aname, installed, tstamp, plugin_admin) VALUES ( '%s', 1, %d , %d ) ",
 		dbesc($plugin),
 		intval($t),
 		$plugin_admin
@@ -126,7 +126,7 @@ function plugin_is_installed($name) {
 function reload_plugins() {
 	$plugins = get_config('system', 'addon');
 	if(strlen($plugins)) {
-		$r = q("SELECT * FROM `addon` WHERE `installed` = 1");
+		$r = q("SELECT * FROM addon WHERE installed = 1");
 		if(count($r))
 			$installed = $r;
 		else
@@ -143,7 +143,7 @@ function reload_plugins() {
 				if(file_exists($fname)) {
 					$t = @filemtime($fname);
 					foreach($installed as $i) {
-						if(($i['aname'] == $pl) && ($i['tstamp'] != $t)) {	
+						if(($i['aname'] == $pl) && ($i['tstamp'] != $t)) {
 							logger('Reloading plugin: ' . $i['aname']);
 							@include_once($fname);
 
@@ -155,7 +155,7 @@ function reload_plugins() {
 								$func = $pl . '_load';
 								$func();
 							}
-							q("UPDATE `addon` SET `tstamp` = %d WHERE `id` = %d",
+							q("UPDATE addon SET tstamp = %d WHERE id = %d",
 								intval($t),
 								intval($i['id'])
 							);
@@ -166,6 +166,12 @@ function reload_plugins() {
 		}
 	}
 }
+
+function visible_plugin_list() {
+	$r = q("select * from addon where hidden = 0 order by aname asc");
+	return(($r) ? ids_to_array($r,'aname') : array());
+}
+
 
 
 /**
@@ -178,7 +184,7 @@ function reload_plugins() {
  * @return mixed|bool
  */
 function register_hook($hook, $file, $function, $priority = 0) {
-	$r = q("SELECT * FROM `hook` WHERE `hook` = '%s' AND `file` = '%s' AND `fn` = '%s' LIMIT 1",
+	$r = q("SELECT * FROM hook WHERE hook = '%s' AND file = '%s' AND fn = '%s' LIMIT 1",
 		dbesc($hook),
 		dbesc($file),
 		dbesc($function)
@@ -186,7 +192,7 @@ function register_hook($hook, $file, $function, $priority = 0) {
 	if($r)
 		return true;
 
-	$r = q("INSERT INTO `hook` (`hook`, `file`, `fn`, `priority`) VALUES ( '%s', '%s', '%s', '%s' )",
+	$r = q("INSERT INTO hook (hook, file, fn, priority) VALUES ( '%s', '%s', '%s', '%s' )",
 		dbesc($hook),
 		dbesc($file),
 		dbesc($function),
@@ -199,14 +205,14 @@ function register_hook($hook, $file, $function, $priority = 0) {
 
 /**
  * @brief unregisters a hook.
- * 
+ *
  * @param string $hook the name of the hook
  * @param string $file the name of the file that hooks into
  * @param string $function the name of the function that the hook called
  * @return array
  */
 function unregister_hook($hook, $file, $function) {
-	$r = q("DELETE FROM hook WHERE hook = '%s' AND `file` = '%s' AND `fn` = '%s'",
+	$r = q("DELETE FROM hook WHERE hook = '%s' AND file = '%s' AND fn = '%s'",
 		dbesc($hook),
 		dbesc($file),
 		dbesc($function)
@@ -218,7 +224,7 @@ function unregister_hook($hook, $file, $function) {
 
 //
 // It might not be obvious but themes can manually add hooks to the App::$hooks
-// array in their theme_init() and use this to customise the app behaviour.  
+// array in their theme_init() and use this to customise the app behaviour.
 // UPDATE: use insert_hook($hookname,$function_name) to do this
 //
 
@@ -242,20 +248,22 @@ function load_hooks() {
 /**
  * @brief Inserts a hook into a page request.
  *
- * Insert a short-lived hook into the running page request. 
- * Hooks are normally persistent so that they can be called 
+ * Insert a short-lived hook into the running page request.
+ * Hooks are normally persistent so that they can be called
  * across asynchronous processes such as delivery and poll
  * processes.
  *
  * insert_hook lets you attach a hook callback immediately
  * which will not persist beyond the life of this page request
- * or the current process. 
+ * or the current process.
  *
  * @param string $hook
  *     name of hook to attach callback
  * @param string $fn
  *     function name of callback handler
- */ 
+ * @param int $version (optional) default 0
+ * @param int $priority (optional) default 0
+ */
 function insert_hook($hook, $fn, $version = 0, $priority = 0) {
 
 	if(! is_array(App::$hooks))
@@ -287,7 +295,7 @@ function call_hooks($name, &$data = null) {
 				$hook[1] = unserialize($hook[1]);
 			}
 			elseif(strpos($hook[1],'::')) {
-				// We shouldn't need to do this, but it appears that PHP 
+				// We shouldn't need to do this, but it appears that PHP
 				// isn't able to directly execute a string variable with a class
 				// method in the manner we are attempting it, so we'll
 				// turn it into an array.
@@ -300,10 +308,10 @@ function call_hooks($name, &$data = null) {
 					$func($data);
 				else
 					$func($a, $data);
-			} 
+			}
 			else {
 
-				// Don't do any DB write calls if we're currently logging a possibly failed DB call. 
+				// Don't do any DB write calls if we're currently logging a possibly failed DB call.
 				if(! DBA::$logging) {
 					// The hook should be removed so we don't process it.
 					q("DELETE FROM hook WHERE hook = '%s' AND file = '%s' AND fn = '%s'",
@@ -364,7 +372,7 @@ function get_plugin_info($plugin){
 					} else {
 						$info[$k][] = array('name' => $v);
 					}
-				} 
+				}
 				else {
 					$info[$k] = $v;
 				}
@@ -398,6 +406,18 @@ function check_plugin_versions($info) {
 			return false;
 		}
 	}
+	if(array_key_exists('serverroles',$info)) {
+		$role = \Zotlabs\Lib\System::get_server_role();
+		if(! (
+			stristr($info['serverroles'],'*')
+			|| stristr($info['serverroles'],'any')
+			|| stristr($info['serverroles'],$role))) {
+			logger('serverrole limit: ' . $info['name'],LOGGER_NORMAL,LOG_WARNING);
+			return false;
+
+		}
+	}
+
 
 	if(array_key_exists('requires',$info)) {
 		$arr = explode(',',$info['requires']);
@@ -407,8 +427,15 @@ function check_plugin_versions($info) {
 				$test = trim($test);
 				if(! $test)
 					continue;
+				if(strpos($test,'.')) {
+					$conf = explode('.',$test);
+					if(get_config(trim($conf[0]),trim($conf[1])))
+						return true;
+					else
+						return false;
+				}
 				if(! in_array($test,App::$plugins))
-					$found = false;				
+					$found = false;
 			}
 		}
 		if(! $found)
@@ -545,25 +572,31 @@ function head_get_css() {
 }
 
 function format_css_if_exists($source) {
-	if (strpos($source[0], '/') !== false)
+	$path_prefix = script_path() . '/';
+
+	if (strpos($source[0], '/') !== false) {
+		// The source is a URL
 		$path = $source[0];
-	else
+		// If the url starts with // then it's an absolute URL
+		if($source[0][0] === '/' && $source[0][1] === '/') $path_prefix = '';
+	} else {
+		// It's a file from the theme
 		$path = theme_include($source[0]);
+	}
 
 	if($path) {
-		$path =  script_path() . '/' . $path;
 		$qstring = ((parse_url($path, PHP_URL_QUERY)) ? '&' : '?') . 'v=' . STD_VERSION;
-		return '<link rel="stylesheet" href="' . $path . $qstring . '" type="text/css" media="' . $source[1] . '">' . "\r\n";
+		return '<link rel="stylesheet" href="' . $path_prefix . $path . $qstring . '" type="text/css" media="' . $source[1] . '">' . "\r\n";
 	}
 }
 
 /*
  * This basically calculates the baseurl. We have other functions to do that, but
- * there was an issue with script paths and mixed-content whose details are arcane 
- * and perhaps lost in the message archives. The short answer is that we're ignoring 
- * the URL which we are "supposed" to use, and generating script paths relative to 
+ * there was an issue with script paths and mixed-content whose details are arcane
+ * and perhaps lost in the message archives. The short answer is that we're ignoring
+ * the URL which we are "supposed" to use, and generating script paths relative to
  * the URL which we are currently using; in order to ensure they are found and aren't
- * blocked due to mixed content issues. 
+ * blocked due to mixed content issues.
  */
 
 function script_path() {
@@ -575,7 +608,7 @@ function script_path() {
 		$scheme = 'https';
 	else
 		$scheme = 'http';
-	
+
 	// Some proxy setups may require using http_host
 
 	if(intval(App::$config['system']['script_path_use_http_host']))
@@ -593,47 +626,65 @@ function script_path() {
 	return $scheme . '://' . $hostname;
 }
 
-function head_add_js($src) {
-	App::$js_sources[] = $src;
+function head_add_js($src, $priority = 0) {
+	if(! is_array(App::$js_sources[$priority]))
+		App::$js_sources[$priority] = array();
+	App::$js_sources[$priority][] = $src;
 }
 
-function head_remove_js($src) {
+function head_remove_js($src, $priority = 0) {
 
-	$index = array_search($src, App::$js_sources);
+	$index = array_search($src, App::$js_sources[$priority]);
 	if($index !== false)
-		unset(App::$js_sources[$index]);
+		unset(App::$js_sources[$priority][$index]);
 }
+
+// We should probably try to register main.js with a high priority, but currently we handle it
+// separately and put it at the end of the html head block in case any other javascript is
+// added outside the head_add_js construct.
 
 function head_get_js() {
+
 	$str = '';
-	$sources = App::$js_sources;
-	if(count($sources)) 
-		foreach($sources as $source) {
-			if($source === 'main.js')
-				continue;
-			$str .= format_js_if_exists($source);
+	if(App::$js_sources) {
+		ksort(App::$js_sources,SORT_NUMERIC);
+		foreach(App::$js_sources as $sources) {
+			if(count($sources)) {
+				foreach($sources as $source) {
+					if($src === 'main.js')
+						continue;
+					$str .= format_js_if_exists($source);
+				}
+			}
 		}
+	}
 	return $str;
 }
 
 function head_get_main_js() {
 	$str = '';
 	$sources = array('main.js');
-	if(count($sources)) 
+	if(count($sources))
 		foreach($sources as $source)
 			$str .= format_js_if_exists($source,true);
 	return $str;
 }
 
 function format_js_if_exists($source) {
-	if(strpos($source,'/') !== false)
+	$path_prefix = script_path() . '/';
+
+	if(strpos($source,'/') !== false) {
+		// The source is a URL
 		$path = $source;
-	else
+		// If the url starts with // then it's an absolute URL
+		if($source[0] === '/' && $source[1] === '/') $path_prefix = '';
+	} else {
+		// It's a file from the theme
 		$path = theme_include($source);
+	}
 	if($path) {
-		$path =  script_path() . '/' . $path;
 		$qstring = ((parse_url($path, PHP_URL_QUERY)) ? '&' : '?') . 'v=' . STD_VERSION;
-		return '<script src="' . $path . $qstring . '" ></script>' . "\r\n" ;
+		return '<script src="' . $path_prefix . $path . $qstring . '" ></script>' . "\r\n" ;
 	}
 }
 

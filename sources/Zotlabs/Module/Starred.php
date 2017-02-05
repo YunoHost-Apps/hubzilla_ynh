@@ -30,7 +30,20 @@ class Starred extends \Zotlabs\Web\Controller {
 			intval(local_channel()),
 			intval($message_id)
 		);
-	
+
+		$r = q("select * from item where id = %d",
+				intval($message_id)
+		);
+		if($r) {
+			xchan_query($r);
+			$sync_item = fetch_post_tags($r);
+			build_sync_packet(local_channel(),[ 
+				'item' => [ 
+					encode_item($sync_item[0],true)
+				]
+			]);
+		}
+
 		header('Content-type: application/json');
 		echo json_encode(array('result' => $item_starred));
 		killme();

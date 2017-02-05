@@ -1,46 +1,50 @@
 {
-    "name": "Hubzilla",
+    "packaging_format": 1,
     "id": "hubzilla",
+    "name": "Hubzilla",
     "description": {
         "en": "Hubzilla is a decentralized publication platform and social network."
     },
-    "licence": "CopyLeft",
-    "developer": {
-        "name": "Mike Macgirvin",
-        "email": "",
-        "url": "https://github.com/redmatrix/hubzilla"
+    "url": "https://github.com/redmatrix/hubzilla",
+    "license": "MIT",
+    "version": "2.0.7",
+    "maintainer": {
+        "name": "Andrew Manning",
+        "email": "andrew@reticu.li"
     },
-    "multi_instance": "false",
+    "multi_instance": false,
+    "services": [
+        "nginx",
+        "php5-fpm",
+        "mysql"
+    ],
+    "requirements": {
+        "yunohost": ">= 2.4.0"
+    },
     "arguments": {
         "install" : [
             {
                 "name": "domain",
+                "type": "domain",
                 "ask": {
                     "en": "Choose a domain for your Hubzilla hub. Hubzilla must run in the root of this domain."
-                },
-                "example": "hub.example.com"
+                }
             },
             {
                 "name": "admin",
+                "type": "user",
                 "ask": {
-                    "en": "Choose an admin user"
-                },
-                "example": "johndoe"
+                    "en": "Choose the Hubzilla administrator (must be an existing YunoHost user)",
+                    "fr": "Choisissez l'administrateur de Hubzilla (doit être un utilisateur YunoHost existant)"
+                }
             },
             {
-                "name": "adminemail",
+                "name": "email",
                 "ask": {
                     "en": "Email address for the Hubzilla hub admin"
                 },
-                "example": "johndoe@example.com"
-            },
-            {
-                "name": "is_public",
-                "ask": {
-                    "en": "Is it a public application ?"
-                },
-                "choices": ["Yes", "No"],
-                "default": "Yes"
+                "example": "peter@example.com",
+                "optional": false
             }
         ]
     }

@@ -13,7 +13,7 @@ class Page extends \Zotlabs\Web\Controller {
 	
 		$which = argv(1);
 		$profile = 0;
-		profile_load($a,$which,$profile);
+		profile_load($which,$profile);
 	
 	
 	
@@ -65,9 +65,10 @@ class Page extends \Zotlabs\Web\Controller {
 		require_once('include/security.php');
 		$sql_options = item_permissions_sql($u[0]['channel_id']);
 	
-		$r = q("select item.* from item left join item_id on item.id = item_id.iid
-			where item.uid = %d and sid = '%s' and item.item_delayed = 0 and (( service = 'WEBPAGE' and item_type = %d ) 
-			OR ( service = 'PDL' AND item_type = %d )) $sql_options $revision limit 1",
+		$r = q("select item.* from item left join iconfig on item.id = iconfig.iid
+			where item.uid = %d and iconfig.cat = 'system' and iconfig.v = '%s' and item.item_delayed = 0 
+			and (( iconfig.k = 'WEBPAGE' and item_type = %d ) 
+			OR ( iconfig.k = 'PDL' AND item_type = %d )) $sql_options $revision limit 1",
 			intval($u[0]['channel_id']),
 			dbesc($page_id),
 			intval(ITEM_TYPE_WEBPAGE),
@@ -77,9 +78,9 @@ class Page extends \Zotlabs\Web\Controller {
 	
 			// Check again with no permissions clause to see if it is a permissions issue
 	
-			$x = q("select item.* from item left join item_id on item.id = item_id.iid
-			where item.uid = %d and sid = '%s' and item.item_delayed = 0 and service = 'WEBPAGE' and 
-			item_type = %d $revision limit 1",
+			$x = q("select item.* from item left join iconfig on item.id = iconfig.iid
+			where item.uid = %d and iconfig.cat = 'system' and iconfig.v = '%s' and item.item_delayed = 0 
+			and iconfig.k = 'WEBPAGE' and item_type = %d $revision limit 1",
 				intval($u[0]['channel_id']),
 				dbesc($page_id),
 				intval(ITEM_TYPE_WEBPAGE)
@@ -119,11 +120,8 @@ class Page extends \Zotlabs\Web\Controller {
 		\App::$data['webpage'] = $r;
 	
 	}
-	
-	
-	
-	
-		function get() {
+		
+	function get() {
 	
 		$r = \App::$data['webpage'];
 		if(! $r)

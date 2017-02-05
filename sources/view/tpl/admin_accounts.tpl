@@ -62,9 +62,9 @@
 					<tr>
 						<td class="account_id">{{$u.account_id}}</td>
 						<td class="email">{{if $u.blocked}}
-							<i>{{$u.account_email}}</i>
+							<a href="admin/account_edit/{{$u.account_id}}"><i>{{$u.account_email}}</i></a>
 						{{else}}
-							<strong>{{$u.account_email}}</strong>
+							<a href="admin/account_edit/{{$u.account_id}}"><strong>{{$u.account_email}}</strong></a>
 						{{/if}}</td>
 						<td class="channels">{{$u.channels}}</td>
 						<td class="register_date">{{$u.account_created}}</td>

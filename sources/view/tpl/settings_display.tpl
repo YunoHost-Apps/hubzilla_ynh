@@ -20,6 +20,9 @@
 						{{if $theme}}
 							{{include file="field_themeselect.tpl" field=$theme}}
 						{{/if}}
+						{{if $schema}}
+							{{include file="field_select.tpl" field=$schema}}
+						{{/if}}
 						{{if $mobile_theme}}
 							{{include file="field_themeselect.tpl" field=$mobile_theme}}
 						{{/if}}
@@ -66,6 +69,7 @@
 						{{include file="field_checkbox.tpl" field=$network_list_mode}}
 						{{include file="field_checkbox.tpl" field=$user_scalable}}
 						{{include file="field_checkbox.tpl" field=$preload_images}}
+						{{include file="field_checkbox.tpl" field=$manual_update}}
 						{{if $expert}}
 						<div class="form-group">
 							<a class="btn btn-default "href="pdledit">{{$layout_editor}}</a>

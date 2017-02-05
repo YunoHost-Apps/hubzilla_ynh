@@ -1,6 +1,4 @@
-[b]Troubleshooting[/b]
-
-[li][zrl=[baseurl]/help/problems-following-an-update]Problems following an update[/zrl][/li]
+[h2]Troubleshooting[/h2]
 
 When reporting issues, please try to provide as much detail as may be necessary for developers to reproduce the issue and provide the complete text of all error messages.
 
@@ -13,9 +11,12 @@ In the case of "500" errors, the issues may often be logged in your webserver lo
 
 We encourage you to try to the best of your abilities to use these logs combined with the source code in your possession to troubleshoot issues and find their cause. The community is often able to help, but only you have access to your site logfiles and it is considered a security risk to share them.   
 
-
 If a code issue has been uncovered, please report it on the project bugtracker (https://github.com/redmatrix/hubzilla/issues). Again provide as much detail as possible to avoid us going back and forth asking questions about your configuration or how to duplicate the problem, so that we can get right to the problem and figure out what to do about it. You are also welcome to offer your own solutions and submit patches. In fact we encourage this as we are all volunteers and have little spare time available. The more people that help, the easier the workload for everybody. It's OK if your solution isn't perfect. Every little bit helps and perhaps we can improve on it.  
 
-#include doc/macros/troubleshooting_footer.bb;
+[h3]Troubleshooting updates[/h3]
+[ul]
+[li][zrl=[baseurl]/help/problems-following-an-update]Problems following an update[/zrl][/li]
+[/ul]
+
 #include doc/macros/main_footer.bb;
 

@@ -23,7 +23,7 @@ class Contactgroup extends \Zotlabs\Web\Controller {
 	
 		if((argc() > 1) && (intval(argv(1)))) {
 	
-			$r = q("SELECT * FROM `groups` WHERE `id` = %d AND `uid` = %d AND `deleted` = 0 LIMIT 1",
+			$r = q("SELECT * FROM groups WHERE id = %d AND uid = %d AND deleted = 0 LIMIT 1",
 				intval(argv(1)),
 				intval(local_channel())
 			);
@@ -41,10 +41,10 @@ class Contactgroup extends \Zotlabs\Web\Controller {
 	
 			if($change) {
 				if(in_array($change,$preselected)) {
-					group_rmv_member(local_channel(),$group['name'],$change);
+					group_rmv_member(local_channel(),$group['gname'],$change);
 				}
 				else {
-					group_add_member(local_channel(),$group['name'],$change);
+					group_add_member(local_channel(),$group['gname'],$change);
 				}
 			}
 		}

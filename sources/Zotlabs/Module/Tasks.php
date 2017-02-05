@@ -45,7 +45,7 @@ class Tasks extends \Zotlabs\Web\Controller {
 	
 		if((argc() > 2) && (argv(1) === 'complete') && intval(argv(2))) {
 			$ret = array('success' => false);
-			$r = q("select * from event where `type` = 'task' and uid = %d and id = %d limit 1",
+			$r = q("select * from event where etype = 'task' and uid = %d and id = %d limit 1",
 				intval(local_channel()),
 				intval(argv(2))
 			);
@@ -80,9 +80,9 @@ class Tasks extends \Zotlabs\Web\Controller {
 			$event['account'] = $channel['channel_account_id'];
 			$event['uid'] = $channel['channel_id'];
 			$event['event_xchan'] = $channel['channel_hash'];
-			$event['type'] = 'task';
+			$event['etype'] = 'task';
 			$event['nofinish'] = true;
-			$event['created'] = $event['edited'] = $event['start'] = datetime_convert();
+			$event['created'] = $event['edited'] = $event['dtstart'] = datetime_convert();
 			$event['adjust'] = 1;
 			$event['allow_cid'] = '<' . $channel['channel_hash'] . '>';
 			$event['summary'] = escape_tags($_REQUEST['summary']);
@@ -92,21 +92,13 @@ class Tasks extends \Zotlabs\Web\Controller {
 			else
 				$x = array('success' => false);
 			json_return_and_die($x);
-		}
-	
-		
+		}	
 	}
 	
-	
-	
-	
-	
-		function get() {
-	
+	function get() {
 		if(! local_channel())
 			return;
-	
-	
+
 		return '';
 	}
 }

@@ -513,7 +513,7 @@ END
     fi
     # run letsencrypt.sh
     # 
-    ./letsencrypt.sh --cron
+    ./letsencrypt.sh --cron --config $le_dir/config.sh
 }
 
 function configure_apache_for_https {
@@ -668,45 +668,6 @@ function rewrite_to_https {
     service apache2 restart
 }
 
-
-function install_owncloud {
-    if [ -z "$owncloud" ]
-    then
-    	print_info "Do not install owncloud"
-        return 0
-    fi  
-    if [ -f /etc/apt/sources.list.d/owncloud.list ]
-    then
-        print_info "owncloud is already installed and is left untouched"
-        return 0
-    fi
-    print_info "installing owncloud..."
-    # add the repository key to apt
-    wget -nv https://download.owncloud.org/download/repositories/stable/Debian_8.0/Release.key -O Release.key
-    apt-key add - < Release.key
-    # add the repository and install from there
-    sh -c "echo 'deb http://download.owncloud.org/download/repositories/stable/Debian_8.0/ /' >> /etc/apt/sources.list.d/owncloud.list"
-    apt-get update
-    nocheck_install "owncloud"
-    chown -R www-data:www-data /var/www/owncloud/
-	# set strong permissions
-    ocpath='/var/www/owncloud'
-    htuser='www-data'
-    htgroup='www-data'
-    rootuser='root' # On QNAP this is admin
-    find ${ocpath}/ -type f -print0 | xargs -0 chmod 0640
-    find ${ocpath}/ -type d -print0 | xargs -0 chmod 0750
-    chown -R ${rootuser}:${htgroup} ${ocpath}/
-    chown -R ${htuser}:${htgroup} ${ocpath}/apps/
-    chown -R ${htuser}:${htgroup} ${ocpath}/config/
-    chown -R ${htuser}:${htgroup} ${ocpath}/data/
-    chown -R ${htuser}:${htgroup} ${ocpath}/themes/
-    chown ${rootuser}:${htgroup} ${ocpath}/.htaccess
-    chown ${rootuser}:${htgroup} ${ocpath}/data/.htaccess
-    chmod 0644 ${ocpath}/.htaccess
-    chmod 0644 ${ocpath}/data/.htaccess
-}
-
 # This will allways overwrite both config files
 #   - internal disk
 #   - external disk (LUKS + ext4)
@@ -769,11 +730,11 @@ echo "#" >> /var/www/$hubzilladaily
 echo "echo \" \"" >> /var/www/$hubzilladaily
 echo "echo \"+++ \$(date) +++\"" >> /var/www/$hubzilladaily
 echo "echo \" \"" >> /var/www/$hubzilladaily
-echo "echo \"\$(date) - renew certificat if 30 days old...\"" >> /var/www/$hubzilladaily
-echo "bash /var/www/letsencrypt/letsencrypt.sh --cron" >> /var/www/$hubzilladaily
+echo "echo \"\$(date) - renew certificat...\"" >> /var/www/$hubzilladaily
+echo "bash $le_dir/letsencrypt.sh --cron --config $le_dir/config.sh" >> /var/www/$hubzilladaily
 echo "#" >> /var/www/$hubzilladaily
 echo "# stop hubzilla" >> /var/www/$hubzilladaily
-echo "echo \"\$(date) - stoping apaache and mysql...\"" >> /var/www/$hubzilladaily
+echo "echo \"\$(date) - stoping apache and mysql...\"" >> /var/www/$hubzilladaily
 echo "service apache2 stop" >> /var/www/$hubzilladaily
 echo "/etc/init.d/mysql stop # to avoid inconsistancies" >> /var/www/$hubzilladaily
 echo "#" >> /var/www/$hubzilladaily
@@ -939,7 +900,6 @@ configure_apache_for_https
 check_https
 install_hubzilla
 rewrite_to_https
-# install_owncloud # deprecated
 install_rsnapshot
 configure_cron_daily
 install_cryptosetup

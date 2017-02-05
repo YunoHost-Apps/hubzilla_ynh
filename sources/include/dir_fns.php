@@ -192,17 +192,19 @@ function sync_directories($dirmode) {
 			'site_update' => NULL_DATE, 
 			'site_directory' => DIRECTORY_FALLBACK_MASTER . '/dirsearch',
 			'site_realm' => DIRECTORY_REALM,
-			'site_valid' => 1
+			'site_valid' => 1,
+			'site_crypto' => 'aes256cbc'
 			
 		);
-		$x = q("insert into site ( site_url, site_flags, site_update, site_directory, site_realm, site_valid )
-			values ( '%s', %d, '%s', '%s', '%s', %d ) ",
+		$x = q("insert into site ( site_url, site_flags, site_update, site_directory, site_realm, site_valid, site_crypto )
+			values ( '%s', %d, '%s', '%s', '%s', %d, '%s' ) ",
 			dbesc($r[0]['site_url']),
 			intval($r[0]['site_flags']),
 			dbesc($r[0]['site_update']),
 			dbesc($r[0]['site_directory']),
 			dbesc($r[0]['site_realm']),
-			intval($r[0]['site_valid'])
+			intval($r[0]['site_valid']),
+			dbesc($r[0]['site_crypto'])
 		);
 
 		$r = q("select * from site where site_flags in (%d, %d) and site_url != '%s' and site_type = %d ",
@@ -227,7 +229,7 @@ function sync_directories($dirmode) {
 
 		$token = get_config('system','realm_token');
 
-		$syncdate = (($rr['site_sync'] === NULL_DATE) ? datetime_convert('UTC','UTC','now - 2 days') : $rr['site_sync']);
+		$syncdate = (($rr['site_sync'] <= NULL_DATE) ? datetime_convert('UTC','UTC','now - 2 days') : $rr['site_sync']);
 		$x = z_fetch_url($rr['site_directory'] . '?f=&sync=' . urlencode($syncdate) . (($token) ? '&t=' . $token : ''));
 
 		if (! $x['success'])
@@ -423,7 +425,7 @@ function local_dir_update($uid, $force) {
 		$arr = array('channel_id' => $uid, 'hash' => $hash, 'profile' => $profile);
 		call_hooks('local_dir_update', $arr);
 
-		$address = $p[0]['channel_address'] . '@' . App::get_hostname();
+		$address = channel_reddress($p[0]);
 
 		if (perm_is_allowed($uid, '', 'view_profile')) {
 			import_directory_profile($hash, $arr['profile'], $address, 0);
@@ -439,5 +441,5 @@ function local_dir_update($uid, $force) {
 	}
 
 	$ud_hash = random_string() . '@' . App::get_hostname();
-	update_modtime($hash, $ud_hash, $p[0]['channel_address'] . '@' . App::get_hostname(),(($force) ? UPDATE_FLAGS_FORCED : UPDATE_FLAGS_UPDATED));
+	update_modtime($hash, $ud_hash, channel_reddress($p[0]),(($force) ? UPDATE_FLAGS_FORCED : UPDATE_FLAGS_UPDATED));
 }

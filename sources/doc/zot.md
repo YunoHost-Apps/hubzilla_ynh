@@ -57,7 +57,7 @@ In order to implement high performance communications, the data transfer format 
 
 Bi-directional encryption is based on RSA 4096-bit keys expressed in DER/ASN.1 format using the PKCS#8 encoding variant, with AES-256-CBC used for block encryption of variable length or large items.
 
-Some aspects of well known "federation protocols" (webfinger, salmon, activitystreams, portablecontacts, etc.) may be used in zot, but we are not tied to them and will not be bound by them. The $Projectname project is attempting some rather novel developments in decentralised communications and if there is any need to diverge from such "standard protocols" we will do so without question or hesitation. 
+Some aspects of well known "federation protocols" (webfinger, salmon, activitystreams, portablecontacts, etc.) may be used in zot, but we are not tied to them and will not be bound by them. $Projectname project is attempting some rather novel developments in decentralised communications and if there is any need to diverge from such "standard protocols" we will do so without question or hesitation. 
 
 In order to create a globally unique ID, we will base it on a whirlpool hash of the identity URL of the origination node and a psuedo-random number, which should provide us with a 256 bit ID with an extremely low probability of collision (256 bits represents approximately 115 quattuorviginitillion or 1.16 X 10^77 unique numbers). This will be represented in communications as a base64url-encoded string. We will not depend on probabilities however and the ID must also be attached to a public key with public key cryptography used to provide an assurance of identity which has not been copied or somehow collided in whirlpool hash space.
 

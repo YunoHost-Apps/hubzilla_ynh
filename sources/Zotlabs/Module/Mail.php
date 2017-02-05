@@ -5,7 +5,7 @@ require_once('include/acl_selectors.php');
 require_once('include/message.php');
 require_once('include/zot.php');
 require_once("include/bbcode.php");
-require_once('include/Contact.php');
+
 
 
 
@@ -32,17 +32,16 @@ class Mail extends \Zotlabs\Web\Controller {
 		if(! $recipient) {
 			$channel = \App::get_channel();
 	
-			$ret = zot_finger($rstr,$channel);
+			$j = \Zotlabs\Zot\Finger::run($rstr,$channel);
 	
-			if(! $ret['success']) {
+			if(! $j['success']) {
 				notice( t('Unable to lookup recipient.') . EOL);
 				return;
 			} 
-			$j = json_decode($ret['body'],true);
 	
 			logger('message_post: lookup: ' . $url . ' ' . print_r($j,true));
 	
-			if(! ($j['success'] && $j['guid'])) {
+			if(! $j['guid']) {
 				notice( t('Unable to communicate with requested channel.'));
 				return;
 			}
@@ -58,24 +57,16 @@ class Mail extends \Zotlabs\Web\Controller {
 	
 			$their_perms = 0;
 	
-			$global_perms = get_perms();
-	
 			if($j['permissions']['data']) {
 				$permissions = crypto_unencapsulate($j['permissions'],$channel['channel_prvkey']);
 				if($permissions)
-					$permissions = json_decode($permissions);
+					$permissions = json_decode($permissions, true);
 				logger('decrypted permissions: ' . print_r($permissions,true), LOGGER_DATA);
 			}
 			else
 				$permissions = $j['permissions'];
 	
-			foreach($permissions as $k => $v) {
-				if($v) {
-					$their_perms = $their_perms | intval($global_perms[$k][1]);
-				}
-			}
-	
-			if(! ($their_perms & PERMS_W_MAIL)) {
+			if(! ($permissions['post_mail'])) {
 	 			notice( t('Selected channel has private message restrictions. Send failed.'));
 				// reported issue: let's still save the message and continue. We'll just tell them
 				// that nothing useful is likely to happen. They might have spent hours on it.  
@@ -92,10 +83,24 @@ class Mail extends \Zotlabs\Web\Controller {
 		linkify_tags($a, $body, local_channel());
 	
 		if($preview) {
+			$mail = [
+				'mailbox' => 'outbox',
+				'id' => 0,
+				'mid' => 'M0',
+				'from_name' => $channel['xchan_name'],
+				'from_url' =>  $channel['xchan_url'],
+				'from_photo' => $channel['xchan_photo_s'],
+				'subject' => smilies(bbcode($subject)),
+				'body' => smilies(bbcode($body)),
+				'attachments' => '',
+				'can_recall' => false,
+				'is_recalled' => '',
+				'date' => datetime_convert('UTC',date_default_timezone_get(),$message['created'], 'c')
+			];
 			
-	
-	
-	
+			echo replace_macros(get_markup_template('mail_conv.tpl'), [ '$mail' => $mail ] );
+			killme();
+
 		}
 	
 		if(! $recipient) {
@@ -121,7 +126,7 @@ class Mail extends \Zotlabs\Web\Controller {
 			
 	}
 	
-		function get() {
+	function get() {
 	
 		$o = '';
 		nav_set_selected('messages');
@@ -173,7 +178,7 @@ class Mail extends \Zotlabs\Web\Controller {
 				build_sync_packet(local_channel(),array('mail' => encode_mail($x[0],true)));
 			}
 	
-			proc_run('php','include/notifier.php','mail',intval(argv(3)));
+			\Zotlabs\Daemon\Master::Summon(array('Notifier','mail',intval(argv(3))));
 	
 			if($r) {
 					info( t('Message recalled.') . EOL );
@@ -306,11 +311,6 @@ class Mail extends \Zotlabs\Web\Controller {
 		else
 			\App::$poi = $messages[0]['to'];
 	
-	//	require_once('include/Contact.php');
-	
-	//	\App::set_widget('mail_conversant',vcard_from_xchan(\App::$poi,$get_observer_hash,'mail'));
-	
-	
 		$tpl = get_markup_template('msg-header.tpl');
 		
 		\App::$page['htmlhead'] .= replace_macros($tpl, array(
@@ -346,7 +346,7 @@ class Mail extends \Zotlabs\Web\Controller {
 				'delete' => t('Delete message'),
 				'dreport' => t('Delivery report'),
 				'recall' => t('Recall message'),
-				'can_recall' => (($channel['channel_hash'] == $message['from_xchan']) ? true : false),
+				'can_recall' => (($channel['channel_hash'] == $message['from_xchan'] && get_account_techlevel() > 0) ? true : false),
 				'is_recalled' => (intval($message['mail_recalled']) ? t('Message has been recalled.') : ''),
 				'date' => datetime_convert('UTC',date_default_timezone_get(),$message['created'], 'c'),
 			);

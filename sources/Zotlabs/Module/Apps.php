@@ -1,8 +1,8 @@
 <?php
 namespace Zotlabs\Module;
 
-require_once('include/apps.php');
 
+use \Zotlabs\Lib as Zlib;
 
 class Apps extends \Zotlabs\Web\Controller {
 
@@ -19,25 +19,25 @@ class Apps extends \Zotlabs\Web\Controller {
 	
 	
 		if(local_channel()) {
-			import_system_apps();
+			Zlib\Apps::import_system_apps();
 			$syslist = array();
-			$list = app_list(local_channel(), false, $_GET['cat']);
+			$list = Zlib\Apps::app_list(local_channel(), false, $_GET['cat']);
 			if($list) {
 				foreach($list as $x) {
-					$syslist[] = app_encode($x);
+					$syslist[] = Zlib\Apps::app_encode($x);
 				}
 			}
-			translate_system_apps($syslist);
+			Zlib\Apps::translate_system_apps($syslist);
 		}
 		else
-			$syslist = get_system_apps(true);
+			$syslist = Zlib\Apps::get_system_apps(true);
 
-		usort($syslist,'app_name_compare');
+		usort($syslist,'Zotlabs\\Lib\\Apps::app_name_compare');
 	
 	//	logger('apps: ' . print_r($syslist,true));
 	
 		foreach($syslist as $app) {
-			$apps[] = app_render($app,$mode);
+			$apps[] = Zlib\Apps::app_render($app,$mode);
 		}
 	
 		return replace_macros(get_markup_template('myapps.tpl'), array(

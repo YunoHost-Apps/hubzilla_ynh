@@ -48,7 +48,11 @@ EndOfOutput;
 	return;
 }
 
-
+if($argc > 1 && strpos($argv[1],'.')) {
+	$x = explode('.',$argv[1]);
+	$argv = [ $argv[0], $x[0], $x[1], (($argc > 2) ? $argv[2] : null) ];
+	$argc = $argc + 1;
+}
 
 if($argc > 3) {
 	set_config($argv[1],$argv[2],$argv[3]);
@@ -67,7 +71,7 @@ if($argc == 2) {
 }
 
 if($argc == 1) {
-	$r = q("select * from config where 1");
+	$r = q("select * from config where true");
 	if($r) {
 		foreach($r as $rr) {
 			echo "config[{$rr['cat']}][{$rr['k']}] = " . printable_config($rr['v']) . "\n";

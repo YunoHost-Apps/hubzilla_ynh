@@ -9,7 +9,7 @@
 	</td>
 	{{/if}}
 	<td class="abook-me">
-		{{if $self || !$field.5}}
+		{{if $self || !$field.5 || $twocol }}
 		<input type="checkbox" name='{{$field.0}}' class='abook-edit-me' id='me_id_{{$field.0}}' value="{{$field.4}}" {{if $field.3}}checked="checked"{{/if}} />
 		{{/if}}
 		{{if $notself && $field.5}}

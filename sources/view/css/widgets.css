@@ -11,11 +11,47 @@
 	width: 100%;
 	border-top-right-radius: 0px;
 	border-bottom-right-radius: 0px;
+	border-right: 0px;
 }
 
 .tags {
 	word-wrap: break-word;
 }
+
+.widget-nav-pills-icons {
+	opacity: 0;
+	padding: 6px 10px;
+	float: right;
+	position: relative;
+	z-index:1;
+}
+
+
+.widget-nav-pills-checkbox {
+	padding: 6px 10px;
+	float: right;
+	position: relative;
+	z-index:1;
+	cursor: pointer;
+}
+
+i.widget-nav-pills-icons,
+i.widget-nav-pills-checkbox {
+	margin-top: 2px;
+}
+
+.widget-nav-pills-icons:hover + a {
+	background-color: #eee;
+}
+
+.widget-nav-pills-checkbox:hover + a {
+	background-color: #eee;
+}
+
+li:hover .widget-nav-pills-icons {
+	opacity: 1;
+}
+
 
 /* suggest */
 
@@ -28,8 +64,9 @@
 #note-text {
 	padding: 5px;
 	width: 100%;
-	resize: vertical;
-	height: 250px;
+	resize: none;
+	min-height: 250px;
+	overflow: hidden;
 }
 
 /* saved searches */
@@ -149,4 +186,8 @@ li:hover .group-edit-icon {
 
 .cover-photo-subtitle {
 	font-size: 20px;
+}
+
+a.wikilist {
+	z-index: 1;
 }

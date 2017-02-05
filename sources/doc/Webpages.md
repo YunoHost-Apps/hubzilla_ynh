@@ -13,4 +13,5 @@ Beneath the page creation box, a list of existing pages will appear with an "edi
 
 If you are the admin of a site, you can specify a channel whose webpages we will use at key points around the site.  Presently, the only place this is implemented is the home page.  If you specify the channel "admin" and then the channel called "admin" creates a webpage called "home", we will display it's content on your websites home page.  We expect this functionality to be extended to other areas in future.
 
+#include doc/webpage-element-import.md;
 #include doc/macros/main_footer.bb;

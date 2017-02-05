@@ -12,12 +12,15 @@
 				<i class="fa fa-arrow-circle-right" id="expand-aside-icon"></i>
 			</button>
 			{{if $nav.help.6}}
-			<button id="context-help-btn"class="navbar-toggle" type="button" onclick="contextualHelp(); return false;">
+			<button id="context-help-btn" class="navbar-toggle" type="button" onclick="contextualHelp(); return false;">
 				<i class="fa fa-question-circle"></i>
 			</button>
 			{{/if}}
 			{{if $userinfo}}
-				<img class="dropdown-toggle fakelink" data-toggle="dropdown" id="avatar" src="{{$userinfo.icon}}" alt="{{$userinfo.name}}"><span class="caret" id="usermenu-caret"></span>
+				<div class="usermenu-head dropdown-toggle fakelink" data-toggle="dropdown">
+					<img id="avatar" src="{{$userinfo.icon}}" alt="{{$userinfo.name}}">
+					<span class="caret" id="usermenu-caret"></span>
+				</div>
 				{{if $localuser}}
 					<ul class="dropdown-menu" role="menu" aria-labelledby="avatar">
 						{{foreach $nav.usermenu as $usermenu}}
@@ -42,9 +45,10 @@
 						{{/if}}
 					</ul>
 				{{else}}
-					{{if $nav.lock}}
+					{{if $nav.rusermenu}}
 						<ul class="dropdown-menu" role="menu" aria-labelledby="avatar">
-							<li role="presentation"><a href="{{$nav.lock.0}}" title="{{$nav.lock.3}}" role="menuitem">{{$nav.lock.3}}</a></li>
+							<li role="presentation"><a href="{{$nav.rusermenu.0}}" role="menuitem">{{$nav.rusermenu.1}}</a></li>
+							<li role="presentation"><a href="{{$nav.rusermenu.2}}" role="menuitem">{{$nav.rusermenu.3}}</a></li>
 						</ul>
 					{{/if}}
 				{{/if}}
@@ -52,24 +56,6 @@
 		</div>
 		<div class="collapse navbar-collapse" id="navbar-collapse-1">
 			<ul class="nav navbar-nav navbar-left">
-			{{if $nav.register}}<li class="{{$nav.register.2}}"><a href="{{$nav.register.0}}" title="{{$nav.register.3}}" id="{{$nav.register.4}}">{{$nav.register.1}}</a></li>{{/if}}
-			{{if !$userinfo}}
-			{{if $nav.loginmenu}}
-				<li class="{{$nav.loginmenu.0.2}} hidden-xs">
-					<a data-toggle="dropdown" data-target="#" href="{{$nav.loginmenu.0.0}}" title="{{$nav.loginmenu.0.3}}" id="{{$nav.loginmenu.0.4}}">{{$nav.loginmenu.0.1}} <span class="caret" id="loginmenu-caret"></span></a>
-					<ul class="dropdown-menu" role="menu">
-						{{foreach $nav.loginmenu as $loginmenu}}
-						<li role="presentation"><a class="{{$loginmenu.2}}" href="{{$loginmenu.0}}" title="{{$loginmenu.3}}" role="menuitem" id="{{$loginmenu.4}}">{{$loginmenu.1}}</a></li>
-						{{/foreach}}
-					</ul>
-				</li>
-				{{foreach $nav.loginmenu as $loginmenu}}
-				<li role="presentation"><a class="{{$loginmenu.2}} visible-xs" href="{{$loginmenu.0}}" title="{{$loginmenu.3}}" role="menuitem">{{$loginmenu.1}}</a></li>
-				{{/foreach}}
-			{{/if}}
-			{{/if}}
-
-			{{if $nav.alogout}}<li class="{{$nav}}-alogout.2"><a href="{{$nav.alogout.0}}" title="{{$nav.alogout.3}}" id="{{$nav.alogout.4}}">{{$nav.alogout.1}}</a></li>{{/if}}
 
 			{{if $nav.network}}
 				<li class="{{$sel.network}} hidden-xs">
@@ -102,7 +88,6 @@
 					<span class="home-update badge" rel="#nav-home-menu"></span>
 				</li>
 			{{/if}}
-
 
 			{{if $nav.messages}}
 				<li class="{{$sel.messages}} hidden-xs">
@@ -166,7 +151,30 @@
 					<span class="notify-update badge" rel="#nav-notify-menu"></span>
 				</li>
 			{{/if}}
+
+			{{if $nav.loginmenu && !$userinfo}}
+				<li class="{{$nav.loginmenu.0.2}} hidden-xs">
+					<a data-toggle="dropdown" href="{{$nav.loginmenu.0.0}}" title="{{$nav.loginmenu.0.3}}" id="{{$nav.loginmenu.0.4}}">{{$nav.loginmenu.0.1}} <span class="caret" id="loginmenu-caret"></span></a>
+					<ul class="dropdown-menu" role="menu">
+						{{foreach $nav.loginmenu as $loginmenu}}
+						<li role="presentation"><a class="{{$loginmenu.2}}" href="{{$loginmenu.0}}" title="{{$loginmenu.3}}" role="menuitem" id="{{$loginmenu.4}}">{{$loginmenu.1}}</a></li>
+						{{/foreach}}
+					</ul>
+				</li>
+				{{foreach $nav.loginmenu as $loginmenu}}
+				<li role="presentation"><a class="{{$loginmenu.2}} visible-xs" href="{{$loginmenu.0}}" title="{{$loginmenu.3}}" role="menuitem">{{$loginmenu.1}}</a></li>
+				{{/foreach}}
+			{{/if}}
+
+			{{if $nav.register}}
+				<li class="{{$nav.register.2}}"><a href="{{$nav.register.0}}" title="{{$nav.register.3}}" id="{{$nav.register.4}}">{{$nav.register.1}}</a></li>
+			{{/if}}
+
+			{{if $nav.alogout}}
+				<li class="{{$nav}}-alogout.2"><a href="{{$nav.alogout.0}}" title="{{$nav.alogout.3}}" id="{{$nav.alogout.4}}">{{$nav.alogout.1}}</a></li>
+			{{/if}}
 			</ul>
+
 			<ul class="nav navbar-nav navbar-right">
 				<li class="hidden-xs">
 					<form method="get" action="search" role="search">
@@ -180,6 +188,7 @@
 			{{if $powered_by}}
 				<div id="powered-by">{{$powered_by}}</div>
 			{{/if}}
+
 			{{if $nav.directory}}
 				<li class="{{$sel.directory}}">
 					<a class="{{$nav.directory.2}}" href="{{$nav.directory.0}}" title="{{$nav.directory.3}}" id="{{$nav.directory.4}}"><i class="fa fa-sitemap"></i></a>

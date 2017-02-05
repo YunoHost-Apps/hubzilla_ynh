@@ -1,11 +1,11 @@
 <div class="generic-content-wrapper">
 	<div class="section-title-wrapper">
 		<div class="pull-right">
+			{{if $can_post}}
+			<button class="btn btn-xs btn-success acl-form-trigger" title="{{$usage}}" onclick="openClose('photo-upload-form');" data-form_id="photos-upload-form"><i class="fa fa-arrow-circle-o-up"></i>&nbsp;{{$upload.0}}</button>
+			{{/if}}
 			<button id="fullscreen-btn" type="button" class="btn btn-default btn-xs" onclick="makeFullScreen();"><i class="fa fa-expand"></i></button>
 			<button id="inline-btn" type="button" class="btn btn-default btn-xs" onclick="makeFullScreen(false);"><i class="fa fa-compress"></i></button>
-			{{if $can_post}}
-			<button class="btn btn-xs btn-success" title="{{$usage}}" onclick="openClose('photo-upload-form');"><i class="fa fa-arrow-circle-o-up"></i>&nbsp;{{$upload.0}}</button>
-			{{/if}}
 		</div>
 		<h2>{{$title}}</h2>
 		<div class="clear"></div>

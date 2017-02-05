@@ -7,17 +7,13 @@ class Display extends \Zotlabs\Web\Controller {
 
 	function get($update = 0, $load = false) {
 	
-	//	logger("mod-display: update = $update load = $load");
-	
-	
 		$checkjs = new \Zotlabs\Web\CheckJS(1);
-	
 	
 		if($load)
 			$_SESSION['loadtime'] = datetime_convert();
 	
 	
-		if(intval(get_config('system','block_public')) && (! local_channel()) && (! remote_channel())) {
+		if(observer_prohibited()) {
 			notice( t('Public access denied.') . EOL);
 			return;
 		}
@@ -69,6 +65,7 @@ class Display extends \Zotlabs\Web\Controller {
 				'lockstate' => (($group || $cid || $channel['channel_allow_cid'] || $channel['channel_allow_gid'] || $channel['channel_deny_cid'] || $channel['channel_deny_gid']) ? 'lock' : 'unlock'),
 	
 				'acl' => populate_acl($channel_acl),
+				'permissions' => $channel_acl,
 				'bang' => '',
 				'visitor' => true,
 				'profile_uid' => local_channel(),
@@ -76,7 +73,8 @@ class Display extends \Zotlabs\Web\Controller {
 				'expanded' => true,
 				'editor_autocomplete' => true,
 				'bbco_autocomplete' => 'bbcode',
-				'bbcode' => true
+				'bbcode' => true,
+				'jotnets' => true
 			);
 	
 			$o = '<div id="jot-popup">';
@@ -110,18 +108,21 @@ class Display extends \Zotlabs\Web\Controller {
 			$x = q("select * from channel where channel_id = %d limit 1",
 				intval($target_item['uid'])
 			);
-			$y = q("select * from item_id where uid = %d and service = 'WEBPAGE' and iid = %d limit 1",
+			$y = q("select * from iconfig left join item on iconfig.iid = item.id 
+				where item.uid = %d and iconfig.cat = 'system' and iconfig.k = 'WEBPAGE' and item.id = %d limit 1",
 				intval($target_item['uid']),
 				intval($target_item['id'])
 			);
 			if($x && $y) {
-				goaway(z_root() . '/page/' . $x[0]['channel_address'] . '/' . $y[0]['sid']);
+				goaway(z_root() . '/page/' . $x[0]['channel_address'] . '/' . $y[0]['v']);
 			}
 			else {
 				notice( t('Page not found.') . EOL);
 			 	return '';
 			}
 		}
+		
+		$static = ((array_key_exists('static',$_REQUEST)) ? intval($_REQUEST['static']) : 0);
 	
 	
 		$simple_update = (($update) ? " AND item_unseen = 1 " : '');
@@ -131,10 +132,13 @@ class Display extends \Zotlabs\Web\Controller {
 		if($load)
 			$simple_update = '';
 	
-	
+		if($static && $simple_update)
+			$simple_update .= " and item_thread_top = 0 and author_xchan = '" . protect_sprintf(get_observer_hash()) . "' ";
 	
 		if((! $update) && (! $load)) {
 	
+
+			$static  = ((local_channel()) ? channel_manual_conv_update(local_channel()) : 0);
 	
 			$o .= '<div id="live-display"></div>' . "\r\n";
 			$o .= "<script> var profile_uid = " . ((intval(local_channel())) ? local_channel() : (-1))
@@ -155,6 +159,7 @@ class Display extends \Zotlabs\Web\Controller {
 				'$fh' => '0',
 				'$nouveau' => '0',
 				'$wall' => '0',
+				'$static' => $static,
 				'$page' => ((\App::$pager['page'] != 1) ? \App::$pager['page'] : 1),
 				'$list' => ((x($_REQUEST,'list')) ? intval($_REQUEST['list']) : 0),
 				'$search' => '',
@@ -185,7 +190,7 @@ class Display extends \Zotlabs\Web\Controller {
 			if($load || ($checkjs->disabled())) {
 				$r = null;
 	
-				require_once('include/identity.php');
+				require_once('include/channel.php');
 				$sys = get_sys_channel();
 				$sysid = $sys['channel_id'];
 	
@@ -215,8 +220,8 @@ class Display extends \Zotlabs\Web\Controller {
 	
 					$r = q("SELECT * from item
 						WHERE mid = '%s'
-						AND (((( `item`.`allow_cid` = ''  AND `item`.`allow_gid` = '' AND `item`.`deny_cid`  = '' 
-						AND `item`.`deny_gid`  = '' AND item_private = 0 ) 
+						AND (((( item.allow_cid = ''  AND item.allow_gid = '' AND item.deny_cid  = '' 
+						AND item.deny_gid  = '' AND item_private = 0 ) 
 						and owner_xchan in ( " . stream_perms_xchans(($observer_hash) ? (PERMS_NETWORK|PERMS_PUBLIC) : PERMS_PUBLIC) . " ))
 						OR uid = %d )
 						$sql_extra )
@@ -233,7 +238,7 @@ class Display extends \Zotlabs\Web\Controller {
 		elseif($update && !$load) {
 			$r = null;
 	
-			require_once('include/identity.php');
+			require_once('include/channel.php');
 			$sys = get_sys_channel();
 			$sysid = $sys['channel_id'];
 	
@@ -259,8 +264,8 @@ class Display extends \Zotlabs\Web\Controller {
 	
 				$r = q("SELECT * from item
 					WHERE mid = '%s'
-					AND (((( `item`.`allow_cid` = ''  AND `item`.`allow_gid` = '' AND `item`.`deny_cid`  = '' 
-					AND `item`.`deny_gid`  = '' AND item_private = 0 ) 
+					AND (((( item.allow_cid = ''  AND item.allow_gid = '' AND item.deny_cid  = '' 
+					AND item.deny_gid  = '' AND item_private = 0 ) 
 					and owner_xchan in ( " . stream_perms_xchans(($observer_hash) ? (PERMS_NETWORK|PERMS_PUBLIC) : PERMS_PUBLIC) . " ))
 					OR uid = %d )
 					$sql_extra )
@@ -283,8 +288,8 @@ class Display extends \Zotlabs\Web\Controller {
 			$parents_str = ids_to_querystr($r,'id');
 			if($parents_str) {
 	
-				$items = q("SELECT `item`.*, `item`.`id` AS `item_id` 
-					FROM `item`
+				$items = q("SELECT item.*, item.id AS item_id 
+					FROM item
 					WHERE parent in ( %s ) $item_normal ",
 					dbesc($parents_str)
 				);
@@ -322,7 +327,7 @@ class Display extends \Zotlabs\Web\Controller {
 	/*
 		elseif((! $update) && (!  {
 			
-			$r = q("SELECT `id`, item_flags FROM `item` WHERE `id` = '%s' OR `mid` = '%s' LIMIT 1",
+			$r = q("SELECT id, item_flags FROM item WHERE id = '%s' OR mid = '%s' LIMIT 1",
 				dbesc($item_hash),
 				dbesc($item_hash)
 			);

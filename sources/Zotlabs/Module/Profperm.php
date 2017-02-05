@@ -1,7 +1,7 @@
 <?php
 namespace Zotlabs\Module;
 
-require_once('include/Contact.php');
+
 require_once('include/photos.php');
 
 
@@ -17,7 +17,7 @@ class Profperm extends \Zotlabs\Web\Controller {
 	
 		$profile = \App::$argv[1];
 	
-		profile_load($a,$which,$profile);
+		profile_load($which,$profile);
 	
 	}
 	
@@ -55,7 +55,7 @@ class Profperm extends \Zotlabs\Web\Controller {
 	
 	
 		if((argc() > 1) && (intval(argv(1)))) {
-			$r = q("SELECT * FROM `profile` WHERE `id` = %d AND `uid` = %d AND `is_default` = 0 LIMIT 1",
+			$r = q("SELECT * FROM profile WHERE id = %d AND uid = %d AND is_default = 0 LIMIT 1",
 				intval(argv(1)),
 				intval(local_channel())
 			);
@@ -97,7 +97,7 @@ class Profperm extends \Zotlabs\Web\Controller {
 	
 				//Time to update the permissions on the profile-pictures as well
 
-				profile_photo_set_profile_perms($profile['id']);
+				profile_photo_set_profile_perms(local_channel(),$profile['id']);
 	
 				$r = q("SELECT * FROM abook left join xchan on abook_xchan = xchan_hash WHERE abook_channel = %d AND abook_profile = '%s'",
 					intval(local_channel()),

@@ -8,7 +8,7 @@ namespace Zotlabs\Module;
 */
 
 require_once('include/photo/photo_driver.php');
-require_once('include/identity.php');
+require_once('include/channel.php');
 
 
 
@@ -29,7 +29,7 @@ class Cover_photo extends \Zotlabs\Web\Controller {
 		}
 	
 		$channel = \App::get_channel();
-		profile_load($a,$channel['channel_address']);
+		profile_load($channel['channel_address']);
 	
 	}
 	
@@ -40,7 +40,7 @@ class Cover_photo extends \Zotlabs\Web\Controller {
 	 *
 	 */
 	
-		function post() {
+	function post() {
 	
 		if(! local_channel()) {
 			return;
@@ -50,7 +50,7 @@ class Cover_photo extends \Zotlabs\Web\Controller {
 		
 		check_form_security_token_redirectOnErr('/cover_photo', 'cover_photo');
 	        
-		if((x($_POST,'cropfinal')) && ($_POST['cropfinal'] == 1)) {
+		if((array_key_exists('cropfinal',$_POST)) && ($_POST['cropfinal'] == 1)) {
 	
 			// phase 2 - we have finished cropping
 	
@@ -80,7 +80,7 @@ class Cover_photo extends \Zotlabs\Web\Controller {
 				$profile = $r[0];
 			}
 	
-			$r = q("SELECT * FROM photo WHERE resource_id = '%s' AND uid = %d AND scale = 0 LIMIT 1",
+			$r = q("SELECT * FROM photo WHERE resource_id = '%s' AND uid = %d AND imgscale = 0 LIMIT 1",
 				dbesc($image_id),
 				intval(local_channel())
 			);
@@ -88,9 +88,9 @@ class Cover_photo extends \Zotlabs\Web\Controller {
 			if($r) {
 	
 				$base_image = $r[0];
-				$base_image['data'] = (($r[0]['os_storage']) ? @file_get_contents($base_image['data']) : dbunescbin($base_image['data']));
+				$base_image['content'] = (($r[0]['os_storage']) ? @file_get_contents(dbunescbin($base_image['content'])) : dbunescbin($base_image['content']));
 			
-				$im = photo_factory($base_image['data'], $base_image['type']);
+				$im = photo_factory($base_image['content'], $base_image['mimetype']);
 				if($im->is_valid()) {
 	
 					// We are scaling and cropping the relative pixel locations to the original photo instead of the 
@@ -99,7 +99,7 @@ class Cover_photo extends \Zotlabs\Web\Controller {
 					// First load the scaled photo to check its size. (Should probably pass this in the post form and save
 					// a query.)
 	
-					$g = q("select width, height from photo where resource_id = '%s' and uid = %d and scale = 3",
+					$g = q("select width, height from photo where resource_id = '%s' and uid = %d and imgscale = 3",
 						dbesc($image_id),
 						intval(local_channel())
 					);
@@ -133,26 +133,26 @@ class Cover_photo extends \Zotlabs\Web\Controller {
 					$p = array('aid' => $aid, 'uid' => local_channel(), 'resource_id' => $base_image['resource_id'],
 						'filename' => $base_image['filename'], 'album' => t('Cover Photos'));
 	
-					$p['scale'] = 7;
+					$p['imgscale'] = 7;
 					$p['photo_usage'] = PHOTO_COVER;
 	
 					$r1 = $im->save($p);
 	
 					$im->doScaleImage(850,310);
-					$p['scale'] = 8;
+					$p['imgscale'] = 8;
 	
 					$r2 = $im->save($p);
 	
 	
 					$im->doScaleImage(425,160);
-					$p['scale'] = 9;
+					$p['imgscale'] = 9;
 	
 					$r3 = $im->save($p);
 				
 					if($r1 === false || $r2 === false || $r3 === false) {
 						// if one failed, delete them all so we can start over.
 						notice( t('Image resize failed.') . EOL );
-						$x = q("delete from photo where resource_id = '%s' and uid = %d and scale >= 7 ",
+						$x = q("delete from photo where resource_id = '%s' and uid = %d and imgscale >= 7 ",
 							dbesc($base_image['resource_id']),
 							local_channel()
 						);
@@ -183,7 +183,7 @@ class Cover_photo extends \Zotlabs\Web\Controller {
 		logger('attach_store: ' . print_r($res,true));
 	
 		if($res && intval($res['data']['is_photo'])) {
-			$i = q("select * from photo where resource_id = '%s' and uid = %d and scale = 0",
+			$i = q("select * from photo where resource_id = '%s' and uid = %d and imgscale = 0",
 				dbesc($hash),
 				intval(local_channel())
 			);
@@ -195,10 +195,10 @@ class Cover_photo extends \Zotlabs\Web\Controller {
 			$os_storage = false;
 	
 			foreach($i as $ii) {
-				$smallest = intval($ii['scale']);
+				$smallest = intval($ii['imgscale']);
 				$os_storage = intval($ii['os_storage']);
-				$imagedata = $ii['data'];
-				$filetype = $ii['type'];
+				$imagedata = $ii['content'];
+				$filetype = $ii['mimetype'];
 	
 			}
 		}
@@ -224,10 +224,10 @@ class Cover_photo extends \Zotlabs\Web\Controller {
 		$arr['obj_type'] = ACTIVITY_OBJ_PHOTO;
 		$arr['verb'] = ACTIVITY_UPDATE;
 	
-		$arr['object'] = json_encode(array(
+		$arr['obj'] = json_encode(array(
 			'type' => $arr['obj_type'],
 			'id' => z_root() . '/photo/' . $photo['resource_id'] . '-7',
-			'link' => array('rel' => 'photo', 'type' => $photo['type'], 'href' => z_root() . '/photo/' . $photo['resource_id'] . '-7')
+			'link' => array('rel' => 'photo', 'type' => $photo['mimetype'], 'href' => z_root() . '/photo/' . $photo['resource_id'] . '-7')
 		));
 	
 		if($profile && stripos($profile['gender'],t('female')) !== false)
@@ -271,7 +271,7 @@ class Cover_photo extends \Zotlabs\Web\Controller {
 	 */
 	
 	
-		function get() {
+	function get() {
 	
 		if(! local_channel()) {
 			notice( t('Permission denied.') . EOL );
@@ -295,7 +295,7 @@ class Cover_photo extends \Zotlabs\Web\Controller {
 	        
 			$resource_id = argv(2);
 	
-			$r = q("SELECT id, album, scale FROM photo WHERE uid = %d AND resource_id = '%s' ORDER BY scale ASC",
+			$r = q("SELECT id, album, imgscale FROM photo WHERE uid = %d AND resource_id = '%s' ORDER BY imgscale ASC",
 				intval(local_channel()),
 				dbesc($resource_id)
 			);
@@ -305,11 +305,11 @@ class Cover_photo extends \Zotlabs\Web\Controller {
 			}
 			$havescale = false;
 			foreach($r as $rr) {
-				if($rr['scale'] == 7)
+				if($rr['imgscale'] == 7)
 					$havescale = true;
 			}
 	
-			$r = q("SELECT `data`, `type`, resource_id, os_storage FROM photo WHERE id = %d and uid = %d limit 1",
+			$r = q("SELECT content, mimetype, resource_id, os_storage FROM photo WHERE id = %d and uid = %d limit 1",
 				intval($r[0]['id']),
 				intval(local_channel())
 	
@@ -320,15 +320,15 @@ class Cover_photo extends \Zotlabs\Web\Controller {
 			}
 	
 			if(intval($r[0]['os_storage']))
-				$data = @file_get_contents($r[0]['data']);
+				$data = @file_get_contents(dbunescbin($r[0]['content']));
 			else
-				$data = dbunescbin($r[0]['data']); 
+				$data = dbunescbin($r[0]['content']); 
 	
-			$ph = photo_factory($data, $r[0]['type']);
+			$ph = photo_factory($data, $r[0]['mimetype']);
 			$smallest = 0;
 			if($ph->is_valid()) {
 				// go ahead as if we have just uploaded a new photo to crop
-				$i = q("select resource_id, scale from photo where resource_id = '%s' and uid = %d and scale = 0",
+				$i = q("select resource_id, imgscale from photo where resource_id = '%s' and uid = %d and imgscale = 0",
 					dbesc($r[0]['resource_id']),
 					intval(local_channel())
 				);
@@ -336,12 +336,12 @@ class Cover_photo extends \Zotlabs\Web\Controller {
 				if($i) {
 					$hash = $i[0]['resource_id'];
 					foreach($i as $ii) {
-						$smallest = intval($ii['scale']);
+						$smallest = intval($ii['imgscale']);
 					}
 	            }
 	        }
 	 
-			cover_photo_crop_ui_head($a, $ph, $hash, $smallest);
+			$this->cover_photo_crop_ui_head($a, $ph, $hash, $smallest);
 		}
 	
 	

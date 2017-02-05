@@ -24,6 +24,13 @@ function timezone_cmp($a, $b) {
 	return ( t($a) < t($b)) ? -1 : 1;
 }
 
+function is_null_date($s) {
+	if($s === '0000-00-00 00:00:00' || $s === '0001-01-01 00:00:00')
+		return true;
+	return false;
+}
+
+
 /**
  * @brief Return timezones grouped (primarily) by continent.
  *
@@ -78,15 +85,20 @@ function datetime_convert($from = 'UTC', $to = 'UTC', $s = 'now', $fmt = "Y-m-d 
 	if( ($s === '') || (! is_string($s)) )
 		$s = 'now';
 
+	if(is_null_date($s)) {
+		$d = new DateTime('0001-01-01 00:00:00', new DateTimeZone('UTC'));
+		return $d->format($fmt);
+	}
+
 	// Slight hackish adjustment so that 'zero' datetime actually returns what is intended
 	// otherwise we end up with -0001-11-30 ...
-	// add 32 days so that we at least get year 00, and then hack around the fact that 
-	// months and days always start with 1. 
+	// add 32 days so that we at least get year 00, and then hack around the fact that
+	// months and days always start with 1.
 
-	if(substr($s,0,10) == '0000-00-00') {
-		$d = new DateTime($s . ' + 32 days', new DateTimeZone('UTC'));
-		return str_replace('1', '0', $d->format($fmt));
-	}
+//	if(substr($s,0,10) == '0000-00-00') {
+//		$d = new DateTime($s . ' + 32 days', new DateTimeZone('UTC'));
+//		return str_replace('1', '0', $d->format($fmt));
+//	}
 
 	try {
 		$from_obj = new DateTimeZone($from);
@@ -183,7 +195,7 @@ function timesel($format, $h, $m, $id='timepicker') {
 /**
  * @brief Returns a datetime selector.
  *
- * @param $format
+ * @param string $format
  *  format string, e.g. 'ymd' or 'mdy'. Not currently supported
  * @param $min
  *  unix timestamp of minimum date
@@ -191,6 +203,7 @@ function timesel($format, $h, $m, $id='timepicker') {
  *  unix timestap of maximum date
  * @param $default
  *  unix timestamp of default date
+ * @param string $label
  * @param string $id
  *  id and name of datetimepicker (defaults to "datetimepicker")
  * @param boolean $pickdate
@@ -202,8 +215,9 @@ function timesel($format, $h, $m, $id='timepicker') {
  * @param $maxfrom
  *  set maximum date from picker with id $maxfrom (none by default)
  * @param boolean $required default false
+ * @param int $first_day (optional) default 0
  * @return string Parsed HTML output.
- * 
+ *
  * @todo Once browser support is better this could probably be replaced with
  * native HTML5 date picker.
  */
@@ -227,10 +241,10 @@ function datetimesel($format, $min, $max, $default, $label, $id = 'datetimepicke
 	if(!$picktime) $pickers .= ',timepicker: false, closeOnDateSelect:true';
 
 	$extra_js = '';
-	if($minfrom != '') 
+	if($minfrom != '')
 		$extra_js .= "\$('#id_$minfrom').data('xdsoft_datetimepicker').setOptions({onChangeDateTime: function (currentDateTime) { \$('#id_$id').data('xdsoft_datetimepicker').setOptions({minDate: currentDateTime})}})";
 
-	if($maxfrom != '') 
+	if($maxfrom != '')
 		$extra_js .= "\$('#id_$maxfrom').data('xdsoft_datetimepicker').setOptions({onChangeDateTime: function (currentDateTime) { \$('#id_$id').data('xdsoft_datetimepicker').setOptions({maxDate: currentDateTime})}})";
 
 	$readable_format = $dateformat;
@@ -264,11 +278,11 @@ function datetimesel($format, $min, $max, $default, $label, $id = 'datetimepicke
  */
 function relative_date($posted_date, $format = null) {
 
-	$localtime = datetime_convert('UTC', date_default_timezone_get(), $posted_date); 
+	$localtime = datetime_convert('UTC', date_default_timezone_get(), $posted_date);
 
 	$abs = strtotime($localtime);
 
-	if (is_null($posted_date) || $posted_date === NULL_DATE || $abs === false) {
+	if (is_null($posted_date) || is_null_date($posted_date) || $abs === false) {
 		return t('never');
 	}
 
@@ -328,7 +342,7 @@ function plural_dates($k,$n) {
 			return;
 	}
 }
-			
+
 
 
 
@@ -500,7 +514,7 @@ function cal($y = 0, $m = 0, $links = false, $class='') {
 
 /**
  * @brief Return the next birthday, converted from the owner's timezone to UTC.
- * 
+ *
  * This makes it globally portable.
  * If the provided birthday lacks a month and or day, return an empty string.
  * A missing year is acceptable.
@@ -542,7 +556,7 @@ function update_birthdays() {
 	require_once('include/event.php');
 	require_once('include/permissions.php');
 
-	$r = q("SELECT * FROM abook left join xchan on abook_xchan = xchan_hash 
+	$r = q("SELECT * FROM abook left join xchan on abook_xchan = xchan_hash
 		WHERE abook_dob > %s + interval %s and abook_dob < %s + interval %s",
 		db_utcnow(), db_quoteinterval('7 day'),
 		db_utcnow(), db_quoteinterval('14 day')
@@ -556,13 +570,13 @@ function update_birthdays() {
 			$ev['uid'] = $rr['abook_channel'];
 			$ev['account'] = $rr['abook_account'];
 			$ev['event_xchan'] = $rr['xchan_hash'];
-			$ev['start'] = datetime_convert('UTC', 'UTC', $rr['abook_dob']);
-			$ev['finish'] = datetime_convert('UTC', 'UTC', $rr['abook_dob'] . ' + 1 day ');
+			$ev['dtstart'] = datetime_convert('UTC', 'UTC', $rr['abook_dob']);
+			$ev['dtend'] = datetime_convert('UTC', 'UTC', $rr['abook_dob'] . ' + 1 day ');
 			$ev['adjust'] = intval(feature_enabled($rr['abook_channel'],'smart_birthdays'));
 			$ev['summary'] = sprintf( t('%1$s\'s birthday'), $rr['xchan_name']);
-			$ev['description'] = sprintf( t('Happy Birthday %1$s'), 
+			$ev['description'] = sprintf( t('Happy Birthday %1$s'),
 				'[zrl=' . $rr['xchan_url'] . ']' . $rr['xchan_name'] . '[/zrl]') ;
-			$ev['type'] = 'birthday';
+			$ev['etype'] = 'birthday';
 
 			$z = event_store_event($ev);
 			if ($z) {

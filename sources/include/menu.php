@@ -25,7 +25,7 @@ function menu_fetch($name,$uid,$observer_xchan) {
 	return null;
 }
 	
-function menu_element($menu) {
+function menu_element($channel,$menu) {
 
 	$arr = array();
 	$arr['type'] = 'menu';
@@ -46,7 +46,12 @@ function menu_element($menu) {
 		$arr['items'] = array();
 		foreach($menu['items'] as $it) {
 			$entry = array();
+
+			$entry['link'] = str_replace(z_root() . '/channel/' . $channel['channel_address'],'[channelurl]',$it['mitem_link']);
+			$entry['link'] = str_replace(z_root() . '/page/' . $channel['channel_address'],'[pageurl]',$it['mitem_link']);
+			$entry['link'] = str_replace(z_root() . '/cloud/' . $channel['channel_address'],'[cloudurl]',$it['mitem_link']);
 			$entry['link'] = str_replace(z_root(),'[baseurl]',$it['mitem_link']);
+
 			$entry['desc'] = $it['mitem_desc'];
 			$entry['order'] = $it['mitem_order'];
 			if($it['mitem_flags']) {
@@ -279,7 +284,7 @@ function menu_delete_id($menu_id, $uid) {
 			intval($menu_id),
 			intval($uid)
 		);
-		return q("delete from menu where menu_id = %d and menu_channel_id = %d limit 1",
+		return q("delete from menu where menu_id = %d and menu_channel_id = %d",
 			intval($menu_id),
 			intval($uid)
 		);
@@ -389,12 +394,13 @@ function menu_del_item($menu_id,$uid,$item_id) {
 
 function menu_sync_packet($uid,$observer_hash,$menu_id,$delete = false) {
 	$r = menu_fetch_id($menu_id,$uid);
+	$c = channelx_by_n($uid);
 	if($r) {
 		$m = menu_fetch($r['menu_name'],$uid,$observer_hash);	
 		if($m) {
 			if($delete)
 				$m['menu_delete'] = 1;
-			build_sync_packet($uid,array('menu' => array(menu_element($m))));
+			build_sync_packet($uid,array('menu' => array(menu_element($c,$m))));
 		}
 	}
 }

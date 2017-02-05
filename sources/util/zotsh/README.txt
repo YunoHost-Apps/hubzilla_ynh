@@ -8,6 +8,8 @@ Install
 ZotSH requires 'requests'(1).
 Please refer to requests docs on how to install it (2)
 
+The initially connected server must have the twitter_api plugin installed
+
 Extract somewere and launch zotsh.py
 
 

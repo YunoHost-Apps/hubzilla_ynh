@@ -1,6 +1,6 @@
 CREATE TABLE "abconfig" (
   "id" serial  NOT NULL,
-  "chan" text NOT NULL,
+  "chan" bigint NOT NULL DEFAULT '0',
   "xchan" text NOT NULL,
   "cat" text NOT NULL,
   "k" text NOT NULL,
@@ -137,6 +137,21 @@ create index "app_created" on app ("app_created");
 create index "app_edited" on app ("app_edited");
 create index "app_deleted" on app ("app_deleted");
 create index "app_system" on app ("app_system");
+
+CREATE TABLE "atoken" (
+  "atoken_id" serial NOT NULL,
+  "atoken_aid" bigint NOT NULL DEFAULT 0,
+  "atoken_uid" bigint NOT NULL DEFAULT 0,
+  "atoken_name" varchar(255) NOT NULL DEFAULT '',
+  "atoken_token" varchar(255) NOT NULL DEFAULT '',
+  "atoken_expires" timestamp NOT NULL DEFAULT '0001-01-01 00:00:00',
+  PRIMARY KEY ("atoken_id"));
+create index atoken_aid on atoken (atoken_aid);
+create index atoken_uid on atoken (atoken_uid);
+create index atoken_name on atoken (atoken_name);
+create index atoken_token on atoken (atoken_token);
+create index atoken_expires on atoken (atoken_expires);
+
 CREATE TABLE "attach" (
   "id" serial  NOT NULL,
   "aid" bigint  NOT NULL DEFAULT '0',
@@ -193,6 +208,26 @@ CREATE TABLE "cache" (
   "updated" timestamp NOT NULL,
   PRIMARY KEY ("k")
 );
+CREATE TABLE "cal" (
+  "cal_id" serial  NOT NULL,
+  "cal_aid" bigint NOT NULL DEFAULT '0',
+  "cal_uid" bigint NOT NULL DEFAULT '0',
+  "cal_hash" text NOT NULL,
+  "cal_name" text NOT NULL,
+  "uri" text NOT NULL,
+  "logname" text NOT NULL,
+  "pass" text NOT NULL,
+  "ctag" text NOT NULL,
+  "synctoken" text NOT NULL,
+  "cal_types" text NOT NULL DEFAULT '0',
+  PRIMARY KEY ("cal_id")
+);
+create index "cal_hash_idx" on cal ("cal_hash");
+create index "cal_name_idx" on cal ("cal_name");
+create index "cal_types_idx" on cal ("cal_types");
+create index "cal_aid_idx" on cal ("cal_aid");
+create index "cal_uid_idx" on cal ("cal_uid");
+
 CREATE TABLE "channel" (
   "channel_id" serial  NOT NULL,
   "channel_account_id" bigint  NOT NULL DEFAULT '0',
@@ -361,7 +396,7 @@ create index "conv_created_idx" on conv ("created");
 create index "conv_updated_idx" on conv ("updated");
 
 CREATE TABLE IF NOT EXISTS "dreport" (
-  "dreport_id" int NOT NULL,
+  "dreport_id" serial NOT NULL,
   "dreport_channel" int NOT NULL DEFAULT '0',
   "dreport_mid" char(255) NOT NULL DEFAULT '',
   "dreport_site" char(255) NOT NULL DEFAULT '',
@@ -380,14 +415,11 @@ create index "dreport_xchan" on dreport ("dreport_xchan");
 create index "dreport_queue" on dreport ("dreport_queue");
 create index "dreport_channel" on dreport ("dreport_channel");
 
-
-
-
-
 CREATE TABLE "event" (
   "id" serial NOT NULL,
   "aid" bigint  NOT NULL DEFAULT '0',
   "uid" bigint NOT NULL,
+  "cal_id" bigint NOT NULL DEFAULT '0',
   "event_xchan" text NOT NULL DEFAULT '',
   "event_hash" text NOT NULL DEFAULT '',
   "created" timestamp NOT NULL DEFAULT '0001-01-01 00:00:00',
@@ -415,6 +447,7 @@ CREATE TABLE "event" (
   PRIMARY KEY ("id")
 );
 create index "event_uid_idx" on event ("uid");
+create index "event_cal_idx" on event ("cal_id");
 create index "event_etype_idx" on event ("etype");
 create index "event_dtstart_idx" on event ("dtstart");
 create index "event_dtend_idx" on event ("dtend");
@@ -459,13 +492,15 @@ CREATE TABLE "hook" (
   "hook" text NOT NULL,
   "file" text NOT NULL,
   "fn" text NOT NULL,
-  "priority" bigint  NOT NULL DEFAULT '0',
+  "priority" smallint  NOT NULL DEFAULT '0',
   "hook_version" smallint NOT NULL DEFAULT '0',
   PRIMARY KEY ("id")
 
 );
 create index "hook_idx" on hook ("hook");
 create index "hook_version_idx" on hook ("hook_version");
+create index "hook_priority_idx" on hook ("priority");
+
 CREATE TABLE "hubloc" (
   "hubloc_id" serial  NOT NULL,
   "hubloc_guid" text NOT NULL DEFAULT '',
@@ -809,15 +844,15 @@ CREATE TABLE "obj" (
   "obj_id" serial  NOT NULL,
   "obj_page" char(64) NOT NULL DEFAULT '',
   "obj_verb" text NOT NULL DEFAULT '',
-  "obj_type" bigint  NOT NULL DEFAULT '0',
+  "obj_type" bigint  NOT NULL DEFAULT 0,
   "obj_obj" text NOT NULL DEFAULT '',
-  "obj_channel" bigint  NOT NULL DEFAULT '0',
+  "obj_channel" bigint  NOT NULL DEFAULT 0,
   "obj_term" char(255) NOT NULL DEFAULT '',
   "obj_url" char(255) NOT NULL DEFAULT '',
   "obj_imgurl" char(255) NOT NULL DEFAULT '',
   "obj_created" timestamp NOT NULL DEFAULT '0001-01-01 00:00:00',
   "obj_edited" timestamp NOT NULL DEFAULT '0001-01-01 00:00:00',
-  "obj_quantity" int(11) NOT NULL DEFAUL '0'.
+  "obj_quantity" bigint NOT NULL DEFAULT 0,
   "allow_cid" text NOT NULL,
   "allow_gid" text NOT NULL,
   "deny_cid" text NOT NULL,
@@ -870,6 +905,7 @@ CREATE TABLE "pconfig" (
   PRIMARY KEY ("id"),
   UNIQUE ("uid","cat","k")
 );
+
 CREATE TABLE "photo" (
   "id" serial  NOT NULL,
   "aid" bigint  NOT NULL DEFAULT '0',
@@ -906,7 +942,7 @@ create index "photo_album" on photo ("album");
 create index "photo_imgscale" on photo ("imgscale");
 create index "photo_profile" on photo ("profile");
 create index "photo_flags" on photo ("photo_flags");
-create index "photo_type" on photo ("type");
+create index "photo_mimetype" on photo ("mimetype");
 create index "photo_aid" on photo ("aid");
 create index "photo_xchan" on photo ("xchan");
 create index "photo_filesize" on photo ("filesize");
@@ -1097,6 +1133,8 @@ CREATE TABLE "site" (
   "site_dead" smallint NOT NULL DEFAULT '0',
   "site_type" smallint NOT NULL DEFAULT '0',
   "site_project" text NOT NULL DEFAULT '',
+  "site_version" text NOT NULL DEFAULT '',
+  "site_crypto" text NOT NULL DEFAULT '',
   PRIMARY KEY ("site_url")
 );
 create index "site_flags" on site ("site_flags");

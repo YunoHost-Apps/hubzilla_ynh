@@ -1,15 +1,21 @@
 <?php
 
-
 function po2php_run($argc,$argv) {
 
-	if ($argc!=2) {
+	if ($argc < 2) {
 		print "Usage: ".$argv[0]." <file.po>\n\n";
 		return;
 	}
-	
+
+	$rtl = false;	
+
 	$pofile = $argv[1];
 	$outfile = dirname($pofile)."/hstrings.php";
+
+	if($argc > 2) {
+		if($argv[2] === 'rtl')
+			$rtl = true;
+	}
 
 	if(strstr($outfile,'util'))
 		$lang = 'en';
@@ -52,6 +58,8 @@ function po2php_run($argc,$argv) {
 			$out .= 'function string_plural_select_' . $lang . '($n){'."\n";
 			$out .= '	return '.$cond.';'."\n";
 			$out .= '}}'."\n";
+
+			$out .= 'App::$rtl = ' . intval($rtl) ;
 		}
 		
 		if ($k!="" && substr($l,0,7)=="msgstr "){

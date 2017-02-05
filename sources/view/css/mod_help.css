@@ -1,0 +1,29 @@
+.doco-list-group-item > a {
+	font-weight: bold;
+} 
+
+.sub-menu {
+	margin: 3px 0px 10px 10px;
+}
+    
+#doco-content h3 {
+	border-bottom: #ccc 3px solid;
+	padding-bottom: 0.3em;
+}
+
+#doco-content h4 {
+	text-decoration: underline;
+}
+    
+#doco-content h5 {
+	text-decoration: underline;
+}
+
+#region_1 .widget ul ul {
+	list-style-type: none;
+}
+
+.toc-content li,
+	#doco-top-toc li {
+	padding: 3px 0px;
+}

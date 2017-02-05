@@ -3,8 +3,11 @@
 Hubzilla - Community Server
 ===========================
 
-Connected and linked web communities. 
--------------------------------------
+Groupware re-imagined and re-invented. 
+--------------------------------------
+
+Connect and link decentralised web communities. 
+-----------------------------------------------
 
 <p align="center" markdown="1">
 <em><a href="https://github.com/redmatrix/hubzilla/blob/master/install/INSTALL.txt">Installing Hubzilla</a></em> 
@@ -43,5 +46,17 @@ Possible website applications include
 <p align="center" markdown="1">
 <em><a href="https://github.com/redmatrix/hubzilla/blob/master/install/INSTALL.txt">Installing Hubzilla</a></em> 
 </p>
+
+**Who Are We and What Are Our Principles?**
+
+The Hubzilla community is powered by passionate volunteers creating an open source **commons** of decentralised services which are highly integrated and can rival the feature set of centralised providers. We are open to sponsorship and donations to cover expenses and compensate for our time and energy, however the project core is basically non-profit and is not designed for the purpose of commercial gain or exploitation. 
+
+Some sites may include monetisation strategies such as subscriptions and *freemium* models where members pay for resources they consume beyond a basic level. The project community supports such monetisation initiatives (nobody should be forced to pay "out of pocket" to provide a service to others), but we maintain the **commons** to provide open and free access of the software to all. 
+
+The software is not designed for data collection of its members or providing advertising. We don't have a need or desire for these things and feel that software built around these goals is poorly designed and represents compromised principles and ethics. 
+
+As a project, we are inclusive of all beliefs and cultures and do what we are able to provide an environment that is free from hostility and harrassment. Whether or not we succeed in this endaevour requires constant vigilance and help from all members of the community, working together to build an inter-networking tool with amazing potential. 
+
+
 
 [![Build Status](https://travis-ci.org/redmatrix/hubzilla.svg)](https://travis-ci.org/redmatrix/hubzilla)

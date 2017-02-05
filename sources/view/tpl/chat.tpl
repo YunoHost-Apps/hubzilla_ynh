@@ -1,8 +1,6 @@
 <div class="generic-content-wrapper">
 	<div class="section-title-wrapper">
 		<div class="pull-right">
-			<button id="fullscreen-btn" type="button" class="btn btn-default btn-xs" onclick="makeFullScreen(); adjustFullscreenTopBarHeight();"><i class="fa fa-expand"></i></button>
-			<button id="inline-btn" type="button" class="btn btn-default btn-xs" onclick="makeFullScreen(false); adjustInlineTopBarHeight();"><i class="fa fa-compress"></i></button>
 			{{if $is_owner}}
 			<form id="chat-destroy" method="post" action="chat">
 				<input type="hidden" name="room_name" value="{{$room_name}}" />
@@ -10,6 +8,8 @@
 				<button class="btn btn-danger btn-xs" type="submit" name="submit" value="{{$drop}}" onclick="return confirmDelete();"><i class="fa fa-trash-o"></i>&nbsp;{{$drop}}</button>
 			</form>
 			{{/if}}
+			<button id="fullscreen-btn" type="button" class="btn btn-default btn-xs" onclick="makeFullScreen(); adjustFullscreenTopBarHeight();"><i class="fa fa-expand"></i></button>
+			<button id="inline-btn" type="button" class="btn btn-default btn-xs" onclick="makeFullScreen(false); adjustInlineTopBarHeight();"><i class="fa fa-compress"></i></button>
 		</div>
 		<h2>{{$room_name}}</h2>
 		<div class="clear"></div>

@@ -8,7 +8,7 @@ https://yourgnusocialinstance.org/settings/oauthapps
 
 Next, click the link to Register a new application. That brings up the new application form. Here's what to do on each field.
 
-Icon. I uploaded the $Projectname icon located at this link, after saving it to my computer:
+Icon. I uploaded $Projectname icon located at this link, after saving it to my computer:
 
 https://github.com/redmatrix/hubzilla/blob/master/images/rm-32.png
 
@@ -39,7 +39,7 @@ Then click on the icon or the name of the application for the information you'll
 
 Now open up a new tab or window and go to your $Projectname account, to Settings > Feature settings. Find the StatusNet Posting Settings.
 
-Insert the strings of numbers given on the GNUsocial site into the $Projectname fields for Consumer Key and Consumer Secret.
+Insert the strings of numbers given on the GNUsocial site into $Projectname fields for Consumer Key and Consumer Secret.
 
 The Base API Path (remember the trailing /) will be your instance domain, plus the /api/ following. It will probably look like this:
 
@@ -51,9 +51,9 @@ StatusNet application name: Insert the name you gave to the application over on 
 
 Click Submit.
 
-A button will appear for you to "Sign in to StatusNet." Click it and that will open a tab or window on the GNUsocial site for you to click "Allow." Once clicked and successfully authorized, a security code number will appear. Copy it and go back to the $Projectname app you just left and insert it in the field: "Copy the security code from StatusNet here." Click Submit.
+A button will appear for you to "Sign in to StatusNet." Click it and that will open a tab or window on the GNUsocial site for you to click "Allow." Once clicked and successfully authorized, a security code number will appear. Copy it and go back to $Projectname app you just left and insert it in the field: "Copy the security code from StatusNet here." Click Submit.
 
-If successful, your information from the GNUsocial instance should appear in the $Projectname app.
+If successful, your information from the GNUsocial instance should appear in $Projectname app.
 
 You now have several options to choose, if you desire, and those will need to be confirmed by clicking "Submit" also. The most interesting is "Send public postings to StatusNet by default." This option automatically sends any post of yours made in your $Projectname account to your GNUsocial instance.
 

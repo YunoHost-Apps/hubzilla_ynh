@@ -11,6 +11,13 @@
 			{{include file="field_password.tpl" field=$origpass}}
 			{{include file="field_password.tpl" field=$password1}}
 			{{include file="field_password.tpl" field=$password2}}
+
+			{{if $z_server_role == 'pro' && ! $techlock}}
+			{{include file="field_select.tpl" field=$techlevel}}
+			{{else}}
+			<input type="hidden" name="techlevel" value="{{$techlevel.2}}" />
+			{{/if}}
+
 			<div class="settings-submit-wrapper" >
 				<button type="submit" name="submit" class="btn btn-primary">{{$submit}}</button>
 			</div>

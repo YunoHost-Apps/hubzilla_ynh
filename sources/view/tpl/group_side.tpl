@@ -5,12 +5,10 @@
 			{{foreach $groups as $group}}
 			<li>
 				{{if $group.cid}}
-				<a class="pull-right group-edit-tool fakelink" onclick="contactgroupChangeMember('{{$group.id}}','{{$group.enc_cid}}'); return true;"/>
-					<i id="group-{{$group.id}}" class="fa {{if $group.ismember}}fa-check-square-o{{else}}fa-square-o{{/if}}"></i>
-				</a>
+				<i id="group-{{$group.id}}" class="widget-nav-pills-checkbox fa {{if $group.ismember}}fa-check-square-o{{else}}fa-square-o{{/if}}" onclick="contactgroupChangeMember('{{$group.id}}','{{$group.enc_cid}}'); return true;"></i>
 				{{/if}}
 				{{if $group.edit}}
-				<a class="pull-right group-edit-tool" href="{{$group.edit.href}}" title="{{$edittext}}"><i class="group-edit-icon fa fa-pencil"></i></a>
+				<a href="{{$group.edit.href}}" class="widget-nav-pills-icons" title="{{$edittext}}"><i class="fa fa-pencil"></i></a>
 				{{/if}}
 				<a{{if $group.selected}} class="group-selected"{{/if}} href="{{$group.href}}">{{$group.text}}</a>
 			</li>

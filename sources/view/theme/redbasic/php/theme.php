@@ -6,8 +6,7 @@
  * 	 * Version: 1.0
  *   * Author: Fabrixxm
  *   * Maintainer: Mike Macgirvin
- *   * Compat: Red [*]
- *
+ *   * Maintainer: Mario Vavti
  */
 
 function redbasic_init(&$a) {

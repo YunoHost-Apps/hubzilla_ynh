@@ -14,6 +14,13 @@ require_once('include/crypto.php');
 require_once('include/channel.php');
 
 
+function get_account_by_id($account_id) {
+	$r = q("select * from account where account_id = %d",
+		intval($account_id)
+	);
+	return (($r) ? $r[0] : false);
+}
+
 function check_account_email($email) {
 
 	$result = array('error' => false, 'message' => '');
@@ -67,7 +74,7 @@ function check_account_invite($invite_code) {
 		if(! $invite_code) {
 			$result['message'] .= t('An invitation is required.') . EOL;
 		}
-		$r = q("select * from register where `hash` = '%s' limit 1", dbesc($invite_code));
+		$r = q("select * from register where hash = '%s' limit 1", dbesc($invite_code));
 		if(! $r) {
 			$result['message'] .= t('Invitation could not be verified.') . EOL;
 		}
@@ -112,6 +119,7 @@ function create_account($arr) {
 	$flags       = ((x($arr,'account_flags')) ? intval($arr['account_flags'])      : ACCOUNT_OK);
 	$roles       = ((x($arr,'account_roles')) ? intval($arr['account_roles'])      : 0 );
 	$expires     = ((x($arr,'expires'))       ? intval($arr['expires'])            : NULL_DATE);
+	$techlevel   = ((array_key_exists('techlevel',$arr)) ? intval($arr['techlevel']) : intval(get_config('system','techlevel')));
 
 	$default_service_class = get_config('system','default_service_class');
 
@@ -171,16 +179,17 @@ function create_account($arr) {
 
 	$r = q("INSERT INTO account 
 			( account_parent,  account_salt,  account_password, account_email,   account_language, 
-			  account_created, account_flags, account_roles,    account_expires, account_service_class )
-		VALUES ( %d, '%s', '%s', '%s', '%s', '%s', %d, %d, '%s', '%s' )",
+			  account_created, account_flags, account_roles,  account_level,  account_expires, account_service_class )
+		VALUES ( %d, '%s', '%s', '%s', '%s', '%s', %d, %d, %d, '%s', '%s' )",
 		intval($parent),
 		dbesc($salt),
 		dbesc($password_encoded),
 		dbesc($email),
 		dbesc(get_best_language()),
 		dbesc(datetime_convert()),
-		dbesc($flags),
-		dbesc($roles),
+		intval($flags),
+		intval($roles),
+		intval($techlevel),
 		dbesc($expires),
 		dbesc($default_service_class)
 	);
@@ -237,20 +246,23 @@ function verify_email_address($arr) {
 		dbesc($arr['account']['account_language'])
 	);
 
+//@fixme - get correct language template
+
 	$email_msg = replace_macros(get_intltext_template('register_verify_member.tpl'), array(
 		'$sitename' => get_config('system','sitename'),
-		'$siteurl'  =>  z_root(),
+		'$siteurl'  => z_root(),
 		'$email'    => $arr['email'],
 		'$uid'      => $arr['account']['account_id'],
 		'$hash'     => $hash,
 		'$details'  => $details
 	 ));
 
-	$res = mail($arr['email'], email_header_encode(sprintf( t('Registration confirmation for %s'), get_config('system','sitename'))),
-		$email_msg,
-		'From: ' . 'Administrator' . '@' . App::get_hostname() . "\n"
-		. 'Content-type: text/plain; charset=UTF-8' . "\n"
-		. 'Content-transfer-encoding: 8bit' 
+	$res = z_mail(
+		[ 
+		'toEmail' => $arr['email'], 
+		'messageSubject' => sprintf( t('Registration confirmation for %s'), get_config('system','sitename')),
+		'textVersion' => $email_msg,
+		]
 	);
 
 	if($res)
@@ -312,11 +324,12 @@ function send_reg_approval_email($arr) {
 			'$details'  => $details
 		 ));
 
-		$res = mail($admin['email'], sprintf( t('Registration request at %s'), get_config('system','sitename')),
-			$email_msg,
-			'From: ' . t('Administrator') . '@' . App::get_hostname() . "\n"
-			. 'Content-type: text/plain; charset=UTF-8' . "\n"
-			. 'Content-transfer-encoding: 8bit' 
+		$res = z_mail(
+			[ 
+			'toEmail' => $admin['email'], 
+			'messageSubject' => sprintf( t('Registration request at %s'), get_config('system','sitename')),
+			'textVersion' => $email_msg,
+			]
 		);
 
 		if($res)
@@ -339,12 +352,14 @@ function send_register_success_email($email,$password) {
 		'$password' => t('your registration password'),
 	));
 
-	$res = mail($email, sprintf( t('Registration details for %s'), get_config('system','sitename')),
-		$email_msg, 
-		'From: ' . t('Administrator') . '@' . App::get_hostname() . "\n"
-		. 'Content-type: text/plain; charset=UTF-8' . "\n"
-		. 'Content-transfer-encoding: 8bit' 
+	$res = z_mail(
+		[ 
+		'toEmail' => $email,
+		'messageSubject' => sprintf( t('Registration details for %s'), get_config('system','sitename')),
+		'textVersion' => $email_msg,
+		]
 	);
+
 	return($res ? true : false);
 }
 
@@ -358,7 +373,7 @@ function account_allow($hash) {
 
 	$ret = array('success' => false);
 
-	$register = q("SELECT * FROM `register` WHERE `hash` = '%s' LIMIT 1",
+	$register = q("SELECT * FROM register WHERE hash = '%s' LIMIT 1",
 		dbesc($hash)
 	);
 
@@ -390,7 +405,7 @@ function account_allow($hash) {
 	push_lang($register[0]['lang']);
 
 	$email_tpl = get_intltext_template("register_open_eml.tpl");
-	$email_tpl = replace_macros($email_tpl, array(
+	$email_msg = replace_macros($email_tpl, array(
 			'$sitename' => get_config('system','sitename'),
 			'$siteurl' =>  z_root(),
 			'$username' => $account[0]['account_email'],
@@ -399,15 +414,17 @@ function account_allow($hash) {
 			'$uid' => $account[0]['account_id']
 	));
 
-	$res = mail($account[0]['account_email'], sprintf( t('Registration details for %s'), get_config('system','sitename')),
-		$email_tpl,
-			'From: ' . t('Administrator') . '@' . $_SERVER['SERVER_NAME'] . "\n"
-			. 'Content-type: text/plain; charset=UTF-8' . "\n"
-			. 'Content-transfer-encoding: 8bit' );
+	$res = z_mail(
+		[ 
+		'toEmail' => $account[0]['account_email'],
+		'messageSubject' => sprintf( t('Registration details for %s'), get_config('system','sitename')),
+		'textVersion' => $email_msg,
+		]
+	);
 
 	pop_lang();
 
-	if(get_config('system','auto_channel_create') || UNO)
+	if(get_config('system','auto_channel_create') || get_config('system','server_role') === 'basic')
 		auto_channel_create($register[0]['uid']);
 
 	if ($res) {
@@ -448,7 +465,7 @@ function account_deny($hash) {
 		intval($register[0]['uid'])
 	);
 
-	$r = q("DELETE FROM `register` WHERE id = %d",
+	$r = q("DELETE FROM register WHERE id = %d",
 		dbesc($register[0]['id'])
 	);
 	notice( sprintf(t('Registration revoked for %s'), $account[0]['account_email']) . EOL);
@@ -465,7 +482,7 @@ function account_approve($hash) {
 
 	// Note: when the password in the register table is 'verify', the uid actually contains the account_id
 
-	$register = q("SELECT * FROM `register` WHERE `hash` = '%s' and password = 'verify' LIMIT 1",
+	$register = q("SELECT * FROM register WHERE hash = '%s' and password = 'verify' LIMIT 1",
 		dbesc($hash)
 	);
 
@@ -499,11 +516,27 @@ function account_approve($hash) {
 		intval($register[0]['uid'])
 	);
 
+	// get a fresh copy after we've modified it.
 
-	if(get_config('system','auto_channel_create') || UNO)
+	$account = q("SELECT * FROM account WHERE account_id = %d LIMIT 1",
+		intval($register[0]['uid'])
+	);
+
+	if(! $account)
+		return $ret;
+
+
+
+
+	if(get_config('system','auto_channel_create') || get_config('system','server_role') === 'basic')
 		auto_channel_create($register[0]['uid']);
+	else {
+		$_SESSION['login_return_url'] = 'new_channel';
+		authenticate_success($account[0],null,true,true,false,true);
+	}	
 
-	info( t('Account verified. Please login.') . EOL );
+
+	// info( t('Account verified. Please login.') . EOL );
 
 	return true;
 }
@@ -523,8 +556,8 @@ function account_approve($hash) {
  */
 function downgrade_accounts() {
 
-	$r = q("select * from account where not ( account_flags & %d )>0 
-		and account_expires != '%s' 
+	$r = q("select * from account where not ( account_flags & %d ) > 0 
+		and account_expires > '%s' 
 		and account_expires < %s ",
 		intval(ACCOUNT_EXPIRED),
 		dbesc(NULL_DATE),
@@ -734,4 +767,24 @@ function upgrade_message($bbcode = false) {
 function upgrade_bool_message($bbcode = false) {
 	$x = upgrade_link($bbcode);
 	return t('This action is not available under your subscription plan.') . (($x) ? ' ' . $x : '') ;
+}
+
+
+function get_account_techlevel($account_id = 0) {
+
+	$role = \Zotlabs\Lib\System::get_server_role();
+	if($role == 'basic')
+		return 0;
+	if($role == 'standard')
+		return 5;
+
+	if(! $account_id) {
+		$x = \App::get_account();
+	}
+	else { 
+		$x = get_account_by_id($account_id);
+	}
+
+	return (($x) ? intval($x['account_level']) : 0);
+
 }

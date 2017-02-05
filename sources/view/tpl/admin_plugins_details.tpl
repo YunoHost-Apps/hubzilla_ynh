@@ -24,6 +24,9 @@
 	{{if $info.minphpversion}}
 	<p class="versionlimit">{{$str_minphpversion}}{{$info.minphpversion}}</p>
 	{{/if}}
+	{{if $info.serverroles}}
+	<p class="versionlimit">{{$str_serverroles}}{{$info.serverroles}}</p>
+	{{/if}}
 	{{if $info.requires}}
 	<p class="versionlimit">{{$str_requires}}{{$info.requires}}</p>
 	{{/if}}

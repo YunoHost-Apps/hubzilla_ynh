@@ -54,6 +54,13 @@ EndOfOutput;
 }
 
 
+if($argc > 2 && strpos($argv[2],'.')) {
+	$x = explode('.',$argv[2]);
+	$argv = [ $argv[0], $argv[1], $x[0], $x[1], (($argc > 3) ? $argv[3] : null) ];
+	$argc = $argc + 1;
+}
+
+
 if($argc > 4) {
 	set_pconfig($argv[1],$argv[2],$argv[3],$argv[4]);
 	build_sync_packet($argv[1]);

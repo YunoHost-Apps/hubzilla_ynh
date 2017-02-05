@@ -1,0 +1,31 @@
+diff --git a/library/readmore.js/readmore.js b/library/readmore.js/readmore.js
+index 34a624e..51222ce 100644
+--- a/library/readmore.js/readmore.js
++++ b/library/readmore.js/readmore.js
+@@ -79,7 +79,7 @@
+           maxHeight: 'none',
+           overflow: 'hidden'
+         }).insertAfter(element),
+-        expandedHeight = el.outerHeight(),
++        expandedHeight = 100 + '%',
+         cssMaxHeight = parseInt(el.css({maxHeight: ''}).css('max-height').replace(/[^-\d\.]/g, ''), 10),
+         defaultHeight = element.data('defaultHeight');
+ 
+@@ -102,7 +102,7 @@
+   var resizeBoxes = debounce(function() {
+     $('[data-readmore]').each(function() {
+       var current = $(this),
+-          isExpanded = (current.attr('aria-expanded') === 'true');
++          isExpanded = (current.height() > current.data('collapsedHeight'));
+ 
+       setBoxHeights(current);
+ 
+@@ -246,7 +246,7 @@
+           collapsedHeight = $element.data('collapsedHeight');
+ 
+       if ($element.height() <= collapsedHeight) {
+-        newHeight = $element.data('expandedHeight') + 'px';
++        newHeight = $element.data('expandedHeight');
+         newLink = 'lessLink';
+         expanded = true;
+       }

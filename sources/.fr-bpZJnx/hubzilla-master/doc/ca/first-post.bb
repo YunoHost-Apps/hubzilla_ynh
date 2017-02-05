@@ -1,3 +1,0 @@
-[size=large]La teva primera entrada[/size]
-
-... pendent de ser escrita ...

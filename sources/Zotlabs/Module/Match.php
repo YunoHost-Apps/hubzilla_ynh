@@ -25,7 +25,7 @@ class Match extends \Zotlabs\Web\Controller {
 	
 		$o .= '<h2>' . t('Profile Match') . '</h2>';
 	
-		$r = q("SELECT `keywords` FROM `profile` WHERE `is_default` = 1 AND `uid` = %d LIMIT 1",
+		$r = q("SELECT keywords FROM profile WHERE is_default = 1 AND uid = %d LIMIT 1",
 			intval(local_channel())
 		);
 		if (! count($r))

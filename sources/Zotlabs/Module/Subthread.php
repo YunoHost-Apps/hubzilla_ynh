@@ -144,7 +144,7 @@ class Subthread extends \Zotlabs\Web\Controller {
 	
 		$arr['verb']          = $activity;
 		$arr['obj_type']      = $objtype;
-		$arr['object']        = $obj;
+		$arr['obj']           = $obj;
 	
 		$arr['allow_cid']     = $item['allow_cid'];
 		$arr['allow_gid']     = $item['allow_gid'];

@@ -8,7 +8,7 @@ class Ratings extends \Zotlabs\Web\Controller {
 
 	function init() {
 	
-		if((get_config('system','block_public')) && (! local_channel()) && (! remote_channel())) {
+		if(observer_prohibited()) {
 			return;
 		}
 	
@@ -21,12 +21,9 @@ class Ratings extends \Zotlabs\Web\Controller {
 		if($x)
 			$url = $x['url'];
 	
-		$poco_rating = get_config('system','poco_rating_enable');
-		// if unset default to enabled
-		if($poco_rating === false)
-			$poco_rating = true;
+		$rating_enabled = get_config('system','rating_enabled');
 	
-		if(! $poco_rating)
+		if(! $rating_enabled)
 			return;
 	
 		if(argc() > 1)
@@ -80,19 +77,16 @@ class Ratings extends \Zotlabs\Web\Controller {
 	
 	
 	
-		function get() {
+	function get() {
 	
-		if((get_config('system','block_public')) && (! local_channel()) && (! remote_channel())) {
+		if(observer_prohibited()) {
 			notice( t('Public access denied.') . EOL);
 			return;
 		}
 	
-		$poco_rating = get_config('system','poco_rating_enable');
-		// if unset default to enabled
-		if($poco_rating === false)
-			$poco_rating = true;
+		$rating_enabled = get_config('system','rating_enabled');
 	
-		if(! $poco_rating)
+		if(! $rating_enabled)
 			return;
 	
 		$site_target = ((array_key_exists('target',\App::$data) && array_key_exists('site_url',\App::$data['target'])) ?

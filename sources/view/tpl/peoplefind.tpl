@@ -1,7 +1,6 @@
 <div id="peoplefind-sidebar" class="widget">
 	<h3>{{$findpeople}}</h3>
 	<form action="directory" method="post" />
-		<input type="hidden" name="navsearch" value="1" />
 		<div class="form-group">
 			<div class="input-group">
 				<input class="widget-input" type="text" name="search" title="{{$hint}}{{if $advanced_search}}{{$advanced_hint}}{{/if}}" placeholder="{{$desc}}" />

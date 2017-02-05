@@ -9,6 +9,9 @@ class Pdledit extends \Zotlabs\Web\Controller {
 			return;
 		if(! $_REQUEST['module'])
 			return;
+		if(! feature_enabled(local_channel(),'advanced_theming'))
+			return;
+
 		if(! trim($_REQUEST['content'])) {
 			del_pconfig(local_channel(),'system','mod_' . $_REQUEST['module'] . '.pdl');
 			goaway(z_root() . '/pdledit/' . $_REQUEST['module']);
@@ -20,10 +23,15 @@ class Pdledit extends \Zotlabs\Web\Controller {
 	}
 	
 	
-		function get() {
+	function get() {
 	
 		if(! local_channel()) {
 			notice( t('Permission denied.') . EOL);
+			return;
+		}
+
+		if(! feature_enabled(local_channel(),'advanced_theming')) {
+			notice( t('Feature disabled.') . EOL);
 			return;
 		}
 	
@@ -32,18 +40,18 @@ class Pdledit extends \Zotlabs\Web\Controller {
 		else {
 			$o .= '<div class="generic-content-wrapper-styled">';
 			$o .= '<h1>' . t('Edit System Page Description') . '</h1>';
-			$files = glob('mod/*');
+			$files = glob('Zotlabs/Module/*.php');
 			if($files) {
 				foreach($files as $f) {
-					$name = basename($f,'.php');
+					$name = lcfirst(basename($f,'.php'));
 					$x = theme_include('mod_' . $name . '.pdl');
 					if($x) {
 						$o .= '<a href="pdledit/' . $name . '" >' . $name . '</a><br />';
 					}
 				}
 			}
-	
-	                $o .= '</div>';
+
+			$o .= '</div>';
 			
 			// list module pdl files
 			return $o;

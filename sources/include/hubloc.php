@@ -1,19 +1,5 @@
 <?php /** @file */
 
-function is_matrix_url($url) {
-	$m = @parse_url($url);
-	if($m['host']) {
-		$r = q("select hubloc_url from hubloc where hubloc_host = '%s' limit 1",
-			dbesc($m['host'])
-		);
-		if($r)
-			return true;
-	}
-	return false;
-}
-
-
-
 function prune_hub_reinstalls() {
 
 	$r = q("select site_url from site where site_type = %d",

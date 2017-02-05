@@ -1,6 +1,6 @@
 <?php
 
-define( 'UPDATE_VERSION' , 1176 );
+define( 'UPDATE_VERSION' , 1185 );
 
 /**
  *
@@ -54,7 +54,7 @@ function update_r1001() {
 		`type` CHAR( 32 ) NOT NULL DEFAULT '',
 		`token` CHAR( 255 ) NOT NULL DEFAULT '',
 		`meta` CHAR( 255 ) NOT NULL DEFAULT '',
-		`created` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
+		`created` DATETIME NOT NULL DEFAULT '0001-01-01 00:00:00',
 		PRIMARY KEY ( `id` )
 		) ENGINE = MYISAM DEFAULT CHARSET=utf8");
 
@@ -92,7 +92,7 @@ function update_r1004() {
 	$r = q("CREATE TABLE if not exists `site` (
 `site_url` CHAR( 255 ) NOT NULL ,
 `site_flags` INT NOT NULL DEFAULT '0',
-`site_update` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
+`site_update` DATETIME NOT NULL DEFAULT '0001-01-01 00:00:00',
 `site_directory` CHAR( 255 ) NOT NULL DEFAULT '',
 PRIMARY KEY ( `site_url` )
 ) ENGINE = MYISAM DEFAULT CHARSET=utf8");
@@ -174,7 +174,7 @@ function update_r1009() {
 
 
 function update_r1010() {
-	$r = q("ALTER TABLE `abook` ADD `abook_dob` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' AFTER `abook_connnected` ,
+	$r = q("ALTER TABLE `abook` ADD `abook_dob` DATETIME NOT NULL DEFAULT '0001-01-01 00:00:00' AFTER `abook_connnected` ,
 ADD INDEX ( `abook_dob` )");
 
 	$r2 = q("ALTER TABLE `profile` ADD `dob_tz` CHAR( 255 ) NOT NULL DEFAULT 'UTC' AFTER `dob`");
@@ -185,7 +185,7 @@ ADD INDEX ( `abook_dob` )");
 }
 
 function update_r1011() {
-	$r = q("ALTER TABLE `item` ADD `expires` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' AFTER `edited` ,
+	$r = q("ALTER TABLE `item` ADD `expires` DATETIME NOT NULL DEFAULT '0001-01-01 00:00:00' AFTER `edited` ,
 ADD INDEX ( `expires` )");
 
 	if($r)
@@ -207,7 +207,7 @@ function update_r1013() {
 `xlink_id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
 `xlink_xchan` CHAR( 255 ) NOT NULL DEFAULT '',
 `xlink_link` CHAR( 255 ) NOT NULL DEFAULT '',
-`xlink_updated` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00'
+`xlink_updated` DATETIME NOT NULL DEFAULT '0001-01-01 00:00:00'
 ) ENGINE = MYISAM DEFAULT CHARSET=utf8");
 
 	$r2 = q("alter table xlink add index ( xlink_xchan ), add index ( xlink_link ), add index ( xlink_updated ) ");
@@ -299,7 +299,7 @@ function update_r1020() {
 
 function update_r1021() {
 
-	$r = q("ALTER TABLE `abook` CHANGE `abook_connnected` `abook_connected` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
+	$r = q("ALTER TABLE `abook` CHANGE `abook_connnected` `abook_connected` DATETIME NOT NULL DEFAULT '0001-01-01 00:00:00',
 		drop index `abook_connnected`, add index ( `abook_connected` ) ");
 	
 	if($r)
@@ -363,7 +363,7 @@ ADD INDEX ( `xlink_rating` ) ");
 }
 
 function update_r1029() {
-	$r = q("ALTER TABLE `channel` ADD `channel_deleted` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' AFTER `channel_pageflags` ,
+	$r = q("ALTER TABLE `channel` ADD `channel_deleted` DATETIME NOT NULL DEFAULT '0001-01-01 00:00:00' AFTER `channel_pageflags` ,
 ADD INDEX ( `channel_deleted` ) ");
 	if($r)
 		return UPDATE_SUCCESS;
@@ -373,8 +373,8 @@ ADD INDEX ( `channel_deleted` ) ");
 function update_r1030() {
 	$r = q("CREATE TABLE IF NOT EXISTS `issue` (
 `issue_id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
-`issue_created` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
-`issue_updated` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
+`issue_created` DATETIME NOT NULL DEFAULT '0001-01-01 00:00:00',
+`issue_updated` DATETIME NOT NULL DEFAULT '0001-01-01 00:00:00',
 `issue_assigned` CHAR( 255 ) NOT NULL ,
 `issue_priority` INT NOT NULL ,
 `issue_status` INT NOT NULL ,
@@ -440,7 +440,7 @@ KEY `share_xchan` (`share_xchan`)
 function update_r1034() {
 	$r = q("CREATE TABLE if not exists `updates` (
 `ud_hash` CHAR( 128 ) NOT NULL ,
-`ud_date` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
+`ud_date` DATETIME NOT NULL DEFAULT '0001-01-01 00:00:00',
 PRIMARY KEY ( `ud_hash` ),
 KEY `ud_date` ( `ud_date` )
 ) ENGINE = MYISAM DEFAULT CHARSET = utf8");
@@ -537,8 +537,8 @@ function update_r1041() {
 
 
 function update_r1042() {
-	$r = q("ALTER TABLE `hubloc` ADD `hubloc_updated` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
-ADD `hubloc_connected` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',  ADD INDEX ( `hubloc_updated` ),  ADD INDEX ( `hubloc_connected` )");
+	$r = q("ALTER TABLE `hubloc` ADD `hubloc_updated` DATETIME NOT NULL DEFAULT '0001-01-01 00:00:00',
+ADD `hubloc_connected` DATETIME NOT NULL DEFAULT '0001-01-01 00:00:00',  ADD INDEX ( `hubloc_updated` ),  ADD INDEX ( `hubloc_connected` )");
 	if($r)
 		return UPDATE_SUCCESS;
 	return UPDATE_FAILED;
@@ -846,7 +846,7 @@ function update_r1073() {
 function update_r1074() {
 	$r1 = q("ALTER TABLE `site` ADD `site_sync` DATETIME NOT NULL AFTER `site_update` ");
 
-	$r2 = q("ALTER TABLE `updates` ADD `ud_last` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' AFTER `ud_date` ,
+	$r2 = q("ALTER TABLE `updates` ADD `ud_last` DATETIME NOT NULL DEFAULT '0001-01-01 00:00:00' AFTER `ud_date` ,
 ADD INDEX ( `ud_last` ) ");
 
 	if($r1 && $r2)
@@ -879,7 +879,7 @@ function update_r1077() {
 }
 
 function update_r1078() {
-	$r = q("ALTER TABLE `channel` ADD `channel_dirdate` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' AFTER `channel_pageflags` , ADD INDEX ( `channel_dirdate` )");
+	$r = q("ALTER TABLE `channel` ADD `channel_dirdate` DATETIME NOT NULL DEFAULT '0001-01-01 00:00:00' AFTER `channel_pageflags` , ADD INDEX ( `channel_dirdate` )");
 
 	if($r)
 		return UPDATE_SUCCESS;
@@ -894,7 +894,7 @@ function update_r1079() {
 }
 
 function update_r1080() {
-	$r = q("ALTER TABLE `mail` ADD `expires` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
+	$r = q("ALTER TABLE `mail` ADD `expires` DATETIME NOT NULL DEFAULT '0001-01-01 00:00:00',
 ADD INDEX ( `expires` ) ");
 	if($r)
 		return UPDATE_SUCCESS;
@@ -1010,7 +1010,7 @@ function update_r1092() {
   `chat_room` int(10) unsigned NOT NULL DEFAULT '0',
   `chat_xchan` char(255) NOT NULL DEFAULT '',
   `chat_text` mediumtext NOT NULL,
-  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00',
   PRIMARY KEY (`chat_id`),
   KEY `chat_room` (`chat_room`),
   KEY `chat_xchan` (`chat_xchan`),
@@ -1021,7 +1021,7 @@ function update_r1092() {
   `cp_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `cp_room` int(10) unsigned NOT NULL DEFAULT '0',
   `cp_xchan` char(255) NOT NULL DEFAULT '',
-  `cp_last` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `cp_last` datetime NOT NULL DEFAULT '0001-01-01 00:00:00',
   `cp_status` char(255) NOT NULL,
   PRIMARY KEY (`cp_id`),
   KEY `cp_room` (`cp_room`),
@@ -1035,8 +1035,8 @@ function update_r1092() {
   `cr_aid` int(10) unsigned NOT NULL DEFAULT '0',
   `cr_uid` int(10) unsigned NOT NULL DEFAULT '0',
   `cr_name` char(255) NOT NULL DEFAULT '',
-  `cr_created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `cr_edited` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `cr_created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00',
+  `cr_edited` datetime NOT NULL DEFAULT '0001-01-01 00:00:00',
   `allow_cid` mediumtext NOT NULL,
   `allow_gid` mediumtext NOT NULL,
   `deny_cid` mediumtext NOT NULL,
@@ -1095,7 +1095,7 @@ function update_r1097() {
 	$r = q("select hubloc_id, hubloc_addr from hubloc where hubloc_addr like '%%/%%'");
 	if($r) {
 		foreach($r as $rr) {
-			q("update hubloc set hubloc_addr = '%s' where hubloc_id = %d limit 1",
+			q("update hubloc set hubloc_addr = '%s' where hubloc_id = %d",
 				dbesc(substr($rr['hubloc_addr'],0,strpos($rr['hubloc_addr'],'/'))),
 				intval($rr['hubloc_id'])
 			);
@@ -1141,7 +1141,7 @@ function update_r1099() {
 }
 
 function update_r1100() {
-	$r = q("ALTER TABLE `xchat` ADD `xchat_edited` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
+	$r = q("ALTER TABLE `xchat` ADD `xchat_edited` DATETIME NOT NULL DEFAULT '0001-01-01 00:00:00',
 ADD INDEX ( `xchat_edited` ) ");
 	if($r)
 		return UPDATE_SUCCESS;
@@ -1179,8 +1179,8 @@ function update_r1104() {
 }
 
 function update_r1105() {
-	$r = q("ALTER TABLE `site` ADD `site_pull` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' AFTER `site_update` ,
-CHANGE `site_sync` `site_sync` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00', ADD INDEX ( `site_pull` ) ");
+	$r = q("ALTER TABLE `site` ADD `site_pull` DATETIME NOT NULL DEFAULT '0001-01-01 00:00:00' AFTER `site_update` ,
+CHANGE `site_sync` `site_sync` DATETIME NOT NULL DEFAULT '0001-01-01 00:00:00', ADD INDEX ( `site_pull` ) ");
 	if($r)
 		return UPDATE_SUCCESS;
 	return UPDATE_FAILED;
@@ -1319,7 +1319,7 @@ DROP INDEX `channel_a_bookmark` , ADD INDEX `channel_w_like` ( `channel_w_like` 
 }
 
 function update_r1118() {
-	$r = q("ALTER TABLE `account` ADD `account_password_changed` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
+	$r = q("ALTER TABLE `account` ADD `account_password_changed` DATETIME NOT NULL DEFAULT '0001-01-01 00:00:00',
 ADD INDEX ( `account_password_changed` )");
 	if($r)
 		return UPDATE_SUCCESS;
@@ -1411,8 +1411,8 @@ function update_r1124() {
   `recips` mediumtext NOT NULL,
   `uid` int(11) NOT NULL,
   `creator` char(255) NOT NULL,
-  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `updated` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00',
+  `updated` datetime NOT NULL DEFAULT '0001-01-01 00:00:00',
   `subject` mediumtext NOT NULL,
   PRIMARY KEY (`id`),
   KEY `created` (`created`),
@@ -1445,7 +1445,7 @@ ADD INDEX ( `convid` )");
 }
 
 function update_r1127() {
-	$r = q("ALTER TABLE `item` ADD `comments_closed` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' AFTER `changed` ,
+	$r = q("ALTER TABLE `item` ADD `comments_closed` DATETIME NOT NULL DEFAULT '0001-01-01 00:00:00' AFTER `changed` ,
 ADD INDEX ( `comments_closed` ), ADD INDEX ( `changed` ) ");
 	if($r)
 		return UPDATE_SUCCESS;
@@ -1597,7 +1597,7 @@ function update_r1139() {
 		$r = $r1 && $r2;
 	}
 	else
-		$r = q("ALTER TABLE `channel` ADD `channel_lastpost` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' AFTER `channel_dirdate` , ADD INDEX ( `channel_lastpost` ) ");
+		$r = q("ALTER TABLE `channel` ADD `channel_lastpost` DATETIME NOT NULL DEFAULT '0001-01-01 00:00:00' AFTER `channel_dirdate` , ADD INDEX ( `channel_lastpost` ) ");
 	if($r)
 		return UPDATE_SUCCESS;
 	return UPDATE_FAILED;
@@ -1632,7 +1632,7 @@ function update_r1141() {
 		$r = $r1 && $r2;
 	}
 	else
-		$r = q("ALTER TABLE menu ADD menu_created DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00', ADD menu_edited DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00', ADD INDEX ( menu_created ), ADD INDEX ( menu_edited ) ");
+		$r = q("ALTER TABLE menu ADD menu_created DATETIME NOT NULL DEFAULT '0001-01-01 00:00:00', ADD menu_edited DATETIME NOT NULL DEFAULT '0001-01-01 00:00:00', ADD INDEX ( menu_created ), ADD INDEX ( menu_edited ) ");
 
 	$t = datetime_convert();
 	q("update menu set menu_created = '%s', menu_edited = '%s' where true",
@@ -1700,7 +1700,7 @@ function update_r1145() {
 	}
 	else {
 		$r = q("ALTER TABLE `event` ADD `event_status` CHAR( 255 ) NOT NULL DEFAULT '',
-			ADD `event_status_date` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
+			ADD `event_status_date` DATETIME NOT NULL DEFAULT '0001-01-01 00:00:00',
 			ADD `event_percent` SMALLINT NOT NULL DEFAULT '0',
 			ADD `event_repeat` TEXT NOT NULL DEFAULT '',
 			ADD INDEX ( `event_status` ) ");
@@ -1751,8 +1751,8 @@ function update_r1149() {
 		$r1 = q("ALTER TABLE obj ADD obj_term CHAR( 255 ) NOT NULL DEFAULT '',
 			ADD obj_url CHAR( 255 ) NOT NULL DEFAULT '',
 			ADD obj_imgurl CHAR( 255 ) NOT NULL DEFAULT '',
-			ADD obj_created DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
-			ADD obj_edited DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' ");
+			ADD obj_created DATETIME NOT NULL DEFAULT '0001-01-01 00:00:00',
+			ADD obj_edited DATETIME NOT NULL DEFAULT '0001-01-01 00:00:00' ");
 	}
 
 	$r2 = q("create index obj_term on obj ( obj_term ) ");
@@ -1774,8 +1774,8 @@ function update_r1150() {
 			ADD app_edited timestamp NOT NULL DEFAULT '0001-01-01 00:00:00' ");
 	}
 	else {
-		$r1 = q("ALTER TABLE app ADD app_created DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
-			ADD app_edited DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' ");
+		$r1 = q("ALTER TABLE app ADD app_created DATETIME NOT NULL DEFAULT '0001-01-01 00:00:00',
+			ADD app_edited DATETIME NOT NULL DEFAULT '0001-01-01 00:00:00' ");
 	}
 
 	$r2 = q("create index app_created on app ( app_created ) ");
@@ -1810,7 +1810,7 @@ function update_r1152() {
 	if(ACTIVE_DBTYPE == DBTYPE_POSTGRES) { 
 
 		$r1 = q("CREATE TABLE IF NOT EXISTS \"dreport\" (
-  \"dreport_id\" int(11) NOT NULL,
+  \"dreport_id\" serial NOT NULL,
   \"dreport_channel\" int(11) NOT NULL DEFAULT '0',
   \"dreport_mid\" char(255) NOT NULL DEFAULT '',
   \"dreport_site\" char(255) NOT NULL DEFAULT '',
@@ -1837,7 +1837,7 @@ function update_r1152() {
   `dreport_site` char(255) NOT NULL DEFAULT '',
   `dreport_recip` char(255) NOT NULL DEFAULT '',
   `dreport_result` char(255) NOT NULL DEFAULT '',
-  `dreport_time` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `dreport_time` datetime NOT NULL DEFAULT '0001-01-01 00:00:00',
   `dreport_xchan` char(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`dreport_id`),
   KEY `dreport_mid` (`dreport_mid`),
@@ -2197,7 +2197,7 @@ function update_r1173() {
 	}
 	else {
 		$r1 = q("ALTER TABLE notify CHANGE `name` `xname` char(255) NOT NULL DEFAULT '' ");
-		$r2 = q("ALTER TABLE notify CHANGE `date` `created` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' ");
+		$r2 = q("ALTER TABLE notify CHANGE `date` `created` DATETIME NOT NULL DEFAULT '0001-01-01 00:00:00' ");
 		$r3 = q("ALTER TABLE notify CHANGE `type` `ntype` smallint(3) NOT NULL DEFAULT '0' ");
 	}
 
@@ -2219,8 +2219,8 @@ function update_r1174() {
 	}
 	else {
 		$r1 = q("ALTER TABLE event CHANGE `type` `etype` char(255) NOT NULL DEFAULT '' ");
-		$r2 = q("ALTER TABLE event CHANGE `start` `dtstart` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' ");
-		$r3 = q("ALTER TABLE event CHANGE `finish` `dtend` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' ");
+		$r2 = q("ALTER TABLE event CHANGE `start` `dtstart` DATETIME NOT NULL DEFAULT '0001-01-01 00:00:00' ");
+		$r3 = q("ALTER TABLE event CHANGE `finish` `dtend` DATETIME NOT NULL DEFAULT '0001-01-01 00:00:00' ");
 		$r4 = q("ALTER TABLE event CHANGE `ignore` `dismissed` tinyint(1) NOT NULL DEFAULT '0' ");
 		$r5 = q("ALTER TABLE attach CHANGE `data` `content` longblob NOT NULL ");
 		$r6 = q("ALTER TABLE photo CHANGE `data` `content` mediumblob NOT NULL ");
@@ -2253,4 +2253,222 @@ function update_r1175() {
 		return UPDATE_SUCCESS;
 	return UPDATE_FAILED;
 
+}
+
+
+function update_r1176() {
+
+	$r = q("select * from item_id where true");
+	if($r) {
+		foreach($r as $rr) {
+			\Zotlabs\Lib\IConfig::Set($rr['iid'],'system',$rr['service'],$rr['sid'],true);
+		}
+	}
+	return UPDATE_SUCCESS;
+
+}
+
+function update_r1177() {
+
+	if(ACTIVE_DBTYPE == DBTYPE_POSTGRES) {
+		$r1 = q("alter table event add cal_id bigint NOT NULL DEFAULT '0'");
+		$r2 = q("create index \"event_cal_idx\" on event (\"cal_id\") "); 
+
+		$r3 = q("CREATE TABLE \"cal\" (
+			\"cal_id\" serial  NOT NULL,
+		 	\"cal_aid\" bigint NOT NULL DEFAULT '0',
+		 	\"cal_uid\" bigint NOT NULL DEFAULT '0',
+		 	\"cal_hash\" text NOT NULL,
+			\"cal_name\" text NOT NULL,
+			\"uri\" text NOT NULL,
+			\"logname\" text NOT NULL,
+			\"pass\" text NOT NULL,
+			\"ctag\" text NOT NULL,
+			\"synctoken\" text NOT NULL,
+			\"cal_types\" text NOT NULL,
+			PRIMARY KEY (\"cal_id\") ");
+		$r4 = q("create index \"cal_hash_idx\" on cal (\"cal_hash\") ");
+		$r5 = q("create index \"cal_name_idx\" on cal (\"cal_name\") ");
+		$r6 = q("create index \"cal_types_idx\" on cal (\"cal_types\") ");
+		$r7 = q("create index \"cal_aid_idx\" on cal (\"cal_aid\") ");
+		$r8 = q("create index \"cal_uid_idx\" on cal (\"cal_uid\") ");
+		$r = $r1 && $r2 && $r3 && $r4 && $r5 && $r6 && $r7 && $r8;
+	}
+	else {
+		$r1 = q("alter table event add cal_id int(10) unsigned NOT NULL DEFAULT '0', 
+			add index ( cal_id ) ");
+
+		$r2 = q("CREATE TABLE IF NOT EXISTS `cal` (
+			`cal_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+			`cal_aid` int(10) unsigned NOT NULL DEFAULT '0',
+			`cal_uid` int(10) unsigned NOT NULL DEFAULT '0',
+			`cal_hash` varchar(255) NOT NULL DEFAULT '',
+			`cal_name` varchar(255) NOT NULL DEFAULT '',
+			`uri` varchar(255) NOT NULL DEFAULT '',
+			`logname` varchar(255) NOT NULL DEFAULT '',
+			`pass` varchar(255) NOT NULL DEFAULT '',
+			`ctag` varchar(255) NOT NULL DEFAULT '',
+			`synctoken` varchar(255) NOT NULL DEFAULT '',
+			`cal_types` varchar(255) NOT NULL DEFAULT '',
+			PRIMARY KEY (`cal_id`),
+			KEY `cal_aid` (`cal_aid`),
+			KEY `cal_uid` (`cal_uid`),
+			KEY `cal_hash` (`cal_hash`),
+			KEY `cal_name` (`cal_name`),
+			KEY `cal_types` (`cal_types`)
+			) ENGINE=MyISAM  DEFAULT CHARSET=utf8 ");
+
+		$r = $r1 && $r2;
+	}
+
+    if($r)
+        return UPDATE_SUCCESS;
+    return UPDATE_FAILED;
+}
+
+
+function update_r1178() {
+
+	$c2 = null;
+
+	$c1 = q("SELECT channel_id, channel_hash from channel where true");
+	if($c1) {
+		$c2 = q("SELECT id, chan from abconfig where true");
+		if($c2) {
+			for($x = 0; $x < count($c2); $x ++) {
+				foreach($c1 as $c) {
+					if($c['channel_hash'] == $c2[$x]['chan']) {
+						$c2[$x]['chan'] = $c['channel_id'];
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	$r1 = q("ALTER TABLE abconfig CHANGE chan chan int(10) unsigned NOT NULL DEFAULT '0' ");
+
+	if($c2) {
+		foreach($c2 as $c) {
+			q("UPDATE abconfig SET chan = %d where id = %d",
+				intval($c['chan']),
+				intval($c['id'])
+			);
+		}
+	}
+
+	if($r1)
+		return UPDATE_SUCCESS;
+	return UPDATE_FAILED;
+}
+
+function update_r1179() {
+
+	if(ACTIVE_DBTYPE == DBTYPE_POSTGRES) {
+		$r1 = q("CREATE TABLE atoken (
+  atoken_id serial NOT NULL,
+  atoken_aid bigint NOT NULL DEFAULT 0,
+  atoken_uid bigint NOT NULL DEFAULT 0,
+  atoken_name varchar(255) NOT NULL DEFAULT '',
+  atoken_token varchar(255) NOT NULL DEFAULT '',
+  atoken_expires timestamp NOT NULL DEFAULT '0001-01-01 00:00:00',
+  PRIMARY KEY (atoken_id)) ");
+	$r2 = q("create index atoken_aid on atoken (atoken_aid)");
+	$r3 = q("create index atoken_uid on atoken (atoken_uid)");
+	$r4 = q("create index atoken_name on atoken (atoken_name)");
+	$r5 = q("create index atoken_token on atoken (atoken_token)");
+	$r6 = q("create index atoken_expires on atoken (atoken_expires)");
+
+	$r = $r1 && $r2 && $r3 && $r4 && $r5 && $r6;
+ 
+	}
+	else {
+		$r = q("CREATE TABLE IF NOT EXISTS `atoken` (
+  `atoken_id` int(11) NOT NULL AUTO_INCREMENT,
+  `atoken_aid` int(11) NOT NULL DEFAULT 0,
+  `atoken_uid` int(11) NOT NULL DEFAULT 0,
+  `atoken_name` char(255) NOT NULL DEFAULT '',
+  `atoken_token` char(255) NOT NULL DEFAULT '',
+  `atoken_expires` datetime NOT NULL DEFAULT '0001-01-01 00:00:00',
+  PRIMARY KEY (`atoken_id`),
+  KEY `atoken_aid` (`atoken_aid`),
+  KEY `atoken_uid` (`atoken_uid`),
+  KEY `atoken_name` (`atoken_name`),
+  KEY `atoken_token` (`atoken_token`),
+  KEY `atoken_expires` (`atoken_expires`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ");
+	}
+	if($r)
+		return UPDATE_SUCCESS;
+	return UPDATE_FAILED;
+	
+}
+
+function update_r1180() {
+
+	require_once('include/perm_upgrade.php');
+
+	$r1 = q("select * from channel where true");
+	if($r1) {
+		foreach($r1 as $rr) {
+			perm_limits_upgrade($rr);
+			autoperms_upgrade($rr);
+		}
+	}
+
+	$r2 = q("select * from abook where true");
+	if($r2) {
+		foreach($r2 as $rr) {
+			perm_abook_upgrade($rr);
+		}
+	}
+	
+	$r = $r1 && $r2;
+	if($r)
+		return UPDATE_SUCCESS;
+	return UPDATE_FAILED;
+}
+
+function update_r1181() {
+	if(\Zotlabs\Lib\System::get_server_role() == 'pro') {
+		q("update account set account_level = 5 where true");
+	}
+	return UPDATE_SUCCESS;
+}
+
+function update_r1182() {
+
+	$r1 = q("alter table site add site_version varchar(32) not null default '' ");
+
+	if($r1)
+		return UPDATE_SUCCESS;
+	return UPDATE_FAILED;
+}
+
+
+function update_r1183() {
+
+	if(ACTIVE_DBTYPE == DBTYPE_POSTGRES) {
+		$r1 = q("alter table hook ALTER COLUMN priority TYPE smallint");
+		$r2 = q("alter table hook ALTER COLUMN priority SET NOT NULL");
+		$r3 = q("alter table hook ALTER COLUMN priority SET DEFAULT '0'");
+		$r1 = $r1 && $r2 && $r3;
+	}
+	else {
+		$r1 = q("alter table hook CHANGE priority priority smallint NOT NULL DEFAULT '0' ");
+	}
+	$r2 = q("create index priority_idx on hook (priority)");
+
+	if($r1 && $r2)
+		return UPDATE_SUCCESS;
+	return UPDATE_FAILED;
+}
+
+function update_r1184() {
+
+	$r1 = q("alter table site add site_crypto text not null default '' ");
+
+	if($r1)
+		return UPDATE_SUCCESS;
+	return UPDATE_FAILED;
 }

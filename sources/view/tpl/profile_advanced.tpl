@@ -1,30 +1,38 @@
 <div id="profile-content-wrapper" class="generic-content-wrapper">
 	<div class="section-title-wrapper">
-		<div class="pull-right dropdown">
+		<div class="pull-right">
 			{{if $profile.like_count}}
-			<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" id="profile-like">{{$profile.like_count}} {{$profile.like_button_label}}</button>
-			{{if $profile.likers}}
-			<ul class="dropdown-menu" role="menu" aria-labelledby="profile-like">{{foreach $profile.likers as $liker}}<li role="presentation"><a href="{{$liker.url}}"><img class="dropdown-menu-img-xs" src="{{$liker.photo}}" alt="{{$liker.name}}" /> {{$liker.name}}</a></li>{{/foreach}}</ul>
-			{{/if}}
+			<div class="btn-group">
+				<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" id="profile-like">{{$profile.like_count}} {{$profile.like_button_label}}</button>
+				{{if $profile.likers}}
+				<ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="profile-like">{{foreach $profile.likers as $liker}}<li role="presentation"><a href="{{$liker.url}}"><img class="dropdown-menu-img-xs" src="{{$liker.photo}}" alt="{{$liker.name}}" /> {{$liker.name}}</a></li>{{/foreach}}</ul>
+				{{/if}}
+			</div>
 			{{/if}}
 			{{if $profile.canlike}}
-			<button type="button" class="btn btn-success btn-xs" onclick="doprofilelike('profile/' + '{{$profile.profile_guid}}','like'); return false;" title="{{$profile.likethis}}" >
-				<i class="fa fa-thumbs-o-up" title="{{$profile.likethis}}"></i>
-			</button>
+			<div class="btn-group">
+				<button type="button" class="btn btn-success btn-xs" onclick="doprofilelike('profile/' + '{{$profile.profile_guid}}','like'); return false;" title="{{$profile.likethis}}" >
+					<i class="fa fa-thumbs-o-up" title="{{$profile.likethis}}"></i>
+				</button>
+			</div>
 			{{/if}}
 			{{if $editmenu.multi}}
-			<a class="btn btn-primary btn-xs dropdown-toggle" data-toggle="dropdown" href="#" ><i class="fa fa-pencil"></i>&nbsp;{{$editmenu.edit.3}}</a>
-			<ul class="dropdown-menu" role="menu">
-				{{foreach $editmenu.menu.entries as $e}}
-				<li>
-					<a href="profiles/{{$e.id}}"><img class="dropdown-menu-img-xs" src='{{$e.photo}}'>{{$e.profile_name}}<div class='clear'></div></a>
-				</li>
-				{{/foreach}}
-				<li><a href="profile_photo" >{{$editmenu.menu.chg_photo}}</a></li>
-				{{if $editmenu.menu.cr_new}}<li><a href="profiles/new" id="profile-listing-new-link">{{$editmenu.menu.cr_new}}</a></li>{{/if}}
-			</ul>
+			<div class="btn-group">
+				<a class="btn btn-primary btn-xs dropdown-toggle" data-toggle="dropdown" href="#" ><i class="fa fa-pencil"></i>&nbsp;{{$editmenu.edit.3}}</a>
+				<ul class="dropdown-menu dropdown-menu-right" role="menu">
+					{{foreach $editmenu.menu.entries as $e}}
+					<li>
+						<a href="profiles/{{$e.id}}"><img class="dropdown-menu-img-xs" src='{{$e.photo}}'>{{$e.profile_name}}<div class='clear'></div></a>
+					</li>
+					{{/foreach}}
+					<li><a href="profile_photo" >{{$editmenu.menu.chg_photo}}</a></li>
+					{{if $editmenu.menu.cr_new}}<li><a href="profiles/new" id="profile-listing-new-link">{{$editmenu.menu.cr_new}}</a></li>{{/if}}
+				</ul>
+			</div>
 			{{elseif $editmenu}}
-			<a class="btn btn-primary btn-xs" href="{{$editmenu.edit.0}}" ><i class="fa fa-pencil"></i>&nbsp;{{$editmenu.edit.3}}</a>
+			<div class="btn-group">
+				<a class="btn btn-primary btn-xs" href="{{$editmenu.edit.0}}" ><i class="fa fa-pencil"></i>&nbsp;{{$editmenu.edit.3}}</a>
+			</div>
 			{{/if}}
 		</div>
 		<h2>{{$title}}</h2>
@@ -282,7 +290,7 @@
 		<ul class="profile-thing-list">
 		{{foreach $items as $item}}
 		<li>{{if $item.img}}<a href="{{$item.url}}" ><img src="{{$item.img}}" class="profile-thing-img" width="100" height="100" alt="{{$item.term}}" /></a>{{/if}}
-		<a href="{{$item.url}}" >{{$item.term}}</a>
+		<a href="{{$item.editurl}}" >{{$item.term}}</a>
 		{{if $profile.canlike}}<br />
 		<button type="button" class="btn btn-default btn-sm" onclick="doprofilelike('thing/' + '{{$item.term_hash}}','like'); return false;" title="{{$likethis}}" >
 		<i class="fa fa-thumbs-o-up" title="{{$likethis}}"></i>

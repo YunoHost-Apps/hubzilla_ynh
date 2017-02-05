@@ -68,10 +68,16 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 	called when converting bbcode to markdown
 
 [zrl=[baseurl]/help/hook/bbcode]bbcode[/zrl]
-	Called when converting bbcode to HTML
+	Called at end of converting bbcode to HTML
+
+[zrl=[baseurl]/help/hook/bbcode_filter]bbcode_filter[/zrl]
+	Called when beginning to convert bbcode to HTML
 
 [zrl=[baseurl]/help/hook/bb_translate_video]bb_translate_video[/zrl]
 	Called when extracting embedded services from bbcode video elements (rarely used)
+
+[zrl=[baseurl]/help/hook/change_channel]change_channel[/zrl]
+	Called when logging in to a channel (either during login or afterward through the channel manager)
 
 [zrl=[baseurl]/help/hook/channel_remove]channel_remove[/zrl]
 	Called when removing a channel
@@ -139,6 +145,9 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 [zrl=[baseurl]/help/hook/cron_weekly]cron_weekly[/zrl]
 	Called when weekly scheduled tasks are executed
 
+[zrl=[baseurl]/help/hook/crypto_methods]crypto_methods[/zrl]
+	Called when generating a list of crypto algorithms in the locally preferred order
+
 [zrl=[baseurl]/help/hook/directory_item]directory_item[/zrl]
 	Called when generating a directory listing for display
 
@@ -180,6 +189,9 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 
 [zrl=[baseurl]/help/hook/event_created]event_created[/zrl]
 	called when an event record is created
+
+[zrl=[baseurl]/help/hook/event_store_event]event_store_event[/zrl]
+	called when an event record is created or updated
 
 [zrl=[baseurl]/help/hook/event_updated]event_updated[/zrl]
 	called when an event record is modified
@@ -229,6 +241,12 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 
 [zrl=[baseurl]/help/hook/get_features]get_features[/zrl]
 	Called when get_features() is called
+
+[zrl=[baseurl]/help/hook/get_photo]get_photo[/zrl]
+	Called when photo content (except for profile photos) is fetched in mod_photo
+
+[zrl=[baseurl]/help/hook/get_profile_photo]get_profile_photo[/zrl]
+	Called when local profile photo content is fetched in mod_photo
 
 [zrl=[baseurl]/help/hook/get_role_perms]get_role_perms[/zrl]
 	Called when get_role_perms() is called to obtain permissions for named permission roles
@@ -308,6 +326,9 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 [zrl=[baseurl]/help/hook/magic_auth]magic_auth[/zrl]
 	Called when processing a magic-auth sequence
 
+[zrl=[baseurl]/help/hook/markdown_to_bb]markdown_to_bb[/zrl]
+	Called when processing markdown conversion
+
 [zrl=[baseurl]/help/hook/match_webfinger_location]match_webfinger_location[/zrl]
 	Called when processing webfinger requests
 
@@ -367,6 +388,12 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 
 [zrl=[baseurl]/help/hook/oembed_probe]oembed_probe[/zrl]
 	Called when performing an oembed content lookup
+
+[zrl=[baseurl]/help/hook/other_encapsulate]other_encapsulate[/zrl]
+	Called when encrypting content for which the algorithm is unknown (see also crypto_methods)
+
+[zrl=[baseurl]/help/hook/other_unencapsulate]other_unencapsulate[/zrl]
+	Called when decrypting content for which the algorithm is unknown (see also crypto_methods)
 
 [zrl=[baseurl]/help/hook/page_content_top]page_content_top[/zrl]
 	Called when we generate a webpage (before calling the module content function)
@@ -515,6 +542,9 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 [zrl=[baseurl]/help/hook/smilie]smilie[/zrl]
 	Called when translating emoticons
 
+[zrl=[baseurl]/help/hook/stream_item]stream_item[/zrl]
+	Called for each item which is rendered for viewing via conversation()
+
 [zrl=[baseurl]/help/hook/tagged]tagged[/zrl]
 	Called when a delivery is processed which results in you being tagged
 
@@ -526,6 +556,9 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 
 [zrl=[baseurl]/help/hook/well_known]well_known[/zrl]
 	Called when accessing the '.well-known' special site addresses
+
+[zrl=[baseurl]/help/hook/zot_best_algorithm]zot_best_algorithm[/zrl]
+	Called when negotiating crypto algorithms with remote sites
 
 [zrl=[baseurl]/help/hook/zid]zid[/zrl]
 	Called when adding the observer's zid to a URL

@@ -75,7 +75,7 @@ function send_message($uid = 0, $recipient='', $body='', $subject='', $replyto='
 		if($recip)
 			$recip_handle = $recip[0]['xchan_addr'];
 
-		$sender_handle = $channel['channel_address'] . '@' . App::get_hostname();
+		$sender_handle = channel_reddress($channel);
 
 		$handles = $recip_handle . ';' . $sender_handle;
 
@@ -166,7 +166,7 @@ function send_message($uid = 0, $recipient='', $body='', $subject='', $replyto='
 		foreach($match[2] as $mtch) {
 			$hash = substr($mtch,0,strpos($mtch,','));
 			$rev = intval(substr($mtch,strpos($mtch,',')));
-			$r = attach_by_hash_nodata($hash,$rev);
+			$r = attach_by_hash_nodata($hash,get_observer_hash(),$rev);
 			if($r['success']) {
 				$attachments[] = array(
 					'href'     => z_root() . '/attach/' . $r['data']['hash'],
@@ -187,10 +187,10 @@ function send_message($uid = 0, $recipient='', $body='', $subject='', $replyto='
 	if($body)
 		$body  = str_rot47(base64url_encode($body));
 	
+	$sig = ''; // placeholder
 
-
-	$r = q("INSERT INTO mail ( account_id, conv_guid, mail_obscured, channel_id, from_xchan, to_xchan, title, body, attach, mid, parent_mid, created, expires, mail_isreply )
-		VALUES ( %d, '%s', %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d )",
+	$r = q("INSERT INTO mail ( account_id, conv_guid, mail_obscured, channel_id, from_xchan, to_xchan, title, body, sig, attach, mid, parent_mid, created, expires, mail_isreply )
+		VALUES ( %d, '%s', %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d )",
 		intval($channel['channel_account_id']),
 		dbesc($conv_guid),
 		intval(1),
@@ -199,6 +199,7 @@ function send_message($uid = 0, $recipient='', $body='', $subject='', $replyto='
 		dbesc($recipient),
 		dbesc($subject),
 		dbesc($body),
+		dbesc($sig),
 		dbesc($jattach),
 		dbesc($mid),
 		dbesc($replyto),
@@ -299,14 +300,30 @@ function private_messages_list($uid, $mailbox = '', $start = 0, $numitems = 0) {
 				break;
 
 			case 'combined':
-				$sql = "SELECT * FROM ( SELECT * FROM mail WHERE channel_id = $local_channel ORDER BY created DESC $limit ) AS temp_table GROUP BY parent_mid ORDER BY created DESC";
+				$parents = q("SELECT parent_mid FROM mail WHERE mid = parent_mid AND channel_id = %d ORDER BY created DESC",
+					dbesc($local_channel)
+				);
+				//FIXME: We need the latest mail of a thread here. This query throws errors in postgres. We now look for the latest in php until somebody can fix this...
+				//$sql = "SELECT * FROM ( SELECT * FROM mail WHERE channel_id = $local_channel ORDER BY created DESC $limit ) AS temp_table GROUP BY parent_mid ORDER BY created DESC";
 				break;
 
 		}
 
 	}
 
-	$r = q($sql);
+	if($parents) {
+		foreach($parents as $parent) {
+			$all[] = q("SELECT * FROM mail WHERE parent_mid = '%s' AND channel_id = %d ORDER BY created DESC",
+				dbesc($parent['parent_mid']),
+				dbesc($local_channel)
+			);
+		}
+		foreach($all as $single)
+			$r[] = $single[0];
+	}
+	else {
+		$r = q($sql);
+	}
 
 	if(! $r) {
 		return array();
@@ -376,7 +393,7 @@ function private_messages_fetch_message($channel_id, $messageitem_id, $updatesee
 
 
 	if($updateseen) {
-		$r = q("UPDATE `mail` SET mail_seen = 1 where mail_seen = 0 and id = %d AND channel_id = %d",
+		$r = q("UPDATE mail SET mail_seen = 1 where mail_seen = 0 and id = %d AND channel_id = %d",
 			dbesc($messageitem_id),
 			intval($channel_id)
 		);
@@ -420,7 +437,7 @@ function private_messages_drop($channel_id, $messageitem_id, $drop_conversation 
 			intval($channel_id)
 		);
 		if($z) {
-			q("delete from conv where guid = '%s' and uid = %d limit 1",
+			q("delete from conv where guid = '%s' and uid = %d",
 				dbesc($x[0]['conv_guid']),
 				intval($channel_id)
 			);		
@@ -500,7 +517,7 @@ function private_messages_fetch_conversation($channel_id, $messageitem_id, $upda
 
 
 	if($updateseen) {
-		$r = q("UPDATE `mail` SET mail_seen = 1 where mail_seen = 0 and parent_mid = '%s' AND channel_id = %d",
+		$r = q("UPDATE mail SET mail_seen = 1 where mail_seen = 0 and parent_mid = '%s' AND channel_id = %d",
 			dbesc($r[0]['parent_mid']),
 			intval($channel_id)
 		);

@@ -7,7 +7,7 @@
 [/td][/tr]
 [tr][td]redirect_uri[/td][td][/td][td]varchar(200)[/td][td]NO[/td][td][/td][td]NULL[/td][td]
 [/td][/tr]
-[tr][td]name[/td][td][/td][td]text[/td][td]YES[/td][td][/td][td]NULL[/td][td]
+[tr][td]clname[/td][td][/td][td]text[/td][td]YES[/td][td][/td][td]NULL[/td][td]
 [/td][/tr]
 [tr][td]icon[/td][td][/td][td]text[/td][td]YES[/td][td][/td][td]NULL[/td][td]
 [/td][/tr]

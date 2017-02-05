@@ -18,13 +18,14 @@ class SessionHandler implements \SessionHandlerInterface {
 	function read ($id) {
 
 		if($id) {
-			$r = q("SELECT `data` FROM `session` WHERE `sid`= '%s'", dbesc($id));
+			$r = q("SELECT sess_data FROM session WHERE sid= '%s'", dbesc($id));
 
 			if($r) {
-				return $r[0]['data'];
+				return $r[0]['sess_data'];
 			}
 			else {
-				q("INSERT INTO `session` (sid, expire) values ('%s', '%s')",
+				q("INSERT INTO session (sess_data, sid, expire) values ('%s', '%s', '%s')",
+					dbesc(''),
 					dbesc($id),
 					dbesc(time() + 300)
 				);
@@ -58,8 +59,8 @@ class SessionHandler implements \SessionHandlerInterface {
 				$expire = time() + (60 * 60 * 24 * 1);
 		}
 
-		q("UPDATE `session`
-			SET `data` = '%s', `expire` = '%s' WHERE `sid` = '%s'",
+		q("UPDATE session
+			SET sess_data = '%s', expire = '%s' WHERE sid = '%s'",
 			dbesc($data),
 			dbesc($expire),
 			dbesc($id)
@@ -75,7 +76,7 @@ class SessionHandler implements \SessionHandlerInterface {
 
 
 	function destroy ($id) {
-		q("DELETE FROM `session` WHERE `sid` = '%s'", dbesc($id));
+		q("DELETE FROM session WHERE sid = '%s'", dbesc($id));
 		return true;
 	}
 

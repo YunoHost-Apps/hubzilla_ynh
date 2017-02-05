@@ -1,6 +1,5 @@
-[h2]Documentation for Hub Members[/h2]
-
-[h3]Getting Started[/h3]
+[h2]Documentation for hub members[/h2]
+[h3]Getting started[/h3]
 [zrl=[baseurl]/help/registration]Account Registration[/zrl]
 [zrl=[baseurl]/help/accounts_profiles_channels_basics]You at $Projectname: accounts, profiles and channels in short[/zrl]
 [zrl=[baseurl]/help/profiles]Profiles[/zrl]
@@ -11,8 +10,7 @@
 [zrl=[baseurl]/help/permissions]Permissions And Encryption: You Are In Control[/zrl]
 [zrl=[baseurl]/help/cloud]Cloud Storage[/zrl]
 [zrl=[baseurl]/help/remove_account]Remove Channel or Account[/zrl]
-
-[h3]Members Help[/h3]
+[h3]Members help[/h3]
 [zrl=[baseurl]/help/tags_and_mentions]Tags and Mentions[/zrl]
 [zrl=[baseurl]/help/webpages]Web Pages[/zrl]
 [zrl=[baseurl]/help/bbcode]BBcode reference for posts and comments[/zrl]
@@ -23,3 +21,5 @@
 [zrl=[baseurl]/help/diaspora_compat]Diaspora Communications Compatibility (Diaspora and Friendica)[/zrl]
 [zrl=[baseurl]/help/faq_members]FAQ For Members[/zrl]
 [zrl=[baseurl]/help/bugs]Bugs, Issues, and things that go bump in the night...[/zrl]
+
+#include doc/macros/main_footer.bb;

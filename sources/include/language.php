@@ -327,3 +327,61 @@ function get_language_name($s, $l = null) {
 
 	return $language->getName();
 }
+
+
+
+function language_list() {
+
+	$langs = glob('view/*/hstrings.php');
+
+	$lang_options = array();
+	$selected = "";
+
+	if(is_array($langs) && count($langs)) {
+		if(! in_array('view/en/hstrings.php',$langs))
+			$langs[] = 'view/en/';
+		asort($langs);
+		foreach($langs as $l) {
+			$ll = substr($l,5);
+			$ll = substr($ll,0,strrpos($ll,'/'));
+			$lang_options[$ll] = get_language_name($ll, $ll) . " ($ll)";
+		}
+	}
+	return $lang_options;
+}
+
+function lang_selector() {
+
+	$langs = glob('view/*/hstrings.php');
+
+	$lang_options = array();
+	$selected = "";
+
+	if(is_array($langs) && count($langs)) {
+		$langs[] = '';
+		if(! in_array('view/en/hstrings.php',$langs))
+			$langs[] = 'view/en/';
+		asort($langs);
+		foreach($langs as $l) {
+			if($l == '') {
+				$lang_options[""] = t('default');
+				continue;
+			}
+			$ll = substr($l,5);
+			$ll = substr($ll,0,strrpos($ll,'/'));
+			$selected = (($ll === App::$language && (x($_SESSION, 'language'))) ? $ll : $selected);
+			$lang_options[$ll] = get_language_name($ll, $ll) . " ($ll)";
+		}
+	}
+
+	$tpl = get_markup_template('lang_selector.tpl');
+
+	$o = replace_macros($tpl, array(
+		'$title' => t('Select an alternate language'),
+		'$langs' => array($lang_options, $selected),
+		
+	));
+
+	return $o;
+}
+

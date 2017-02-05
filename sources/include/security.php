@@ -2,17 +2,18 @@
 /**
  * @file include/security.php
  *
- * Some security related functions.
+ * @brief Some security related functions.
  */
 
 /**
  * @param int $user_record The account_id
+ * @param array $channel
  * @param bool $login_initial default false
  * @param bool $interactive default false
  * @param bool $return
  * @param bool $update_lastlog
  */
-function authenticate_success($user_record, $login_initial = false, $interactive = false, $return = false, $update_lastlog = false) {
+function authenticate_success($user_record, $channel = null, $login_initial = false, $interactive = false, $return = false, $update_lastlog = false) {
 
 	$_SESSION['addr'] = $_SERVER['REMOTE_ADDR'];
 
@@ -23,11 +24,15 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 		$_SESSION['account_id'] = $user_record['account_id'];
 		$_SESSION['authenticated'] = 1;
 
+		if($channel)
+			$uid_to_load = $channel['channel_id'];
 
-		$uid_to_load = (((x($_SESSION,'uid')) && (intval($_SESSION['uid']))) 
-			? intval($_SESSION['uid']) 
-			: intval(App::$account['account_default_channel'])
-		);
+		if(! $uid_to_load) {
+			$uid_to_load = (((x($_SESSION,'uid')) && (intval($_SESSION['uid'])))
+				? intval($_SESSION['uid'])
+				: intval(App::$account['account_default_channel'])
+			);
+		}
 
 		if($uid_to_load) {
 			change_channel($uid_to_load);
@@ -82,6 +87,151 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 	/* else just return */
 }
 
+function atoken_login($atoken) {
+	if(! $atoken)
+		return false;
+
+	$_SESSION['authenticated'] = 1;
+	$_SESSION['visitor_id'] = $atoken['xchan_hash'];
+	$_SESSION['atoken'] = $atoken['atoken_id'];
+
+	\App::set_observer($atoken);
+
+	return true;
+}
+
+/**
+ * @brief
+ *
+ * @param array $atoken
+ * @return array|null
+ */
+function atoken_xchan($atoken) {
+
+	$c = channelx_by_n($atoken['atoken_uid']);
+	if($c) {
+		return [
+			'atoken_id' => $atoken['atoken_id'],
+			'xchan_hash' =>  substr($c['channel_hash'],0,16) . '.' . $atoken['atoken_name'],
+			'xchan_name' => $atoken['atoken_name'],
+			'xchan_addr' => t('guest:') . $atoken['atoken_name'] . '@' . \App::get_hostname(),
+			'xchan_network' => 'unknown',
+			'xchan_url' => z_root(),
+			'xchan_hidden' => 1,
+			'xchan_photo_mimetype' => 'image/jpeg',
+			'xchan_photo_l' => get_default_profile_photo(300),
+			'xchan_photo_m' => get_default_profile_photo(80),
+			'xchan_photo_s' => get_default_profile_photo(48)
+		];
+	}
+
+	return null;
+}
+
+function atoken_delete($atoken_id) {
+
+	$r = q("select * from atoken where atoken_id = %d",
+		intval($atoken_id)
+	);
+	if(! $r)
+		return;
+
+	$c = q("select channel_id, channel_hash from channel where channel_id = %d",
+		intval($r[0]['atoken_uid'])
+	);
+	if(! $c)
+		return;
+
+	$atoken_xchan = substr($c[0]['channel_hash'],0,16) . '.' . $r[0]['atoken_name'];
+
+	q("delete from atoken where atoken_id = %d",
+		intval($atoken_id)
+	);
+	q("delete from abconfig where chan = %d and xchan = '%s'",
+		intval($c[0]['channel_id']),
+		dbesc($atoken_xchan)
+	);
+}
+
+/**
+ * @brief
+ *
+ * In order for atoken logins to create content (such as posts) they need a stored xchan.
+ * we'll create one on the first atoken_login; it can't really ever go away but perhaps
+ * @fixme we should set xchan_deleted if it's expired or removed
+ *
+ * @param array $xchan
+ * @return void|boolean
+ */
+function atoken_create_xchan($xchan) {
+
+	$r = q("select xchan_hash from xchan where xchan_hash = '%s'",
+		dbesc($xchan['xchan_hash'])
+	);
+	if($r)
+		return;
+
+	$r = q("insert into xchan ( xchan_hash, xchan_guid, xchan_addr, xchan_url, xchan_name, xchan_network, xchan_photo_mimetype, xchan_photo_l, xchan_photo_m, xchan_photo_s )
+		values ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s') ",
+		dbesc($xchan['xchan_hash']),
+		dbesc($xchan['xchan_hash']),
+		dbesc($xchan['xchan_addr']),
+		dbesc($xchan['xchan_url']),
+		dbesc($xchan['xchan_name']),
+		dbesc($xchan['xchan_network']),
+		dbesc($xchan['xchan_photo_mimetype']),
+		dbesc($xchan['xchan_photo_l']),
+		dbesc($xchan['xchan_photo_m']),
+		dbesc($xchan['xchan_photo_s'])
+	);
+
+	return true;
+}
+
+function atoken_abook($uid,$xchan_hash) {
+
+	if(substr($xchan_hash,16,1) != '.')
+		return false;
+
+	$r = q("select channel_hash from channel where channel_id = %d limit 1",
+		intval($uid)
+	);
+
+	if(! $r)
+		return false;
+
+	$x = q("select * from atoken where atoken_uid = %d and atoken_name = '%s'",
+		intval($uid),
+		dbesc(substr($xchan_hash,17))
+	);
+
+	if($x) {
+		$xchan = atoken_xchan($x[0]);
+		$xchan['abook_blocked'] = 0;
+		$xchan['abook_ignored'] = 0;
+		$xchan['abook_pending'] = 0;
+		return $xchan;
+	}
+
+	return false;
+}
+
+
+function pseudo_abook($xchan) {
+	if(! $xchan)
+		return false;
+
+	// set abook_pseudo to flag that we aren't really connected.
+
+	$xchan['abook_pseudo']  = 1;
+	$xchan['abook_blocked'] = 0;
+	$xchan['abook_ignored'] = 0;
+	$xchan['abook_pending'] = 0;
+
+	return $xchan;
+}
+
+
 /**
  * @brief Change to another channel with current logged-in account.
  *
@@ -120,18 +270,21 @@ function change_channel($change_channel) {
 			date_default_timezone_set($r[0]['channel_timezone']);
 			$ret = $r[0];
 		}
-		$x = q("select * from xchan where xchan_hash = '%s' limit 1", 
+		$x = q("select * from xchan where xchan_hash = '%s' limit 1",
 			dbesc($hash)
 		);
 		if($x) {
 			$_SESSION['my_url'] = $x[0]['xchan_url'];
-			$_SESSION['my_address'] = $r[0]['channel_address'] . '@' . substr(z_root(), strpos(z_root(), '://') + 3);
+			$_SESSION['my_address'] = channel_reddress($r[0]);
 
 			App::set_observer($x[0]);
 			App::set_perms(get_all_perms(local_channel(), $hash));
 		}
 		if(! is_dir('store/' . $r[0]['channel_address']))
 			@os_mkdir('store/' . $r[0]['channel_address'], STORAGE_DEFAULT_PERMISSIONS,true);
+
+		$arr = [ 'channel_id' => $change_channel, 'chanx' => $ret ];
+		call_hooks('change_channel', $arr);
 	}
 
 	return $ret;
@@ -141,11 +294,11 @@ function change_channel($change_channel) {
  * @brief Creates an additional SQL where statement to check permissions.
  *
  * @param int $owner_id
- * @param bool $remote_observer - if unset use current observer
+ * @param bool $remote_observer (optional) use current observer if unset
+ * @param $table (optional)
  *
  * @return string additional SQL where statement
  */
-
 function permissions_sql($owner_id, $remote_observer = null, $table = '') {
 
 	$local_channel = local_channel();
@@ -159,11 +312,10 @@ function permissions_sql($owner_id, $remote_observer = null, $table = '') {
 	if($table)
 		$table .= '.';
 
-
-	$sql = " AND {$table}allow_cid = '' 
-			 AND {$table}allow_gid = '' 
-			 AND {$table}deny_cid  = '' 
-			 AND {$table}deny_gid  = '' 
+	$sql = " AND {$table}allow_cid = ''
+			 AND {$table}allow_gid = ''
+			 AND {$table}deny_cid  = ''
+			 AND {$table}deny_gid  = ''
 	";
 
 	/**
@@ -175,7 +327,7 @@ function permissions_sql($owner_id, $remote_observer = null, $table = '') {
 	}
 
 	/**
-	 * Authenticated visitor. Unless pre-verified, 
+	 * Authenticated visitor. Unless pre-verified,
 	 * check that the contact belongs to this $owner_id
 	 * and load the groups the visitor belongs to.
 	 * If pre-verified, the caller is expected to have already
@@ -214,7 +366,7 @@ function permissions_sql($owner_id, $remote_observer = null, $table = '') {
  * @brief Creates an addiontal SQL where statement to check permissions for an item.
  *
  * @param int $owner_id
- * @param bool $remote_observer, use current observer if unset
+ * @param bool $remote_observer (optional) use current observer if unset
  *
  * @return string additional SQL where statement
  */
@@ -235,7 +387,7 @@ function item_permissions_sql($owner_id, $remote_observer = null) {
 	 */
 
 	if(($local_channel) && ($local_channel == $owner_id)) {
-		$sql = ''; 
+		$sql = '';
 	}
 
 	/**
@@ -281,7 +433,7 @@ function item_permissions_sql($owner_id, $remote_observer = null) {
 /**
  * Remote visitors also need to be checked against the public_scope parameter if item_private is set.
  * This function checks the various permutations of that field for any which apply to this observer.
- * 
+ *
  */
 
 
@@ -304,9 +456,9 @@ function scopes_sql($uid,$observer) {
 	$str .= " or public_policy = 'contacts' ) ";
 	return $str;
 }
- 
-	
-	
+
+
+
 
 
 
@@ -352,11 +504,11 @@ function public_permissions_sql($observer_hash) {
  * In this implementation, a security token is reusable (if the user submits a form, goes back and resubmits the form, maybe with small changes;
  * or if the security token is used for ajax-calls that happen several times), but only valid for a certain amout of time (3hours).
  * The "typename" seperates the security tokens of different types of forms. This could be relevant in the following case:
- *    A security token is used to protekt a link from CSRF (e.g. the "delete this profile"-link).
+ *	  A security token is used to protekt a link from CSRF (e.g. the "delete this profile"-link).
  *    If the new page contains by any chance external elements, then the used security token is exposed by the referrer.
  *    Actually, important actions should not be triggered by Links / GET-Requests at all, but somethimes they still are,
  *    so this mechanism brings in some damage control (the attacker would be able to forge a request to a form of this type, but not to forms of other types).
- */ 
+ */
 function get_form_security_token($typename = '') {
 
 	$timestamp = time();
@@ -405,7 +557,7 @@ function check_form_security_token_ForbiddenOnErr($typename = '', $formname = 'f
 
 function init_groups_visitor($contact_id) {
 	$groups = array();
-	$r = q("SELECT hash FROM `groups` left join group_member on groups.id = group_member.gid WHERE xchan = '%s' ",
+	$r = q("SELECT hash FROM groups left join group_member on groups.id = group_member.gid WHERE xchan = '%s' ",
 		dbesc($contact_id)
 	);
 	if($r) {
@@ -417,13 +569,13 @@ function init_groups_visitor($contact_id) {
 
 
 
-// This is used to determine which uid have posts which are visible to the logged in user (from the API) for the 
+// This is used to determine which uid have posts which are visible to the logged in user (from the API) for the
 // public_timeline, and we can use this in a community page by making
-// $perms = (PERMS_NETWORK|PERMS_PUBLIC) unless logged in. 
+// $perms = (PERMS_NETWORK|PERMS_PUBLIC) unless logged in.
 // Collect uids of everybody on this site who has opened their posts to everybody on this site (or greater visibility)
 // We always include yourself if logged in because you can always see your own posts
 // resolving granular permissions for the observer against every person and every post on the site
-// will likely be too expensive. 
+// will likely be too expensive.
 // Returns a string list of comma separated channel_ids suitable for direct inclusion in a SQL query
 
 function stream_perms_api_uids($perms = NULL, $limit = 0, $rand = 0 ) {
@@ -434,14 +586,19 @@ function stream_perms_api_uids($perms = NULL, $limit = 0, $rand = 0 ) {
 	$random_sql = (($rand) ? " ORDER BY " . db_getfunc('RAND') . " " : '');
 	if(local_channel())
 		$ret[] = local_channel();
-	$r = q("select channel_id from channel where channel_r_stream > 0 and ( channel_r_stream & %d )>0 and ( channel_pageflags & %d ) = 0 and channel_system = 0 and channel_removed = 0 $random_sql $limit_sql ",
-		intval($perms),
-		intval(PAGE_ADULT|PAGE_CENSORED)
+	$x = q("select uid from pconfig where cat = 'perm_limits' and k = 'view_stream' and ( v & %d ) > 0 ",
+		intval($perms)
 	);
-	if($r) {
-		foreach($r as $rr)
-			if(! in_array($rr['channel_id'], $ret))
-				$ret[] = $rr['channel_id'];
+	if($x) {
+		$ids = ids_to_querystr($x,'uid');
+		$r = q("select channel_id from channel where channel_id in ( $ids ) and ( channel_pageflags & %d ) = 0 and channel_system = 0 and channel_removed = 0 $random_sql $limit_sql ",
+			intval(PAGE_ADULT|PAGE_CENSORED)
+		);
+		if($r) {
+			foreach($r as $rr)
+				if(! in_array($rr['channel_id'], $ret))
+					$ret[] = $rr['channel_id'];
+		}
 	}
 
 	$str = '';
@@ -467,16 +624,21 @@ function stream_perms_xchans($perms = NULL ) {
 	if(local_channel())
 		$ret[] = get_observer_hash();
 
-	$r = q("select channel_hash from channel where channel_r_stream > 0 and (channel_r_stream & %d)>0 and not (channel_pageflags & %d)>0 and channel_system = 0 and channel_removed = 0 ",
-		intval($perms),
-		intval(PAGE_ADULT|PAGE_CENSORED)
+	$x = q("select uid from pconfig where cat = 'perm_limits' and k = 'view_stream' and ( v & %d ) > 0 ",
+		intval($perms)
 	);
-	if($r) {
-		foreach($r as $rr)
-			if(! in_array($rr['channel_hash'], $ret))
-				$ret[] = $rr['channel_hash'];
-	}
+	if($x) {
+		$ids = ids_to_querystr($x,'uid');
+		$r = q("select channel_hash from channel where channel_id in ( $ids ) and ( channel_pageflags & %d ) = 0 and channel_system = 0 and channel_removed = 0 ",
+			intval(PAGE_ADULT|PAGE_CENSORED)
+		);
 
+		if($r) {
+			foreach($r as $rr)
+				if(! in_array($rr['channel_hash'], $ret))
+					$ret[] = $rr['channel_hash'];
+		}
+	}
 	$str = '';
 	if($ret) {
 		foreach($ret as $rr) {

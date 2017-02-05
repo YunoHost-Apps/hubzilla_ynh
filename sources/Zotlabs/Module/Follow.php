@@ -20,9 +20,6 @@ class Follow extends \Zotlabs\Web\Controller {
 	
 		$channel = \App::get_channel();
 
-		// Warning: Do not edit the following line. The first symbol is UTF-8 &#65312; 
-		$url = str_replace('@','@',$url);	
-
 		$result = new_contact($uid,$url,$channel,true,$confirm);
 		
 		if($result['success'] == false) {
@@ -43,24 +40,24 @@ class Follow extends \Zotlabs\Web\Controller {
 		unset($clone['abook_account']);
 		unset($clone['abook_channel']);
 	
-		$abconfig = load_abconfig($channel['channel_hash'],$clone['abook_xchan']);
+		$abconfig = load_abconfig($channel['channel_id'],$clone['abook_xchan']);
 		if($abconfig)
 			$clone['abconfig'] = $abconfig;
 	
-		build_sync_packet(0 /* use the current local_channel */, array('abook' => array($clone)));
+		build_sync_packet(0 /* use the current local_channel */, array('abook' => array($clone)), true);
 	
+		$can_view_stream = intval(get_abconfig($channel['channel_id'],$clone['abook_xchan'],'their_perms','view_stream'));
 	
 		// If we can view their stream, pull in some posts
 	
-		if(($result['abook']['abook_their_perms'] & PERMS_R_STREAM) || ($result['abook']['xchan_network'] === 'rss'))
-			proc_run('php','include/onepoll.php',$result['abook']['abook_id']);
+		if(($can_view_stream) || ($result['abook']['xchan_network'] === 'rss'))
+			\Zotlabs\Daemon\Master::Summon(array('Onepoll',$result['abook']['abook_id']));
 	
 		goaway(z_root() . '/connedit/' . $result['abook']['abook_id'] . '?f=&follow=1');
 	
 	}
 	
-		function get() {
-	
+	function get() {
 		if(! local_channel()) {
 			return login();
 		}

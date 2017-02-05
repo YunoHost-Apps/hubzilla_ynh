@@ -1,7 +1,7 @@
 <link rel='stylesheet' type='text/css' href='{{$baseurl}}/library/fullcalendar/fullcalendar.css' />
 <script language="javascript" type="text/javascript" src="{{$baseurl}}/library/moment/moment.min.js"></script>
 <script language="javascript" type="text/javascript" src="{{$baseurl}}/library/fullcalendar/fullcalendar.min.js"></script>
-<script language="javascript" type="text/javascript" src="{{$baseurl}}/library/fullcalendar/lang-all.js"></script>
+<script language="javascript" type="text/javascript" src="{{$baseurl}}/library/fullcalendar/locale-all.js"></script>
 
 <script>
 	function showEvent(eventid) {
@@ -30,6 +30,18 @@
 	function changeView(action, viewName) {
 		$('#events-calendar').fullCalendar(action, viewName);
 		var view = $('#events-calendar').fullCalendar('getView');
+
+		if(view.type !== 'month' && !$('main').hasClass('fullscreen')) {
+			$('#events-calendar').fullCalendar('option', 'height', 'auto');
+		}
+		else {
+			$('#events-calendar').fullCalendar('option', 'height', '');
+		}
+
+		if($('main').hasClass('fullscreen')) {
+			$('#events-calendar').fullCalendar('option', 'height', $(window).height() - $('.section-title-wrapper').outerHeight(true) - 2); // -2 is for border width (.generic-content-wrapper top and bottom) of .generic-content-wrapper
+		}
+
 		$('#title').text(view.title);
 	}
 
@@ -42,7 +54,6 @@
 			firstDay: {{$first_day}},
 
 			eventLimit: 3,
-			height: 'auto',
 
 			monthNames: aStr['monthNames'],
 			monthNamesShort: aStr['monthNamesShort'],
@@ -141,29 +152,6 @@
 				origsval = sval;
 			}
 		});
-
-		// ACL
-		$('#id_share').change(function() {
-
-			if ($('#id_share').is(':checked')) { 
-				$('#dbtn-acl').show();
-			}
-			else {
-				$('#dbtn-acl').hide();
-			}
-		}).trigger('change');
-
-		$('#contact_allow, #contact_deny, #group_allow, #group_deny').change(function() {
-			var selstr;
-			$('#contact_allow option:selected, #contact_deny option:selected, #group_allow option:selected, #group_deny option:selected').each( function() {
-				selstr = $(this).text();
-				$('#jot-public').hide();
-			});
-			if(selstr == null) {
-				$('#jot-public').show();
-			}
-
-		}).trigger('change');
 
 	});
 

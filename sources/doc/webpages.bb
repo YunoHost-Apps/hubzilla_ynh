@@ -9,6 +9,9 @@ The &quot;page link title&quot; box allows a user to specify the &quot;pagelinkt
 
 Beneath the page creation box, a list of existing pages will appear with an &quot;edit&quot; link.  Clicking this will take you to an editor, similar to that of the post editor, where you can make changes to your webpages.
 
+See also: 
+
+[zrl=[baseurl]/help/webpage-element-import]Webpage element import tool[/zrl]
 
 [b]Using Blocks[/b]
 

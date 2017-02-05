@@ -2,7 +2,7 @@
 /*
 html2bbcode.php
 Converter for HTML to BBCode
-Made by: ike@piratenpartei.de
+Made by: Mike@piratenpartei.de
 Originally made for the syncom project: http://wiki.piratenpartei.de/Syncom
 					https://github.com/annando/Syncom
 */

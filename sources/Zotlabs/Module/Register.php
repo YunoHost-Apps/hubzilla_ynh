@@ -1,7 +1,7 @@
 <?php
 namespace Zotlabs\Module;
 
-require_once('include/identity.php');
+require_once('include/channel.php');
 
 
 class Register extends \Zotlabs\Web\Controller {
@@ -38,7 +38,7 @@ class Register extends \Zotlabs\Web\Controller {
 	}
 	
 	
-		function post() {
+	function post() {
 	
 		$max_dailies = intval(get_config('system','max_daily_registrations'));
 		if($max_dailies) {
@@ -146,12 +146,12 @@ class Register extends \Zotlabs\Web\Controller {
 			goaway(z_root());
 		}
 	
-		authenticate_success($result['account'],true,false,true);
+		authenticate_success($result['account'],null,true,false,true);
 		
 		$new_channel = false;
 		$next_page = 'new_channel';
 	
-		if(get_config('system','auto_channel_create') || UNO) {
+		if(get_config('system','auto_channel_create') || get_config('system','server_role') == 'basic') {
 			$new_channel = auto_channel_create($result['account']['account_id']);
 			if($new_channel['success']) {
 				$channel_id = $new_channel['channel']['channel_id'];
@@ -174,7 +174,7 @@ class Register extends \Zotlabs\Web\Controller {
 	
 	
 	
-		function get() {
+	function get() {
 	
 		$registration_is = '';
 		$other_sites = '';
@@ -205,6 +205,12 @@ class Register extends \Zotlabs\Web\Controller {
 				return;
 			}
 		}
+
+		$privacy_role = ((x($_REQUEST,'permissions_role')) ? $_REQUEST['permissions_role'] : "");
+
+		$perm_roles = \Zotlabs\Access\PermissionRoles::roles();
+		if((get_account_techlevel() < 4) && $privacy_role !== 'custom')
+			unset($perm_roles[t('Other')]);
 	
 		// Configurable terms of service link
 	
@@ -231,12 +237,14 @@ class Register extends \Zotlabs\Web\Controller {
 		$name = array('name', t('Name or caption'), ((x($_REQUEST,'name')) ? $_REQUEST['name'] : ''), t('Examples: "Bob Jameson", "Lisa and her Horses", "Soccer", "Aviation Group"'));
 		$nickhub = '@' . str_replace(array('http://','https://','/'), '', get_config('system','baseurl'));
 		$nickname = array('nickname', t('Choose a short nickname'), ((x($_REQUEST,'nickname')) ? $_REQUEST['nickname'] : ''), sprintf( t('Your nickname will be used to create an easy to remember channel address e.g. nickname%s'), $nickhub));
-		$privacy_role = ((x($_REQUEST,'permissions_role')) ? $_REQUEST['permissions_role'] : "");
-		$role = array('permissions_role' , t('Channel role and privacy'), ($privacy_role) ? $privacy_role : 'social', t('Select a channel role with your privacy requirements.') . ' <a href="help/roles" target="_blank">' . t('Read more about roles') . '</a>',get_roles());
+		$role = array('permissions_role' , t('Channel role and privacy'), ($privacy_role) ? $privacy_role : 'social', t('Select a channel role with your privacy requirements.') . ' <a href="help/roles" target="_blank">' . t('Read more about roles') . '</a>',$perm_roles);
 		$tos = array('tos', $label_tos, '', '', array(t('no'),t('yes')));
-	
-		$auto_create  = ((UNO) || (get_config('system','auto_channel_create')) ? true : false);
-		$default_role = ((UNO) ? 'social' : get_config('system','default_permissions_role'));
+
+		$server_role = get_config('system','server_role');	
+
+
+		$auto_create  = (($server_role == 'basic') || (get_config('system','auto_channel_create')) ? true : false);
+		$default_role = (($server_role == 'basic') ? 'social' : get_config('system','default_permissions_role'));
 	
 		require_once('include/bbcode.php');
 	
@@ -251,15 +259,16 @@ class Register extends \Zotlabs\Web\Controller {
 			'$invite_code'  => $invite_code,
 			'$auto_create'  => $auto_create,
 			'$name'         => $name,
-			'$role' 	=> $role,
+			'$role'         => $role,
 			'$default_role' => $default_role,
 			'$nickname'     => $nickname,
 			'$enable_tos'	=> $enable_tos,
-			'$tos'		=> $tos,
+			'$tos'          => $tos,
 			'$email'        => $email,
 			'$pass1'        => $password,
 			'$pass2'        => $password2,
-			'$submit'       => ((UNO || $auto_create || $registration_is) ? t('Register') : t('Proceed to create your first channel'))
+			'$submit'       => t('Register'),
+			'$verify_note'  => t('This site may require email verification after submitting this form. If you are returned to a login page, please check your email for instructions.')
 		));
 	
 		return $o;

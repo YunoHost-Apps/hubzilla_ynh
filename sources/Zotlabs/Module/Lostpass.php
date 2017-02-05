@@ -43,18 +43,19 @@ class Lostpass extends \Zotlabs\Web\Controller {
 	
 		$subject = email_header_encode(sprintf( t('Password reset requested at %s'),get_config('system','sitename')), 'UTF-8');
 	
-		$res = mail($email, $subject ,
-				$message,
-				'From: Administrator@' . $_SERVER['SERVER_NAME'] . "\n"
-				. 'Content-type: text/plain; charset=UTF-8' . "\n"
-				. 'Content-transfer-encoding: 8bit' );
-	
-	
+		$res = z_mail(
+			[ 
+			'toEmail' => $email,
+			'messageSubject' => sprintf( t('Password reset requested at %s'), get_config('system','sitename')),
+			'textVersion' => $message,
+			]
+		);
+
 		goaway(z_root());
 	}
 	
 	
-		function get() {
+	function get() {
 	
 	
 		if(x($_GET,'verify')) {
@@ -102,20 +103,22 @@ class Lostpass extends \Zotlabs\Web\Controller {
 	
 				$email_tpl = get_intltext_template("passchanged_eml.tpl");
 				$message = replace_macros($email_tpl, array(
-				'$sitename' => \App::$config['sitename'],
-				'$siteurl' =>  z_root(),
-				'$username' => sprintf( t('Site Member (%s)'), $email),
-				'$email' => $email,
-				'$new_password' => $new_password,
-				'$uid' => $newuid ));
+					'$sitename' => \App::$config['sitename'],
+					'$siteurl' =>  z_root(),
+					'$username' => sprintf( t('Site Member (%s)'), $email),
+					'$email' => $email,
+					'$new_password' => $new_password,
+					'$uid' => $newuid )
+				);
 	
-				$subject = email_header_encode( sprintf( t('Your password has changed at %s'), get_config('system','sitename')), 'UTF-8');
-	
-				$res = mail($email,$subject,$message,
-					'From: ' . 'Administrator@' . $_SERVER['SERVER_NAME'] . "\n"
-					. 'Content-type: text/plain; charset=UTF-8' . "\n"
-					. 'Content-transfer-encoding: 8bit' );
-	
+				$res = z_mail(
+					[ 
+					'toEmail'        => $email,
+					'messageSubject' => sprintf( t('Your password has changed at %s'), get_config('system','sitename')),
+					'textVersion'    => $message,
+					]
+				);
+
 				return $o;
 			}
 		

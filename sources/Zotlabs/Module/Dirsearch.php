@@ -12,7 +12,7 @@ class Dirsearch extends \Zotlabs\Web\Controller {
 	
 	}
 	
-		function get() {
+	function get() {
 	
 		$ret = array('success' => false);
 	
@@ -185,7 +185,7 @@ class Dirsearch extends \Zotlabs\Web\Controller {
 		else {
 			$qlimit = " LIMIT " . intval($perpage) . " OFFSET " . intval($startrec);
 			if($return_total) {
-				$r = q("SELECT COUNT(xchan_hash) AS `total` FROM xchan left join xprof on xchan_hash = xprof_hash where $logic $sql_extra and xchan_network = 'zot' and xchan_hidden = 0 and xchan_orphan = 0 and xchan_deleted = 0 $safesql ");
+				$r = q("SELECT COUNT(xchan_hash) AS total FROM xchan left join xprof on xchan_hash = xprof_hash where $logic $sql_extra and xchan_network = 'zot' and xchan_hidden = 0 and xchan_orphan = 0 and xchan_deleted = 0 $safesql ");
 				if($r) {
 					$ret['total_items'] = $r[0]['total'];
 				}
@@ -410,13 +410,13 @@ class Dirsearch extends \Zotlabs\Web\Controller {
 		$rand = db_getfunc('rand');
 		$realm = get_directory_realm();
 		if($realm == DIRECTORY_REALM) {
-			$r = q("select * from site where site_access != 0 and site_register !=0 and ( site_realm = '%s' or site_realm = '') and site_type = %d order by $rand",
+			$r = q("select * from site where site_access != 0 and site_register !=0 and ( site_realm = '%s' or site_realm = '') and site_type = %d and site_dead = 0 order by $rand",
 				dbesc($realm),
 				intval(SITE_TYPE_ZOT)
 			);
 		}
 		else {
-			$r = q("select * from site where site_access != 0 and site_register !=0 and site_realm = '%s' and site_type = %d order by $rand",
+			$r = q("select * from site where site_access != 0 and site_register !=0 and site_realm = '%s' and site_type = %d and site_dead = 0 order by $rand",
 				dbesc($realm),
 				intval(SITE_TYPE_ZOT)
 			);
@@ -448,15 +448,15 @@ class Dirsearch extends \Zotlabs\Web\Controller {
 					$register = 'closed';
 	
 				if(strpos($rr['site_url'],'https://') !== false)
-					$ret['sites'][] = array('url' => $rr['site_url'], 'access' => $access, 'register' => $register, 'sellpage' => $rr['site_sellpage'], 'location' => $rr['site_location'], 'project' => $rr['site_project']);
+					$ret['sites'][] = array('url' => $rr['site_url'], 'access' => $access, 'register' => $register, 'sellpage' => $rr['site_sellpage'], 'location' => $rr['site_location'], 'project' => $rr['site_project'], 'version' => $rr['site_version']);
 				else
-					$insecure[] = array('url' => $rr['site_url'], 'access' => $access, 'register' => $register, 'sellpage' => $rr['site_sellpage'], 'location' => $rr['site_location'], 'project' => $rr['site_project']);
+					$insecure[] = array('url' => $rr['site_url'], 'access' => $access, 'register' => $register, 'sellpage' => $rr['site_sellpage'], 'location' => $rr['site_location'], 'project' => $rr['site_project'], 'version' => $rr['site_version']);
 			}
 			if($insecure) {
 				$ret['sites'] = array_merge($ret['sites'],$insecure);
 			}
 		}
 		return $ret;
-	}		
-	
+	}
+
 }

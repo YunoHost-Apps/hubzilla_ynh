@@ -8,7 +8,6 @@ require_once('include/widgets.php');
 
 
 
-
 class Comanche {
 
 
@@ -95,23 +94,77 @@ class Comanche {
 		$cnt = preg_match_all("/\[region=(.*?)\](.*?)\[\/region\]/ism", $s, $matches, PREG_SET_ORDER);
 		if($cnt) {
 			foreach($matches as $mtch) {
-				\App::$layout['region_' . $mtch[1]] = $this->region($mtch[2]);
+				\App::$layout['region_' . $mtch[1]] = $this->region($mtch[2],$mtch[1]);
 			}
 		}
 	}
 
-
+	function get_condition_var($v) {
+		if($v) {
+			$x = explode('.',$v);
+			if($x[0] == 'config')
+				return get_config($x[1],$x[2]);
+			elseif($x[0] === 'observer') {
+				if(count($x) > 1) {
+					$y = \App::get_observer();
+					if(! $y)
+						return false;
+					if($x[1] == 'address')
+						return $y['xchan_addr'];
+					elseif($x[1] == 'name')
+						return $y['xchan_name'];
+					return false;
+				}
+				return get_observer_hash();
+			}
+			else
+				return false;
+		}
+		return false;
+	}
 
 	function test_condition($s) {
-
-		// This is extensible. The first version of variable testing supports tests of the form
+		// This is extensible. The first version of variable testing supports tests of the forms:
+		// [if $config.system.foo == baz] which will check if get_config('system','foo') is the string 'baz';
+		// [if $config.system.foo != baz] which will check if get_config('system','foo') is not the string 'baz';
+		// You may check numeric entries, but these checks are evaluated as strings. 
+		// [if $config.system.foo {} baz] which will check if 'baz' is an array element in get_config('system','foo')
+		// [if $config.system.foo {*} baz] which will check if 'baz' is an array key in get_config('system','foo')
 		// [if $config.system.foo] which will check for a return of a true condition for get_config('system','foo');
 		// The values 0, '', an empty array, and an unset value will all evaluate to false.
 
-		if(preg_match("/[\$]config[\.](.*?)/",$s,$matches)) {
-			$x = explode('.',$s);
-			if(get_config($x[1],$x[2]))
+		if(preg_match('/[\$](.*?)\s\=\=\s(.*?)$/',$s,$matches)) {
+			$x = $this->get_condition_var($matches[1]);
+			if($x == trim($matches[2]))
 				return true;
+			return false;
+		}
+		if(preg_match('/[\$](.*?)\s\!\=\s(.*?)$/',$s,$matches)) {
+			$x = $this->get_condition_var($matches[1]);
+			if($x != trim($matches[2]))
+				return true;
+			return false;
+		}
+
+		if(preg_match('/[\$](.*?)\s\{\}\s(.*?)$/',$s,$matches)) {
+			$x = $this->get_condition_var($matches[1]);
+			if(is_array($x) && in_array(trim($matches[2]),$x))
+				return true;
+			return false;
+		}
+
+		if(preg_match('/[\$](.*?)\s\{\*\}\s(.*?)$/',$s,$matches)) {
+			$x = $this->get_condition_var($matches[1]);
+			if(is_array($x) && array_key_exists(trim($matches[2]),$x))
+				return true;
+			return false;
+		}
+
+		if(preg_match('/[\$](.*?)$/',$s,$matches)) {
+			$x = $this->get_condition_var($matches[1]);
+			if($x)
+				return true;
+			return false;
 		}
 		return false;
 
@@ -180,7 +233,8 @@ class Comanche {
 		$channel_id = $this->get_channel_id();
 
 		if($channel_id) {
-			$r = q("select * from item inner join item_id on iid = item.id and item_id.uid = item.uid and item.uid = %d and service = 'BUILDBLOCK' and sid = '%s' limit 1",
+			$r = q("select * from item inner join iconfig on iconfig.iid = item.id and item.uid = %d 
+				and iconfig.cat = 'system' and iconfig.k = 'BUILDBLOCK' and iconfig.v = '%s' limit 1",
 				intval($channel_id),
 				dbesc($name)
 			);
@@ -231,7 +285,7 @@ class Comanche {
 				$path = 'library/bootstrap/js/bootstrap.min.js';
 				break;
 			case 'foundation':
-				$path = 'library/foundation/js/foundation.min.js';
+				$path = 'library/foundation/js/foundation.js';
 				$init = "\r\n" . '<script>$(document).ready(function() { $(document).foundation(); });</script>';
 				break;
 		}
@@ -283,12 +337,12 @@ class Comanche {
 
 
 	/**
-	 * Widgets will have to get any operational arguments from the session, the
-	 * global app environment, or config storage until we implement argument passing
+	 * Render a widget
 	 *
 	 * @param string $name
 	 * @param string $text
 	 */
+
 	function widget($name, $text) {
 		$vars = array();
 		$matches = array();
@@ -315,12 +369,14 @@ class Comanche {
 				require_once(theme_include($theme_widget));
 		}
 
-		if (function_exists($func))
+		if(function_exists($func))
 			return $func($vars);
 	}
 
 
-	function region($s) {
+	function region($s,$region_name) {
+
+		$s = str_replace('$region',$region_name,$s);
 
 		$matches = array();
 

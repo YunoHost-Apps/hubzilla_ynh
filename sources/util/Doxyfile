@@ -1,8 +1,8 @@
-INPUT = README.md index.php boot.php mod/ include/ util/ view/ version.inc
+INPUT = README.md index.php boot.php include/ install/ util/ view/ Zotlabs/
 RECURSIVE = YES
 PROJECT_NAME = "The Hubzilla"
 PROJECT_LOGO = images/rm-64.png
-EXCLUDE = .htconfig.php library/ doc/ vendor/ .git/ util/zotsh/easywebdav/
+EXCLUDE = .htconfig.php library/ doc/ store/ vendor/ .git/ util/zotsh/easywebdav/ util/generate-hooks-index/
 EXCLUDE_PATTERNS = *smarty3* *strings.php *.out *test*
 OUTPUT_DIRECTORY = doc
 GENERATE_HTML = YES
@@ -21,3 +21,5 @@ ALIASES += "fixme=\xrefitem fixme \"Fixme\" \"Fixme List\""
 ALIASES += "FIXME=\fixme"
 ALIASES += "TODO=\todo"
 ALIASES += "BUG=\bug"
+ALIASES += "hooks=\xrefitem hooks \"Hooks\" \"Hooks List\""
+ALIASES += "HOOKS=\hooks"

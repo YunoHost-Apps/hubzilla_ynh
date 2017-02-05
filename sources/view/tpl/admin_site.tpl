@@ -41,7 +41,15 @@
     <input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
 
 	{{include file="field_input.tpl" field=$sitename}}
+	{{include file="field_select.tpl" field=$server_role}}
+
+	{{if $z_server_role == 'pro'}}
+	{{include file="field_select.tpl" field=$techlevel}}
+    {{include file="field_checkbox.tpl" field=$techlock}}
+	{{/if}}
+
 	{{include file="field_textarea.tpl" field=$banner}}
+	{{include file="field_textarea.tpl" field=$siteinfo}}
 	{{include file="field_textarea.tpl" field=$admininfo}}
 	{{include file="field_select.tpl" field=$language}}
 	{{include file="field_select.tpl" field=$theme}}
@@ -61,8 +69,6 @@
 	{{include file="field_select.tpl" field=$register_policy}}
 	{{include file="field_checkbox.tpl" field=$invite_only}}
 	{{include file="field_select.tpl" field=$access_policy}}
-	{{include file="field_textarea.tpl" field=$allowed_email}}
-	{{include file="field_textarea.tpl" field=$not_allowed_email}}	
 	<div class="submit"><input type="submit" name="page_site" value="{{$submit}}" /></div>
 
 	<h3>{{$upload}}</h3>

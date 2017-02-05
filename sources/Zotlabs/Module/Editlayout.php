@@ -1,7 +1,7 @@
 <?php
 namespace Zotlabs\Module;
 
-require_once('include/identity.php');
+require_once('include/channel.php');
 require_once('include/acl_selectors.php');
 require_once('include/conversation.php');
 
@@ -21,7 +21,7 @@ class Editlayout extends \Zotlabs\Web\Controller {
 		else
 			return;
 
-		profile_load($a,$which);
+		profile_load($which);
 
 	}
 
@@ -91,16 +91,17 @@ class Editlayout extends \Zotlabs\Web\Controller {
 			return;
 		}
 
-		$itm = q("SELECT * FROM `item` WHERE `id` = %d and uid = %s LIMIT 1",
+		$itm = q("SELECT * FROM item WHERE id = %d and uid = %s LIMIT 1",
 			intval($post_id),
 			intval($owner)
 		);
 
-		$item_id = q("select * from item_id where service = 'PDL' and iid = %d limit 1",
+		$item_id = q("select * from iconfig where cat = 'system' and k = 'PDL' and iid = %d limit 1",
 			intval($itm[0]['id'])
 		);
 		if($item_id)
-			$layout_title = $item_id[0]['sid'];
+			$layout_title = $item_id[0]['v'];
+
 
 		$rp = 'layouts/' . $which;
 

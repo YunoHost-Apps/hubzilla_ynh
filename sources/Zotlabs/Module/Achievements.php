@@ -18,7 +18,7 @@ class Achievements extends \Zotlabs\Web\Controller {
 	
 		$profile = 0;
 		$profile = argv(1);		
-		profile_load($a,$which,$profile);
+		profile_load($which,$profile);
 	
 		$r = q("select channel_id from channel where channel_address = '%s'",
 				dbesc($which)

@@ -1,5 +1,5 @@
 <h2>{{$thing_hdr}}</h2>
-<form action="thing" method="post" >
+<form id="thing-new-form" action="thing" method="post" class="acl-form" data-form_id="thing-new-form" data-allow_cid='{{$allow_cid}}' data-allow_gid='{{$allow_gid}}' data-deny_cid='{{$deny_cid}}' data-deny_gid='{{$deny_gid}}'>
 
 {{if $multiprof }}
 <div class="thing-profile-label">{{$profile_lbl}}</div>
@@ -29,8 +29,6 @@
 
 <div class="thing-end"></div> 
 
-{{$aclselect}}
-
 {{if $lockstate}}
 	<button id="dbtn-acl" class="btn btn-default btn-sm" data-toggle="modal" data-target="#aclModal" onclick="return false;">
 		<i id="jot-perms-icon" class="fa fa-{{$lockstate}}"></i>
@@ -40,3 +38,4 @@
 
 <input type="submit" class="thing-submit" name="submit" value="{{$submit}}" />
 </form>
+{{$aclselect}}

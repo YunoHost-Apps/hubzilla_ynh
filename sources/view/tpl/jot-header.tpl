@@ -7,6 +7,7 @@ var pretext = '{{$pretext}}';
 function initEditor(cb){
 	if (editor==false){
 		$("#profile-jot-text-loading").spin('small').show();
+		{{$geotag}}
 		if(plaintext == 'none') {
 			$("#profile-jot-text-loading").spin(false).hide();
 			$("#profile-jot-text").css({ 'height': 200, 'color': '#000', 'line-height': 'inherit' });
@@ -25,6 +26,7 @@ function initEditor(cb){
 				  'transition' : 'elastic' 
 			});
 			$(".jothidden").show();
+			$("#profile-jot-text").addClass('jot-expanded');
 			if (typeof cb!="undefined") cb();
 			if(pretext.length)
 				addeditortext(pretext);
@@ -163,6 +165,12 @@ function enableOnUser(){
 			});
 		} catch(e) {
 		}
+        
+        
+        // call initialization file
+        if (window.File && window.FileList && window.FileReader) {
+          DragDropUploadInit();
+        }
 	});
 
 	function deleteCheckedItems() {
@@ -255,23 +263,61 @@ function enableOnUser(){
 
 	function linkdropper(event) {
 		var linkFound = event.dataTransfer.types.contains("text/uri-list");
-		if(linkFound)
+		if(linkFound) {
 			event.preventDefault();
+			var editwin = '#' + event.target.id;
+			var commentwin = false;
+			if(editwin) {
+				commentwin = ((editwin.indexOf('comment') >= 0) ? true : false);
+				if(commentwin) {
+					var commentid = editwin.substring(editwin.lastIndexOf('-') + 1);
+					$('#comment-edit-text-' + commentid).addClass('hover');
+				}
+			}
+		}
+	}
+
+	function linkdropexit(event) {
+		var editwin = '#' + event.target.id;
+		var commentwin = false;
+		if(editwin) {
+			commentwin = ((editwin.indexOf('comment') >= 0) ? true : false);
+			if(commentwin) {
+				var commentid = editwin.substring(editwin.lastIndexOf('-') + 1);
+				$('#comment-edit-text-' + commentid).removeClass('hover');
+			}
+		}
 	}
 
 	function linkdrop(event) {
 		var reply = event.dataTransfer.getData("text/uri-list");
-		event.target.textContent = reply;
 		event.preventDefault();
+		var editwin = '#' + event.target.id;
+		var commentwin = false;
+		if(editwin) {
+			commentwin = ((editwin.indexOf('comment') >= 0) ? true : false);
+			if(commentwin) {
+				var commentid = editwin.substring(editwin.lastIndexOf('-') + 1);
+				commentOpen(document.getElementById(event.target.id),commentid);
+
+			}
+		}
+
 		if(reply && reply.length) {
 			reply = bin2hex(reply);
 			$('#profile-rotator').spin('tiny');
 			$.get('{{$baseurl}}/linkinfo?f=&binurl=' + reply, function(data) {
-				if (!editor) $("#profile-jot-text").val("");
-				initEditor(function(){
+				if(commentwin) {
+					$(editwin).val( $(editwin).val() + data );
+					$('#profile-rotator').spin(false);
+				}
+				else {
+					if (!editor) $("#profile-jot-text").val("");
+					initEditor(function(){
 					addeditortext(data);
 					$('#profile-rotator').spin(false);
-				});
+					});
+				}
 			});
 		}
 	}
@@ -349,6 +395,19 @@ function enableOnUser(){
 		}
 	}
 
+	function toggleNoComment() {
+		if($('#jot-nocomment').val() > 0) {
+			$('#jot-nocomment').val(0);
+			$('#profile-nocomment, #profile-nocomment-sub').removeClass('fa-comments-o').addClass('fa-comments');
+			$('#profile-nocomment-wrapper').attr('title', '{{$nocomment_enabled}}');
+		}
+		else {
+			$('#jot-nocomment').val(1);
+			$('#profile-nocomment, #profile-nocomment-sub').removeClass('fa-comments').addClass('fa-comments-o');
+			$('#profile-nocomment-wrapper').attr('title', '{{$nocomment_disabled}}');
+		}
+	}
+
 	function jotReact(id,icon) {
 		if(id && icon) {
 			$.get('{{$baseurl}}/react?f=&postid=' + id + '&emoji=' + icon);
@@ -362,7 +421,169 @@ function enableOnUser(){
 		$('#profile-nolocation-wrapper').attr('disabled', true);
 	}
 
-	{{$geotag}}
+
+    var initializeEmbedPhotoDialog = function () {
+        $('.embed-photo-selected-photo').each(function (index) {
+            $(this).removeClass('embed-photo-selected-photo');
+        });
+        getPhotoAlbumList();
+        $('#embedPhotoModalBodyAlbumDialog').off('click');
+        $('#embedPhotoModal').modal();
+    };
+
+    var choosePhotoFromAlbum = function (album) {
+        $.post("embedphotos/album", {name: album},
+            function(data) {
+                if (data['status']) {
+                    $('#embedPhotoModalLabel').html("{{$modalchooseimages}}");
+                    $('#embedPhotoModalBodyAlbumDialog').html('\
+                            <div><ul class="nav">\n\
+                                <li><a href="#" onclick="initializeEmbedPhotoDialog();return false;">\n\
+                                    <i class="fa fa-chevron-left"></i>&nbsp\n\
+                                    {{$modaldiffalbum}}\n\
+                                    </a>\n\
+                                </li>\n\
+                            </ul><br></div>')
+                    $('#embedPhotoModalBodyAlbumDialog').append(data['content']);
+                    $('#embedPhotoModalBodyAlbumDialog').click(function (evt) {
+                        evt.preventDefault();
+                        var image = document.getElementById(evt.target.id);
+                        if (typeof($(image).parent()[0]) !== 'undefined') {
+                            var imageparent = document.getElementById($(image).parent()[0].id);
+                            $(imageparent).toggleClass('embed-photo-selected-photo');
+                        }
+                    });
+                    $('#embedPhotoModalBodyAlbumListDialog').addClass('hide');
+                    $('#embedPhotoModalBodyAlbumDialog').removeClass('hide');
+                    $('#embed-photo-OKButton').click(function () {
+                        $('.embed-photo-selected-photo').each(function (index) {
+                            var href = $(this).attr('href');
+                            $.post("embedphotos/photolink", {href: href},
+                                function(ddata) {
+                                    if (ddata['status']) {
+                                        addeditortext(ddata['photolink']);
+                                    } else {
+                                        window.console.log("{{$modalerrorlink}}" + ':' + ddata['errormsg']);
+                                    }
+                                    return false;
+                                },
+                            'json');
+                        });
+                        $('#embedPhotoModalBodyAlbumDialog').html('');
+                        $('#embedPhotoModalBodyAlbumDialog').off('click');
+                        $('#embedPhotoModal').modal('hide');
+                    });
+                } else {
+                    window.console.log("{{$modalerroralbum}} " + JSON.stringify(album) + ':' + data['errormsg']);
+                }
+                return false;
+            },
+        'json');
+    };
+
+    var getPhotoAlbumList = function () {
+        $.post("embedphotos/albumlist", {},
+            function(data) {
+                if (data['status']) {
+                    var albums = data['albumlist']; //JSON.parse(data['albumlist']);
+                    $('#embedPhotoModalLabel').html("{{$modalchoosealbum}}");
+                    $('#embedPhotoModalBodyAlbumList').html('<ul class="nav"></ul>');
+                    for(var i=0; i<albums.length; i++) {
+                        var albumName = albums[i].text;
+                        var albumLink = '<li>';
+                        albumLink += '<a href="#" onclick="choosePhotoFromAlbum(\'' + albumName + '\');return false;">' + albumName + '</a>';
+                        albumLink += '</li>';
+                        $('#embedPhotoModalBodyAlbumList').find('ul').append(albumLink);
+                    }
+                    $('#embedPhotoModalBodyAlbumDialog').addClass('hide');
+                    $('#embedPhotoModalBodyAlbumListDialog').removeClass('hide');
+                } else {
+                    window.console.log("{{$modalerrorlist}}" + ':' + data['errormsg']);
+                }
+                return false;
+            },
+        'json');
+    };
+
+    //
+    // initialize
+    function DragDropUploadInit() {
+
+      var filedrag = $("#profile-jot-text");
+
+      // is XHR2 available?
+      var xhr = new XMLHttpRequest();
+      if (xhr.upload) {
+
+        // file drop
+        filedrag.on("dragover", DragDropUploadFileHover);
+        filedrag.on("dragleave", DragDropUploadFileHover);
+        filedrag.on("drop", DragDropUploadFileSelectHandler);
+
+      }
+
+      window.filesToUpload = 0;
+      window.fileUploadsCompleted = 0;
+
+
+    }
+
+    // file drag hover
+    function DragDropUploadFileHover(e) {
+      e.stopPropagation();
+      e.preventDefault();
+      e.target.className = (e.type == "dragover" ? "hover" : "");
+    }
+
+    // file selection
+    function DragDropUploadFileSelectHandler(e) {
+
+      // cancel event and hover styling
+      DragDropUploadFileHover(e);
+	  if (!editor) $("#profile-jot-text").val("");
+
+
+      // fetch FileList object
+      var files = e.target.files || e.originalEvent.dataTransfer.files;
+      // process all File objects
+      for (var i = 0, f; f = files[i]; i++) {
+        DragDropUploadFile(f, i);
+      }
+
+    }
+
+    // upload  files
+    function DragDropUploadFile(file, idx) {
+
+      window.filesToUpload = window.filesToUpload + 1;
+
+      var xhr = new XMLHttpRequest();
+      xhr.withCredentials = true;   // Include the SESSION cookie info for authentication
+      (xhr.upload || xhr).addEventListener('progress', function (e) {
+         $('#profile-rotator').spin('tiny');
+      });
+      xhr.addEventListener('load', function (e) {
+        //console.log('xhr upload complete', e);
+        window.fileUploadsCompleted = window.fileUploadsCompleted + 1;
+
+		initEditor(function() {
+			addeditortext(xhr.responseText);
+		});
+
+		$('#jot-media').val($('#jot-media').val() + xhr.responseText);
+        // When all the uploads have completed, refresh the page
+        if (window.filesToUpload > 0 && window.fileUploadsCompleted === window.filesToUpload) {  
+          $('#profile-rotator').spin(false);
+          window.fileUploadsCompleted = window.filesToUpload = 0;
+        }
+      });
+      // POST to the wall_upload endpoint
+      xhr.open('post', '{{$baseurl}}/wall_attach/{{$nickname}}', true);
+
+      var data = new FormData();
+      data.append('userfile', file);
+      xhr.send(data);
+    }
 
 </script>
 

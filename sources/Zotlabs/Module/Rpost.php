@@ -7,7 +7,6 @@ require_once('include/items.php');
 require_once('include/taxonomy.php');
 require_once('include/conversation.php');
 require_once('include/zot.php');
-require_once('include/PermissionDescription.php');
 
 /**
  * remote post
@@ -116,7 +115,8 @@ class Rpost extends \Zotlabs\Web\Controller {
 			'default_location' => $channel['channel_location'],
 			'nickname' => $channel['channel_address'],
 			'lockstate' => (($acl->is_private()) ? 'lock' : 'unlock'),
-			'acl' => populate_acl($channel_acl, true, \PermissionDescription::fromGlobalPermission('view_stream'), get_post_aclDialogDescription(), 'acl_dialog_post'),
+			'acl' => populate_acl($channel_acl, true, \Zotlabs\Lib\PermissionDescription::fromGlobalPermission('view_stream'), get_post_aclDialogDescription(), 'acl_dialog_post'),
+			'permissions' => $channel_acl,
 			'bang' => '',
 			'visitor' => true,
 			'profile_uid' => local_channel(),
@@ -126,7 +126,10 @@ class Rpost extends \Zotlabs\Web\Controller {
 			'source' => ((x($_REQUEST,'source')) ? strip_tags($_REQUEST['source']) : ''),
 			'return_path' => 'rpost/return',
 			'bbco_autocomplete' => 'bbcode',
-			'bbcode' => true
+			'editor_autocomplete'=> true,
+			'bbcode' => true,
+			'jotnets' => true
+
 		);
 	
 		$editor = status_editor($a,$x);

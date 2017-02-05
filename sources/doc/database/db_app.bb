@@ -27,8 +27,20 @@
 [/td][/tr]
 [tr][td]app_page[/td][td]currently unused[/td][td]char(255)[/td][td]NO[/td][td][/td][td][/td][td]
 [/td][/tr]
-[tr][td]app_requires[/td][td]currently unused[/td][td]char(255)[/td][td]NO[/td][td][/td][td][/td][td]
+[tr][td]app_requires[/td][td]access rules[/td][td]char(255)[/td][td]NO[/td][td][/td][td][/td][td]
 [/td][/tr]
+
+[tr][td]app_created[/td][td]datetime of app creation[/td][td]datetime[/td][td]NO[/td][td][/td][td][/td][td]
+[/td][/tr]
+[tr][td]app_edited[/td][td]datetime of last app edit[/td][td]datetime[/td][td]NO[/td][td][/td][td][/td][td]
+[/td][/tr]
+
+[tr][td]app_deleted[/td][td]1 = deleted, 0 = normal[/td][td]int(11)[/td][td]NO[/td][td][/td][td][/td][td]
+[/td][/tr]
+[tr][td]app_system[/td][td]1 = imported system app, 0 = member created app[/td][td]int(11)[/td][td]NO[/td][td][/td][td][/td][td]
+[/td][/tr]
+
+
 [/table]
 
 Storage for personal apps

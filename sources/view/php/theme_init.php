@@ -10,9 +10,10 @@ head_add_css('view/css/conversation.css');
 head_add_css('view/css/widgets.css');
 head_add_css('view/css/colorbox.css');
 head_add_css('library/justifiedGallery/justifiedGallery.min.css');
+head_add_css('library/Text_Highlighter/sample.css');	
 
 head_add_js('jquery.js');
-//head_add_js('jquery-migrate-1.1.1.js');
+//head_add_js('jquery.migrate-3.0.0.js');
 head_add_js('library/justifiedGallery/jquery.justifiedGallery.min.js');
 head_add_js('library/sprintf.js/dist/sprintf.min.js');
 
@@ -25,6 +26,7 @@ head_add_js('library/jquery-textcomplete/jquery.textcomplete.js');
 //head_add_js('library/colorbox/jquery.colorbox.js');
 head_add_js('library/jquery.timeago.js');
 head_add_js('library/readmore.js/readmore.js');
+head_add_js('library/sticky-kit/sticky-kit.js');
 //head_add_js('library/jquery_ac/friendica.complete.js');
 //head_add_js('library/tiptip/jquery.tipTip.minified.js');
 head_add_js('library/jgrowl/jquery.jgrowl_minimized.js');

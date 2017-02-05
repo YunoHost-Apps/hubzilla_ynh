@@ -13,10 +13,10 @@ namespace Zotlabs\Web;
 
 class Session {
 
-	private static $handler = null;
-	private static $session_started = false;
+	private $handler = null;
+	private $session_started = false;
 
-	function init() {
+	public function init() {
 
 		$gc_probability = 50;
 
@@ -29,7 +29,8 @@ class Session {
 		 */
 
 		$handler = new \Zotlabs\Web\SessionHandler();
-		self::$handler = $handler;
+
+		$this->handler = $handler;
 
 		$x = session_set_save_handler($handler,false);
 		if(! $x)
@@ -38,11 +39,17 @@ class Session {
 		// Force cookies to be secure (https only) if this site is SSL enabled. 
 		// Must be done before session_start().
 
+
 		$arr = session_get_cookie_params();
+
+		// Note when setting cookies: set the domain to false which creates a single domain
+		// cookie. If you use a hostname it will create a .domain.com wildcard which will
+		// have some nasty side effects if you have any other subdomains running hubzilla. 
+
 		session_set_cookie_params(
 			((isset($arr['lifetime']))   ? $arr['lifetime'] : 0),
 			((isset($arr['path']))      ? $arr['path']     : '/'),
-			((isset($arr['domain']))    ? $arr['domain']   : App::get_hostname()),
+			(($arr['domain'])    ? $arr['domain']   : false),
 			((isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) == 'on') ? true : false),
 			((isset($arr['httponly']))  ? $arr['httponly'] : true)
 		);
@@ -51,9 +58,9 @@ class Session {
 
 	}
 
-	function start() {
+	public function start() {
 		session_start();
-		self::$session_started = true;
+		$this->session_started = true;
 	}
 
 	/**
@@ -62,8 +69,8 @@ class Session {
 	 * @return void
 	 */
 
-	function nuke() {
-		self::new_cookie(0); // 0 means delete on browser exit
+	public function nuke() {
+		$this->new_cookie(0); // 0 means delete on browser exit
 		if($_SESSION && count($_SESSION)) {
 			foreach($_SESSION as $k => $v) {
 				unset($_SESSION[$k]);
@@ -71,48 +78,53 @@ class Session {
 		}
 	}
 
-	function new_cookie($xtime) {
+	public function new_cookie($xtime) {
 
 		$newxtime = (($xtime> 0) ? (time() + $xtime) : 0);
 
 		$old_sid = session_id();
 
-		if(self::$handler && self::$session_started) {
+		$arr = session_get_cookie_params();
+
+		if($this->handler && $this->session_started) {
+
 			session_regenerate_id(true);
 
 			// force SessionHandler record creation with the new session_id
 			// which occurs as a side effect of read()
 
-			self::$handler->read(session_id());
+			$this->handler->read(session_id());
 		}
 		else 
 			logger('no session handler');
 
 		if (x($_COOKIE, 'jsdisabled')) {
-			setcookie('jsdisabled', $_COOKIE['jsdisabled'], $newxtime);
+			setcookie('jsdisabled', $_COOKIE['jsdisabled'], $newxtime, '/', false,((isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) == 'on') ? true : false),((isset($arr['httponly']))  ? $arr['httponly'] : true));
 		}
-		setcookie(session_name(),session_id(),$newxtime);
+		setcookie(session_name(),session_id(),$newxtime, '/', false,((isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) == 'on') ? true : false),((isset($arr['httponly']))  ? $arr['httponly'] : true));
 
 		$arr = array('expire' => $xtime);
 		call_hooks('new_cookie', $arr);
 
 	}
 
-	function extend_cookie() {
+	public function extend_cookie() {
+
+		$arr = session_get_cookie_params();
 
 		// if there's a long-term cookie, extend it
 
 		$xtime = (($_SESSION['remember_me']) ? (60 * 60 * 24 * 365) : 0 );
 
 		if($xtime)
-			setcookie(session_name(),session_id(),(time() + $xtime));
+			setcookie(session_name(),session_id(),(time() + $xtime), '/', false,((isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) == 'on') ? true : false),((isset($arr['httponly']))  ? $arr['httponly'] : true));
 		$arr = array('expire' => $xtime);
 		call_hooks('extend_cookie', $arr);
 
 	}
 
 
-	function return_check() {
+	public function return_check() {
 
 		// check a returning visitor against IP changes.
 		// If the change results in being blocked from re-entry with the current cookie
@@ -152,7 +164,7 @@ class Session {
 					// check any difference at all
 					logger('Session address changed. Paranoid setting in effect, blocking session. '
 					. $_SESSION['addr'] . ' != ' . $_SERVER['REMOTE_ADDR']);
-					self::nuke();
+					$this->nuke();
 					goaway(z_root());
 					break;
 			}

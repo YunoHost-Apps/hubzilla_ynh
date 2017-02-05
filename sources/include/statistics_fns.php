@@ -64,7 +64,7 @@ function update_channels_active_monthly_stat() {
 }
 
 function update_local_posts_stat() {
-	$posts = q("SELECT COUNT(*) AS local_posts FROM `item` WHERE item_wall = 1 ");
+	$posts = q("SELECT COUNT(*) AS local_posts FROM item WHERE item_wall = 1 ");
 	if (is_array($posts)) {
 		$local_posts_stat = intval($posts[0]["local_posts"]);
 		set_config('system','local_posts_stat',$local_posts_stat);

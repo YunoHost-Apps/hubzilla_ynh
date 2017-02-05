@@ -5,10 +5,6 @@ language: php
 php:
   # using major version aliases
 
-  # aliased to a recent 5.4.x version
-  - 5.4
-  # aliased to a recent 5.5.x version
-  - 5.5
   # aliased to a recent 5.6.x version
   - 5.6
   # aliased to a recent 7.x version
@@ -27,7 +23,6 @@ matrix:
 #    - php: hhvm
 #      env: DB=pgsql  # PDO driver for pgsql is unsupported by HHVM (3rd party install for support)
   allow_failures:
-    - php: 7.0
     - php: hhvm
 
 # execute any number of scripts before the test run, custom env's are available as variables
@@ -36,9 +31,12 @@ matrix:
 #  - if [[ "$DB" == "pgsql" ]]; then psql -c "create database hello_world_test;" -U postgres; fi
 #  - if [[ "$DB" == "mysql" ]]; then mysql -e "create database IF NOT EXISTS hello_world_test;" -uroot; fi
 
+install:
+  - composer require phpunit/phpunit
+
 # omitting "script:" will default to phpunit
 # use the $DB env variable to determine the phpunit.xml to use
-script: phpunit  tests/*php
+script: vendor/bin/phpunit  tests/unit/
 
 # configure notifications (email, IRC, campfire etc)
 notifications:

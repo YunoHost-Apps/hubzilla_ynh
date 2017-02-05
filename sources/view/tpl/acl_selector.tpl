@@ -1,3 +1,4 @@
+<form>
 <div class="modal" id="aclModal">
 	<div class="modal-dialog">
 		<div class="modal-content">
@@ -14,24 +15,15 @@
 				{{/if}}
 				<label for="acl-select">{{$select_label}}</label>
 				<select id="acl-select" name="optionsRadios" class="form-control form-group">
-					<option id="acl-showall" value="public" selected>{{$showall}}</option>
-					<option id="acl-onlyme" value="onlyme">{{$onlyme}}</option>
-					<option id="acl-showlimited" value="limited">{{$showlimited}}</option>
+					<option id="acl-showall" value="public" {{$public_selected}}>{{$showall}}</option>
+					{{$groups}}
+					<option id="acl-onlyme" value="onlyme" {{$justme_selected}}>{{$onlyme}}</option>
+					<option id="acl-custom" value="custom" {{$custom_selected}}>{{$custom}}</option>
 				</select>
 
 				{{if $showallOrigin}}
 				<div id="acl-info" class="form-group">
 					<i class="fa fa-info-circle"></i>&nbsp;{{$showallOrigin}}
-				</div>
-				{{/if}}
-
-				{{if $jotnets}}
-				<div class="jotnets-wrapper" role="tab" id="jotnets-wrapper">
-					<a data-toggle="collapse" class="btn btn-block btn-default" href="#jotnets-collapse" aria-expanded="false" aria-controls="jotnets-collapse">{{$jnetModalTitle}} <span class="caret"></span></a>
-				</div>
-				<div id="jotnets-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="acl-select">
-					{{$jotnets}}
-					<div class="clear"></div>
 				</div>
 				{{/if}}
 
@@ -45,13 +37,14 @@
 							<div id="acl-list-content"></div>
 						</div>
 					</div>
-					<span id="acl-fields"></span>
 				</div>
+
 				<div class="acl-list-item" rel="acl-template" style="display:none">
 					<img data-src="{0}"><p>{1}</p>
 					<button class="acl-button-hide btn btn-xs btn-default"><i class="fa fa-times"></i> {{$hide}}</button>
 					<button class="acl-button-show btn btn-xs btn-default"><i class="fa fa-check"></i> {{$show}}</button>
 				</div>
+
 			</div>
 			<div class="modal-footer clear">
 				<button type="button" class="btn btn-default" data-dismiss="modal">{{$aclModalDismiss}}</button>
@@ -59,14 +52,13 @@
 		</div><!-- /.modal-content -->
 	</div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
-
+</form>
 <script>
 	$('[data-toggle="popover"]').popover(); // Init the popover, if present
 
 	if(typeof acl=="undefined"){
 		acl = new ACL(
-			baseurl+"/acl",
-			[ {{$allowcid}},{{$allowgid}},{{$denycid}},{{$denygid}} ]
+			baseurl+"/acl"
 		);
 	}
 </script>

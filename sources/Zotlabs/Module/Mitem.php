@@ -147,12 +147,16 @@ class Mitem extends \Zotlabs\Web\Controller {
 			else {
 				$display = (($r) ? 'none' : 'block');
 			}
-	
+
 			$create = replace_macros(get_markup_template('mitemedit.tpl'), array(
 				'$menu_id'     => \App::$data['menu']['menu_id'],
 				'$permissions' => t('Menu Item Permissions'),
 				'$permdesc'    => t("\x28click to open/close\x29"),
 				'$aclselect'   => populate_acl($acl->get(),false),
+				'$allow_cid'   => acl2json($acl->get()['allow_cid']),
+				'$allow_gid'   => acl2json($acl->get()['allow_gid']),
+				'$deny_cid'    => acl2json($acl->get()['deny_cid']),
+				'$deny_gid'    => acl2json($acl->get()['deny_gid']),
 				'$mitem_desc'  => array('mitem_desc', t('Link Name'), '', 'Visible name of the link','*'),
 				'$mitem_link'  => array('mitem_link', t('Link or Submenu Target'), '', t('Enter URL of the link or select a menu name to create a submenu'), '*', 'list="menu-names"'),
 				'$usezid'      => array('usezid', t('Use magic-auth if available'), true, '', array(t('No'), t('Yes'))),
@@ -226,6 +230,10 @@ class Mitem extends \Zotlabs\Web\Controller {
 					'$permissions' => t('Menu Item Permissions'),
 					'$permdesc' => t("\x28click to open/close\x29"),
 					'$aclselect' => populate_acl($mitem,false),
+					'$allow_cid' => acl2json($mitem['allow_cid']),
+					'$allow_gid' => acl2json($mitem['allow_gid']),
+					'$deny_cid' => acl2json($mitem['deny_cid']),
+					'$deny_gid' => acl2json($mitem['deny_gid']),
 					'$mitem_id' => intval(argv(2)),
 					'$mitem_desc' => array('mitem_desc', t('Link text'), $mitem['mitem_desc'], '','*'),
 					'$mitem_link'  => array('mitem_link', t('Link or Submenu Target'), $mitem['mitem_link'], 'Enter URL of the link or select a menu name to create a submenu', '*', 'list="menu-names"'),

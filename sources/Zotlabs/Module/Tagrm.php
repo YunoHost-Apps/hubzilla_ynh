@@ -18,7 +18,7 @@ class Tagrm extends \Zotlabs\Web\Controller {
 		$tag =  ((x($_POST,'tag'))  ? trim($_POST['tag'])       : '');
 		$item = ((x($_POST,'item')) ? intval($_POST['item'])    : 0 );
 	
-		$r = q("SELECT * FROM `item` WHERE `id` = %d AND `uid` = %d LIMIT 1",
+		$r = q("SELECT * FROM item WHERE id = %d AND uid = %d LIMIT 1",
 			intval($item),
 			intval(local_channel())
 		);
@@ -54,7 +54,7 @@ class Tagrm extends \Zotlabs\Web\Controller {
 	
 	
 	
-		function get() {
+	function get() {
 	
 		if(! local_channel()) {
 			goaway(z_root() . '/' . $_SESSION['photo_return']);
@@ -67,7 +67,7 @@ class Tagrm extends \Zotlabs\Web\Controller {
 			$item = intval(argv(2));
 			$tag = argv(3);
 	
-			$r = q("SELECT * FROM `item` WHERE `id` = %d AND `uid` = %d LIMIT 1",
+			$r = q("SELECT * FROM item WHERE id = %d AND uid = %d LIMIT 1",
 				intval($item),
 				intval(local_channel())
 			);
@@ -107,7 +107,7 @@ class Tagrm extends \Zotlabs\Web\Controller {
 	
 			$item = intval(argv(2));
 	
-			$r = q("SELECT * FROM `item` WHERE `id` = %d AND `uid` = %d LIMIT 1",
+			$r = q("SELECT * FROM item WHERE id = %d AND uid = %d LIMIT 1",
 				intval($item),
 				intval(local_channel())
 			);

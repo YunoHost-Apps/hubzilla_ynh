@@ -48,7 +48,7 @@ class Share extends \Zotlabs\Web\Controller {
 	
 		$is_photo = (($r[0]['obj_type'] === ACTIVITY_OBJ_PHOTO) ? true : false);
 		if($is_photo) {
-			$object = json_decode($r[0]['object'],true);
+			$object = json_decode($r[0]['obj'],true);
 			$photo_bb = $object['body'];
 		}
 	

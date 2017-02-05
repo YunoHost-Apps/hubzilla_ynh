@@ -48,15 +48,15 @@ class Profile extends \Zotlabs\Web\Controller {
 			}
 		}
 	
-		profile_load($a,$which,$profile);
+		profile_load($which,$profile);
 	
 	
 	}
 	
 	function get() {
 	
-		if(get_config('system','block_public') && (! get_account_id()) && (! remote_channel())) {
-				return login();
+		if(observer_prohibited(true)) {
+			return login();
 		}
 	
 		$groups = array();

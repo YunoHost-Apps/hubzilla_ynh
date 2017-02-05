@@ -81,6 +81,3 @@ Unmount your file system, remount your file system, and try copying over a file 
 If that still doesn't work, disable the cache.  Note that this has a performance impact so should only be done if disabling locks didn't solve your problem.  Edit the cache_size and set it to [code]cache_size 0[/code] and also set file_refresh to [code]file_refresh 0[/code].  Unmount your filesystem, remount your file system, and test it again.
 
 If it [i]still[/i] doesn't work, there is one more thing you can try.  (This one is caused by a bug in older versions of dav2fs itself, so updating to a new version may also help).  Enable weak etag dropping by setting [code]drop_weak_etags 1[/code].  Unmount and remount your filesystem to apply the changes.
-
-#include doc/macros/cloud_footer.bb;
-

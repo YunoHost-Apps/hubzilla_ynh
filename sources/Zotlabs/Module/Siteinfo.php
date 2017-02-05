@@ -15,80 +15,33 @@ class Siteinfo extends \Zotlabs\Web\Controller {
 	
 	function get() {
 	
-		if(! get_config('system','hidden_version_siteinfo')) {
-			$version = sprintf( t('Version %s'), \Zotlabs\Project\System::get_project_version());
-			if(@is_dir('.git') && function_exists('shell_exec')) {
-				$commit = @shell_exec('git log -1 --format="%h"');
-				$tag = \Zotlabs\Project\System::get_std_version(); // @shell_exec('git describe --tags --abbrev=0');
-			}
-			if(! isset($commit) || strlen($commit) > 16)
-				$commit = '';
-		}
-		else {
-		        $version = $commit = '';
-		}
-		$visible_plugins = array();
-		if(is_array(\App::$plugins) && count(\App::$plugins)) {
-			$r = q("select * from addon where hidden = 0");
-			if(count($r))
-				foreach($r as $rr)
-					$visible_plugins[] = $rr['name'];
-		}
-	
-		$plugins_list = '';
-		if(count($visible_plugins)) {
-		        $plugins_text = t('Installed plugins/addons/apps:');
-			$sorted = $visible_plugins;
-			$s = '';
-			sort($sorted);
-			foreach($sorted as $p) {
-				if(strlen($p)) {
-					if(strlen($s)) $s .= ', ';
-					$s .= $p;
-				}
-			}
-			$plugins_list .= $s;
-		}
-		else
-			$plugins_text = t('No installed plugins/addons/apps');
-	
-		$txt = get_config('system','admininfo');
-		$admininfo = bbcode($txt);
-	
-		if(file_exists('doc/site_donate.html'))
-			$donate .= file_get_contents('doc/site_donate.html');
-	
-		if(function_exists('sys_getloadavg'))
-			$loadavg = sys_getloadavg();
-	
-		$o = replace_macros(get_markup_template('siteinfo.tpl'), array(
-			'$title' => t('$Projectname'),
-			'$description' => t('This is a hub of $Projectname - a global cooperative network of decentralized privacy enhanced websites.'),
-			'$version' => $version,
-			'$tag_txt' => t('Tag: '),
-			'$tag' => $tag,
-			'$polled' => t('Last background fetch: '),
-			'$lastpoll' => get_poller_runtime(),
-			'$load_average' => t('Current load average: '),
-			'$loadavg_all' => $loadavg[0] . ', ' . $loadavg[1] . ', ' . $loadavg[2],		
-			'$commit' => $commit,
-			'$web_location' => t('Running at web location') . ' ' . z_root(),
-			'$visit' => t('Please visit <a href="http://hubzilla.org">hubzilla.org</a> to learn more about $Projectname.'),
-			'$bug_text' => t('Bug reports and issues: please visit'),
-			'$bug_link_url' => 'https://github.com/redmatrix/hubzilla/issues',
-			'$bug_link_text' => t('$projectname issues'),
-			'$contact' => t('Suggestions, praise, etc. - please email "redmatrix" at librelist - dot com'),
-			'$donate' => $donate,
-			'$adminlabel' => t('Site Administrators'),
-			'$admininfo' => $admininfo,
-			'$plugins_text' => $plugins_text,
-			'$plugins_list' => $plugins_list
-	        ));
-	
-		call_hooks('about_hook', $o); 	
-	
-		return $o;
-	
+		$siteinfo = replace_macros(get_markup_template('siteinfo.tpl'),
+			[ 
+				'$title' => t('About this site'),
+				'$sitenametxt' => t('Site Name'),
+				'$sitename' => \Zotlabs\Lib\System::get_site_name(),
+				'$headline' => t('Site Information'),
+				'$site_about' => bbcode(get_config('system','siteinfo')),
+				'$admin_headline' => t('Administrator'),
+				'$admin_about' => bbcode(get_config('system','admininfo')),
+				'$terms' => t('Terms of Service'),
+				'$prj_header' => t('Software and Project information'),
+				'$prj_name' => t('This site is powered by $Projectname'),
+				'$prj_transport' => t('Federated and decentralised networking and identity services provided by Zot'),
+				'$transport_link' => '<a href="https://zotlabs.com">https://zotlabs.com</a>',
+				'$prj_version' => ((get_config('system','hidden_version_siteinfo')) ? '' : sprintf( t('Version %s'), \Zotlabs\Lib\System::get_project_version())),
+				'$prj_linktxt' => t('Project homepage'),
+				'$prj_srctxt' => t('Developer homepage'),
+				'$prj_link' => \Zotlabs\Lib\System::get_project_link(),
+				'$prj_src' => \Zotlabs\Lib\System::get_project_srclink(),
+			]
+		);
+
+		call_hooks('about_hook', $siteinfo); 	
+
+		return $siteinfo;
+
 	}
+
 	
 }

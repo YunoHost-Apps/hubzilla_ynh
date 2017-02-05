@@ -1,23 +1,25 @@
 <?php
 namespace Zotlabs\Module;
-require_once('include/contact_selectors.php');
-require_once('include/Contact.php');
 
+require_once('include/selectors.php');
 
 class Viewconnections extends \Zotlabs\Web\Controller {
 
 	function init() {
 	
-		if((get_config('system','block_public')) && (! local_channel()) && (! remote_channel())) {
+		if(observer_prohibited()) {
 			return;
 		}
-		if(argc() > 1)
-			profile_load($a,argv(1));
+
+		if(argc() > 1) {
+			profile_load(argv(1));
+		}
+
 	}
 	
-		function get() {
+	function get() {
 	
-		if((get_config('system','block_public')) && (! local_channel()) && (! remote_channel())) {
+		if(observer_prohibited()) {
 			notice( t('Public access denied.') . EOL);
 			return;
 		}

@@ -4,13 +4,13 @@ $(document).ready(function() {
 }); 
 
 $("#contacts-search").keyup(function(event){
-		if(event.keyCode == 13){
-			$("#contacts-search").click();
-		}
+	if(event.keyCode == 13){
+		$("#contacts-search").click();
+	}
 });
 $(".autocomplete-w1 .selected").keyup(function(event){
-		if(event.keyCode == 13){
-			$("#contacts-search").click();
-		}
+	if(event.keyCode == 13){
+		$("#contacts-search").click();
+	}
 });
 

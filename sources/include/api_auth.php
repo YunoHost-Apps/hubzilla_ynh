@@ -59,21 +59,15 @@ function api_login(&$a){
 	if(isset($_SERVER['PHP_AUTH_USER'])) {
 		$channel_login = 0;
 		$record = account_verify_password($_SERVER['PHP_AUTH_USER'],$_SERVER['PHP_AUTH_PW']);
-		if(! $record) {
-	        $r = q("select * from channel left join account on account.account_id = channel.channel_account_id 
-				where channel.channel_address = '%s' limit 1",
-		       dbesc($_SERVER['PHP_AUTH_USER'])
-			);
-        	if ($r) {
-				$record = account_verify_password($r[0]['account_email'],$_SERVER['PHP_AUTH_PW']);
-				if($record)
-					$channel_login = $r[0]['channel_id'];
-			}
+		if($record && $record['channel']) {
+			$channel_login = $record['channel']['channel_id'];
 		}
 	}
 
-	if($record) {
-		authenticate_success($record);
+
+
+	if($record['account']) {
+		authenticate_success($record['account']);
 
 		if($channel_login)
 			change_channel($channel_login);

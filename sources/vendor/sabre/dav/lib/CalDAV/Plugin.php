@@ -5,8 +5,9 @@ namespace Sabre\CalDAV;
 use DateTimeZone;
 use Sabre\DAV;
 use Sabre\DAV\Exception\BadRequest;
+use Sabre\DAV\INode;
 use Sabre\DAV\MkCol;
-use Sabre\DAV\Xml\Property\Href;
+use Sabre\DAV\Xml\Property\LocalHref;
 use Sabre\DAVACL;
 use Sabre\VObject;
 use Sabre\HTTP;
@@ -186,6 +187,7 @@ class Plugin extends DAV\ServerPlugin {
         $server->on('beforeCreateFile',    [$this, 'beforeCreateFile']);
         $server->on('beforeWriteContent',  [$this, 'beforeWriteContent']);
         $server->on('afterMethod:GET',     [$this, 'httpAfterGET']);
+        $server->on('getSupportedPrivilegeSet', [$this, 'getSupportedPrivilegeSet']);
 
         $server->xml->namespaceMap[self::NS_CALDAV] = 'cal';
         $server->xml->namespaceMap[self::NS_CALENDARSERVER] = 'cs';
@@ -233,9 +235,10 @@ class Plugin extends DAV\ServerPlugin {
      *
      * @param string $reportName
      * @param mixed $report
+     * @param mixed $path
      * @return bool
      */
-    function report($reportName, $report) {
+    function report($reportName, $report, $path) {
 
         switch ($reportName) {
             case '{' . self::NS_CALDAV . '}calendar-multiget' :
@@ -341,7 +344,7 @@ class Plugin extends DAV\ServerPlugin {
 
                 $calendarHomePath = $this->getCalendarHomeForPrincipal($principalUrl);
                 if (is_null($calendarHomePath)) return null;
-                return new Href($calendarHomePath . '/');
+                return new LocalHref($calendarHomePath . '/');
 
             });
             // The calendar-user-address-set property is basically mapped to
@@ -349,7 +352,7 @@ class Plugin extends DAV\ServerPlugin {
             $propFind->handle('{' . self::NS_CALDAV . '}calendar-user-address-set', function() use ($node) {
                 $addresses = $node->getAlternateUriSet();
                 $addresses[] = $this->server->getBaseUri() . $node->getPrincipalUrl() . '/';
-                return new Href($addresses, false);
+                return new LocalHref($addresses);
             });
             // For some reason somebody thought it was a good idea to add
             // another one of these properties. We're supporting it too.
@@ -394,8 +397,8 @@ class Plugin extends DAV\ServerPlugin {
 
                 }
 
-                $propFind->set($propRead, new Href($readList));
-                $propFind->set($propWrite, new Href($writeList));
+                $propFind->set($propRead, new LocalHref($readList));
+                $propFind->set($propWrite, new LocalHref($writeList));
 
             }
 
@@ -821,11 +824,7 @@ class Plugin extends DAV\ServerPlugin {
             $data = stream_get_contents($data);
         }
 
-        $before = md5($data);
-        // Converting the data to unicode, if needed.
-        $data = DAV\StringUtil::ensureUTF8($data);
-
-        if ($before !== md5($data)) $modified = true;
+        $before = $data;
 
         try {
 
@@ -865,7 +864,7 @@ class Plugin extends DAV\ServerPlugin {
         }
 
         $foundType = null;
-        $foundUID = null;
+
         foreach ($vobj->getComponents() as $component) {
             switch ($component->name) {
                 case 'VTIMEZONE' :
@@ -873,31 +872,59 @@ class Plugin extends DAV\ServerPlugin {
                 case 'VEVENT' :
                 case 'VTODO' :
                 case 'VJOURNAL' :
-                    if (is_null($foundType)) {
-                        $foundType = $component->name;
-                        if (!in_array($foundType, $supportedComponents)) {
-                            throw new Exception\InvalidComponentType('This calendar only supports ' . implode(', ', $supportedComponents) . '. We found a ' . $foundType);
-                        }
-                        if (!isset($component->UID)) {
-                            throw new DAV\Exception\BadRequest('Every ' . $component->name . ' component must have an UID');
-                        }
-                        $foundUID = (string)$component->UID;
-                    } else {
-                        if ($foundType !== $component->name) {
-                            throw new DAV\Exception\BadRequest('A calendar object must only contain 1 component. We found a ' . $component->name . ' as well as a ' . $foundType);
-                        }
-                        if ($foundUID !== (string)$component->UID) {
-                            throw new DAV\Exception\BadRequest('Every ' . $component->name . ' in this object must have identical UIDs');
-                        }
-                    }
+                    $foundType = $component->name;
                     break;
-                default :
-                    throw new DAV\Exception\BadRequest('You are not allowed to create components of type: ' . $component->name . ' here');
+            }
+
+        }
+
+        if (!$foundType || !in_array($foundType, $supportedComponents)) {
+            throw new Exception\InvalidComponentType('iCalendar objects must at least have a component of type ' . implode(', ', $supportedComponents));
+        }
+
+        $options = VObject\Node::PROFILE_CALDAV;
+        $prefer = $this->server->getHTTPPrefer();
+
+        if ($prefer['handling'] !== 'strict') {
+            $options |= VObject\Node::REPAIR;
+        }
+
+        $messages = $vobj->validate($options);
+
+        $highestLevel = 0;
+        $warningMessage = null;
+
+        // $messages contains a list of problems with the vcard, along with
+        // their severity.
+        foreach ($messages as $message) {
+
+            if ($message['level'] > $highestLevel) {
+                // Recording the highest reported error level.
+                $highestLevel = $message['level'];
+                $warningMessage = $message['message'];
+            }
+            switch ($message['level']) {
+
+                case 1 :
+                    // Level 1 means that there was a problem, but it was repaired.
+                    $modified = true;
+                    break;
+                case 2 :
+                    // Level 2 means a warning, but not critical
+                    break;
+                case 3 :
+                    // Level 3 means a critical error
+                    throw new DAV\Exception\UnsupportedMediaType('Validation error in iCalendar: ' . $message['message']);
 
             }
+
         }
-        if (!$foundType)
-            throw new DAV\Exception\BadRequest('iCalendar object must contain at least 1 of VEVENT, VTODO or VJOURNAL');
+        if ($warningMessage) {
+            $response->setHeader(
+                'X-Sabre-Ew-Gross',
+                'iCalendar validation warning: ' . $warningMessage
+            );
+        }
 
         // We use an extra variable to allow event handles to tell us wether
         // the object was modified or not.
@@ -917,12 +944,12 @@ class Plugin extends DAV\ServerPlugin {
             ]
         );
 
-        if ($subModified) {
+        if ($modified || $subModified) {
             // An event handler told us that it modified the object.
             $data = $vobj->serialize();
 
             // Using md5 to figure out if there was an *actual* change.
-            if (!$modified && $before !== md5($data)) {
+            if (!$modified && strcmp($data, $before) !== 0) {
                 $modified = true;
             }
 
@@ -933,6 +960,22 @@ class Plugin extends DAV\ServerPlugin {
 
     }
 
+    /**
+     * This method is triggered whenever a subsystem reqeuests the privileges
+     * that are supported on a particular node.
+     *
+     * @param INode $node
+     * @param array $supportedPrivilegeSet
+     */
+    function getSupportedPrivilegeSet(INode $node, array &$supportedPrivilegeSet) {
+
+        if ($node instanceof ICalendar) {
+            $supportedPrivilegeSet['{DAV:}read']['aggregates']['{' . self::NS_CALDAV . '}read-free-busy'] = [
+                'abstract'   => false,
+                'aggregates' => [],
+            ];
+        }
+    }
 
     /**
      * This method is used to generate HTML output for the

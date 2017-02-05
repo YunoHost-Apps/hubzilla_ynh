@@ -59,12 +59,15 @@ class Invite extends \Zotlabs\Web\Controller {
 	
 			$account = \App::get_account();
 	
-	
-			$res = mail($recip, sprintf( t('Please join us on $Projectname'), \App::$config['sitename']),
-				$nmessage,
-				"From: " . $account['account_email'] . "\n"
-				. 'Content-type: text/plain; charset=UTF-8' . "\n"
-				. 'Content-transfer-encoding: 8bit' );
+			$res = z_mail(
+				[ 
+				'toEmail'        => $recip,
+				'fromName'       => ' ',
+				'fromEmail'      => $account['account_email'],
+				'messageSubject' => t('Please join us on $Projectname'),
+				'textVersion'    => $nmessage,
+				]
+			);
 	
 			if($res) {
 				$total ++;
@@ -108,7 +111,7 @@ class Invite extends \Zotlabs\Web\Controller {
 				$invite_code = autoname(8) . rand(1000,9999);
 				$nmessage = str_replace('$invite_code',$invite_code,$message);
 	
-				$r = q("INSERT INTO `register` (`hash`,`created`) VALUES ('%s', '%s') ",
+				$r = q("INSERT INTO register (hash,created) VALUES ('%s', '%s') ",
 					dbesc($invite_code),
 					dbesc(datetime_convert())
 				);

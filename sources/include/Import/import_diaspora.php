@@ -89,7 +89,7 @@ function import_diaspora($data) {
 	}
 
 	$gender = escape_tags($data['user']['profile']['gender']);
-	$about = diaspora2bb($data['user']['profile']['bio']);
+	$about = markdown_to_bb($data['user']['profile']['bio']);
 	$publish = intval($data['user']['profile']['searchable']);
 	if($data['user']['profile']['birthday'])
 		$dob = datetime_convert('UTC','UTC',$data['user']['profile']['birthday'],'Y-m-d');

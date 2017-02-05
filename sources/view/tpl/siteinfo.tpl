@@ -1,26 +1,41 @@
 <div class="generic-content-wrapper-styled">
-<h3>{{$title}}</h3>
-<p></p>
-<p>{{$description}}</p>
-{{if $version}}
-<p>{{$version}}{{if $commit}}+{{$commit}}{{/if}}</p>
+<h2>{{$title}}</h2>
+
+<h3>{{$sitenametxt}}</h3>
+
+<div>{{$sitename}}</div>
+
+<h3>{{$headline}}</h3>
+
+<div>{{if $site_about}}{{$site_about}}{{else}}--{{/if}}</div>
+
+<h3>{{$admin_headline}}</h3>
+
+<div>{{if $admin_about}}{{$admin_about}}{{else}}--{{/if}}</div>
+
+<br><br>
+<div><a href="help/TermsOfService">{{$terms}}</a></div>
+
+<hr>
+
+<h2>{{$prj_header}}</h2>
+
+<div>{{$prj_name}} ({{$z_server_role}})</div>
+
+{{if $prj_version}}
+<div>{{$prj_version}}</div>
 {{/if}}
-{{if $tag}}
-<p>{{$tag_txt}} {{$tag}}</p>
-{{/if}}
-{{if $polled}}
-<p>{{$polled}} {{$lastpoll}}</p>
-{{/if}}
-<p>{{$load_average}} {{$loadavg_all}}</p>
-<p>{{$web_location}}</p>
-<p>{{$visit}}</p>
-<p>{{$bug_text}} <a href="{{$bug_link_url}}">{{$bug_link_text}}</a></p>
-<p>{{$adminlabel}}</p>
-<p>{{$admininfo}}</p>
-<p>{{$contact}}</p>
-<p>{{$plugins_text}}</p>
-{{if $plugins_list}}
-   <div style="margin-left: 25px; margin-right: 25px;">{{$plugins_list}}</div>
-{{/if}}
-<p>{{$donate}}</p>
+
+
+<h3>{{$prj_linktxt}}</h3>
+
+<div>{{$prj_link}}</div>
+
+<h3>{{$prj_srctxt}}</h3>
+
+<div>{{$prj_src}}</div>
+
+<br><br>
+<div>{{$prj_transport}} ({{$transport_link}})</div>
+
 </div>

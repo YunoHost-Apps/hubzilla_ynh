@@ -124,14 +124,19 @@ class Tagger extends \Zotlabs\Web\Controller {
 		$arr['tgt_type'] = $targettype;
 		$arr['target'] = $target;
 		$arr['obj_type'] = $objtype;
-		$arr['object'] = $obj;
+		$arr['obj'] = $obj;
 		$arr['parent_mid'] = $item['mid'];
 		
 		store_item_tag($item['uid'],$item['id'],TERM_OBJ_POST,TERM_COMMUNITYTAG,$term,$tagid);
 		$ret = post_activity_item($arr);
-	
-		if($ret['success'])
-			proc_run('php','include/notifier.php','tag',$ret['activity']['id']);
+
+		if($ret['success']) {
+			build_sync_packet(local_channel(),
+				[ 
+					'item' => [ encode_item($ret['activity'],true) ]
+				]
+			);
+		}
 	
 		killme();
 	

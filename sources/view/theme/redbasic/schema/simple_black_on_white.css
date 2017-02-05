@@ -290,3 +290,10 @@ pre {
   	-webkit-box-shadow: none;
   	box-shadow: none;
 }
+
+
+.contextual-help-content-open {
+	background: #FFF;
+	top: 50px;
+
+}

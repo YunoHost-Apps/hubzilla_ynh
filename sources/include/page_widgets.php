@@ -1,7 +1,8 @@
 <?php
 
 // A basic toolbar for observers with write_pages permissions
-function writepages_widget ($who,$which){
+
+function writepages_widget ($who,$which) {
 	return replace_macros(get_markup_template('write_pages.tpl'), array(
 		'$new' => t('New Page'),
 		'$newurl' => "webpages/$who",
@@ -13,9 +14,11 @@ function writepages_widget ($who,$which){
 
 
 // Chan is channel_id, $which is channel_address - we'll need to pass observer later too.
-function pagelist_widget ($owner,$which){
 
-	$r = q("select * from item_id left join item on item_id.iid = item.id where item_id.uid = %d and service = 'WEBPAGE' order by item.created desc",
+function pagelist_widget ($owner,$which) {
+
+	$r = q("select * from iconfig left join item on iconfig.iid = item.id where item_id.uid = %d 
+		and iconfig.cat = 'system' and iconfig.k = 'WEBPAGE' order by item.created desc",
 		intval($owner)
 	);
 
@@ -24,7 +27,7 @@ function pagelist_widget ($owner,$which){
 	if($r) {
 		$pages = array();
 		foreach($r as $rr) {
-			$pages[$rr['iid']][] = array('url' => $rr['iid'],'pagetitle' => $rr['sid'],'title' => $rr['title'],'created' => datetime_convert('UTC',date_default_timezone_get(),$rr['created']),'edited' => datetime_convert('UTC',date_default_timezone_get(),$rr['edited']));
+			$pages[$rr['iid']][] = array('url' => $rr['iid'],'pagetitle' => $rr['v'],'title' => $rr['title'],'created' => datetime_convert('UTC',date_default_timezone_get(),$rr['created']),'edited' => datetime_convert('UTC',date_default_timezone_get(),$rr['edited']));
 		}
 	}
 

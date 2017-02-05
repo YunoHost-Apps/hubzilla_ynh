@@ -61,13 +61,16 @@ EOT;
 		'$banner' =>  $banner
 	));
 
+	$server_role = get_config('system','server_role');
+	$basic = (($server_role === 'basic') ? true : false);
+	$techlevel = get_account_techlevel();
 
 	// nav links: array of array('href', 'text', 'extra css classes', 'title')
 	$nav = Array();
 
 	/**
 	 * Display login or logout
-	 */
+	 */	
 
 	$nav['usermenu']=array();
 	$userinfo = null;
@@ -76,7 +79,7 @@ EOT;
 	if(local_channel()) {
 
 
-		if($chans && count($chans) > 1 && feature_enabled(local_channel(),'nav_channel_select') && (! UNO))
+		if($chans && count($chans) > 1 && feature_enabled(local_channel(),'nav_channel_select') && (! $basic))
 			$nav['channels'] = $chans;
 
 		$nav['logout'] = Array('logout',t('Logout'), "", t('End this session'),'logout_nav_btn');
@@ -84,7 +87,7 @@ EOT;
 		// user menu
 		$nav['usermenu'][] = Array('channel/' . $channel['channel_address'], t('Home'), "", t('Your posts and conversations'),'channel_nav_btn');
 		$nav['usermenu'][] = Array('profile/' . $channel['channel_address'], t('View Profile'), "", t('Your profile page'),'profile_nav_btn');
-		if(feature_enabled(local_channel(),'multi_profiles') && (! UNO))
+		if(feature_enabled(local_channel(),'multi_profiles') && (! $basic))
 			$nav['usermenu'][]   = Array('profiles', t('Edit Profiles'),"", t('Manage/Edit profiles'),'profiles_nav_btn');
 		else
 			$nav['usermenu'][]   = Array('profiles/' . $prof[0]['id'], t('Edit Profile'),"", t('Edit your profile'),'profiles_nav_btn');
@@ -92,18 +95,20 @@ EOT;
 		$nav['usermenu'][] = Array('photos/' . $channel['channel_address'], t('Photos'), "", t('Your photos'),'photos_nav_btn');
 		$nav['usermenu'][] = Array('cloud/' . $channel['channel_address'],t('Files'),"",t('Your files'),'cloud_nav_btn');
 
-		if((! UNO) && feature_enabled(local_channel(),'ajaxchat'))
+		if((! $basic) && feature_enabled(local_channel(),'ajaxchat'))
 			$nav['usermenu'][] = Array('chat/' . $channel['channel_address'], t('Chat'),"",t('Your chatrooms'),'chat_nav_btn');
 
 
 		require_once('include/menu.php');
 		$has_bookmarks = menu_list_count(local_channel(),'',MENU_BOOKMARK) + menu_list_count(local_channel(),'',MENU_SYSTEM|MENU_BOOKMARK);
-		if(($has_bookmarks) && (! UNO)) {
+		if(($has_bookmarks) && (! $basic)) {
 			$nav['usermenu'][] = Array('bookmarks', t('Bookmarks'), "", t('Your bookmarks'),'bookmarks_nav_btn');
 		}
 
-		if(feature_enabled($channel['channel_id'],'webpages') && (! UNO))
+		if(feature_enabled($channel['channel_id'],'webpages') && (! $basic))
 			$nav['usermenu'][] = Array('webpages/' . $channel['channel_address'],t('Webpages'),"",t('Your webpages'),'webpages_nav_btn');
+		if(feature_enabled($channel['channel_id'],'wiki') && (! $basic))
+			$nav['usermenu'][] = Array('wiki/' . $channel['channel_address'],t('Wikis'),"",t('Your wikis'),'wiki_nav_btn');
 	}
 	else {
 		if(! get_account_id())  {
@@ -122,17 +127,9 @@ EOT;
 		);
 	}
 
-	if($observer) {
-		$nav['lock'] = array('logout','','lock', 
-			sprintf( t('%s - click to logout'), $observer['xchan_addr']));
-	}
-	else {
+	elseif(! $_SESSION['authenticated']) {
 		$nav['loginmenu'][] = Array('rmagic',t('Remote authentication'),'',t('Click to authenticate to your home hub'),'rmagic_nav_btn');
 	}
-
-	/**
-	 * "Home" should also take you home from an authenticated remote profile connection
-	 */
 
 	$homelink = get_my_url();
 	if(! $homelink) {
@@ -140,10 +137,16 @@ EOT;
 		$homelink = (($observer) ? $observer['xchan_url'] : '');
 	}
 
-	if((App::$module != 'home') && (! (local_channel()))) 
-		$nav['home'] = array($homelink, t('Home'), "", t('Home Page'),'home_nav_btn');
+	if(! local_channel()) {
+		$nav['rusermenu'] = array(
+			$homelink,
+			t('Get me home'),
+			'logout',
+			t('Log me out of this site')
+		);
+	}
 
-	if((App::$config['system']['register_policy'] == REGISTER_OPEN) && (! local_channel()) && (! remote_channel()))
+	if(((get_config('system','register_policy') == REGISTER_OPEN) || (get_config('system','register_policy') == REGISTER_APPROVE)) && (! $_SESSION['authenticated']))
 		$nav['register'] = array('register',t('Register'), "", t('Create an account'),'register_nav_btn');
 
 	if(! get_config('system','hide_help')) {
@@ -159,7 +162,7 @@ EOT;
 		$nav['help'] = array($help_url, t('Help'), "", t('Help and documentation'), 'help_nav_btn', $context_help, $enable_context_help);
 	}
 
-	if(! UNO)
+	if(! $basic)
 		$nav['apps'] = array('apps', t('Apps'), "", t('Applications, utilities, links, games'),'apps_nav_btn');
 
 	$nav['search'] = array('search', t('Search'), "", t('Search site @name, #tag, ?docs, content'));
@@ -202,7 +205,7 @@ EOT;
 		$nav['all_events']['all']=array('events', t('See all events'), "", "");
 		$nav['all_events']['mark'] = array('', t('Mark all events seen'), '','');
 
-		if(! UNO)		
+		if(! $basic)		
 			$nav['manage'] = array('manage', t('Channel Manager'), "", t('Manage Your Channels'),'manage_nav_btn');
 
 		$nav['settings'] = array('settings', t('Settings'),"", t('Account/Channel Settings'),'settings_nav_btn');
@@ -252,6 +255,19 @@ $powered_by = '';
 		'$help' => t('@name, #tag, ?doc, content'),
 		'$pleasewait' => t('Please wait...')
 	));
+
+
+	if(x($_SESSION, 'reload_avatar') && $observer) {
+		// The avatar has been changed on the server but the browser doesn't know that, 
+		// force the browser to reload the image from the server instead of its cache.
+		$tpl = get_markup_template('force_image_reload.tpl');
+
+		App::$page['nav'] .= replace_macros($tpl, array(
+			'$imgUrl' => $observer['xchan_photo_m']
+		));
+		unset($_SESSION['reload_avatar']);
+	}
+
 
 	call_hooks('page_header', App::$page['nav']);
 }

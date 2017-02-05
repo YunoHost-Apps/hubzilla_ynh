@@ -2,6 +2,12 @@
 
 FULLPATH=$(dirname $(readlink -f "$0"))
 
+VINFO=`echo "<?php include 'boot.php'; echo PLATFORM_NAME . \" \" . STD_VERSION . \"\\n\";" | php`
+
+PROJECTNAME=`echo $VINFO | awk '{print $1;}'`
+F9KVERSION=`echo $VINFO | awk '{print $2;}'`
+
+
 ADDONMODE=
 ADDONNAME=
 if [ "$1" == "--addon" -o "$1" == "-a" ]
@@ -24,13 +30,13 @@ else
     OUTFILE="$FULLPATH/hmessages.po"
     FINDSTARTDIR="../../"
     # skip addon folder                                                                                         
-    FINDOPTS="-wholename */addon -prune -o"
+    FINDOPTS=
+	RRIT="-wholename */extend -prune -o"
 fi
 
 
-F9KVERSION=$(cat ../../version.inc);
 
-echo "Red version $F9KVERSION"
+echo "$PROJECTNAME version $F9KVERSION"
 
 OPTS=
 
@@ -65,15 +71,15 @@ then
     sed -i "s/YEAR THE PACKAGE'S COPYRIGHT HOLDER//g" "$OUTFILE"
     sed -i "s/FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.//g" "$OUTFILE"
     sed -i "s/PACKAGE VERSION//g" "$OUTFILE"
-    sed -i "s/PACKAGE/Hubzilla $ADDONNAME addon/g" "$OUTFILE"
+    sed -i "s/PACKAGE/$PROJECTNAME $ADDONNAME addon/g" "$OUTFILE"
     sed -i "s/CHARSET/UTF-8/g" "$OUTFILE"
 	sed -i '/^\"Plural-Forms/d' "$OUTFILE"
 else
-    sed -i "s/SOME DESCRIPTIVE TITLE./Hubzilla Project/g" "$OUTFILE"
-    sed -i "s/YEAR THE PACKAGE'S COPYRIGHT HOLDER/2012-2014 the Hubzilla Project/g" "$OUTFILE"
+    sed -i "s/SOME DESCRIPTIVE TITLE./$PROJECTNAME/g" "$OUTFILE"
+    sed -i "s/YEAR THE PACKAGE'S COPYRIGHT HOLDER/2012-2016 $PROJECTNAME/g" "$OUTFILE"
     sed -i "s/FIRST AUTHOR <EMAIL@ADDRESS>, YEAR./Mike Macgirvin, 2012/g" "$OUTFILE"
     sed -i "s/PACKAGE VERSION/$F9KVERSION/g" "$OUTFILE"
-    sed -i "s/PACKAGE/Red/g" "$OUTFILE"
+    sed -i "s/PACKAGE/$PROJECTNAME/g" "$OUTFILE"
     sed -i "s/CHARSET/UTF-8/g" "$OUTFILE"
 	sed -i '/^\"Plural-Forms/d' "$OUTFILE"
 fi

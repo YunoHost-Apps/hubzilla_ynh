@@ -18,22 +18,22 @@
 	}
 
 	nav .navbar-header img {
-		height: 30px;
-		width: 30px;
+		height: 29px;
+		width: 29px;
 		margin-top: 1px;
 		border-radius: 4px;
 	}
 
 	.navbar-left {
-		height: 30px;
+		height: 29px;
 	}
 
 	.container-fluid {
-		min-height:30px;
+		min-height:29px;
 	}
 
 	.collapse .navbar-collapse {
-		min-height:30px;
+		min-height:29px;
 	}
 
 	#nav-search-text {
@@ -50,15 +50,11 @@
 
 	nav .dropdown-menu,
 	nav .acpopup {
-		top: 31px !important;
+		top: 30px !important;
 	}
 
 	nav .badge {
-		position: relative;
-		top: -31px;
-		float: right;
-		font-size: 10px;
-		cursor: pointer;
+		top: -29px;
 	}
 
 	#jGrowl.top-right {
@@ -67,6 +63,6 @@
 	}
 
 	.contextual-help-content-open {
-		top: 32px;
+		top: 31px;
 	}
 }

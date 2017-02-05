@@ -7,7 +7,7 @@ function contact_profile_assign($current) {
 
 	$o .= "<select id=\"contact-profile-selector\" name=\"profile_assign\" class=\"form-control\"/>\r\n";
 
-	$r = q("SELECT profile_guid, profile_name FROM `profile` WHERE `uid` = %d",
+	$r = q("SELECT profile_guid, profile_name FROM profile WHERE uid = %d",
 		intval($_SESSION['uid']));
 
 	if($r) {

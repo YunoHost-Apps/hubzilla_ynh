@@ -181,8 +181,8 @@ class Oep extends \Zotlabs\Web\Controller {
 	function oep_profile_reply($args) {
 	
 		
-		require_once('include/identity.php');
-		require_once('include/Contact.php');
+		require_once('include/channel.php');
+
 		$url = $args['url'];
 	
 		if(preg_match('#//(.*?)/(.*?)/(.*?)(/|\?|&|$)#',$url,$matches)) {
@@ -249,7 +249,7 @@ class Oep extends \Zotlabs\Web\Controller {
 	
 		$sql_extra = permissions_sql($c[0]['channel_id']);
 	
-		$p = q("select resource_id from photo where album = '%s' and uid = %d and scale = 0 $sql_extra order by created desc limit 1",
+		$p = q("select resource_id from photo where album = '%s' and uid = %d and imgscale = 0 $sql_extra order by created desc limit 1",
 	  		dbesc($res),
 			intval($c[0]['channel_id'])
 		);
@@ -258,7 +258,7 @@ class Oep extends \Zotlabs\Web\Controller {
 	
 		$res = $p[0]['resource_id'];
 	
-		$r = q("select height, width, scale, resource_id from photo where uid = %d and resource_id = '%s' $sql_extra order by scale asc",
+		$r = q("select height, width, imgscale, resource_id from photo where uid = %d and resource_id = '%s' $sql_extra order by imgscale asc",
 			intval($c[0]['channel_id']),
 			dbesc($res)
 		);
@@ -276,7 +276,7 @@ class Oep extends \Zotlabs\Web\Controller {
 	
 			if($foundres) {
 				$ret['type'] = 'link';
-				$ret['thumbnail_url'] = z_root() . '/photo/' . '/' . $rr['resource_id'] . '-' . $rr['scale'];
+				$ret['thumbnail_url'] = z_root() . '/photo/' . '/' . $rr['resource_id'] . '-' . $rr['imgscale'];
 				$ret['thumbnail_width'] = $rr['width'];
 				$ret['thumbnail_height'] = $rr['height'];
 			}
@@ -310,7 +310,7 @@ class Oep extends \Zotlabs\Web\Controller {
 	
 		$sql_extra = permissions_sql($c[0]['channel_id']);
 	
-		$p = q("select resource_id from photo where uid = %d and scale = 0 $sql_extra order by created desc limit 1",
+		$p = q("select resource_id from photo where uid = %d and imgscale = 0 $sql_extra order by created desc limit 1",
 			intval($c[0]['channel_id'])
 		);
 		if(! $p)
@@ -318,7 +318,7 @@ class Oep extends \Zotlabs\Web\Controller {
 	
 		$res = $p[0]['resource_id'];
 	
-		$r = q("select height, width, scale, resource_id from photo where uid = %d and resource_id = '%s' $sql_extra order by scale asc",
+		$r = q("select height, width, imgscale, resource_id from photo where uid = %d and resource_id = '%s' $sql_extra order by imgscale asc",
 			intval($c[0]['channel_id']),
 			dbesc($res)
 		);
@@ -336,7 +336,7 @@ class Oep extends \Zotlabs\Web\Controller {
 	
 			if($foundres) {
 				$ret['type'] = 'link';
-				$ret['thumbnail_url'] = z_root() . '/photo/' . '/' . $rr['resource_id'] . '-' . $rr['scale'];
+				$ret['thumbnail_url'] = z_root() . '/photo/' . '/' . $rr['resource_id'] . '-' . $rr['imgscale'];
 				$ret['thumbnail_width'] = $rr['width'];
 				$ret['thumbnail_height'] = $rr['height'];
 			}
@@ -372,7 +372,7 @@ class Oep extends \Zotlabs\Web\Controller {
 		$sql_extra = permissions_sql($c[0]['channel_id']);
 	
 	
-		$r = q("select height, width, scale, resource_id from photo where uid = %d and resource_id = '%s' $sql_extra order by scale asc",
+		$r = q("select height, width, imgscale, resource_id from photo where uid = %d and resource_id = '%s' $sql_extra order by imgscale asc",
 			intval($c[0]['channel_id']),
 			dbesc($res)
 		);
@@ -390,7 +390,7 @@ class Oep extends \Zotlabs\Web\Controller {
 	
 			if($foundres) {
 				$ret['type'] = 'link';
-				$ret['thumbnail_url'] = z_root() . '/photo/' . '/' . $rr['resource_id'] . '-' . $rr['scale'];
+				$ret['thumbnail_url'] = z_root() . '/photo/' . '/' . $rr['resource_id'] . '-' . $rr['imgscale'];
 				$ret['thumbnail_width'] = $rr['width'];
 				$ret['thumbnail_height'] = $rr['height'];
 			}

@@ -33,7 +33,7 @@ function get_public_feed($channel, $params) {
 
 	// put a sane lower limit on feed requests if not specified
 
-//	if($params['begin'] === NULL_DATE)
+//	if($params['begin'] <= NULL_DATE)
 //		$params['begin'] = datetime_convert('UTC','UTC','now - 1 month');
 
 	switch($params['type']) {
@@ -393,7 +393,7 @@ function get_atom_elements($feed, $item, &$author) {
 		$terms = array();
 		$terms[] = array(
 			'otype' => TERM_OBJ_POST,
-			'type'  => TERM_BOOKMARK,
+			'ttype' => TERM_BOOKMARK,
 			'url'   => $res['plink'],
 			'term'  => $res['title'],
 		);
@@ -403,7 +403,7 @@ function get_atom_elements($feed, $item, &$author) {
 		$terms = array();
 		$terms[] = array(
 			'otype' => TERM_OBJ_POST,
-			'type'  => TERM_BOOKMARK,
+			'ttype' => TERM_BOOKMARK,
 			'url'   => $res['plink'],
 			'term'  => $res['plink'],
 		);
@@ -884,7 +884,7 @@ function consume_feed($xml, $importer, &$contact, $pass = 0) {
 
 				$datarray['owner_xchan'] = $contact['xchan_hash'];
 
-				if(array_key_exists('created',$datarray) && $datarray['created'] != NULL_DATE && $expire_days) {
+				if(array_key_exists('created',$datarray) && $datarray['created'] > NULL_DATE && $expire_days) {
 					$t1 = $datarray['created'];
 					$t2 = datetime_convert('UTC','UTC','now - ' . $expire_days . 'days');
 					if($t1 < $t2) {

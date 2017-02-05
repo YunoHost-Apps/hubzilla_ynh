@@ -24,18 +24,18 @@ class Removeme extends \Zotlabs\Web\Controller {
 	
 		$account = \App::get_account();
 	
-		if(! account_verify_password($account['account_email'],$_POST['qxz_password']))
+	
+		$x = account_verify_password($account['account_email'],$_POST['qxz_password']);
+		if(! ($x && $x['account']))
 			return;
 	
-		if($account['account_password_changed'] != NULL_DATE) {
+		if($account['account_password_changed'] > NULL_DATE) {
 			$d1 = datetime_convert('UTC','UTC','now - 48 hours');
 			if($account['account_password_changed'] > d1) {
 				notice( t('Channel removals are not allowed within 48 hours of changing the account password.') . EOL);
 				return;
 			}
 		}
-	
-		require_once('include/Contact.php');
 	
 		$global_remove = intval($_POST['global']);
 	
@@ -44,8 +44,7 @@ class Removeme extends \Zotlabs\Web\Controller {
 	}
 	
 	
-	
-		function get() {
+	function get() {
 	
 		if(! local_channel())
 			goaway(z_root());

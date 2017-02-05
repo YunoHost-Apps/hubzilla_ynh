@@ -1,0 +1,64 @@
+#!/usr/bin/env php
+<?php
+
+// connect utility
+
+if(! file_exists('include/cli_startup.php')) {
+    echo t('Run from the top level $Projectname web directory, as util/connect <args>') . PHP_EOL;
+    exit(1);
+}
+
+require_once('include/cli_startup.php');
+require_once('include/follow.php');
+
+cli_startup();
+
+
+	if($argc != 3) {
+		echo t('Usage: util/connect channel_id|channel_address channel[@hub]');
+		exit(1);
+	}
+
+	if(ctype_digit($argv[1])) {
+		$c = channelx_by_n($argv[1]);
+	}
+	else {
+		$c = channelx_by_nick($argv[1]);
+	}
+
+	if(! $c) {
+		echo t('Source channel not found.');
+		exit(1);
+	}
+
+	$result = new_contact($c['channel_id'],$argv[2],$c,false,false);
+
+	if($result['success'] == false) {
+		echo $result['message'];
+		exit(1);
+	}
+
+	$clone = array();
+	foreach($result['abook'] as $k => $v) {
+		if(strpos($k,'abook_') === 0) {
+			$clone[$k] = $v;
+		}
+	}
+	unset($clone['abook_id']);
+	unset($clone['abook_account']);
+	unset($clone['abook_channel']);
+
+	$abconfig = load_abconfig($c['channel_id'],$clone['abook_xchan']);
+	if($abconfig)
+		$clone['abconfig'] = $abconfig;
+	build_sync_packet($c['channel_id'], array('abook' => array($clone)), true);
+
+	$can_view_stream = intval(get_abconfig($c['channel_id'],$clone['abook_xchan'],'their_perms','view_stream'));
+
+	// If we can view their stream, pull in some posts
+
+	if(($can_view_stream) || ($result['abook']['xchan_network'] === 'rss'))
+		\Zotlabs\Daemon\Master::Summon(array('Onepoll',$result['abook']['abook_id']));
+
+
+	exit(0);

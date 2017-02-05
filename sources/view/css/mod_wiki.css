@@ -1,0 +1,54 @@
+#ace-editor {
+	position: relative;        
+	width: 100%;
+	height: 500px;
+	border: 1px solid #ccc;
+	border-top: 0px;
+}
+
+#editor {
+	width: 100%;
+	height: 500px;
+	border: 1px solid #ccc;
+	border-top: 0px;
+	display: inherit;
+}
+
+#id_commitMsg_wrapper {
+	margin-top: 3px;
+}
+
+.fade.in {
+	-webkit-transition: opacity 0.5s 0.5s ease;
+	-moz-transition: opacity 0.5s 0.5s ease;
+	-o-transition: opacity 0.5s 0.5s ease;
+	transition: opacity 0.5s 0.5s ease;
+}
+
+#new-wiki-form-wrapper {
+	display: none;
+}
+
+#wikis-index {
+	width: 100%;
+}
+
+#wikis-index th:nth-child(1),
+#wikis-index td:nth-child(1){
+	padding: 7px 3px 7px 10px;
+}
+
+#wikis-index th:nth-child(4),
+#wikis-index td:nth-child(4){
+	padding: 7px 10px 7px 7px;
+}
+
+#wikis-index th:nth-child(5),
+#wikis-index td:nth-child(5){
+	padding: 7px 10px 7px 7px;
+}
+
+.wikis-index-tool {
+	padding: 7px 10px;
+}
+

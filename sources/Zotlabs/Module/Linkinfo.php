@@ -13,7 +13,7 @@ class Linkinfo extends \Zotlabs\Web\Controller {
 	
 		$text = null;
 		$str_tags = '';
-	
+		$process_oembed = true;	
 	
 		$br = "\n";
 	
@@ -22,6 +22,11 @@ class Linkinfo extends \Zotlabs\Web\Controller {
 		else
 			$url = trim($_GET['url']);
 	
+		if(substr($url,0,1) === '!') {
+			$process_oembed = false;
+			$url = substr($url,1);
+		}
+
 		$url = strip_zids($url);
 	
 		if((substr($url,0,1) != '/') && (substr($url,0,4) != 'http'))
@@ -91,10 +96,12 @@ class Linkinfo extends \Zotlabs\Web\Controller {
 			killme();
 		}
 	
-		$x = oembed_process($url);
-		if($x) {
-			echo $x;
-			killme();
+		if($process_oembed) {
+			$x = oembed_process($url);
+			if($x) {
+				echo $x;
+				killme();
+			}
 		}
 	
 		if($url && $title && $text) {
@@ -115,7 +122,7 @@ class Linkinfo extends \Zotlabs\Web\Controller {
 	
 		// If this is a Red site, use zrl rather than url so they get zids sent to them by default
 	
-		if( x($siteinfo,'generator') && (strpos($siteinfo['generator'], \Zotlabs\Project\System::get_platform_name() . ' ') === 0))
+		if( x($siteinfo,'generator') && (strpos($siteinfo['generator'], \Zotlabs\Lib\System::get_platform_name() . ' ') === 0))
 			$template = str_replace('url','zrl',$template);
 	
 		if($siteinfo["title"] == "") {

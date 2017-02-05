@@ -34,7 +34,7 @@ class Locs extends \Zotlabs\Web\Controller {
 					dbesc($channel['channel_hash'])
 				);
 	
-				proc_run('php','include/notifier.php','location',$channel['channel_id']);
+				\Zotlabs\Daemon\Master::Summon(array('Notifier','location',$channel['channel_id']));
 				return;
 			}			
 		}
@@ -72,7 +72,7 @@ class Locs extends \Zotlabs\Web\Controller {
 					intval($hubloc_id),
 					dbesc($channel['channel_hash'])
 				);
-				proc_run('php','include/notifier.php','location',$channel['channel_id']);
+				\Zotlabs\Daemon\Master::Summon(array('Notifier','location',$channel['channel_id']));
 				return;
 			}			
 		}
@@ -80,7 +80,7 @@ class Locs extends \Zotlabs\Web\Controller {
 	
 	
 	
-		function get() {
+	function get() {
 	
 	
 		if(! local_channel()) {
@@ -91,7 +91,7 @@ class Locs extends \Zotlabs\Web\Controller {
 		$channel = \App::get_channel();
 	
 		if($_REQUEST['sync']) {
-			proc_run('php','include/notifier.php','location',$channel['channel_id']);
+			\Zotlabs\Daemon\Master::Summon(array('Notifier','location',$channel['channel_id']));
 			info( t('Syncing locations') . EOL);
 			goaway(z_root() . '/locs');
 		}

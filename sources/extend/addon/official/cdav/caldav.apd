@@ -1,0 +1,4 @@
+url: $baseurl/cdav/calendar
+requires: local_channel
+name: CalDAV
+photo: $baseurl/addon/cdav/calendar.png

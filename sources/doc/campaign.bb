@@ -4,7 +4,7 @@
 
 [b][color= grey][size=18]Single-click sign on, nomadic identity, censorship-resistance, privacy, self-hosting[/size][/color][/b]
 
-We started the $Projectname project by asking ourselves a few questions: 
+We started $Projectname project by asking ourselves a few questions: 
 
 - Imagine if it was possible to just access the content of different web sites, without the need to enter usernames and passwords for every site.  Such a feature would permit Single-Click user identification: the ability to access sites simply by clicking on links to remote sites. 
 Authentication just happens automagically behind the scenes. Forget about remembering multiple user names with multiple passwords when accessing different sites online. 
@@ -52,7 +52,7 @@ Think of it this way: the internet is nothing, but a bunch of permissions and a 
 
 [b][color= grey][size=20]The Matrix is Born![/size][/color][/b]
 
-After asking and striving to answer a number of such questions, we realized that we were imagining a general purpose communication network with a number of unique, and potentially game-changing, features.  We called it the $Projectname and started thinking of it as an over-lay on top of the internet as it exists today; an operating system re-invented as a communication network, with its own permissions, access control lists, protocol, connectors to others services, and open-ended possibilities via its API.  The sum of the matrix is greater than it's parts.  We're not building website, but a way for websites to link together and grow into something that is unique and ever-changing, with autonomy and privacy.
+After asking and striving to answer a number of such questions, we realized that we were imagining a general purpose communication network with a number of unique, and potentially game-changing, features.  We called it $Projectname and started thinking of it as an over-lay on top of the internet as it exists today; an operating system re-invented as a communication network, with its own permissions, access control lists, protocol, connectors to others services, and open-ended possibilities via its API.  The sum of the matrix is greater than it's parts.  We're not building website, but a way for websites to link together and grow into something that is unique and ever-changing, with autonomy and privacy.
 
 It's a lot of work, for anyone.  So far, we've got a team of a handful of volunteers, code geeks, brave early adopters, system administrators and other good people, willing to give the project a shot.  We're motivated by our commitment to a free web, where privacy is built-in, and corporations don't have a stranglehold on our daily communication. 
 
@@ -60,7 +60,7 @@ We need your help to finish it and release it to the world!
 
 [b][color= grey][size=20]What have we written so far[/size][/color][/b]
 
-As of the today, the $Projectname is in developer preview (alpha) state.  It is not ready for everyday use, but some of the initial set of core features are implemented (again, in alpha state).  These include: 
+As of the today, $Projectname is in developer preview (alpha) state.  It is not ready for everyday use, but some of the initial set of core features are implemented (again, in alpha state).  These include: 
 
 - Zot, the protocol powering the matrix
 - Single-signon logins.
@@ -71,7 +71,7 @@ As of the today, the $Projectname is in developer preview (alpha) state.  It is 
 
 [b][color= grey][size=20]Our TO-DO List[/size][/color][/b]
 
-However, in addition to finishing and polishing the above, there are a number of features that have to implemented to make the $Projectname ready for daily use.  If we meet our fundraising goal, we hope to dive into the following road map, by order of priority: 
+However, in addition to finishing and polishing the above, there are a number of features that have to implemented to make $Projectname ready for daily use.  If we meet our fundraising goal, we hope to dive into the following road map, by order of priority: 
 
 - A professionally designed user interface (UI), interface that is adaptive to any user level, from end users who want to use the Matrix as a social network, to tinkerers who will put together a customized blog using Comanche, to hackers who will develop and extend the matrix using a built-in code editor, that hooks to the API and the git. 
 
@@ -145,7 +145,7 @@ You get one of your $Projectname t-shirts, as well as our undying gratitude.
 
 Each contributor at this level gets their own $Projectname virtual private server, installed, hosted and supported by us for a period of 1 year. 
 
-[b][color= grey][size=20]Why are we so excited about the $Projectname?[/size][/color][/b]
+[b][color= grey][size=20]Why are we so excited about $Projectname?[/size][/color][/b]
 
 {SOMETHING ABOUT THE POTENTIAL IMPACT OF RED, ITS INNOVATIONS, ETC&gt;
 
@@ -167,7 +167,7 @@ Perhaps you're good at writing and documenting stuff.  Grab an account at one of
 
 [b]1. Is Red a social network?[/b]
 
-The $Projectname is not a social network. We're thinking of it as a general purpose communication network, with sharing, and public/private communications built into the matrix.
+$Projectname is not a social network. We're thinking of it as a general purpose communication network, with sharing, and public/private communications built into the matrix.
 
 [b]2. What is the difference between Red and Friendica?[/b]
 
@@ -177,7 +177,7 @@ Friendica is really, really good at sending postcards. It can do all sorts of th
 
 What Friendica can't do, is wave a postcard at somebody and expect them to believe that holding this postcard prove you are who you say you are.  Sure, if you've been sending somebody postcards, they might accept that it is you in the picture, but somebody who has never heard of you will not accept ownership of a postcard as proof of identity.
 
-The $Projectname offers a passport.
+$Projectname offers a passport.
 
 You can still use it to send postcards. At the same time, when you wave your passport at somebody, they do accept it as proof of identity.  No longer do you need to register at every single site you use.  You already have an account - it's just not necessarily at our site - so we'll ask to see your passport instead. 
 
@@ -194,7 +194,7 @@ We use MySQL as our database (this include any forks such as, MariaDB or Percona
 [b]5. How is the Affinity Slider different from Mozilla's Persona?[/b]
 {COMPLETE}
 
-[b]6. Does the $Projectname use encryption?  Details please![/b]
+[b]6. Does $Projectname use encryption?  Details please![/b]
 
 Yes, we do our best to use free and open source encryption libraries to help achieve privacy from general, mass surveillance.
 
@@ -207,7 +207,7 @@ For more info on our initial implementation of encrypted communication, check ou
 [b]7. What do you mean by decentralization? [/b]
 
 
-[b]8. Can I build my own website with in the $Projectname?[/b]
+[b]8. Can I build my own website with in $Projectname?[/b]
 
 Yes.  The short explanation: We've got this spiffy idea we're calling &quot;Comanche&quot;, which will allow non-programmers to build complete custom websites, and any such website will be able to connect to any other website or channel in the matrix.  The goal of Comanche is to hide the technical complexities of communicating in the matrix, while encouraging people to use their creativity and put together their own unique presence on the matrix.
 

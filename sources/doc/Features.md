@@ -1,7 +1,7 @@
 Extra Features
 ==============
 
-The default interface of the $Projectname was designed to be uncluttered. There are a huge number of extra features (some of which are extremely useful) which you can turn on and get the most of the application. These are found under the [Extra Features](settings/features) link of your [Settings](settings) page.
+The default interface of $Projectname was designed to be uncluttered. There are a huge number of extra features (some of which are extremely useful) which you can turn on and get the most of the application. These are found under the [Extra Features](settings/features) link of your [Settings](settings) page.
 
 **Content Expiration** 
 

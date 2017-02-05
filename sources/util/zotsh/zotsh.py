@@ -55,7 +55,7 @@ class ZotSH(object):
     @session.setter
     def session(self, session):
         self._session = session
-        self.davclient = easywebdav.connect( self.hostname, protocol='https', session=session, path="cloud", verify_ssl=VERIFY_SSL)
+        self.davclient = easywebdav.connect( self.hostname, protocol='https', session=session, path="dav", verify_ssl=VERIFY_SSL)
         
     @property
     def PS1(self):
@@ -205,7 +205,7 @@ class ZotSH(object):
                 print _fmt('d', 0, "../")
                 
         for f in r:
-            name = f.name.replace("/cloud"+self.davclient.cwd,"")
+            name = f.name.replace("/dav"+self.davclient.cwd,"")
             type = "-"
             if name.endswith("/"):
                 type = "d"

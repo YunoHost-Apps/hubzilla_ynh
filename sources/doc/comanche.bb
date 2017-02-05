@@ -65,17 +65,23 @@ By default, $nav is placed in the &quot;nav&quot; page region and $content is pl
 
 To select a theme for your page, use the 'theme' tag.
 [code]
-	[theme]apw[/theme]
+	[theme]suckerberg[/theme]
 
 [/code]
-This will select the theme named &quot;apw&quot;. By default your channel's preferred theme will be used.
+This will select the theme named &quot;suckerberg&quot;. By default your channel's preferred theme will be used.
 
 [code]
-	[theme=passion]apw[/theme]
+	[theme=passion]suckerberg[/theme]
 
 [/code]
-This will select the theme named &quot;apw&quot; and select the &quot;passion&quot; schema (theme variant). 
+This will select the theme named &quot;suckerberg&quot; and select the &quot;passion&quot; schema (theme variant). Alternatively it may be possible to use a condensed theme notation for this. 
 
+[code]
+	[theme]suckerberg:passion[/theme]
+
+[/code]
+
+The condensed notation isn't part of Comanche itself but is recognised by $Projectname platform as a theme specifier.
 
 [b]Regions[/b]
 Each region has a name, as noted above. You will specify the region of interest using a 'region' tag, which includes the name. Any content you wish placed in this region should be placed between the opening region tag and the closing tag.
@@ -164,7 +170,42 @@ The 'comment' tag is used to delimit comments. These comments will not appear on
 	[comment]This is a comment[/comment]
 
 [/code]
- 
+
+[b]Conditional Execution[/b]
+You can use an 'if' construct to make decisions. These are currently based on system configuration variable or the current observer.
+
+[code]
+	[if $config.system.foo]
+		... the configuration variable system.foo evaluates to 'true'.
+	[else]
+		... the configuration variable system.foo evaluates to 'false'.
+ 	[/if]
+
+	[if $observer]
+		... this content will only be show to authenticated viewers
+	[/if]
+
+[/code]
+
+	The 'else' clause is optional. 
+
+	Several tests are supported besides boolean evaluation.
+
+[code]
+	[if $config.system.foo == bar]
+		... the configuration variable system.foo is equal to the string 'bar'
+	[/if]
+	[if $config.system.foo != bar]
+		... the configuration variable system.foo is not equal to the string 'bar'
+	[/if]
+	[if $config.system.foo {} bar ]
+		... the configuration variable system.foo is a simple array containing a value 'bar'
+	[/if]
+	[if $config.system.foo {*} bar]
+		... the configuration variable system.foo is a simple array containing a key named 'bar'
+	[/if]
+[/code]
+
 [b]Complex Example[/b]
 [code]
 	[comment]use an existing page template which provides a banner region plus 3 columns beneath it[/comment]

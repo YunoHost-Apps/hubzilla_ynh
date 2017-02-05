@@ -10,7 +10,7 @@ class Hook {
 			$function = serialize($function);
 		}
 
-		$r = q("SELECT * FROM `hook` WHERE `hook` = '%s' AND `file` = '%s' AND `function` = '%s' and priority = %d and hook_version = %d LIMIT 1",
+		$r = q("SELECT * FROM hook WHERE hook = '%s' AND file = '%s' AND fn = '%s' and priority = %d and hook_version = %d LIMIT 1",
 			dbesc($hook),
 			dbesc($file),
 			dbesc($function),
@@ -23,13 +23,13 @@ class Hook {
 		// To aid in upgrade and transition, remove old settings for any registered hooks that match in all respects except
 		// for priority or hook_version
 
-		$r = q("DELETE FROM `hook` where `hook` = '%s' and `file` = '%s' and `function` = '%s'",
+		$r = q("DELETE FROM hook where hook = '%s' and file = '%s' and fn = '%s'",
 			dbesc($hook),
 			dbesc($file),
 			dbesc($function)
 		);
 
-		$r = q("INSERT INTO `hook` (`hook`, `file`, `function`, `priority`, `hook_version`) VALUES ( '%s', '%s', '%s', %d, %d )",
+		$r = q("INSERT INTO hook (hook, file, fn, priority, hook_version) VALUES ( '%s', '%s', '%s', %d, %d )",
 			dbesc($hook),
 			dbesc($file),
 			dbesc($function),
@@ -44,7 +44,7 @@ class Hook {
 		if(is_array($function)) {
 			$function = serialize($function);
 		}
-		$r = q("DELETE FROM hook WHERE hook = '%s' AND `file` = '%s' AND `function` = '%s' and priority = %d and hook_version = %d",
+		$r = q("DELETE FROM hook WHERE hook = '%s' AND file = '%s' AND fn = '%s' and priority = %d and hook_version = %d",
 			dbesc($hook),
 			dbesc($file),
 			dbesc($function),
@@ -60,7 +60,7 @@ class Hook {
 
 	static public function unregister_by_file($file) {
 
-		$r = q("DELETE FROM hook WHERE `file` = '%s' ",
+		$r = q("DELETE FROM hook WHERE file = '%s' ",
 			dbesc($file)
 		);
 

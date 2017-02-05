@@ -56,7 +56,7 @@ if($argc == 3) {
 	echo "service_class             $oclass\t\t\033[1m" . $argv[2] . "\033[0m\n";
 	
 	$new = get_config('service_class', $argv[2]);
-	foreach(array('photo_upload_limit','total_items','total_pages','total_identities','total_channels','total_feeds','attach_upload_limit','minimum_feedcheck_minutes','chatrooms','chatters_inroom') as $prop) {
+	foreach(array('photo_upload_limit','total_items','total_pages','total_identities','total_channels','total_feeds','attach_upload_limit','minimum_feedcheck_minutes','chatrooms','chatters_inroom','access_tokens') as $prop) {
 		echo $prop . str_repeat(' ',26 - strlen($prop)) . (($old && $old[$prop]) ? $old[$prop] : 'unlimited') . "\t\t\033[1m" . (($new && $new[$prop]) ? $new[$prop] : 'unlimited') . "\033[0m\n";
 	}
 	$r = '';

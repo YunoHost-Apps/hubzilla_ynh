@@ -170,7 +170,7 @@ class ZotOAuth1 extends OAuth1Server {
 		);
 		if($x) {
 			require_once('include/security.php');
-			authenticate_success($x[0],true,false,true,true);
+			authenticate_success($x[0],null,true,false,true,true);
 			$_SESSION['allow_api'] = true;
 		}
 	}

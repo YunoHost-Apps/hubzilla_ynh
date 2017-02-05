@@ -5,7 +5,7 @@
 		<div class="clear"></div>
 	</div>
 	{{$nickname_block}}
-	<form action="settings" id="settings-form" method="post" autocomplete="off" >
+	<form action="settings" id="settings-form" method="post" autocomplete="off" class="acl-form" data-form_id="settings-form" data-allow_cid='{{$allow_cid}}' data-allow_gid='{{$allow_gid}}' data-deny_cid='{{$deny_cid}}' data-deny_gid='{{$deny_gid}}'>
 		<input type='hidden' name='form_security_token' value='{{$form_security_token}}' />
 		<div class="panel-group" id="settings" role="tablist" aria-multiselectable="true">
 			<div class="panel">
@@ -72,7 +72,6 @@
 							{{/if}}
 							<div id="settings-default-perms" class="form-group" >
 								<button type="button" class="btn btn-default" data-toggle="modal" data-target="#aclModal"><i id="jot-perms-icon" class="fa"></i>&nbsp;{{$permissions}}</button>
-								{{$aclselect}}
 							</div>
 							{{$group_select}}
 							{{include file="field_checkbox.tpl" field=$hide_presence}}
@@ -113,6 +112,7 @@
 								{{include file="field_intcheckbox.tpl" field=$notify2}}
 								{{include file="field_intcheckbox.tpl" field=$notify3}}
 								{{include file="field_intcheckbox.tpl" field=$notify4}}
+								{{*include file="field_intcheckbox.tpl" field=$notify9*}}
 								{{include file="field_intcheckbox.tpl" field=$notify5}}
 								{{include file="field_intcheckbox.tpl" field=$notify6}}
 								{{include file="field_intcheckbox.tpl" field=$notify7}}
@@ -174,4 +174,5 @@
 			</div>
 		</div>
 	</form>
+	{{$aclselect}}
 </div>

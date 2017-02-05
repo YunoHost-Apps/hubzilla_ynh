@@ -3,6 +3,8 @@
 namespace Zotlabs\Storage;
 
 use Sabre\DAV;
+use Sabre\HTTP\RequestInterface;
+use Sabre\HTTP\ResponseInterface;
 
 /**
  * @brief Authentication backend class for DAV.
@@ -10,7 +12,7 @@ use Sabre\DAV;
  * This class also contains some data which is not necessary for authentication
  * like timezone settings.
  *
- * @extends Sabre\DAV\Auth\Backend\AbstractBasic
+ * @extends \\Sabre\\DAV\\Auth\\Backend\\AbstractBasic
  *
  * @link http://github.com/friendica/red
  * @license http://opensource.org/licenses/mit-license.php The MIT License (MIT)
@@ -22,37 +24,37 @@ class BasicAuth extends DAV\Auth\Backend\AbstractBasic {
 	 *
 	 * It is used for building path in filestorage/.
 	 *
-	 * @var string|null
+	 * @var string|null $channel_name
 	 */
 	protected $channel_name = null;
 	/**
-	 * channel_id of the current channel of the logged-in account.
+	 * @brief channel_id of the current channel of the logged-in account.
 	 *
-	 * @var int
+	 * @var int $channel_id
 	 */
 	public $channel_id = 0;
 	/**
-	 * channel_hash of the current channel of the logged-in account.
+	 * @brief channel_hash of the current channel of the logged-in account.
 	 *
-	 * @var string
+	 * @var string $channel_hash
 	 */
 	public $channel_hash = '';
 	/**
-	 * Set in mod/cloud.php to observer_hash.
+	 * @brief Set in mod/cloud.php to observer_hash.
 	 *
-	 * @var string
+	 * @var string $observer
 	 */
 	public $observer = '';
 	/**
 	 *
 	 * @see Browser::set_writeable()
-	 * @var \Sabre\DAV\Browser\Plugin
+	 * @var \\Sabre\\DAV\\Browser\\Plugin $browser
 	 */
 	public $browser;
 	/**
-	 * channel_id of the current visited path. Set in Directory::getDir().
+	 * @brief channel_id of the current visited path. Set in Directory::getDir().
 	 *
-	 * @var int
+	 * @var int $owner_id
 	 */
 	public $owner_id = 0;
 	/**
@@ -60,25 +62,27 @@ class BasicAuth extends DAV\Auth\Backend\AbstractBasic {
 	 *
 	 * Used for creating the path in cloud/
 	 *
-	 * @var string
+	 * @var string $owner_nick
 	 */
 	public $owner_nick = '';
 	/**
 	 * Timezone from the visiting channel's channel_timezone.
 	 *
-	 * Used in @ref RedBrowser
+	 * Used in @ref Browser
 	 *
-	 * @var string
+	 * @var string $timezone
 	 */
 	protected $timezone = '';
+
+
+	public $module_disabled = false;
 
 
 	/**
 	 * @brief Validates a username and password.
 	 *
-	 * Guest access is granted with the password "+++".
 	 *
-	 * @see \Sabre\DAV\Auth\Backend\AbstractBasic::validateUserPass
+	 * @see \\Sabre\\DAV\\Auth\\Backend\\AbstractBasic::validateUserPass
 	 * @param string $username
 	 * @param string $password
 	 * @return bool
@@ -87,35 +91,26 @@ class BasicAuth extends DAV\Auth\Backend\AbstractBasic {
 
 		require_once('include/auth.php');
 		$record = account_verify_password($username, $password);
-		if ($record && $record['account_default_channel']) {
-			$r = q("SELECT * FROM channel WHERE channel_account_id = %d AND channel_id = %d LIMIT 1",
-				intval($record['account_id']),
-				intval($record['account_default_channel'])
-			);
-			if ($r) {
-				return $this->setAuthenticated($r[0]);
+		if($record && $record['account']) {
+			if($record['channel'])
+				$channel = $record['channel'];
+			else {
+				$r = q("SELECT * FROM channel WHERE channel_account_id = %d AND channel_id = %d LIMIT 1",
+					intval($record['account']['account_id']),
+					intval($record['account']['account_default_channel'])
+				);
+				if($r)
+					$channel = $r[0];
 			}
 		}
-		$r = q("SELECT * FROM channel WHERE channel_address = '%s' LIMIT 1",
-			dbesc($username)
-		);
-		if ($r) {
-			$x = q("SELECT account_flags, account_salt, account_password FROM account WHERE account_id = %d LIMIT 1",
-				intval($r[0]['channel_account_id'])
-			);
-			if ($x) {
-				// @fixme this foreach should not be needed?
-				foreach ($x as $record) {
-					if ((($record['account_flags'] == ACCOUNT_OK) || ($record['account_flags'] == ACCOUNT_UNVERIFIED))
-					&& (hash('whirlpool', $record['account_salt'] . $password) === $record['account_password'])) {
-						logger('password verified for ' . $username);
-						return $this->setAuthenticated($r[0]);
-					}
-				}
-			}
+		if($channel && $this->check_module_access($channel['channel_id'])) {
+			return $this->setAuthenticated($channel);
 		}
 
-		$error = 'password failed for ' . $username;
+		if($this->module_disabled)
+			$error = 'module not enabled for ' . $username;
+		else
+			$error = 'password failed for ' . $username;
 		logger($error);
 		log_failed_login($error);
 
@@ -139,6 +134,69 @@ class BasicAuth extends DAV\Auth\Backend\AbstractBasic {
 		return true;
 	}
 
+    /**
+     * When this method is called, the backend must check if authentication was
+     * successful.
+     *
+     * The returned value must be one of the following
+     *
+     * [true, "principals/username"]
+     * [false, "reason for failure"]
+     *
+     * If authentication was successful, it's expected that the authentication
+     * backend returns a so-called principal url.
+     *
+     * Examples of a principal url:
+     *
+     * principals/admin
+     * principals/user1
+     * principals/users/joe
+     * principals/uid/123457
+     *
+     * If you don't use WebDAV ACL (RFC3744) we recommend that you simply
+     * return a string such as:
+     *
+     * principals/users/[username]
+     *
+     * @param RequestInterface $request
+     * @param ResponseInterface $response
+     * @return array
+     */
+    function check(RequestInterface $request, ResponseInterface $response) {
+
+		if(local_channel()) {
+			$this->setAuthenticated(\App::get_channel());
+			return [ true, $this->principalPrefix . $this->channel_name ];
+		}
+
+        $auth = new \Sabre\HTTP\Auth\Basic(
+            $this->realm,
+            $request,
+            $response
+        );
+
+        $userpass = $auth->getCredentials();
+        if (!$userpass) {
+            return [false, "No 'Authorization: Basic' header found. Either the client didn't send one, or the server is misconfigured"];
+        }
+        if (!$this->validateUserPass($userpass[0], $userpass[1])) {
+            return [false, "Username or password was incorrect"];
+        }
+        return [true, $this->principalPrefix . $userpass[0]];
+
+    }
+
+	protected function check_module_access($channel_id) {
+		if($channel_id && \App::$module === 'cdav') {
+			$x = get_pconfig($channel_id,'cdav','enabled');
+			if(! $x) {
+				$this->module_disabled = true;
+				return false;
+			}
+		}
+		return true;
+	}
+
 	/**
 	 * Sets the channel_name from the currently logged-in channel.
 	 *
@@ -153,7 +211,7 @@ class BasicAuth extends DAV\Auth\Backend\AbstractBasic {
 	 *
 	 * If nobody is currently logged in, this method should return null.
 	 *
-	 * @see \Sabre\DAV\Auth\Backend\AbstractBasic::getCurrentUser
+	 * @see \\Sabre\\DAV\\Auth\\Backend\\AbstractBasic::getCurrentUser
 	 * @return string|null
 	 */
 	public function getCurrentUser() {
@@ -161,7 +219,7 @@ class BasicAuth extends DAV\Auth\Backend\AbstractBasic {
 	}
 
 	/**
-	 * @brief Sets the timezone from the channel in RedBasicAuth.
+	 * @brief Sets the timezone from the channel in BasicAuth.
 	 *
 	 * Set in mod/cloud.php if the channel has a timezone set.
 	 *

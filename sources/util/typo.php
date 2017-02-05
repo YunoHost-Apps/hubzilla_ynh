@@ -42,6 +42,13 @@
 		include_once($file);
 	}
 
+	echo "Directory: Zotlabs/Module (sub-modules)\n";
+	$files = glob('Zotlabs/Module/*/*.php');
+	foreach($files as $file) {
+		echo $file . "\n";
+		include_once($file);
+	}
+
 
 	echo "Directory: include/photo\n";
 	$files = glob('include/photo/*.php');

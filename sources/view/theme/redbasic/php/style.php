@@ -153,7 +153,19 @@ if(file_exists('view/theme/redbasic/css/style.css')) {
 
 	$x = file_get_contents('view/theme/redbasic/css/style.css');
 
-	$aside_width = 287;
+	if($narrow_navbar && file_exists('view/theme/redbasic/css/narrow_navbar.css')) {
+		$x .= file_get_contents('view/theme/redbasic/css/narrow_navbar.css');
+	}
+
+	if($align_left && file_exists('view/theme/redbasic/css/align_left.css')) {
+		$x .= file_get_contents('view/theme/redbasic/css/align_left.css');
+	}
+
+	if($schemecss) {
+		$x .= $schemecss;
+	}
+
+	$aside_width = 288;
 
 	// left aside and right aside are 285px + converse width
 	if($align_left) {
@@ -202,18 +214,6 @@ if(file_exists('view/theme/redbasic/css/style.css')) {
 
 	echo str_replace(array_keys($options), array_values($options), $x);
 
-}
-
-if($narrow_navbar && file_exists('view/theme/redbasic/css/narrow_navbar.css')) {
-	echo file_get_contents('view/theme/redbasic/css/narrow_navbar.css');
-} 
-
-if($align_left && file_exists('view/theme/redbasic/css/align_left.css')) {
-	echo file_get_contents('view/theme/redbasic/css/align_left.css');
-}
-
-if($schemecss) {
-	echo $schemecss;
 }
 
 // Set the schema to the default schema in derived themes. See the documentation for creating derived themes how to override this. 

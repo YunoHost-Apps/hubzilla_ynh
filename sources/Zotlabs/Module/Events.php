@@ -6,7 +6,6 @@ require_once('include/bbcode.php');
 require_once('include/datetime.php');
 require_once('include/event.php');
 require_once('include/items.php');
-require_once('include/PermissionDescription.php');
 
 
 class Events extends \Zotlabs\Web\Controller {
@@ -58,9 +57,6 @@ class Events extends \Zotlabs\Web\Controller {
 			$start = sprintf('%d-%d-%d %d:%d:0',$startyear,$startmonth,$startday,$starthour,$startminute);
 		}
 	
-		if($nofinish) {
-			$finish = NULL_DATE;
-		}
 	
 		if($finish_text) {
 			$finish = $finish_text;
@@ -68,6 +64,11 @@ class Events extends \Zotlabs\Web\Controller {
 		else {
 			$finish = sprintf('%d-%d-%d %d:%d:0',$finishyear,$finishmonth,$finishday,$finishhour,$finishminute);
 		}
+
+		if($nofinish) {
+			$finish = NULL_DATE;
+		}
+
 	
 		if($adjust) {
 			$start = datetime_convert(date_default_timezone_get(),'UTC',$start);
@@ -119,8 +120,10 @@ class Events extends \Zotlabs\Web\Controller {
 			goaway($onerror_url);
 		}
 	
-		$share = ((intval($_POST['share'])) ? intval($_POST['share']) : 0);
-	
+		//		$share = ((intval($_POST['distr'])) ? intval($_POST['distr']) : 0);
+
+		$share = 1;	
+
 		$channel = \App::get_channel();
 	
 		$acl = new \Zotlabs\Access\AccessList(false);
@@ -171,7 +174,7 @@ class Events extends \Zotlabs\Web\Controller {
 			foreach($cats as $cat) {
 				$post_tags[] = array(
 					'uid'   => $profile_uid, 
-					'type'  => TERM_CATEGORY,
+					'ttype' => TERM_CATEGORY,
 					'otype' => TERM_OBJ_POST,
 					'term'  => trim($cat),
 					'url'   => $channel['xchan_url'] . '?f=&cat=' . urlencode(trim($cat))
@@ -180,12 +183,12 @@ class Events extends \Zotlabs\Web\Controller {
 		}
 	
 		$datarray = array();
-		$datarray['start'] = $start;
-		$datarray['finish'] = $finish;
+		$datarray['dtstart'] = $start;
+		$datarray['dtend'] = $finish;
 		$datarray['summary'] = $summary;
 		$datarray['description'] = $desc;
 		$datarray['location'] = $location;
-		$datarray['type'] = $type;
+		$datarray['etype'] = $type;
 		$datarray['adjust'] = $adjust;
 		$datarray['nofinish'] = $nofinish;
 		$datarray['uid'] = local_channel();
@@ -207,7 +210,6 @@ class Events extends \Zotlabs\Web\Controller {
 		}
 	
 		$event = event_store_event($datarray);
-	
 	
 		if($post_tags)	
 			$datarray['term'] = $post_tags;
@@ -232,7 +234,7 @@ class Events extends \Zotlabs\Web\Controller {
 		}
 	
 		if($share)
-			proc_run('php',"include/notifier.php","event","$item_id");
+			\Zotlabs\Daemon\Master::Summon(array('Notifier','event',$item_id));
 	
 	}
 	
@@ -269,14 +271,14 @@ class Events extends \Zotlabs\Web\Controller {
 		nav_set_selected('all_events');
 	
 		if((argc() > 2) && (argv(1) === 'ignore') && intval(argv(2))) {
-			$r = q("update event set ignore = 1 where id = %d and uid = %d",
+			$r = q("update event set dismissed = 1 where id = %d and uid = %d",
 				intval(argv(2)),
 				intval(local_channel())
 			);
 		}
 	
 		if((argc() > 2) && (argv(1) === 'unignore') && intval(argv(2))) {
-			$r = q("update event set ignore = 0 where id = %d and uid = %d",
+			$r = q("update event set dismissed = 0 where id = %d and uid = %d",
 				intval(argv(2)),
 				intval(local_channel())
 			);
@@ -301,7 +303,7 @@ class Events extends \Zotlabs\Web\Controller {
 		$mode = 'view';
 		$y = 0;
 		$m = 0;
-		$ignored = ((x($_REQUEST,'ignored')) ? " and ignored = " . intval($_REQUEST['ignored']) . " "  : '');
+		$ignored = ((x($_REQUEST,'ignored')) ? " and dismissed = " . intval($_REQUEST['ignored']) . " "  : '');
 	
 	
 		// logger('args: ' . print_r(\App::$argv,true));
@@ -337,7 +339,7 @@ class Events extends \Zotlabs\Web\Controller {
 	
 			/* edit/create form */
 			if($event_id) {
-				$r = q("SELECT * FROM `event` WHERE event_hash = '%s' AND `uid` = %d LIMIT 1",
+				$r = q("SELECT * FROM event WHERE event_hash = '%s' AND uid = %d LIMIT 1",
 					dbesc($event_id),
 					intval(local_channel())
 				);
@@ -358,9 +360,9 @@ class Events extends \Zotlabs\Web\Controller {
 			if(x($_REQUEST,'summary')) $orig_event['summary'] = $_REQUEST['summary'];
 			if(x($_REQUEST,'description')) $orig_event['description'] = $_REQUEST['description'];
 			if(x($_REQUEST,'location')) $orig_event['location'] = $_REQUEST['location'];
-			if(x($_REQUEST,'start')) $orig_event['start'] = $_REQUEST['start'];
-			if(x($_REQUEST,'finish')) $orig_event['finish'] = $_REQUEST['finish'];
-			if(x($_REQUEST,'type')) $orig_event['type'] = $_REQUEST['type'];
+			if(x($_REQUEST,'start')) $orig_event['dtstart'] = $_REQUEST['start'];
+			if(x($_REQUEST,'finish')) $orig_event['dtend'] = $_REQUEST['finish'];
+			if(x($_REQUEST,'type')) $orig_event['etype'] = $_REQUEST['type'];
 			*/
 	
 			$n_checked = ((x($orig_event) && $orig_event['nofinish']) ? ' checked="checked" ' : '');
@@ -380,9 +382,9 @@ class Events extends \Zotlabs\Web\Controller {
 			if($orig_event['event_xchan'])
 				$sh_checked .= ' disabled="disabled" ';
 	
-			$sdt = ((x($orig_event)) ? $orig_event['start'] : 'now');
+			$sdt = ((x($orig_event)) ? $orig_event['dtstart'] : 'now');
 	
-			$fdt = ((x($orig_event)) ? $orig_event['finish'] : '+1 hour');
+			$fdt = ((x($orig_event)) ? $orig_event['dtend'] : '+1 hour');
 	
 			$tz = date_default_timezone_get();
 			if(x($orig_event))
@@ -406,7 +408,7 @@ class Events extends \Zotlabs\Web\Controller {
 			$ftext = datetime_convert('UTC',$tz,$fdt);
 			$ftext = substr($ftext,0,14) . "00:00";
 	
-			$type = ((x($orig_event)) ? $orig_event['type'] : 'event');
+			$type = ((x($orig_event)) ? $orig_event['etype'] : 'event');
 	
 			$f = get_config('system','event_input_format');
 			if(! $f)
@@ -436,7 +438,9 @@ class Events extends \Zotlabs\Web\Controller {
 	
 			$acl = new \Zotlabs\Access\AccessList($channel);
 			$perm_defaults = $acl->get();
-	
+
+			$permissions = ((x($orig_event)) ? $orig_event : $perm_defaults);
+
 			$tpl = get_markup_template('event_form.tpl');
 	
 			$form = replace_macros($tpl,array(
@@ -464,14 +468,19 @@ class Events extends \Zotlabs\Web\Controller {
 				'$l_text' => (($event_id) ? t('Edit Location') : t('Location')),
 				'$l_orig' => $l_orig,
 				'$t_orig' => $t_orig,
-				'$sh_text' => t('Share this event'),
-				'$sh_checked' => $sh_checked,
-				'$share' => array('share', t('Share this event'), $sh_checked, '', array(t('No'),t('Yes'))),
 				'$preview' => t('Preview'),
-				'$permissions' => t('Permission settings'),
+				'$perms_label' => t('Permission settings'),
 				// populating the acl dialog was a permission description from view_stream because Cal.php, which
 				// displays events, says "since we don't currently have an event permission - use the stream permission"
-				'$acl' => (($orig_event['event_xchan']) ? '' : populate_acl(((x($orig_event)) ? $orig_event : $perm_defaults), false, \PermissionDescription::fromGlobalPermission('view_stream'))),
+				'$acl' => (($orig_event['event_xchan']) ? '' : populate_acl(((x($orig_event)) ? $orig_event : $perm_defaults), false, \Zotlabs\Lib\PermissionDescription::fromGlobalPermission('view_stream'))),
+
+				'$allow_cid' => acl2json($permissions['allow_cid']),
+				'$allow_gid' => acl2json($permissions['allow_gid']),
+				'$deny_cid' => acl2json($permissions['deny_cid']),
+				'$deny_gid' => acl2json($permissions['deny_gid']),
+
+				'$lockstate' => (($acl->is_private()) ? 'lock' : 'unlock'),
+
 				'$submit' => t('Submit'),
 				'$advanced' => t('Advanced Options')
 	
@@ -536,8 +545,8 @@ class Events extends \Zotlabs\Web\Controller {
 				);
 			} elseif($export) {
 				$r = q("SELECT * from event where uid = %d
-					AND (( `adjust` = 0 AND ( `finish` >= '%s' or nofinish = 1 ) AND `start` <= '%s' ) 
-					OR  (  `adjust` = 1 AND ( `finish` >= '%s' or nofinish = 1 ) AND `start` <= '%s' )) ",
+					AND (( adjust = 0 AND ( dtend >= '%s' or nofinish = 1 ) AND dtstart <= '%s' ) 
+					OR  (  adjust = 1 AND ( dtend >= '%s' or nofinish = 1 ) AND dtstart <= '%s' )) ",
 					intval(local_channel()),
 					dbesc($start),
 					dbesc($finish),
@@ -550,19 +559,18 @@ class Events extends \Zotlabs\Web\Controller {
 				// There's still an issue if the finish date crosses the end of month.
 				// Noting this for now - it will need to be fixed here and in Friendica.
 				// Ultimately the finish date shouldn't be involved in the query. 
-	
+
 				$r = q("SELECT event.*, item.plink, item.item_flags, item.author_xchan, item.owner_xchan
 	                              from event left join item on event_hash = resource_id 
-					where resource_type = 'event' and event.uid = %d $ignored 
-					AND (( adjust = 0 AND ( finish >= '%s' or nofinish = 1 ) AND start <= '%s' ) 
-					OR  (  adjust = 1 AND ( finish >= '%s' or nofinish = 1 ) AND start <= '%s' )) ",
+					where resource_type = 'event' and event.uid = %d and event.uid = item.uid $ignored 
+					AND (( adjust = 0 AND ( dtend >= '%s' or nofinish = 1 ) AND dtstart <= '%s' ) 
+					OR  (  adjust = 1 AND ( dtend >= '%s' or nofinish = 1 ) AND dtstart <= '%s' )) ",
 					intval(local_channel()),
 					dbesc($start),
 					dbesc($finish),
 					dbesc($adjust_start),
 					dbesc($adjust_finish)
 				);
-	
 			}
 	
 			$links = array();
@@ -576,7 +584,7 @@ class Events extends \Zotlabs\Web\Controller {
 	
 			if($r) {
 				foreach($r as $rr) {
-					$j = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['start'], 'j') : datetime_convert('UTC','UTC',$rr['start'],'j'));
+					$j = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['dtstart'], 'j') : datetime_convert('UTC','UTC',$rr['dtstart'],'j'));
 					if(! x($links,$j)) 
 						$links[$j] = z_root() . '/' . \App::$cmd . '#link-' . $j;
 				}
@@ -591,15 +599,21 @@ class Events extends \Zotlabs\Web\Controller {
 	
 				foreach($r as $rr) {
 					
-					$j = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['start'], 'j') : datetime_convert('UTC','UTC',$rr['start'],'j'));
-					$d = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['start'], $fmt) : datetime_convert('UTC','UTC',$rr['start'],$fmt));
+					$j = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['dtstart'], 'j') : datetime_convert('UTC','UTC',$rr['dtstart'],'j'));
+					$d = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['dtstart'], $fmt) : datetime_convert('UTC','UTC',$rr['dtstart'],$fmt));
 					$d = day_translate($d);
 					
-					$start = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['start'], 'c') : datetime_convert('UTC','UTC',$rr['start'],'c'));
+					$start = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['dtstart'], 'c') : datetime_convert('UTC','UTC',$rr['dtstart'],'c'));
 					if ($rr['nofinish']){
 						$end = null;
 					} else {
-						$end = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['finish'], 'c') : datetime_convert('UTC','UTC',$rr['finish'],'c'));
+						$end = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['dtend'], 'c') : datetime_convert('UTC','UTC',$rr['dtend'],'c'));
+
+						// give a fake end to birthdays so they get crammed into a 
+						// single day on the calendar
+
+						if($rr['etype'] === 'birthday')
+							$end = null;
 					}
 					
 					
@@ -668,8 +682,10 @@ class Events extends \Zotlabs\Web\Controller {
 				'$export'	=> array(z_root()."/events/$y/$m/export",t('Export'),'',''),
 				'$calendar'	=> cal($y,$m,$links, ' eventcal'),
 				'$events'	=> $events,
-				'$upload'	=> t('Import'),
-				'$submit'	=> t('Submit'),
+				'$view_label'   => t('View'),
+				'$month'        => t('Month'),
+				'$week'         => t('Week'),
+				'$day'          => t('Day'),
 				'$prev'		=> t('Previous'),
 				'$next'		=> t('Next'),
 				'$today'	=> t('Today'),
@@ -683,7 +699,7 @@ class Events extends \Zotlabs\Web\Controller {
 		}
 	
 		if($mode === 'drop' && $event_id) {
-			$r = q("SELECT * FROM `event` WHERE event_hash = '%s' AND `uid` = %d LIMIT 1",
+			$r = q("SELECT * FROM event WHERE event_hash = '%s' AND uid = %d LIMIT 1",
 				dbesc($event_id),
 				intval(local_channel())
 			);
@@ -691,7 +707,7 @@ class Events extends \Zotlabs\Web\Controller {
 			$sync_event = $r[0];
 	
 			if($r) {
-				$r = q("delete from event where event_hash = '%s' and uid = %d limit 1",
+				$r = q("delete from event where event_hash = '%s' and uid = %d",
 					dbesc($event_id),
 					intval(local_channel())
 				);

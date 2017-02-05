@@ -81,12 +81,14 @@ class PluginTest extends \PHPUnit_Framework_TestCase {
         $this->server->addPlugin($this->plugin);
 
         // Adding ACL plugin
-        $this->server->addPlugin(new DAVACL\Plugin());
+        $aclPlugin = new DAVACL\Plugin();
+        $aclPlugin->allowUnauthenticatedAccess = false;
+        $this->server->addPlugin($aclPlugin);
 
         // Adding Auth plugin, and ensuring that we are logged in.
         $authBackend = new DAV\Auth\Backend\Mock();
         $authBackend->setPrincipal('principals/user1');
-        $authPlugin = new DAV\Auth\Plugin($authBackend, 'SabreDAV');
+        $authPlugin = new DAV\Auth\Plugin($authBackend);
         $authPlugin->beforeMethod(new \Sabre\HTTP\Request(), new \Sabre\HTTP\Response());
         $this->server->addPlugin($authPlugin);
 
@@ -480,8 +482,9 @@ END:VCALENDAR';
         $this->assertInstanceOf('\\Sabre\\DAV\\Xml\\Property\\SupportedReportSet', $prop);
         $value = [
             '{DAV:}expand-property',
+            '{DAV:}principal-match',
             '{DAV:}principal-property-search',
-            '{DAV:}principal-search-property-set'
+            '{DAV:}principal-search-property-set',
         ];
         $this->assertEquals($value, $prop->getValue());
 
@@ -508,6 +511,7 @@ END:VCALENDAR';
             '{urn:ietf:params:xml:ns:caldav}calendar-query',
             '{urn:ietf:params:xml:ns:caldav}free-busy-query',
             '{DAV:}expand-property',
+            '{DAV:}principal-match',
             '{DAV:}principal-property-search',
             '{DAV:}principal-search-property-set'
         ];
@@ -533,6 +537,7 @@ END:VCALENDAR';
         $value = [
             '{DAV:}sync-collection',
             '{DAV:}expand-property',
+            '{DAV:}principal-match',
             '{DAV:}principal-property-search',
             '{DAV:}principal-search-property-set',
         ];
@@ -719,7 +724,7 @@ XML;
             '</c:calendar-query>';
 
         $request = new HTTP\Request('REPORT', '/calendars/user1/UUID-123467', [
-            'Depth' => '0',
+            'Depth'      => '0',
             'User-Agent' => 'MSFT-WP/8.10.14219 (gzip)',
         ]);
 

@@ -3,7 +3,12 @@
  */
 
 $(document).ready(function() {
-	$('form').areYouSure({'addRemoveFieldsMarksDirty':true, 'message': aStr['leavethispage'] }); // Warn user about unsaved settings
+	$('#settings-form').areYouSure({'addRemoveFieldsMarksDirty':true, 'message': aStr['leavethispage'] }); // Warn user about unsaved settings
+
+	$('.token-mirror').html($('#id_token').val());
+	$('#id_token').keyup( function() { $('.token-mirror').html($('#id_token').val()); });
+
+	previewTheme($('#id_theme')[0]);
 
 	$("#id_permissions_role").change(function() {
 		var role = $("#id_permissions_role").val();
@@ -12,20 +17,27 @@ $(document).ready(function() {
 		else
 			$('#advanced-perm').hide();
 	});
-
-	$('#contact_allow, #contact_deny, #group_allow, #group_deny').change(function() {
-		var selstr;
-		$('#contact_allow option:selected, #contact_deny option:selected, #group_allow option:selected, #group_deny option:selected').each( function() {
-			selstr = $(this).text();
-			$('#jot-perms-icon').removeClass('fa-unlock').addClass('fa-lock');
-			$('#jot-public').hide();
-		});
-		if(selstr === null) {
-			$('#jot-perms-icon').removeClass('fa-lock').addClass('fa-unlock');
-			$('#jot-public').show();
-		}
-	}).trigger('change');
 });
+
+
+function setTheme(elm) {
+	$('#settings-form').submit();
+}
+
+
+function previewTheme(elm) {
+	theme = $(elm).val();
+	$.getJSON('theme_info/' + theme,function(data) {
+		$('#theme-preview').html('<div id="theme-desc">' + data.desc + '</div><div id="theme-version">' + data.version + '</div><div id="theme-credits">' + data.credits + '</div><a href="' + data.img + '"><img src="' + data.img + '" style="max-width:100%; max-height:300px" alt="' + theme + '"></a>');
+		$('#id_schema').empty();
+		$(data.schemas).each(function(index,item) {
+			$('<option/>',{value:item['key'],text:item['val']}).appendTo('#id_schema');
+		});
+		$('#custom-settings-content .section-content-tools-wrapper').html(data.config);
+	});
+}
+
+
 
 /**
  * 0 nobody

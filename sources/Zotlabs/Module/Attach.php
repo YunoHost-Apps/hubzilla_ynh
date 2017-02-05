@@ -14,7 +14,7 @@ class Attach extends \Zotlabs\Web\Controller {
 			return;
 		}
 	
-		$r = attach_by_hash(argv(1),((argc() > 2) ? intval(argv(2)) : 0));
+		$r = attach_by_hash(argv(1),get_observer_hash(),((argc() > 2) ? intval(argv(2)) : 0));
 	
 		if(! $r['success']) {
 			notice( $r['message'] . EOL);
@@ -40,7 +40,7 @@ class Attach extends \Zotlabs\Web\Controller {
 	
 		header('Content-disposition: attachment; filename="' . $r['data']['filename'] . '"');
 		if(intval($r['data']['os_storage'])) {
-			$fname = dbunescbin($r['data']['data']);
+			$fname = dbunescbin($r['data']['content']);
 			if(strpos($fname,'store') !== false)
 				$istream = fopen($fname,'rb');
 			else
@@ -53,7 +53,7 @@ class Attach extends \Zotlabs\Web\Controller {
 			}
 		}
 		else
-			echo dbunescbin($r['data']['data']);
+			echo dbunescbin($r['data']['content']);
 		killme();
 	
 	}

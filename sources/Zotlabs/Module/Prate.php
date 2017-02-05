@@ -85,7 +85,7 @@ class Prate extends \Zotlabs\Web\Controller {
 				$record = $z[0]['xlink_id'];
 		}
 		if($record) {
-			proc_run('php','include/ratenotif.php','rating',$record);
+			\Zotlabs\Daemon\Master::Summon(array('Ratenotif','rating',$record));
 		}
 	
 		json_return_and_die(array('result' => true));;

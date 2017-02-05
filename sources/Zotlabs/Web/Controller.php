@@ -10,3 +10,4 @@ class Controller {
 	function get() {}
 
 }
+

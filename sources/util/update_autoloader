@@ -1,0 +1,2 @@
+#!/bin/bash -f
+composer install --optimize-autoloader --no-dev

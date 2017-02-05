@@ -1,6 +1,6 @@
 # Connecting To Channels #
 
-Connections in the $Projectname can take on a great many different meanings. But let's keep it simple, you want to be friends with somebody like you are familiar with from social networking. How do you do it?
+Connections in $Projectname can take on a great many different meanings. But let's keep it simple, you want to be friends with somebody like you are familiar with from social networking. How do you do it?
 
 First, you need to find some channels to connect to.  There are two primary ways of doing this.  Firstly, setting the "Can send me their channel stream and posts" permission to "Anybody in this network" will bring posts from complete strangers to your matrix.  This will give you a lot of public content and should hopefully help you find interesting, entertaing people, forums, and channels.
 

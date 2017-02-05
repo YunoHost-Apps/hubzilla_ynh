@@ -45,7 +45,7 @@ In our case, we'll call them randplace_load() and randplace_unload(), as that is
  pluginname_uninstall()
 [/code]
 
-Next we'll talk about [b]hooks[/b]. Hooks are places in the $Projectname code where we allow plugins to do stuff. There are a [url=[baseurl]/help/hooklist]lot of these[/url], and they each have a name. What we normally do is use the pluginname_load() function to register a &quot;handler function&quot; for any hooks you are interested in. Then when any of these hooks are triggered, your code will be called.
+Next we'll talk about [b]hooks[/b]. Hooks are places in $Projectname code where we allow plugins to do stuff. There are a [url=[baseurl]/help/hooklist]lot of these[/url], and they each have a name. What we normally do is use the pluginname_load() function to register a &quot;handler function&quot; for any hooks you are interested in. Then when any of these hooks are triggered, your code will be called.
 
 We register hook handlers with the 'Zotlabs\Extend\Hook::register()' function. It typically takes 3 arguments. The first is the hook we wish to catch, the second is the filename of the file to find our handler function (relative to the base of your $Projectname installation), and the third is the function name of your handler function. So let's create our randplace_load() function right now. 
 
@@ -295,13 +295,13 @@ If you want to keep your plugin hidden from the siteinfo page, simply create a f
 
 ***Porting Friendica Plugins***
 
-The $Projectname uses a similar plugin architecture to the Friendica project. The authentication, identity, and permissions systems are completely different. Many Friendica can be ported reasonably easily by renaming a few functions - and then ensuring that the permissions model is adhered to. The functions which need to be renamed are:
+$Projectname uses a similar plugin architecture to the Friendica project. The authentication, identity, and permissions systems are completely different. Many Friendica can be ported reasonably easily by renaming a few functions - and then ensuring that the permissions model is adhered to. The functions which need to be renamed are:
 
 [li] Friendica's pluginname_install() is pluginname_load()[/li]
 
 [li] Friendica's pluginname_uninstall() is pluginname_unload()[/li]
 
-The $Projectname has _install and _uninstall functions but these are used differently.
+$Projectname has _install and _uninstall functions but these are used differently.
 
 [li] Friendica's &quot;plugin_settings&quot; hook is called &quot;feature_settings&quot;[/li]
 

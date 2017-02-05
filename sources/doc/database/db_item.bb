@@ -51,7 +51,7 @@
 [/td][/tr]
 [tr][td]obj_type[/td][td]ActivityStreams object type (old style URI)[/td][td]char(255)[/td][td]NO[/td][td][/td][td][/td][td]
 [/td][/tr]
-[tr][td]object[/td][td]JSON encoded object structure unless it is an implied object (normal post)[/td][td]text[/td][td]NO[/td][td][/td][td]NULL[/td][td]
+[tr][td]obj[/td][td]JSON encoded object structure unless it is an implied object (normal post)[/td][td]text[/td][td]NO[/td][td][/td][td]NULL[/td][td]
 [/td][/tr]
 [tr][td]tgt_type[/td][td]ActivityStreams target type if applicable (URI)[/td][td]char(255)[/td][td]NO[/td][td][/td][td][/td][td]
 [/td][/tr]

@@ -9,8 +9,8 @@ use Sabre\DAV;
  *
  * It provides all functions to work with files in Red's cloud through DAV protocol.
  *
- * @extends \Sabre\DAV\Node
- * @implements \Sabre\DAV\IFile
+ * @extends \\Sabre\\DAV\\Node
+ * @implements \\Sabre\\DAV\\IFile
  *
  * @link http://github.com/friendica/red
  * @license http://opensource.org/licenses/mit-license.php The MIT License (MIT)
@@ -20,20 +20,20 @@ class File extends DAV\Node implements DAV\IFile {
 	/**
 	 * The file from attach table.
 	 *
-	 * @var array
-	 *  data
-	 *  flags
-	 *  filename (string)
-	 *  filetype (string)
+	 * @var array $data
+	 *  * data
+	 *  * flags
+	 *  * filename (string)
+	 *  * filetype (string)
 	 */
 	private $data;
 	/**
-	 * @see \Sabre\DAV\Auth\Backend\BackendInterface
-	 * @var \RedMatrix\RedDAV\RedBasicAuth
+	 * @see \\Sabre\\DAV\\Auth\\Backend\\BackendInterface
+	 * @var \\Zotlabs\\Storage\\BasicAuth $auth
 	 */
 	private $auth;
 	/**
-	 * @var string
+	 * @var string $name
 	 */
 	private $name;
 
@@ -65,8 +65,8 @@ class File extends DAV\Node implements DAV\IFile {
 	/**
 	 * @brief Renames the file.
 	 *
-	 * @throw Sabre\DAV\Exception\Forbidden
-	 * @param string $name The new name of the file.
+	 * @throw "\Sabre\DAV\Exception\Forbidden"
+	 * @param string $newName The new name of the file.
 	 * @return void
 	 */
 	public function setName($newName) {
@@ -95,7 +95,7 @@ class File extends DAV\Node implements DAV\IFile {
 		$ch = channelx_by_n($this->auth->owner_id);
 		if($ch) {
 			$sync = attach_export_data($ch,$this->data['hash']);
-			if($sync) 
+			if($sync)
 				build_sync_packet($ch['channel_id'],array('file' => array($sync)));
 		}
 	}
@@ -124,7 +124,7 @@ class File extends DAV\Node implements DAV\IFile {
 		);
 		if ($r) {
 			if (intval($r[0]['os_storage'])) {
-				$d = q("select folder, data from attach where hash = '%s' and uid = %d limit 1",
+				$d = q("select folder, content from attach where hash = '%s' and uid = %d limit 1",
 					dbesc($this->data['hash']),
 					intval($c[0]['channel_id'])
 				);
@@ -138,8 +138,8 @@ class File extends DAV\Node implements DAV\IFile {
 							$album = $f1[0]['filename'];
 							$direct = $f1[0];
 						}
-					}	
-					$fname = dbunescbin($d[0]['data']);
+					}
+					$fname = dbunescbin($d[0]['content']);
 					if(strpos($fname,'store') === false)
 						$f = 'store/' . $this->auth->owner_nick . '/' . $fname ;
 					else
@@ -151,19 +151,19 @@ class File extends DAV\Node implements DAV\IFile {
 					logger('filename: ' . $f . ' size: ' . $size, LOGGER_DEBUG);
 				}
 				$gis = @getimagesize($f);
-				logger('getimagesize: ' . print_r($gis,true), LOGGER_DATA); 
+				logger('getimagesize: ' . print_r($gis,true), LOGGER_DATA);
 				if(($gis) && ($gis[2] === IMAGETYPE_GIF || $gis[2] === IMAGETYPE_JPEG || $gis[2] === IMAGETYPE_PNG)) {
 					$is_photo = 1;
 				}
-			} 
+			}
 			else {
 				// this shouldn't happen any more
-				$r = q("UPDATE attach SET data = '%s' WHERE hash = '%s' AND uid = %d",
+				$r = q("UPDATE attach SET content = '%s' WHERE hash = '%s' AND uid = %d",
 					dbescbin(stream_get_contents($data)),
 					dbesc($this->data['hash']),
 					intval($this->data['uid'])
 				);
-				$r = q("SELECT length(data) AS fsize FROM attach WHERE hash = '%s' AND uid = %d LIMIT 1",
+				$r = q("SELECT length(content) AS fsize FROM attach WHERE hash = '%s' AND uid = %d LIMIT 1",
 					dbesc($this->data['hash']),
 					intval($this->data['uid'])
 				);
@@ -222,7 +222,7 @@ class File extends DAV\Node implements DAV\IFile {
 
 		$sync = attach_export_data($c[0],$this->data['hash']);
 
-		if($sync) 
+		if($sync)
 			build_sync_packet($c[0]['channel_id'],array('file' => array($sync)));
 
 	}
@@ -236,7 +236,7 @@ class File extends DAV\Node implements DAV\IFile {
 		logger('get file ' . basename($this->name), LOGGER_DEBUG);
 		logger('os_path: ' . $this->os_path, LOGGER_DATA);
 
-		$r = q("SELECT data, flags, os_storage, filename, filetype FROM attach WHERE hash = '%s' AND uid = %d LIMIT 1",
+		$r = q("SELECT content, flags, os_storage, filename, filetype FROM attach WHERE hash = '%s' AND uid = %d LIMIT 1",
 			dbesc($this->data['hash']),
 			intval($this->data['uid'])
 		);
@@ -250,14 +250,14 @@ class File extends DAV\Node implements DAV\IFile {
 			}
 
 			if (intval($r[0]['os_storage'])) {
-				$x = dbunescbin($r[0]['data']);
+				$x = dbunescbin($r[0]['content']);
 				if(strpos($x,'store') === false)
 					$f = 'store/' . $this->auth->owner_nick . '/' . (($this->os_path) ? $this->os_path . '/' : '') . $x;
 				else
 					$f = $x;
 				return fopen($f, 'rb');
 			}
-			return dbunescbin($r[0]['data']);
+			return dbunescbin($r[0]['content']);
 		}
 	}
 
@@ -322,28 +322,32 @@ class File extends DAV\Node implements DAV\IFile {
 	 * This method checks the permissions and then calls attach_delete() function
 	 * to actually remove the file.
 	 *
-	 * @throw \Sabre\DAV\Exception\Forbidden
+	 * @throw "\Sabre\DAV\Exception\Forbidden"
 	 */
 	public function delete() {
 		logger('delete file ' . basename($this->name), LOGGER_DEBUG);
 
-		if ((! $this->auth->owner_id) || (! perm_is_allowed($this->auth->owner_id, $this->auth->observer, 'write_storage'))) {
+		if((! $this->auth->owner_id) || (! perm_is_allowed($this->auth->owner_id, $this->auth->observer, 'write_storage'))) {
 			throw new DAV\Exception\Forbidden('Permission denied.');
 		}
 
-		if ($this->auth->owner_id !== $this->auth->channel_id) {
+		if($this->auth->owner_id !== $this->auth->channel_id) {
 			if (($this->auth->observer !== $this->data['creator']) || intval($this->data['is_dir'])) {
 				throw new DAV\Exception\Forbidden('Permission denied.');
 			}
+		}
+
+		if(get_pconfig($this->auth->owner_id,'system','os_delete_prohibit') && \App::$module == 'dav') {
+			throw new DAV\Exception\Forbidden('Permission denied.');
 		}
 
 		attach_delete($this->auth->owner_id, $this->data['hash']);
 
 		$ch = channelx_by_n($this->auth->owner_id);
 		if($ch) {
-			$sync = attach_export_data($ch,$this->data['hash'],true);
-			if($sync) 
-				build_sync_packet($ch['channel_id'],array('file' => array($sync)));
+			$sync = attach_export_data($ch, $this->data['hash'], true);
+			if($sync)
+				build_sync_packet($ch['channel_id'], array('file' => array($sync)));
 		}
 	}
 }

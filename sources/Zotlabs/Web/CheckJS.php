@@ -21,6 +21,9 @@ class CheckJS {
 			$page = urlencode(\App::$query_string);
 
 			if($test) {
+				self::$jsdisabled = 1;
+				if(array_key_exists('jsdisabled',$_COOKIE))
+					self::$jsdisabled = $_COOKIE['jsdisabled'];
 
     			if(! array_key_exists('jsdisabled',$_COOKIE)) {
 			        \App::$page['htmlhead'] .= "\r\n" . '<script>document.cookie="jsdisabled=0; path=/"; var jsMatch = /\&jsdisabled=0/; if (!jsMatch.exec(location.href)) { location.href = "' . z_root() . '/nojs/0?f=&redir=' . $page . '" ; }</script>' . "\r\n";

@@ -2,7 +2,7 @@
 namespace Zotlabs\Module;
 
 require_once('include/menu.php');
-require_once('include/identity.php');
+require_once('include/channel.php');
 
 
 class Menu extends \Zotlabs\Web\Controller {
@@ -65,7 +65,7 @@ class Menu extends \Zotlabs\Web\Controller {
 	
 	
 	
-		function get() {
+	function get() {
 	
 		$uid = local_channel();
 	
@@ -81,7 +81,7 @@ class Menu extends \Zotlabs\Web\Controller {
 	
 		if(argc() == 1) {
 	
-	
+			$channel = (($sys) ? $sys : \App::get_channel());
 	
 			// list menus
 			$x = menu_list($uid);
@@ -89,7 +89,7 @@ class Menu extends \Zotlabs\Web\Controller {
 				for($y = 0; $y < count($x); $y ++) {
 					$m = menu_fetch($x[$y]['menu_name'],$uid,get_observer_hash());
 					if($m)
-						$x[$y]['element'] = '[element]' . base64url_encode(json_encode(menu_element($m))) . '[/element]';
+						$x[$y]['element'] = '[element]' . base64url_encode(json_encode(menu_element($channel,$m))) . '[/element]';
 					$x[$y]['bookmark'] = (($x[$y]['menu_flags'] & MENU_BOOKMARK) ? true : false);
 				}
 			}

@@ -54,5 +54,8 @@
 			<button class="btn btn-primary" type="submit" name="submit" id="newchannel-submit-button" value="{{$submit}}">{{$submit}}</button>
 			<div id="register-submit-end" class="register-field-end"></div>
 		</form>
+			<br />
+			<div class="descriptive-text">{{$verify_note}}</div>
+
 	</div>
 </div>

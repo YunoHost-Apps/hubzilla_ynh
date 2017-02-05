@@ -1,0 +1,27 @@
+default:
+  suites:
+    default:
+      paths:
+        - %paths.base%/features
+      contexts:
+        - Behat\MinkExtension\Context\MinkContext
+    admin_features:
+      filters: { role: admin }
+      contexts:
+        - AdminContext
+    api_features:
+      paths:
+        - %paths.base%/features/api
+      filters:
+        tags: "@api"
+      contexts:
+        - ApiContext
+  gherkin:
+    filters:
+      tags: ~@wip
+  extensions:
+    Behat\MinkExtension:
+      base_url: 'http://localhost'
+      sessions:
+        default:
+          goutte: ~

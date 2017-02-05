@@ -5,8 +5,6 @@ require_once('include/acl_selectors.php');
 require_once('include/message.php');
 require_once('include/zot.php');
 require_once("include/bbcode.php");
-require_once('include/Contact.php');
-
 
 
 class Message extends \Zotlabs\Web\Controller {

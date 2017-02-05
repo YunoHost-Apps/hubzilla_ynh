@@ -115,7 +115,7 @@ class Poke extends \Zotlabs\Web\Controller {
 			),
 		);
 	
-		$arr['object'] = json_encode($obj);
+		$arr['obj'] = json_encode($obj);
 	
 		$arr['item_origin']   = 1;
 		$arr['item_wall']     = 1;

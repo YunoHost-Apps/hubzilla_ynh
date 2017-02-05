@@ -3,6 +3,31 @@
 	background-color: transparent;
 }
 
+textarea, input, select
+{
+  color: #BBB !important;
+  background: #333 !important;
+  border-color: #2B2B2B !important;
+ }
+
+#profile-jot-submit-wrapper {
+	border-top: none;
+	padding: 10px 0;
+}
+
+#jot-title-wrap {
+	border-bottom: none;
+	margin-bottom: 5px;
+}
+
+optgroup {
+	color: #CCC !important; 
+}
+
+option {
+	color: $link_colour !important;
+}
+
 .vcard, #contact-block, .widget {
 	background-color: transparent;
 	border: none;
@@ -390,3 +415,21 @@ pre {
   	box-shadow: 0px 3px 3px #222;
 }
 
+.contextual-help-content-open {
+	background: $nav_bg;
+	top: 50px;
+	border-bottom: #555 1px solid;
+	box-shadow: 0px 3px 3px rgba(85,85,85,0.2);
+}
+
+.contextual-help-tool {
+	opacity: 0.5;
+}
+
+.contextual-help-tool:hover {
+	opacity: 1;
+}
+
+.contextual-help-tool i {
+	color: $link_colour;
+}

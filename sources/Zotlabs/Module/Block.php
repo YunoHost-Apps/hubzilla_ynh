@@ -12,7 +12,7 @@ class Block extends \Zotlabs\Web\Controller {
 	
 		$which = argv(1);
 		$profile = 0;
-		profile_load($a,$which,$profile);
+		profile_load($which,$profile);
 	
 		if(\App::$profile['profile_uid'])
 			head_set_icon(\App::$profile['thumb']);
@@ -52,8 +52,8 @@ class Block extends \Zotlabs\Web\Controller {
 		require_once('include/security.php');
 		$sql_options = item_permissions_sql($u[0]['channel_id']);
 	
-		$r = q("select item.* from item left join item_id on item.id = item_id.iid
-			where item.uid = %d and sid = '%s' and service = 'BUILDBLOCK' and 
+		$r = q("select item.* from item left join iconfig on item.id = iconfig.iid
+			where item.uid = %d and iconfig.cat = 'system' and iconfig.v = '%s' and iconfig.k = 'BUILDBLOCK' and 
 			item_type = %d $sql_options $revision limit 1",
 			intval($u[0]['channel_id']),
 			dbesc($page_id),
@@ -64,8 +64,8 @@ class Block extends \Zotlabs\Web\Controller {
 	
 			// Check again with no permissions clause to see if it is a permissions issue
 	
-			$x = q("select item.* from item left join item_id on item.id = item_id.iid
-			where item.uid = %d and sid = '%s' and service = 'BUILDBLOCK' and 
+			$x = q("select item.* from item left join iconfig on item.id = iconfig.iid
+			where item.uid = %d and iconfig.cat = 'system' and iconfig.v = '%s' and iconfig.k = 'BUILDBLOCK' and 
 			item_type = %d $revision limit 1",
 				intval($u[0]['channel_id']),
 				dbesc($page_id),

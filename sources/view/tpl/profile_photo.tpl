@@ -9,9 +9,14 @@
 
 		<div id="profile-photo-upload-wrapper">
 
+			{{if $importfile}}
+			<input type="hidden" name="importfile" value="{{$importfile}}">
+			{{else}}
 			<label id="profile-photo-upload-label" class="form-label" for="profile-photo-upload">{{$lbl_upfile}}</label>
 			<input name="userfile" class="form-input" type="file" id="profile-photo-upload" size="48" />
+			{{/if}}
 			<div class="clear"></div>
+
 
 			{{if $single}}
 			<input type="hidden" name="profile" value="{{$profile0.id}}" />

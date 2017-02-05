@@ -1,18 +1,22 @@
-[b]Channels[/b]
+[h2]Channels[/h2]
+
+[h3]What are channels?[/h3]
 
 Channels are simply collections of content stored in one place. A channel can represent anything. It could represent you, a website, a forum, photo albums, anything. For most people, their first channel with be &quot;Me&quot;.
 
 The most important features for a channel that represents &quot;me&quot; are:
+[ul]
+[*]Secure and private &quot;spam free&quot; communications
 
-Secure and private &quot;spam free&quot; communications
+[*]Identity and &quot;single-signon&quot; across the entire network
 
-Identity and &quot;single-signon&quot; across the entire network
+[*]Privacy controls and permissions which extend to the entire network
 
-Privacy controls and permissions which extend to the entire network
-
-Directory services (like a phone book)
-
+[*]Directory services (like a phone book)
+[/ul]
 In short, a channel that represents yourself is &quot;me, on the internet&quot;.
+
+[h3]Creating channels[/h3]
 
 You will be required to create your first channel as part of the sign up process. You can also create additonal channels from the &quot;Select channel&quot; link.
 
@@ -22,9 +26,14 @@ Once you have created your channel, you will be taken to the settings page, wher
 
 Once you have done this, your channel is ready to use. At [observer=1][observer.url][/observer][observer=0]example.com/channel/username[/observer] you will find your channel &quot;stream&quot;. This is where your recent activity will appear, in reverse chronological order. If you post in the box marked &quot;share&quot;, the entry will appear at the top of your stream. You will also find links to all the other communication areas for this channel here. The &quot;About&quot; tab contains your &quot;profile&quot;, the photos page contain photo albums, and the events page contains events share by both yourself and your contacts.
 
-The &quot;Grid&quot; page contains all recent posts from across the $Projectname network, again in reverse chronologial order. The exact posts that appear here depend largely on your permissions. At their most permissive, you will receive posts from complete strangers. At the other end of the scale, you may see posts from only your friends - or if you're feeling really anti-social, only your own posts.
+[h3]The grid, permissions and delegation[/h3]
 
-As mentioned at the start, many other kinds of channel are possible, however, the creation procedure is the same. The difference between channels lies primarily in the permissions assigned. For example, a channel for sharing documents with colleagues at work would probably want more permissive settings for &quot;Can write to my &quot;public&quot; file storage&quot; than a personal account. For more information, see the permissions section.
+The &quot;Grid&quot; page contains all recent posts from across $Projectname network, again in reverse chronologial order. The exact posts that appear here depend largely on your permissions. At their most permissive, you will receive posts from complete strangers. At the other end of the scale, you may see posts from only your friends - or if you're feeling really anti-social, only your own posts.
+
+As mentioned at the start, many other kinds of channel are possible, however, the creation procedure is the same. The difference between channels lies primarily in the permissions assigned. For example, a channel for sharing documents with colleagues at work would probably want more permissive settings for &quot;Can write to my &quot;public&quot; file storage&quot; than a personal account. For more information, see the [zrl=[baseurl]/help/roles]permissions section[/zrl].
+
+You can also delegate control of your channels' posts and connections, but not its configurations, to another channel. That is done by editing a connection and assigning it the permission to administer your channel's resources.
 
 #include doc/macros/main_footer.bb;
+
 

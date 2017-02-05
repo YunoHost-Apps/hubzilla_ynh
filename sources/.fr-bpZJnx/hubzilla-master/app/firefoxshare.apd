@@ -1,4 +1,0 @@
-url: $baseurl/ffsapi
-requires: local_channel
-name: Firefox Share
-photo: $baseurl/app/firefoxshare.png

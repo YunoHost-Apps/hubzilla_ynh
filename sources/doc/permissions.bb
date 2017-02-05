@@ -1,16 +1,20 @@
 [h1]Permissions[/h1]
-Permissions in the $Projectname are more complete than you may be used to. This allows us to define more fine graded relationships than the black and white &quot;this person is my friend, so they can do everything&quot; or &quot;this person is not my friend, so they can't do anything&quot; permissions you may find elsewhere.
+Permissions in $Projectname are more complete than you may be used to. This allows us to define more fine graded relationships than the black and white &quot;this person is my friend, so they can do everything&quot; or &quot;this person is not my friend, so they can't do anything&quot; permissions you may find elsewhere.
+
+[b]Permission Roles[/b]
+
+When you create a channel we allow you to select different 'roles' for that channel. These create an entire family of permissions and privacy settings that are appropriate for that role. Typical roles are "Social - mostly public", "Social - mostly private", "Forum - public" and many others. These bring a level of simplicity to managing permissions. Just choose a role and appropriate permissions are automatically applied. You can also choose 'Custom/Expert mode' and change any individual permission setting in any way you desire. 
 
 
-[b]Default Permissions[/b]
+[b]Default Permission Limits[/b]
 
-On your settings page, you will find a list of default permissions. These permissions are automatically applied to everybody unless you specify otherwise. The scope of these permissions varies from &quot;Only me&quot; to &quot;Everybody&quot; - though some scopes may not be available for some permissions. For example, you can't allow &quot;anybody on the internet&quot; to send you private messages, because we'd have no way to identify the sender, therefore no way to reply to them.
+There are a large number of individual permissions. These control everything from the ability to view your stream to the ability to chat with you. Every permission has a limit. The scope of these permissions varies from &quot;Only me&quot; to &quot;Everybody on the internet&quot; - though some scopes may not be available for some permissions. The limit applies to any published thing you create which has no privacy or access control. For example if you publish a photo and didn't select a specific audience with permission to view it, we apply the limit. These limits apply to everything within that permission rule, so you cannot apply a limit to one photo. The limit applies to all your photos. If all your photos are visible to everybody on the internet and you reduce the limit only to friends, [b]all[/b] of your photos will now be visible only to friends.
+
+[b]Access Control[/b]
+ 
+Access Control is the preferred method of managing privacy in [i]most[/i] cases, rather than using permission limits. This creates lists of either connections or privacy groups (or both) and uses the access list to decide if a permission is allowed. An access list is attached to everything you publish. Unlike permission limits, if you change the access control list on a single photo, it doesn't affect any of your other photos. You can use privacy groups and a "default access control list" to create and automate the management of access control lists to provide any level of privacy you desire on anything you publish. 
 
 We highly recommend that you use the "typical social network" settings when you create your first channel, as it allows others to communicate with you and help you out if you have difficulty. You will find that these settings allow you as much privacy as you desire - when you desire it; but also allow you to communicate in public if you choose to. You are free to use much more private settings once you have learned your way around.
-
-Be aware that altering the scope of who can see your "public" items is a more or less [b]permanent[/b] change. Your public items have no identified permissions attached to them - they are public. If you restrict who can see these items, there is no way of making any single item public ever again - without allowing access to every public item you ever created. You are certainly free to do this, but beware of the consequences.
-
-A more useful privacy setup is to leave "public" items visible to anybody on the internet; but force everything you create to be restricted. This can be done on your Channel Settings page by selecting the role "Social - restricted". This ensures a Default Privacy Group for all new contacts, and sets your Default Post Permissions to restrict all your posts to that group. We use the Default Post Permissions for everything you create - posts, photos, events, webpages, and everything else. However you can then edit the permissions when you create any individual thing and remove your default privacy group to make just that item visible to anybody.   
 
 
 [dl terms="l"]
@@ -22,12 +26,14 @@ A more useful privacy setup is to leave "public" items visible to anybody on the
   
   [*= Anybody in your address book ] Anybody you do not know will have this permission denied, but anybody you   accept as a contact will have this permission approved. This is the way most legacy platforms handle   permissions.
   
-  [*= Anybody On This Hub ] Anybody using the same hub as you will have permission approved. Anybody who   registered at a different hub will have this permission denied.
+  [*= Anybody On This Hub ] Anybody with a channel on the same hub/website as you will have permission approved. Anybody who is registered at a different hub will have this permission denied.
   
-  [*= Anybody in this network ] Anybody in the $Projectname will have this permission approved. Even complete   strangers. However, anybody not logged in/authenticated will have this permission denied.
+  [*= Anybody in this network ] Anybody in $Projectname will have this permission approved. Even complete   strangers. However, anybody not logged in/authenticated will have this permission denied.
   
-  [*= Anybody authenticated ] This is similar to "anybody in this network" except that it can include anybody   who can authenticate by any means - and therefore may include visitors from other networks.
+  [*= Anybody authenticated ] This is similar to "anybody in this network" except that it can include anybody   who can authenticate by any means - and therefore [i]may[/i] include visitors from other networks.
   
+  [*=Guest Access Token] This allows you to share a file, folder, photo, album, or channel with a specific person or group of people. They don't need to be Hubzilla members. You can set an expiration for the Access Token.
+
   [*= Anybody on the internet ] Completely public. This permission will be approved for anybody at all.
 [/dl]
 [*= The individual permissions are:]

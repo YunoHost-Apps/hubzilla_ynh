@@ -2,7 +2,7 @@
 namespace Zotlabs\Module; /** @file */
 
 
-require_once('include/Contact.php');
+
 require_once('include/contact_widgets.php');
 require_once('include/items.php');
 
@@ -26,10 +26,10 @@ class Connect extends \Zotlabs\Web\Controller {
 		if($r)
 			\App::$data['channel'] = $r[0];
 	
-		profile_load($a,$which,'');
+		profile_load($which,'');
 	}
 	
-		function post() {
+	function post() {
 	
 		if(! array_key_exists('channel', \App::$data))
 			return;
@@ -47,7 +47,8 @@ class Connect extends \Zotlabs\Web\Controller {
 					intval(PAGE_PREMIUM),
 					intval(local_channel()) 
 				);
-				proc_run('php','include/notifier.php','refresh_all',\App::$data['channel']['channel_id']);
+				
+				\Zotlabs\Daemon\Master::Summon(array('Notifier','refresh_all',\App::$data['channel']['channel_id']));
 			}
 			set_pconfig(\App::$data['channel']['channel_id'],'system','selltext',$text);
 			// reload the page completely to get fresh data
@@ -59,13 +60,13 @@ class Connect extends \Zotlabs\Web\Controller {
 		$observer = \App::get_observer();
 		if(($observer) && ($_POST['submit'] === t('Continue'))) {
 			if($observer['xchan_follow'])
-				$url = sprintf($observer['xchan_follow'],urlencode(\App::$data['channel']['channel_address'] . '@' . \App::get_hostname())); 
+				$url = sprintf($observer['xchan_follow'],urlencode(channel_reddress(\App::$data['channel'])));
 			if(! $url) {
 				$r = q("select * from hubloc where hubloc_hash = '%s' order by hubloc_id desc limit 1",
 					dbesc($observer['xchan_hash'])
 				);
 				if($r)
-					$url = $r[0]['hubloc_url'] . '/follow?f=&url=' . urlencode(\App::$data['channel']['channel_address'] . '@' . \App::get_hostname()); 
+					$url = $r[0]['hubloc_url'] . '/follow?f=&url=' . urlencode(channel_reddress(\App::$data['channel']));
 			}
 		}
 		if($url)
@@ -77,7 +78,7 @@ class Connect extends \Zotlabs\Web\Controller {
 	
 	
 	
-		function get() {
+	function get() {
 	
 		$edit = ((local_channel() && (local_channel() == \App::$data['channel']['channel_id'])) ? true : false);
 	

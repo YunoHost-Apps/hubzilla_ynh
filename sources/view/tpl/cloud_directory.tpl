@@ -1,4 +1,4 @@
-<div class="section-content-wrapper-np">
+<div id="cloud-drag-area" class="section-content-wrapper-np">
 	<table id="cloud-index">
 		<tr>
 			<th width="1%"></th>
@@ -18,6 +18,7 @@
 			<td class="hidden-xs"></td>
 		</tr>
 	{{/if}}
+		<tr id="new-upload-progress-bar--1"></tr> {{* this is needed to append the upload files in the right order *}}
 	{{foreach $entries as $item}}
 		<tr id="cloud-index-{{$item.attachId}}">
 			<td><i class="fa {{$item.iconFromType}}" title="{{$item.type}}"></i></td>
@@ -38,6 +39,7 @@
 		<tr id="cloud-tools-{{$item.attachId}}">
 			<td id="perms-panel-{{$item.attachId}}" colspan="9"></td>
 		</tr>
+
 	{{/foreach}}
 	</table>
 </div>

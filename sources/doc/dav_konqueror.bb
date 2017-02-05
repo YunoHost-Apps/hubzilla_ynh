@@ -1,6 +1,6 @@
 [b]Using The Cloud - Konqueror[/b]
 
-Simply visit webdavs://example.com/cloud after logging in to your hub, where &quot;example.com&quot; is the URL of your hub.
+Simply visit webdavs://example.com/dav after logging in to your hub, where &quot;example.com&quot; is the URL of your hub.
 
 No further authentication is required if you are logged in to your hub in the normal manner.  
 

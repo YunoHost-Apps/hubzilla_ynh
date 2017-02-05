@@ -1,9 +1,9 @@
 <?php
 namespace Zotlabs\Module;
 
-require_once('include/Contact.php');
+
 require_once('include/socgraph.php');
-require_once('include/contact_selectors.php');
+require_once('include/selectors.php');
 require_once('include/group.php');
 require_once('include/contact_widgets.php');
 require_once('include/zot.php');

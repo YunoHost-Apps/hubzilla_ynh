@@ -2,6 +2,7 @@
 namespace Zotlabs\Module;
 
 require_once('include/security.php');
+require_once('include/attach.php');
 require_once('include/photo/photo_driver.php');
 
 
@@ -10,6 +11,8 @@ class Photo extends \Zotlabs\Web\Controller {
 	function init() {
 	
 		$prvcachecontrol = false;
+		$streaming = null;
+		$channel = null;
 	
 		switch(argc()) {
 			case 4:
@@ -56,20 +59,33 @@ class Photo extends \Zotlabs\Web\Controller {
 			}
 	
 			$uid = $person;
-	
-			$r = q("SELECT * FROM photo WHERE scale = %d AND uid = %d AND photo_usage = %d LIMIT 1",
-				intval($resolution),
-				intval($uid),
-				intval(PHOTO_PROFILE)
-			);
-			if(count($r)) {
-				$data = dbunescbin($r[0]['data']);
-				$mimetype = $r[0]['type'];
+
+			$d = [ 'imgscale' => $resolution, 'channel_id' => $uid, 'default' => $default, 'data'  => '', 'mimetype' => '' ];
+			call_hooks('get_profile_photo',$d);
+
+			$resolution = $d['imgscale'];
+			$uid        = $d['channel_id']; 	
+			$default    = $d['default'];
+			$data       = $d['data'];
+			$mimetype   = $d['mimetype'];
+
+			if(! $data) {
+				$r = q("SELECT * FROM photo WHERE imgscale = %d AND uid = %d AND photo_usage = %d LIMIT 1",
+					intval($resolution),
+					intval($uid),
+					intval(PHOTO_PROFILE)
+				);
+				if($r) {
+					$data = dbunescbin($r[0]['content']);
+					$mimetype = $r[0]['mimetype'];
+				}
+				if(intval($r[0]['os_storage']))
+					$data = file_get_contents($data);
 			}
-			if(intval($r[0]['os_storage']))
-				$data = file_get_contents($data);
-			if(! isset($data)) {
+			if(! $data) {
 				$data = file_get_contents($default);
+			}
+			if(! $mimetype) {
 				$mimetype = 'image/png';
 			}
 		}
@@ -79,12 +95,13 @@ class Photo extends \Zotlabs\Web\Controller {
 			 * Other photos
 			 */
 	
-		        /* Check for a cookie to indicate display pixel density, in order to detect high-resolution
+			/* Check for a cookie to indicate display pixel density, in order to detect high-resolution
 			   displays. This procedure was derived from the "Retina Images" by Jeremey Worboys,
 			   used in accordance with the Creative Commons Attribution 3.0 Unported License.
 			   Project link: https://github.com/Retina-Images/Retina-Images
 			   License link: http://creativecommons.org/licenses/by/3.0/
 			*/
+
 			$cookie_value = false;
 			if (isset($_COOKIE['devicePixelRatio'])) {
 			  $cookie_value = intval($_COOKIE['devicePixelRatio']);
@@ -110,18 +127,8 @@ class Photo extends \Zotlabs\Web\Controller {
 				  }
 			}
 			
-			// If using resolution 1, make sure it exists before proceeding:
-			if ($resolution == 1)
-			  {
-			    $r = q("SELECT uid FROM photo WHERE resource_id = '%s' AND scale = %d LIMIT 1",
-				   dbesc($photo),
-				   intval($resolution)
-				   );
-			    if (!($r))
-			      $resolution = 2;
-			  }
-	
-			$r = q("SELECT uid FROM photo WHERE resource_id = '%s' AND scale = %d LIMIT 1",
+
+			$r = q("SELECT uid FROM photo WHERE resource_id = '%s' AND imgscale = %d LIMIT 1",
 				dbesc($photo),
 				intval($resolution)
 			);
@@ -130,19 +137,39 @@ class Photo extends \Zotlabs\Web\Controller {
 				$allowed = (($r[0]['uid']) ? perm_is_allowed($r[0]['uid'],$observer_xchan,'view_storage') : true);
 	
 				$sql_extra = permissions_sql($r[0]['uid']);
+
+				if(! $sql_extra)
+					$sql_extra = ' and true ';
+
+				// Only check permissions on normal photos. Those photos we don't check includes
+				// profile photos, xchan photos (which are also profile photos), 'thing' photos,
+				// and cover photos
 	
+				$sql_extra = " and (( photo_usage = 0 $sql_extra ) or photo_usage != 0 )";
+
+				$channel = channelx_by_n($r[0]['uid']);
+
 				// Now we'll see if we can access the photo
 	
-				$r = q("SELECT * FROM photo WHERE resource_id = '%s' AND scale = %d $sql_extra LIMIT 1",
+				$r = q("SELECT * FROM photo WHERE resource_id = '%s' AND imgscale = %d $sql_extra LIMIT 1",
 					dbesc($photo),
 					intval($resolution)
 				);
 	
+				$d = [ 'imgscale' => $resolution, 'resource_id' => $photo, 'photo' => $r, 'allowed' => $allowed ];
+				call_hooks('get_photo',$d);
+
+				$resolution = $d['imgscale'];
+				$photo      = $d['resource_id'];
+				$r          = $d['photo'];
+				$allowed    = $d['allowed'];
+
 				if($r && $allowed) {
-					$data = dbunescbin($r[0]['data']);
-					$mimetype = $r[0]['type'];
-					if(intval($r[0]['os_storage']))
-						$data = file_get_contents($data);
+					$data = dbunescbin($r[0]['content']);
+					$mimetype = $r[0]['mimetype'];
+					if(intval($r[0]['os_storage'])) {
+						$streaming = $data;
+					}
 				}
 				else {
 	
@@ -154,7 +181,7 @@ class Photo extends \Zotlabs\Web\Controller {
 					// they won't have the photo link, so there's a reasonable chance that the person
 					// might be able to obtain permission to view it.
 	
-					$r = q("SELECT * FROM `photo` WHERE `resource_id` = '%s' AND `scale` = %d LIMIT 1",
+					$r = q("SELECT * FROM photo WHERE resource_id = '%s' AND imgscale = %d LIMIT 1",
 						dbesc($photo),
 						intval($resolution)
 					);
@@ -171,6 +198,9 @@ class Photo extends \Zotlabs\Web\Controller {
 			}
 		}
 	
+
+
+
 		if(! isset($data)) {
 			if(isset($resolution)) {
 				switch($resolution) {
@@ -242,7 +272,25 @@ class Photo extends \Zotlabs\Web\Controller {
 			header("Cache-Control: max-age=" . $cache);
 	
 		}
-		echo $data;
+
+		// If it's a file resource, stream it. 
+
+		if($streaming && $channel) {
+			if(strpos($streaming,'store') !== false)
+				$istream = fopen($streaming,'rb');
+			else
+				$istream = fopen('store/' . $channel['channel_address'] . '/' . $streaming,'rb');
+			$ostream = fopen('php://output','wb');
+			if($istream && $ostream) {
+				pipe_streams($istream,$ostream);
+				fclose($istream);
+				fclose($ostream);
+			}
+		}
+		else {
+			echo $data;
+		}
+
 		killme();
 		// NOTREACHED
 	}

@@ -7,7 +7,7 @@
 				<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
 					<i class="fa fa-caret-down"></i>&nbsp;{{$tools_label}}
 				</button>
-				<ul class="dropdown-menu">
+				<ul class="dropdown-menu dropdown-menu-right">
 					{{if $tools}}
 					<li class="nav-item">
 						<a class="nav-link" href="{{$tools.profile.0}}"><i class="fa fa-user"></i>&nbsp;{{$tools.profile.1}}</a>
@@ -23,7 +23,7 @@
 					{{/if}}
 					{{if $edit}}
 					<li class="nav-item">
-						<a class="nav-link" href="#"  title="" onclick="openClose('photo-edit'); return false;"><i class="fa fa-pencil"></i>&nbsp;{{$edit.edit}}</a>
+						<a class="nav-link acl-form-trigger" href="#"  title="" onclick="openClose('photo-edit'); return false;" data-form_id="photo_edit_form"><i class="fa fa-pencil"></i>&nbsp;{{$edit.edit}}</a>
 					</li>
 					{{/if}}
 				</ul>
@@ -32,7 +32,7 @@
 			{{if $lock}}
 			<div class="btn-group">
 				<button id="lockview" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" title="{{$lock}}" onclick="lockview('photo',{{$id}});" ><i class="fa fa-lock"></i></button>
-				<ul id="panel-{{$id}}" class="lockview-panel dropdown-menu"></ul>
+				<ul id="panel-{{$id}}" class="lockview-panel dropdown-menu dropdown-menu-right"></ul>
 			</div>
 			{{/if}}
 			{{if $prevlink || $nextlink}}
@@ -53,7 +53,7 @@
 	{{$map}}
 	</div>
 	<div id="photo-edit" class="section-content-tools-wrapper">
-		<form action="photos/{{$edit.nickname}}/{{$edit.resource_id}}" method="post" id="photo_edit_form">
+		<form action="photos/{{$edit.nickname}}/{{$edit.resource_id}}" method="post" id="photo_edit_form" class="acl-form" data-form_id="photo_edit_form" data-allow_cid='{{$edit.allow_cid}}' data-allow_gid='{{$edit.allow_gid}}' data-deny_cid='{{$edit.deny_cid}}' data-deny_gid='{{$edit.deny_gid}}'>
 			<input type="hidden" name="item_id" value="{{$edit.item_id}}" />
 			{{* album renaming is not supported atm.
 			<div class="form-group">
@@ -79,6 +79,9 @@
 				<input name="newtag" id="photo-edit-newtag" class="form-control" title="{{$edit.help_tags}}" type="text" />
 			</div>
 			<div class="form-group">
+				{{include file="field_select.tpl" field=$edit.album_select}}
+			</div>
+			<div class="form-group">
 				<label class="radio-inline" id="photo-edit-rotate-cw-label" for="photo-edit-rotate-cw"><input id="photo-edit-rotate-cw" type="radio" name="rotate" value="1" />{{$edit.rotatecw}}</label>
 				<label class="radio-inline" id="photo-edit-rotate-ccw-label" for="photo-edit-rotate-ccw"><input id="photo-edit-rotate-ccw" type="radio" name="rotate" value="2" />{{$edit.rotateccw}}</label>
 			</div>
@@ -87,8 +90,6 @@
 			{{include file="field_checkbox.tpl" field=$edit.adult}}
 			</div>
 			{{/if}}
-
-			{{$edit.aclselect}}
 
 			<div class="form-group pull-left">
 				<button class="btn btn-danger btn-sm" id="photo-edit-delete-button" type="submit" name="delete" value="{{$edit.delete}}" onclick="return confirmDelete();" />{{$edit.delete}}</button>
@@ -102,6 +103,7 @@
 				<button id="dbtn-submit" class="btn btn-primary btn-sm" type="submit" name="submit" >{{$edit.submit}}</button>
 			</div>
 		</form>
+		{{$edit.aclselect}}
 		<div id="photo-edit-end" class="clear"></div>
 	</div>
 	<div id="photo-view-wrapper">

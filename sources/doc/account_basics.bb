@@ -10,7 +10,7 @@ Please provide a valid email address. Your email address is never published. Thi
 
 [b]Password[/b]
 
-Enter a password of your choice, and repeat it in the second box to ensure it was typed correctly. As the $Projectname offers a decentralised identity, your account can log you in to many other websites.
+Enter a password of your choice, and repeat it in the second box to ensure it was typed correctly. As $Projectname offers a decentralised identity, your account can log you in to many other websites.
 
 [b]Terms Of Service[/b]
 
