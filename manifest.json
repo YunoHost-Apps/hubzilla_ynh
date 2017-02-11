@@ -45,6 +45,15 @@
                 },
                 "example": "peter@example.com",
                 "optional": false
+            },
+            {
+                "name": "upload",
+                "ask": {
+                    "en": "Maximum upload size (MB)"
+                },
+                "choices": ["64M", "128M", "256M", "512M", "1024M"],
+                "default": "256M",
+                "optional": false
             }
         ]
     }

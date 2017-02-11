@@ -6,6 +6,7 @@
 domain=$1
 admin=$2
 email=$3
+upload=$4
 
 app="hubzilla"
 path="/"
@@ -78,8 +79,8 @@ sudo cp ../conf/nginx.conf /etc/nginx/conf.d/$domain.d/$app.conf
 
 # Modify php.ini to allow exec() function and increase the upload size limits
 sudo sed -i 's/,pcntl_exec//g' /etc/php5/fpm/php.ini
-sudo sed -i 's/^post_max_size =.*$/post_max_size = 256M/' /etc/php5/fpm/php.ini
-sudo sed -i 's/^upload_max_filesize =.*$/upload_max_filesize = 256M/' /etc/php5/fpm/php.ini
+sudo sed -i 's/^post_max_size =.*$/post_max_size = $upload/' /etc/php5/fpm/php.ini
+sudo sed -i 's/^upload_max_filesize =.*$/upload_max_filesize = $upload/' /etc/php5/fpm/php.ini
 sudo sed -i 's/^max_file_uploads =.*$/max_file_uploads = 50/' /etc/php5/fpm/php.ini
 
 # Set SSOwat rules

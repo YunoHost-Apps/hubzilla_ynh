@@ -9,13 +9,18 @@ Current snapshot in *sources*:
 * https://github.com/redmatrix/hubzilla: 2.0.7
 * https://github.com/redmatrix/hubzilla-addons: >2.0 (commit 33a9a7f971097bcf14228b626bfb127559e47830)
 
-## Notes
+## Important Notes
 
 Before installing, read the [Hubzilla installation instructions](https://github.com/redmatrix/hubzilla/blob/master/install/INSTALL.txt) for important information about 
 
-- SSL certificate validation requirement (now with support for [Let's Encrypt!](https://letsencrypt.org))
+- SSL certificate validation requirement (now with support for [Let's Encrypt!](https://letsencrypt.org)). See Installation section below.
 - Dedicated domain (must install under web root like **https://hub.example.com/** not **https://example.com/hub/** )
-- Required packages (all of these are not yet installed by this YunoHost installer package)
+- Required packages (all of these are not yet installed by this YunoHost installer package). This YunoHost package installs the following additional packages:
+  - php5-cli 
+  - php5-imagick 
+  - php5-gd 
+  - php5-mcrypt 
+- This package requires a **system-wide change to php.ini** that enables the `exec()` perimission. [See the PHP manual for more information](php.net/manual/function.exec.php).
 
 
 
