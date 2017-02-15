@@ -31,6 +31,16 @@
                 }
             },
             {
+                "name": "path",
+                "type": "path",
+                "ask": {
+                    "en": "No choice, Hubzilla must be installed on the ROOT domain, so be careful",
+                    "fr": "Pas de choix, Hubzilla doit etre installe a la racine, soyez prudent"
+                },
+                "choices": ["/"],
+                "default": "/"
+            },
+            {
                 "name": "admin",
                 "type": "user",
                 "ask": {
