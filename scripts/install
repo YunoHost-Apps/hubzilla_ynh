@@ -64,8 +64,21 @@ ynh_app_setting_set $app db_user $db_user
 # A revoir
 # Recuperer les sources a la volée
 #sudo rsync -va ../sources/ $final_path/
-#sudo mkdir -p "$final_path/store/[data]/smarty3"
-#sudo chmod -R 777 $final_path/store
+
+# We download the sources and check the md5sum
+# 1 - hubzilla
+hubzilla_file=`sudo cat ../sources/hubzilla/source_file`;
+sudo wget -nv -i ../sources/hubzilla/source_url -O $hubzilla_file
+#sudo md5sum -c ../sources/hubzilla/source_md5 --status || (echo "Corrupt source" >&2 && false)
+sudo unzip ${hubzilla_file} -d $final_path
+# 2 - Addons
+addons_file=`sudo cat ../sources/addons/source_file`;
+sudo wget -nv -i ../sources/addons/source_url -O $addons_file
+#sudo md5sum -c ../sources/addons/source_md5 --status || (echo "Corrupt source" >&2 && false)
+sudo unzip ${addons_file} -d $final_path/addon
+# 3 - some extra folders
+sudo mkdir -p "${final_path}/store/[data]/smarty3"
+sudo chmod -R 777 $final_path/store
 
 # Import database schema
 sudo mysql -u$db_user -p$db_pwd $db_user < $final_path/install/schema_mysql.sql
