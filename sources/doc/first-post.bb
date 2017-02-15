@@ -1,3 +1,0 @@
-[size=large]Your first posting[/size]
-
-... to be written ...

@@ -1,4 +1,0 @@
-url: $baseurl/wiki/$nick
-requires: local_channel
-name: Wiki
-photo: $baseurl/app/wiki.png
