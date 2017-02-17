@@ -22,14 +22,19 @@ CHECK_PATH      # Vérifie et corrige la syntaxe du path.
 # We download the sources and check the md5sum
 # 1 - hubzilla
 hubzilla_file=`sudo cat ../sources/hubzilla/source_file`;
-sudo wget -nv -i ../sources/hubzilla/source_url -O $hubzilla_file
+sudo wget -nv -i ../sources/hubzilla/source_url -O ${hubzilla_file}.zip
 sudo md5sum -c ../sources/hubzilla/source_md5 --status || (echo "Corrupt source" >&2 && false)
-sudo unzip ${hubzilla_file} -d $final_path
+sudo unzip ${hubzilla_file}.zip -d ../sources/hubzilla/
+sudo cp -r ../sources/hubzilla/${hubzilla_file}/. $final_path
+
 # 2 - Addons
 addons_file=`sudo cat ../sources/hubzilla-addons/source_file`;
-sudo wget -nv -i ../sources/hubzilla-addons/source_url -O $addons_file
+sudo wget -nv -i ../sources/hubzilla-addons/source_url -O ${addons_file}.zip
 sudo md5sum -c ../sources/hubzilla-addons/source_md5 --status || (echo "Corrupt source" >&2 && false)
-sudo unzip ${addons_file} -d $final_path/addon
+sudo unzip ${addons_file}.zip -d ../sources/hubzilla-addons/
+sudo mkdir $final_path/addon
+sudo cp -r ../sources/hubzilla-addons/${addons_file}/. $final_path/addon
+
 # 3 - some extra folders
 sudo mkdir -p "${final_path}/store/[data]/smarty3"
 sudo chmod -R 777 $final_path/store
