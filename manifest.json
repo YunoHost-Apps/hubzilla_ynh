@@ -27,7 +27,8 @@
                 "name": "domain",
                 "type": "domain",
                 "ask": {
-                    "en": "Choose a domain for your Hubzilla hub. Hubzilla must run in the root of this domain."
+                    "en": "Choose a domain for your Hubzilla hub. Hubzilla must run in the root of this domain. It means no other app can be accessed/run from this domain. We advise to use a dedicated subdomain such as hubzilla.domain.tld",
+                    "fr": "Indiquez un domain pour Hubzilla. Hubzilla doit être installé à la racine du domaine. Cela implique qu'aucune autre app ne pourra être installée ou accessible sur ce domain. Nous conseillons un sous-domaine dédié par exemple hubzilla.domain.tld."
                 }
             },
             {
@@ -51,7 +52,8 @@
             {
                 "name": "email",
                 "ask": {
-                    "en": "Email address for the Hubzilla hub admin"
+                    "en": "Email address for the Hubzilla hub admin",
+                    "fr": "Adresse email pour l'admin du hub Hubzilla"
                 },
                 "example": "peter@example.com",
                 "optional": false
@@ -59,7 +61,8 @@
             {
                 "name": "upload",
                 "ask": {
-                    "en": "Maximum upload size (MB)"
+                    "en": "Maximum upload size (MB)",
+                    "fr": "Taille maximale des fichiers envoyés (MB)"
                 },
                 "choices": ["64M", "128M", "256M", "512M", "1024M"],
                 "default": "256M",
