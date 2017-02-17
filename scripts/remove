@@ -22,6 +22,8 @@ REMOVE_FPM_CONF # Suppression de la configuration du pool php-fpm
 # Remove poller cron job
 sudo rm -f /etc/cron.d/poller-cron
 
+# Restore php.ini as it was before installing hubzilla
+#sudo sed -i 's/,,/pcntl_exec/g' /etc/php5/fpm/php.ini
 
 # Reload services after cleaning
 sudo service php5-fpm reload

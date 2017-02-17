@@ -48,24 +48,13 @@ sudo apt-get update
 sudo apt-get install -y -qq php5-cli php5-imagick php5-gd php5-mcrypt
 
 # Create db
-#GENERATE_DB $app        # Créer une base de données et un utilisateur dédié au nom de l'app.
-#Password is stored like that in the GENERATE_DB function : ynh_app_setting_set $app mysqlpwd $db_pwd
 db_user=$app
 db_user=${db_user//-/_} # mariadb ne supporte pas les - dans les noms de base de données. Ils sont donc remplacé par des _
-# Génère un mot de passe aléatoire.
-#       db_pwd=$(head -n20 /dev/urandom | tr -c -d 'A-Za-z0-9' | head -c20)
 db_pwd=$(ynh_string_random)
 CHECK_VAR "$db_pwd" "db_pwd empty"
-# Utilise '$app' comme nom d'utilisateur et de base de donnée
-# Initialise la base de donnée et stocke le mot de passe mysql.
 ynh_mysql_create_db "$db_user" "$db_user" $db_pwd
 ynh_app_setting_set $app db_pwd $db_pwd
 ynh_app_setting_set $app db_user $db_user
-
-# Copy source files
-# A revoir
-# Recuperer les sources a la volée
-#sudo rsync -va ../sources/ $final_path/
 
 # We download the sources and check the md5sum
 # 1 - hubzilla
@@ -114,7 +103,7 @@ sudo chown root: $nginxconf
 sudo chmod 600 $nginxconf
 
 # Modify php.ini to allow exec() function and increase the upload size limits
-#sudo sed -i 's/,pcntl_exec//g' /etc/php5/fpm/php.ini
+#sudo sed -i 's/pcntl_exec//g' /etc/php5/fpm/php.ini
 sed -i "s@UPLOADTOCHANGE@$upload@g" ../conf/php-fpm.conf
 sed -i "s@NAMETOCHANGE@$app@g" ../conf/php-fpm.conf
 phpfpmconf=/etc/php5/fpm/pool.d/$app.conf
