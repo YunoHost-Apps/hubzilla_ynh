@@ -6,8 +6,8 @@
 
 Current snapshot in *sources*: 
 
-* https://github.com/redmatrix/hubzilla: 2.0.7
-* https://github.com/redmatrix/hubzilla-addons: >2.0 (commit 33a9a7f971097bcf14228b626bfb127559e47830)
+* https://github.com/redmatrix/hubzilla: 2.0 (commit c2830c4a98cf3c9983b3c4b61024d52a6d7187df)
+* https://github.com/redmatrix/hubzilla-addons: 2.0 (commit 7cdd80991a517f318207223e0d5622f5535f476c)
 
 ## Important Notes
 
@@ -28,7 +28,15 @@ Before installing, read the [Hubzilla installation instructions](https://github.
 
 ### Register a new domain and add it to YunoHost
 Hubzilla requires a dedicated domain, so obtain one and add it using the [YunoHost admin](https://reticu.li/yunohost/admin) panel. **Domains -> Add domain**
+As Hubzilla uses the full domain and is installed on the root, you can create a subdomain such as hubzilla.domain.tld
+Don't forget to update your DNS if you manage them manually
 
+Hubzilla requires browser approved ssl certificates. If you have pauid for these, install them manualmly as usually.
+
+### YunoHost >=2.5 : 
+If not, once the dedicated domain has been added to yunohost, go again to the admin panel, go to domains then select you domain and click on "install let's encrypt certificate"
+
+### Yunohost <2.5 : 
 Once you have added the new domain to YunoHost, SSH into your YunoHost server and perform the following steps:
 
 1. Install [certbot](https://certbot.eff.org/) to make installing free SSL certificates from Let's Encrypt simple.
