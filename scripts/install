@@ -114,6 +114,7 @@ sudo chmod 600 $nginxconf
 # Modify php.ini to allow exec() function and increase the upload size limits
 #sudo sed -i 's/,pcntl_exec//g' /etc/php5/fpm/php.ini
 sed -i "s@UPLOADTOCHANGE@$upload@g" ../conf/php-fpm.conf
+sed -i "s@NAMETOCHANGE@$app@g" ../conf/php-fpm.conf
 phpfpmconf=/etc/php5/fpm/pool.d/$app.conf
 sudo cp ../conf/php-fpm.conf $phpfpmconf
 sudo chown root: $phpfpmconf
