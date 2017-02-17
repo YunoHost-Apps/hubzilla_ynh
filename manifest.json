@@ -3,7 +3,8 @@
     "id": "hubzilla",
     "name": "Hubzilla",
     "description": {
-        "en": "Hubzilla is a decentralized publication platform and social network."
+        "en": "Hubzilla is a decentralized publication platform and social network.",
+        "fr": "Hubzilla est une plateforme de publication décentralisée et un réseau social."
     },
     "url": "https://github.com/redmatrix/hubzilla",
     "license": "MIT",
