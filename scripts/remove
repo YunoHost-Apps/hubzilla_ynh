@@ -1,27 +1,33 @@
 #!/bin/bash
-app=hubzilla
 
-# Retrieve arguments
-domain=$(sudo yunohost app setting $app domain)
-path=$(sudo yunohost app setting $app path)
-admin=$(sudo yunohost app setting $app admin)
-is_public=$(sudo yunohost app setting $app is_public)
+source .fonctions       # Charge les fonctions génériques habituellement utilisées dans le script
 
-db_user=$app
-db_name=$app
-root_pwd=$(sudo cat /etc/yunohost/mysql)
-domain=$(sudo yunohost app setting $app domain)
+# Récupère les infos de l'application.
+app=$YNH_APP_INSTANCE_NAME
 
-mysql -u root -p$root_pwd -e "DROP DATABASE $db_name ; DROP USER $db_user@localhost ;"
-# Remove sources
-sudo rm -rf /var/www/$app
+# Source app helpers
+source /usr/share/yunohost/helpers
 
-# Remove configuration files
-sudo rm -f /etc/nginx/conf.d/$domain.d/$app.conf
+domain=$(ynh_app_setting_get $app domain)
+db_user=$(ynh_app_setting_get $app db_user)
+
+REMOVE_BDD $db_user # Suppression de la base de donnée et de l'utilisateur associé.
+
+SECURE_REMOVE '/var/www/$app'   # Suppression du dossier de l'application
+
+REMOVE_NGINX_CONF       # Suppression de la configuration nginx
+
+REMOVE_FPM_CONF # Suppression de la configuration du pool php-fpm
 
 # Remove poller cron job
 sudo rm -f /etc/cron.d/poller-cron
 
-# Restart services
+
+# Reload services after cleaning
+sudo service php5-fpm restart
 sudo service nginx reload
+
+# Régénère la configuration de SSOwat
 sudo yunohost app ssowatconf
+
+echo -e "\e[0m" # Restore normal color
