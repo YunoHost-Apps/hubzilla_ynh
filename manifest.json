@@ -7,7 +7,7 @@
         "fr": "Hubzilla est une plateforme de publication décentralisée et un réseau social."
     },
     "url": "https://github.com/redmatrix/hubzilla",
-    "license": "MIT",
+    "license": "Free as-is",
     "version": "2.0",
     "maintainer": {
         "name": "Andrew Manning",
