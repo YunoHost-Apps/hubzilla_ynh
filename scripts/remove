@@ -24,7 +24,7 @@ sudo rm -f /etc/cron.d/poller-cron
 
 
 # Reload services after cleaning
-sudo service php5-fpm restart
+sudo service php5-fpm reload
 sudo service nginx reload
 
 # Régénère la configuration de SSOwat

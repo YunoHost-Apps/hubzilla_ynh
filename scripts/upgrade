@@ -85,7 +85,7 @@ else
 fi
 
 # Reload services
-sudo service php5-fpm restart || true
+sudo service php5-fpm reload || true
 sudo service nginx reload || true
 sudo yunohost app ssowatconf
 
