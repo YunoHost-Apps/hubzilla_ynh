@@ -124,3 +124,6 @@ ynh_app_setting_set $app skipped_uris "/"
 # Reload services
 sudo service php5-fpm restart || true
 sudo service nginx reload || true
+
+sudo yunohost app ssowatconf
+
