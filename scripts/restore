@@ -1,0 +1,52 @@
+#!/bin/bash
+
+# Source app helpers
+source /usr/share/yunohost/helpers
+
+# Récupère les infos de l'application.
+app=$YNH_APP_INSTANCE_NAME
+
+domain=$(ynh_app_setting_get $app domain)
+path=$(ynh_app_setting_get $app path)
+admin=$(ynh_app_setting_get $app admin)
+final_path=$(ynh_app_setting_get $app final_path)
+db_user=$(ynh_app_setting_get $app db_user)
+db_pwd=$(ynh_app_setting_get $app db_pwd)
+
+if [ -d $final_path ]; then
+    echo "There is already a directory: $final_path " >&2
+    exit 1
+fi
+
+# The parameter $1 is the uncompressed restore directory location
+backup_dir=$1/apps/$app
+
+# Restore Nginx
+conf=/etc/nginx/conf.d/$domain.d/$app.conf
+if [ -f $conf ]; then
+    echo "There is already a nginx conf file at this path: $conf " >&2
+    exit 1
+fi
+sudo cp -a $backup_dir/nginx.conf $conf
+
+# Restore YunoHost parameters
+sudo cp -a $backup_dir/yunohost/. /etc/yunohost/apps/$app
+
+# Restore sources & data
+sudo cp -a "$backup_dir/sources/." $final_path
+
+ynh_mysql_create_db $db_user $db_user $db_pwd
+mysql --debug-check -u $db_user -p$db_pwd $db_user < ${backup_dir}/db.sql
+
+# Copy dedicated php-fpm process from backup folder to the right location
+sudo cp -a $backup_dir/php-fpm.conf /etc/php5/fpm/pool.d/$app.conf
+
+# Backup cron job
+sudo cp -a $backup_dir/cron.job /etc/cron.d/$app
+
+# And Reload services
+sudo service php5-fpm restart
+sudo service nginx reload
+
+sudo yunohost app ssowatconf
+
