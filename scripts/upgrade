@@ -10,6 +10,7 @@ source /usr/share/yunohost/helpers
 
 domain=$(ynh_app_setting_get $app domain)
 path=$(ynh_app_setting_get $app path)
+is_public=$(ynh_app_setting_get $app is_public)
 admin=$(ynh_app_setting_get $app admin)
 final_path=$(ynh_app_setting_get $app final_path)
 db_pwd=$(ynh_app_setting_get $app db_pwd)
@@ -74,8 +75,14 @@ sudo chown root: $phpfpmconf
 sed -i "s@YNH_WWW_PATH@$final_path@g" ../conf/poller-cron
 sudo cp ../conf/poller-cron /etc/cron.d/$app
 
-# Enable api for client and make app public
-ynh_app_setting_set $app skipped_uris "/"
+# Make app public if necessary
+is_public=$(ynh_app_setting_get $app is_public)
+if [ "$is_public" = "Yes" ];
+then
+        ynh_app_setting_set $app skipped_uris "/"
+else
+        ynh_app_setting_set $app protected_uris "/"
+fi
 
 # Reload services
 sudo service php5-fpm restart || true

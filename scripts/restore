@@ -8,6 +8,7 @@ app=$YNH_APP_INSTANCE_NAME
 
 domain=$(ynh_app_setting_get $app domain)
 path=$(ynh_app_setting_get $app path)
+is_public=$(ynh_app_setting_get $app is_public)
 admin=$(ynh_app_setting_get $app admin)
 final_path=$(ynh_app_setting_get $app final_path)
 db_user=$(ynh_app_setting_get $app db_user)
@@ -43,6 +44,15 @@ sudo cp -a $backup_dir/php-fpm.conf /etc/php5/fpm/pool.d/$app.conf
 
 # Backup cron job
 sudo cp -a $backup_dir/cron.job /etc/cron.d/$app
+
+# Make app public if necessary
+is_public=$(ynh_app_setting_get $app is_public)
+if [ "$is_public" = "Yes" ];
+then
+        ynh_app_setting_set $app skipped_uris "/"
+else
+        ynh_app_setting_set $app protected_uris "/"
+fi
 
 # And Reload services
 sudo service php5-fpm restart

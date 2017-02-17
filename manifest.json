@@ -67,6 +67,15 @@
                 "choices": ["64M", "128M", "256M", "512M", "1024M"],
                 "default": "256M",
                 "optional": false
+            },
+            {
+                "name": "is_public",
+                "ask": {
+                    "en": "Is it a public website ?",
+                    "fr": "Est-ce un site publique ?"
+                },
+                "choices": ["Yes", "No"],
+                "default": "Yes"
             }
         ]
     }

@@ -17,6 +17,7 @@ path=$YNH_APP_ARG_PATH
 admin=$YNH_APP_ARG_ADMIN
 email=$YNH_APP_ARG_EMAIL
 upload=$YNH_APP_ARG_UPLOAD
+is_public=$YNH_APP_ARG_IS_PUBLIC
 
 # Source app helpers
 source /usr/share/yunohost/helpers
@@ -40,6 +41,7 @@ ynh_app_setting_set $app path $path
 ynh_app_setting_set $app admin $admin
 ynh_app_setting_set $app email $email
 ynh_app_setting_set $app upload $upload
+ynh_app_setting_set $app is_public $is_public
 
 # Install dependencies
 sudo apt-get update
@@ -124,8 +126,15 @@ sudo chmod 644 $phpfpmconf
 sed -i "s@YNH_WWW_PATH@$final_path@g" ../conf/poller-cron
 sudo cp ../conf/poller-cron /etc/cron.d/$app
 
-# Enable api for client and make app public
-ynh_app_setting_set $app skipped_uris "/"
+# Make app public if necessary
+is_public=$(ynh_app_setting_get $app is_public)
+if [ "$is_public" = "Yes" ];
+then
+        ynh_app_setting_set $app skipped_uris "/"
+else
+        ynh_app_setting_set $app protected_uris "/"
+fi
+
 
 # Reload services
 sudo service php5-fpm restart || true
