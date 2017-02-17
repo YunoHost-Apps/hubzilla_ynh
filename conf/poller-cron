@@ -1,2 +1,2 @@
 # Run poller periodically to update Hubzilla
-*/10 * * * * cd YNH_WWW_PATH; php include/poller.php
+*/10 * * * * cd YNH_WWW_PATH; /usr/bin/php include/poller.php
