@@ -3,6 +3,7 @@
 	; Manifest
 		domain="domain.tld"	(DOMAIN)
 		admin="john"	(USER)
+		path="/"	(PATH)
 		email="johndoe@example.com"
 		upload="256M"
 	; Checks
