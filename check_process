@@ -8,7 +8,7 @@
 		upload="256M"
 	; Checks
 		pkg_linter=1
-		setup_sub_dir=0
+		setup_sub_dir=1
 		setup_root=1
 		setup_nourl=0
 		setup_private=0
@@ -16,7 +16,7 @@
 		upgrade=1
 		backup_restore=1
 		multi_instance=0
-		wrong_user=1
+		wrong_user=0
 		wrong_path=0
 		incorrect_path=1
 		corrupt_source=0
