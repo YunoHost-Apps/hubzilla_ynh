@@ -18,6 +18,7 @@ admin=$YNH_APP_ARG_ADMIN
 email=$YNH_APP_ARG_EMAIL
 upload=$YNH_APP_ARG_UPLOAD
 is_public=$YNH_APP_ARG_IS_PUBLIC
+run_exec=$YNH_APP_ARG_RUN_EXEC
 
 # Source app helpers
 source /usr/share/yunohost/helpers
@@ -104,7 +105,13 @@ sudo chown root: $nginxconf
 sudo chmod 600 $nginxconf
 
 # Modify php.ini to allow exec() function and increase the upload size limits
-#sudo sed -i 's/pcntl_exec//g' /etc/php5/fpm/php.ini
+if [ "$run_exec" = "Yes" ];
+then
+	sudo sed -i 's/pcntl_exec//g' /etc/php5/fpm/php.ini
+else
+	echo "no modification of php.ini"
+fi
+# Dedicated php-fpm
 sed -i "s@UPLOADTOCHANGE@$upload@g" ../conf/php-fpm.conf
 sed -i "s@NAMETOCHANGE@$app@g" ../conf/php-fpm.conf
 phpfpmconf=/etc/php5/fpm/pool.d/$app.conf

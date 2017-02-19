@@ -10,6 +10,7 @@ source /usr/share/yunohost/helpers
 
 domain=$(ynh_app_setting_get $app domain)
 db_user=$(ynh_app_setting_get $app db_user)
+run_exec=$(ynh_app_setting_get $app run_exec)
 
 REMOVE_BDD $db_user # Suppression de la base de donnée et de l'utilisateur associé.
 
@@ -23,7 +24,12 @@ REMOVE_FPM_CONF # Suppression de la configuration du pool php-fpm
 sudo rm -f /etc/cron.d/poller-cron
 
 # Restore php.ini as it was before installing hubzilla
-#sudo sed -i 's/,,/pcntl_exec/g' /etc/php5/fpm/php.ini
+if [ "$run_exec" = "Yes" ];
+then
+        sudo sed -i 's/,,/,pcntl_exec,/g' /etc/php5/fpm/php.ini
+else
+        echo "no modification of php.ini"
+fi
 
 # Reload services after cleaning
 sudo service php5-fpm reload

@@ -17,6 +17,7 @@ db_pwd=$(ynh_app_setting_get $app db_pwd)
 db_user=$(ynh_app_setting_get $app db_user)
 email=$(ynh_app_setting_get $app email)
 upload=$(ynh_app_setting_get $app upload)
+run_exec=$(ynh_app_setting_get $app run_exec)
 
 CHECK_PATH      # Vérifie et corrige la syntaxe du path.
 
@@ -65,7 +66,13 @@ sudo chown root: $nginxconf
 sudo chmod 600 $nginxconf
 
 # Modify php.ini to allow exec() function and increase the upload size limits
-#sudo sed -i 's/pcntl_exec//g' /etc/php5/fpm/php.ini
+if [ "$run_exec" = "Yes" ];
+then
+        sudo sed -i 's/pcntl_exec//g' /etc/php5/fpm/php.ini
+else
+        echo "no modification of php.ini"
+fi
+# Dedicated php-fpm
 sed -i "s@UPLOADTOCHANGE@$upload@g" ../conf/php-fpm.conf
 sed -i "s@NAMETOCHANGE@$app@g" ../conf/php-fpm.conf
 phpfpmconf=/etc/php5/fpm/pool.d/$app.conf

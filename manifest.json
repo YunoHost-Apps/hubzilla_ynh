@@ -77,6 +77,15 @@
                 },
                 "choices": ["Yes", "No"],
                 "default": "Yes"
+            },
+            {
+                "name": "run_exec",
+                "ask": {
+                    "en": "Do you agree to modify php.ini to allow exec() function to be used by hubzilla ?",
+                    "fr": "Acceptez-vous de modifier php.ini pour autoriser exec() à être utilisée par hubzilla ?"
+                },
+                "choices": ["Yes", "No"],
+                "default": "No"
             }
         ]
     }
