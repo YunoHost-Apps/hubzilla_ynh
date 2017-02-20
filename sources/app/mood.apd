@@ -1,4 +1,0 @@
-url: $baseurl/mood
-requires: local_channel
-name: Mood
-photo: $baseurl/app/mood.png

@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# Source app helpers
+source /usr/share/yunohost/helpers
+
+# Récupère les infos de l'application.
+app=$YNH_APP_INSTANCE_NAME
+
+final_path=$(ynh_app_setting_get $app final_path)
+domain=$(ynh_app_setting_get $app domain)
+db_user=$(ynh_app_setting_get $app db_user)
+
+# Backup sources & data
+ynh_backup "$final_path" "sources"
+
+# Copy Nginx and YunoHost parameters to make the script "standalone"
+ynh_backup "/etc/nginx/conf.d/$domain.d/$app.conf" "nginx.conf"
+
+ynh_backup "/etc/yunohost/apps/$app/" "yunohost"
+
+# Copy dedicated php-fpm process to backup folder
+ynh_backup "/etc/php5/fpm/pool.d/$app.conf" "php-fpm.conf"
+
+# Backup db
+root_pwd=$(sudo cat /etc/yunohost/mysql)
+sudo mysqldump -u root -p$root_pwd --no-create-db $db_user --result-file="db.sql"
+ynh_backup "db.sql" "backupdb.sql"
+
+# Backup cron job
+ynh_backup "/etc/cron.d/$app" "cron.job"
