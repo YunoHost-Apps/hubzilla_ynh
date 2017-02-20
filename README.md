@@ -59,7 +59,7 @@ For older versions of YunoHost, once you have added the new domain, SSH into you
 ### Install the Hubzilla application
 Use the [YunoHost admin](https://reticu.li/yunohost/admin) panel to install Hubzilla by entering the GitHub repo address in the custom app URL
 
-		https://github.com/YunoHost-Apps/hubzilla-yunohost
+		https://github.com/YunoHost-Apps/hubzilla_ynh
 
 Make sure to select your domain from the previous section as the application domain. Also set the application to Public.
 
