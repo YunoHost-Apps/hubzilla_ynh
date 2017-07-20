@@ -46,7 +46,6 @@ sudo mkdir $final_path/addon
 sudo cp -r ../sources/hubzilla-addons/${addons_file}/. $final_path/addon
 
 # 3 - some extra folders
-sudo mkdir -p "${final_path}/store/[data]/smarty3"
 sudo chmod -R 777 $final_path/store
 
 
