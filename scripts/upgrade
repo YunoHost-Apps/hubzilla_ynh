@@ -34,6 +34,7 @@ sudo md5sum -c ../sources/hubzilla/source_md5 --status || (echo "Corrupt source"
 sudo unzip -q ${hubzilla_file}.zip -d ../sources/hubzilla/
 sudo cp -r ../sources/hubzilla/${hubzilla_file}/. $final_path
 sudo cp -a ${final_path}.old/store ${final_path}
+sudo cp -a ${final_path}.old/.htconfig.php ${final_path}
 sudo rm -Rf ${final_path}.old
 
 # 2 - Addons
@@ -48,20 +49,7 @@ sudo cp -r ../sources/hubzilla-addons/${addons_file}/. $final_path/addon
 sudo mkdir -p "${final_path}/store/[data]/smarty3"
 sudo chmod -R 777 $final_path/store
 
-# Copy the template install/htconfig.sample.php to .htconfig.php
-sudo cp $final_path/install/htconfig.sample.php $final_path/.htconfig.php
 
-# Use sed to add the database information to .htconfig.php
-sudo sed -i "s/your.mysqlhost.com/localhost/g" $final_path/.htconfig.php
-sudo sed -i "s/mysqlpassword/$db_pwd/g" $final_path/.htconfig.php
-sudo sed -i "s/mysqlusername/$db_user/g" $final_path/.htconfig.php
-sudo sed -i "s/mysqldatabasename/$db_user/g" $final_path/.htconfig.php
-sudo sed -i "s/mysite.example/$domain/g" $final_path/.htconfig.php
-sudo sed -i "s/if the auto install failed, put a unique random string here/$(ynh_string_random)$(ynh_string_random)$(ynh_string_random)/g" $final_path/.htconfig.php
-sudo sed -i "s/\['admin_email'\] = '';/\['admin_email'\] = '$email';/g" $final_path/.htconfig.php
-
-# addon ldap config
-sudo su -c "cat ../conf/ldap_conf.php >> $final_path/.htconfig.php"
 
 # Set www-data to owner
 sudo chown -R www-data:www-data $final_path
