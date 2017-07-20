@@ -85,7 +85,9 @@ sudo sed -i "s/mysqlusername/$db_user/g" $final_path/.htconfig.php
 sudo sed -i "s/mysqldatabasename/$db_user/g" $final_path/.htconfig.php
 sudo sed -i "s/mysite.example/$domain/g" $final_path/.htconfig.php
 sudo sed -i "s/if the auto install failed, put a unique random string here/$(ynh_string_random)$(ynh_string_random)$(ynh_string_random)/g" $final_path/.htconfig.php
-sudo sed -i "s/ADMIN_EMAIL_REPLACE/$email/g" $final_path/.htconfig.php
+sudo sed -i "s/\['admin_email'\] = '';/\['admin_email'\] = '$email';/g" $final_path/.htconfig.php
+# addon ldap config
+sudo su -c "cat ../conf/ldap_conf.php >> $final_path/.htconfig.php"
 
 # Set www-data to owner
 sudo chown -R www-data:www-data $final_path

@@ -6,8 +6,8 @@
 
 Current snapshot in *sources*:
 
-* https://github.com/redmatrix/hubzilla: 2.4.1 (commit 46e079beea8eb4cbcdd938681c702ef7481a3337)
-* https://github.com/redmatrix/hubzilla-addons: 2.4.1 (commit 30f3104ebe2121a433d174bb3bcb703bb9787bd3)
+* https://github.com/redmatrix/hubzilla: 2.4.2 (commit 8896ebf7cbf20c242399c3821be5881e6068175a)
+* https://github.com/redmatrix/hubzilla-addons: 2.4.2 (commit 30f3104ebe2121a433d174bb3bcb703bb9787bd3)
 
 ## Important Notes
 
