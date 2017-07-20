@@ -21,7 +21,7 @@ REMOVE_NGINX_CONF       # Suppression de la configuration nginx
 REMOVE_FPM_CONF # Suppression de la configuration du pool php-fpm
 
 # Remove poller cron job
-sudo rm -f /etc/cron.d/poller-cron
+sudo rm -f /etc/cron.d/$app
 
 # Restore php.ini as it was before installing hubzilla
 if [ "$run_exec" = "Yes" ];
