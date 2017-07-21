@@ -8,12 +8,10 @@ app=$YNH_APP_INSTANCE_NAME
 
 domain=$(ynh_app_setting_get $app domain)
 path=$(ynh_app_setting_get $app path)
-is_public=$(ynh_app_setting_get $app is_public)
 admin=$(ynh_app_setting_get $app admin)
 final_path=$(ynh_app_setting_get $app final_path)
 db_user=$(ynh_app_setting_get $app db_user)
 db_pwd=$(ynh_app_setting_get $app db_pwd)
-run_exec=$(ynh_app_setting_get $app run_exec)
 
 if [ -d $final_path ]; then
     echo "There is already a directory: $final_path " >&2
@@ -38,30 +36,19 @@ sudo cp -a ./sources/. $final_path/
 ynh_mysql_create_db $db_user $db_user $db_pwd
 mysql --debug-check -u $db_user -p$db_pwd $db_user < ./backupdb.sql
 
-# Modify php.ini to allow exec() function and increase the upload size limits
-if [ "$run_exec" = "Yes" ];
-then
-        sudo sed -i 's/pcntl_exec//g' /etc/php5/fpm/php.ini
-else
-        echo "no modification of php.ini"
-fi
+
 # Copy dedicated php-fpm process from backup folder to the right location
 sudo cp -a ./php-fpm.conf /etc/php5/fpm/pool.d/$app.conf
 
-# Backup cron job
+# Restore cron job
 sudo cp -a ./cron.job /etc/cron.d/$app
 
-# Make app public if necessary
-if [ "$is_public" = "Yes" ];
-then
-        ynh_app_setting_set $app skipped_uris "/"
-else
-        ynh_app_setting_set $app protected_uris "/"
-fi
+# Make app public
+ynh_app_setting_set $app skipped_uris "/"
+
 
 # And Reload services
 sudo service php5-fpm reload
 sudo service nginx reload
 
 sudo yunohost app ssowatconf
-

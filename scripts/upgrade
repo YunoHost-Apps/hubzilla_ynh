@@ -10,14 +10,8 @@ source /usr/share/yunohost/helpers
 
 domain=$(ynh_app_setting_get $app domain)
 path=$(ynh_app_setting_get $app path)
-is_public=$(ynh_app_setting_get $app is_public)
-admin=$(ynh_app_setting_get $app admin)
 final_path=$(ynh_app_setting_get $app final_path)
-db_pwd=$(ynh_app_setting_get $app db_pwd)
-db_user=$(ynh_app_setting_get $app db_user)
-email=$(ynh_app_setting_get $app email)
 upload=$(ynh_app_setting_get $app upload)
-run_exec=$(ynh_app_setting_get $app run_exec)
 
 CHECK_PATH      # Vérifie et corrige la syntaxe du path.
 
@@ -62,13 +56,6 @@ sudo cp ../conf/nginx.conf $nginxconf
 sudo chown root: $nginxconf
 sudo chmod 600 $nginxconf
 
-# Modify php.ini to allow exec() function and increase the upload size limits
-if [ "$run_exec" = "Yes" ];
-then
-        sudo sed -i 's/pcntl_exec//g' /etc/php5/fpm/php.ini
-else
-        echo "no modification of php.ini"
-fi
 # Dedicated php-fpm
 sed -i "s@UPLOADTOCHANGE@$upload@g" ../conf/php-fpm.conf
 sed -i "s@NAMETOCHANGE@$app@g" ../conf/php-fpm.conf
@@ -80,13 +67,8 @@ sudo chown root: $phpfpmconf
 sed -i "s@YNH_WWW_PATH@$final_path@g" ../conf/poller-cron
 sudo cp ../conf/poller-cron /etc/cron.d/$app
 
-# Make app public if necessary
-if [ "$is_public" = "Yes" ];
-then
-        ynh_app_setting_set $app skipped_uris "/"
-else
-        ynh_app_setting_set $app protected_uris "/"
-fi
+# Make app public
+ynh_app_setting_set $app skipped_uris "/"
 
 # Reload services
 sudo service php5-fpm reload || true
