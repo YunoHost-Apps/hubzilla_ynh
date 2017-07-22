@@ -1,4 +1,7 @@
-# YunoHost App for Hubzilla Hub
+# Hubzilla Hub for YunoHost
+
+[![Install Dokuwiki with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=hubzilla)
+
 
 ## Hubzilla
 [Hubzilla](http://hubzilla.org) is a powerful platform for creating interconnected websites featuring a decentralized identity, commuhubzilla_test1nications, and permissions framework built using common webserver technology.
@@ -8,6 +11,16 @@ Current snapshot in *sources*:
 
 * https://github.com/redmatrix/hubzilla: 2.4.2 (commit 8896ebf7cbf20c242399c3821be5881e6068175a)
 * https://github.com/redmatrix/hubzilla-addons: 2.4.2 (commit 30f3104ebe2121a433d174bb3bcb703bb9787bd3)
+
+## To-Do's
+- [X] Installation and remove script.
+- [X] Ldap integration.
+- [X] Upgrade script.
+- [X] Backup and restore script(Need to be tested,but hopefully will work).
+- [X] Remove the admin email,path and is_public form installation form.
+- [X] Stop modification of php.ini : exec().
+- [X] Make changes to nginx configuration accouding to Hubzilla official guide.
+- [ ] Force redirection to https by default.
 
 ## Important Notes
 
@@ -27,7 +40,7 @@ Before installing, read the [Hubzilla installation instructions](https://github.
 ## Installation
 
 ### Register a new domain and add it to YunoHost
-Hubzilla requires a dedicated domain, so obtain one and add it using the [YunoHost admin](https://reticu.li/yunohost/admin) panel. **Domains -> Add domain**. As Hubzilla uses the full domain and is installed on the root, you can create a subdomain such as hubzilla.domain.tld. Don't forget to update your DNS if you manage them manually.
+Hubzilla requires a dedicated domain, so obtain one and add it using the YunoHost admin panel. **Domains -> Add domain**. As Hubzilla uses the full domain and is installed on the root, you can create a subdomain such as hubzilla.domain.tld. Don't forget to update your DNS if you manage them manually.
 
 Hubzilla requires browser-approved SSL certificates. If you have certificates not issued by [Let's Encrypt](https://letsencrypt.org/), install them manually as usual.
 
@@ -57,12 +70,12 @@ For older versions of YunoHost, once you have added the new domain, SSH into you
 		service nginx start
 
 ### Install the Hubzilla application
-Use the [YunoHost admin](https://reticu.li/yunohost/admin) panel to install Hubzilla by entering the GitHub repo address in the custom app URL
+Use the YunoHost admin panel to install Hubzilla by entering the GitHub repo address in the custom app URL
 
 		https://github.com/YunoHost-Apps/hubzilla_ynh
 
 Make sure to select your domain from the previous section as the application domain. Also set the application to Public.
 
-When installation is complete, you will need to visit your new hub and register a new account using the email address you specified in the app installation form. You should then be able to log in and create your first channel.
-<strong>If above method do not work for you then you have give an account administrator access through phpMYAdmin by
-adding 4096 to the account_roles for that account in the database.</strong>
+When installation is complete, you will need to visit your new hub and login with the admin account you specified in the app installation form. You should then be able create your first channel and have the admin rights to the hub.
+<strong>For normal YunoHost users:</strong>You can login through Ldap authentication and create the channel accourding to the hub settings.
+<strong>For admin:</strong>If you don't see the admin rights in your nav bar drop down menu or want to grant admin rights for any other user on the hub then you have to manually add 4096 to the account_roles for that account in the database through phpMYAdmin.
