@@ -1,6 +1,6 @@
 # Hubzilla Hub for YunoHost
 
-[![Install Dokuwiki with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=hubzilla)
+[![Install Hubzilla with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=hubzilla)
 
 
 ## Hubzilla
