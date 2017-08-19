@@ -9,8 +9,8 @@
 
 Current snapshot in *sources*:
 
-* https://github.com/redmatrix/hubzilla: 2.6 (commit 4a7384bc0ce1893a432bf4b7d67bca23796fe9db)
-* https://github.com/redmatrix/hubzilla-addons: 2.6 (commit cb2a04e6482d94cfe4c9251e5c4e048951e2e17b)
+* https://github.com/redmatrix/hubzilla: 2.6.1 (commit f9dd4188b46572bbc1f6284314db62e9dd57f51b)
+* https://github.com/redmatrix/hubzilla-addons: 2.6.1 (commit 8252952611ac03dd4c74430af69a8b10d7cdbbd0)
 
 ## To-Do's
 - [X] Installation and remove script.
