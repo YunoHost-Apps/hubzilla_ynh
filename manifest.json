@@ -33,31 +33,12 @@
                 }
             },
             {
-                "name": "path",
-                "type": "path",
-                "ask": {
-                    "en": "No choice, Hubzilla must be installed on the ROOT domain, so be careful",
-                    "fr": "Pas de choix, Hubzilla doit etre installe a la racine, soyez prudent"
-                },
-                "choices": ["/"],
-                "default": "/"
-            },
-            {
                 "name": "admin",
                 "type": "user",
                 "ask": {
                     "en": "Choose the Hubzilla administrator (must be an existing YunoHost user)",
                     "fr": "Choisissez l'administrateur de Hubzilla (doit être un utilisateur YunoHost existant)"
                 }
-            },
-            {
-                "name": "email",
-                "ask": {
-                    "en": "Email address for the Hubzilla hub admin",
-                    "fr": "Adresse email pour l'admin du hub Hubzilla"
-                },
-                "example": "peter@example.com",
-                "optional": false
             },
             {
                 "name": "upload",
@@ -68,24 +49,6 @@
                 "choices": ["64M", "128M", "256M", "512M", "1024M"],
                 "default": "256M",
                 "optional": false
-            },
-            {
-                "name": "is_public",
-                "ask": {
-                    "en": "Is it a public website ?",
-                    "fr": "Est-ce un site publique ?"
-                },
-                "choices": ["Yes", "No"],
-                "default": "Yes"
-            },
-            {
-                "name": "run_exec",
-                "ask": {
-                    "en": "Do you agree to modify php.ini to allow exec() function to be used by hubzilla ?",
-                    "fr": "Acceptez-vous de modifier php.ini pour autoriser exec() à être utilisée par hubzilla ?"
-                },
-                "choices": ["Yes", "No"],
-                "default": "No"
             }
         ]
     }
