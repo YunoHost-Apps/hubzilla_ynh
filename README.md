@@ -9,8 +9,8 @@
 
 Current snapshot in *sources*:
 
-* https://github.com/redmatrix/hubzilla: 2.6.2 (commit 0ee2378cec6902c037b7cb28f290374f595f4d3b)
-* https://github.com/redmatrix/hubzilla-addons: 2.6.2 (commit 8252952611ac03dd4c74430af69a8b10d7cdbbd0)
+* https://github.com/redmatrix/hubzilla: 2.6.3 (commit d11d36040d189431a85d0e379fc2af2ca8ed8756)
+* https://github.com/redmatrix/hubzilla-addons: 2.6.3 (commit 8252952611ac03dd4c74430af69a8b10d7cdbbd0)
 
 ## To-Do's
 - [X] Installation and remove script.
@@ -74,8 +74,8 @@ Use the YunoHost admin panel to install Hubzilla by entering the GitHub repo add
 
 		https://github.com/YunoHost-Apps/hubzilla_ynh
 
-Make sure to select your domain from the previous section as the application domain. Also set the application to Public.
+Make sure to select your domain from the previous section as the application domain.
 
-When installation is complete, you will need to visit your new hub and login with the admin account you specified in the app installation form. You should then be able create your first channel and have the admin rights to the hub.
-<strong>For normal YunoHost users:</strong>You can login through Ldap authentication and create the channel accourding to the hub settings.
-<strong>For admin:</strong>If you don't see the admin rights in your nav bar drop down menu or want to grant admin rights for any other user on the hub then you have to manually add 4096 to the account_roles for that account in the database through phpMYAdmin.
+When installation is complete, you will need to visit your new hub and login with the admin account you specified at the of installation process. You should then be able to create your first channel and have the admin rights for the hub.
+<strong>For normal YunoHost users:</strong>You can login through Ldap authentication and create your channel.
+<strong>For admin:</strong>If you don't see the admin rights in your nav bar drop down menu or want to grant admin rights for any other user on the hub then you have to manually add 4096 to the account_roles under accounts for that user in the database through phpMYAdmin.
