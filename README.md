@@ -9,8 +9,8 @@
 
 Current snapshot in *sources*:
 
-* https://github.com/redmatrix/hubzilla: 2.8.1 (commit 9bf366b7d4ec09cef818b3e26448742fd33343a1)
-* https://github.com/redmatrix/hubzilla-addons: 2.8.1 (commit d99b0f9421e426121f448f9ea4209e0368e53736)
+* https://github.com/redmatrix/hubzilla: 3.0.1 (commit 9bf366b7d4ec09cef818b3e26448742fd33343a1)
+* https://github.com/redmatrix/hubzilla-addons: 3.0.1 (commit 5f38b56a6a17a0c5dfaf370df8e3e50f91d3dc97)
 
 ## To-Do's
 - [X] Installation and remove script.
@@ -76,6 +76,6 @@ Use the YunoHost admin panel to install Hubzilla by entering the GitHub repo add
 
 Make sure to select your domain from the previous section as the application domain.
 
-When installation is complete, you will need to visit your new hub and login with the admin account you specified at the of installation process. You should then be able to create your first channel and have the admin rights for the hub.
-<strong>For normal YunoHost users:</strong>You can login through Ldap authentication and create your channel.
-<strong>For admin:</strong>If you don't see the admin rights in your nav bar drop down menu or want to grant admin rights for any other user on the hub then you have to manually add 4096 to the account_roles under accounts for that user in the database through phpMYAdmin.
+When installation is complete, you will need to visit your new hub's page and login with the admin account which was entered at the time of installation process. You should then be able to create your first channel and have the admin rights for the hub.<br>
+<strong>For normal YunoHost users:</strong>Normal LDAP users can login through Ldap authentication and create there channels.<br>
+<strong>If admin don't see the admin rights:</strong>If admin don't see the admin rights in your nav bar drop down menu or want to grant admin rights to any other user(s) on the hub then you have to manually add 4096 to the account_roles under accounts for that user in the database through phpMYAdmin.
