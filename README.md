@@ -4,7 +4,7 @@
 
 
 ## Hubzilla
-[Hubzilla](http://hubzilla.org) is a powerful platform for creating interconnected websites featuring a decentralized identity, commuhubzilla_test1nications, and permissions framework built using common webserver technology.
+[Hubzilla](http://hubzilla.org) is a powerful platform for creating interconnected websites featuring a decentralized identity, communications, and permissions framework built using common webserver technology.
 
 
 Current snapshot in *sources*:
@@ -76,6 +76,8 @@ Use the YunoHost admin panel to install Hubzilla by entering the GitHub repo add
 
 Make sure to select your domain from the previous section as the application domain.
 
-When installation is complete, you will need to visit your new hub's page and login with the admin account which was entered at the time of installation process. You should then be able to create your first channel and have the admin rights for the hub.<br>
-<strong>For normal YunoHost users:</strong>Normal LDAP users can login through Ldap authentication and create there channels.<br>
-<strong>If admin don't see the admin rights:</strong>If admin don't see the admin rights in your nav bar drop down menu or want to grant admin rights to any other user(s) on the hub then you have to manually add 4096 to the account_roles under accounts for that user in the database through phpMYAdmin.
+When installation is complete, you will need to visit your new hub's page and login with the admin account which was entered at the time of installation process. You should then be able to create your first channel and have the admin rights for the hub.
+
+**For normal YunoHost users:** Normal LDAP users can login through Ldap authentication and create there channels.
+
+**If the admin cannot access the admin settings:** If you cannot access the admin settings at `https://hub.example.com/admin` when you log in as the administrator, or you want to grant admin rights to any other user(s) on the hub, then you have to manually add 4096 to the account_roles under accounts for that user in the database through phpMYAdmin.
