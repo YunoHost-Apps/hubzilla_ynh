@@ -1,30 +1,71 @@
 #!/bin/bash
 
-# Source app helpers
+#=================================================
+# GENERIC START
+#=================================================
+# IMPORT GENERIC HELPERS
+#=================================================
+
+if [ ! -e _common.sh ]; then
+	# Get the _common.sh file if it's not in the current directory
+	cp ../settings/scripts/_common.sh ./_common.sh
+	chmod a+rx _common.sh
+fi
+source _common.sh
 source /usr/share/yunohost/helpers
 
-# Récupère les infos de l'application.
+#=================================================
+# MANAGE SCRIPT FAILURE
+#=================================================
+
+# Exit if an error occurs during the execution of the script
+ynh_abort_if_errors
+
+#=================================================
+# LOAD SETTINGS
+#=================================================
+
 app=$YNH_APP_INSTANCE_NAME
 
 final_path=$(ynh_app_setting_get $app final_path)
 domain=$(ynh_app_setting_get $app domain)
-db_user=$(ynh_app_setting_get $app db_user)
+db_name=$(ynh_app_setting_get $app db_name)
 
-# Backup sources & data
-ynh_backup "$final_path" "sources"
+#=================================================
+# STANDARD BACKUP STEPS
+#=================================================
+# BACKUP THE APP MAIN DIR
+#=================================================
 
-# Copy Nginx and YunoHost parameters to make the script "standalone"
-ynh_backup "/etc/nginx/conf.d/$domain.d/$app.conf" "nginx.conf"
+ynh_backup "$final_path"
 
-ynh_backup "/etc/yunohost/apps/$app/" "yunohost"
+#=================================================
+# BACKUP THE NGINX CONFIGURATION
+#=================================================
 
-# Copy dedicated php-fpm process to backup folder
-ynh_backup "/etc/php5/fpm/pool.d/$app.conf" "php-fpm.conf"
+ynh_backup "/etc/nginx/conf.d/$domain.d/$app.conf"
 
-# Backup db
-root_pwd=$(sudo cat /etc/yunohost/mysql)
-sudo mysqldump -u root -p$root_pwd --no-create-db $db_user --result-file="db.sql"
-ynh_backup "db.sql" "backupdb.sql"
+#=================================================
+# BACKUP THE PHP-FPM CONFIGURATION
+#=================================================
 
-# Backup cron job
-ynh_backup "/etc/cron.d/$app" "cron.job"
+ynh_backup "/etc/php5/fpm/pool.d/$app.conf"
+ynh_backup "/etc/php5/fpm/conf.d/20-$app.ini"
+
+#=================================================
+# BACKUP THE MYSQL DATABASE
+#=================================================
+
+ynh_mysql_dump_db "$db_name" > db.sql
+
+#=================================================
+# BACKUP LOGROTATE
+#=================================================
+
+ynh_backup "/etc/logrotate.d/$app"
+
+#=================================================
+# BACKUP THE CRON FILE
+#=================================================
+
+ynh_backup "/etc/cron.d/$app"

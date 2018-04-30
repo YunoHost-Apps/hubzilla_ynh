@@ -1,0 +1,6 @@
+SOURCE_URL=https://github.com/redmatrix/hubzilla/archive/3.2.2.zip
+SOURCE_SUM=e1a87334579adbabf7e84ecd599bdfa9
+SOURCE_SUM_PRG=md5sum
+SOURCE_FORMAT=zip
+SOURCE_IN_SUBDIR=
+SOURCE_FILENAME=

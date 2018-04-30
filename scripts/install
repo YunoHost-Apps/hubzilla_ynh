@@ -1,76 +1,98 @@
 #!/bin/bash
 
-source .fonctions       # Charge les fonctions génériques habituellement utilisées dans le script
+#=================================================
+# GENERIC START
+#=================================================
+# IMPORT GENERIC HELPERS
+#=================================================
 
-TRAP_ON # Active trap pour arrêter le script si une erreur est détectée.
-
-# Retrieve arguments
-app=$YNH_APP_INSTANCE_NAME
-
-domain=$YNH_APP_ARG_DOMAIN
-path="/"
-admin=$YNH_APP_ARG_ADMIN
-email=$(sudo yunohost user info $admin | grep "mail:" | cut -d' ' -f2)
-upload=$YNH_APP_ARG_UPLOAD
-
-# Source app helpers
+source _common.sh
 source /usr/share/yunohost/helpers
 
-# Vérifie que les variables ne sont pas vides.
-CHECK_VAR "$app" "app name not set"
+#=================================================
+# MANAGE SCRIPT FAILURE
+#=================================================
 
-CHECK_USER "$admin"     # Vérifie la validité de l'user admin
+# Exit if an error occurs during the execution of the script
+ynh_abort_if_errors
 
-CHECK_PATH      # Vérifie et corrige la syntaxe du path.
-CHECK_DOMAINPATH        # Vérifie la disponibilité du path et du domaine.
+#=================================================
+# RETRIEVE ARGUMENTS FROM THE MANIFEST
+#=================================================
 
-# Créer le repertoire de destination et stocke son emplacement.
-CHECK_FINALPATH # Vérifie que le dossier de destination n'est pas déjà utilisé.
-sudo mkdir "$final_path"
-ynh_app_setting_set $app final_path $final_path
+domain=$YNH_APP_ARG_DOMAIN
+path_url="/"
+admin=$YNH_APP_ARG_ADMIN
+email=$(sudo yunohost user info $admin | grep "mail:" | cut -d' ' -f2)
+upload="256M"
+database="1"
+
+# This is a multi-instance app, meaning it can be installed several times independently
+# The id of the app as stated in the manifest is available as $YNH_APP_ID
+# The instance number is available as $YNH_APP_INSTANCE_NUMBER (equals "1", "2", ...)
+# The app instance name is available as $YNH_APP_INSTANCE_NAME
+#    - the first time the app is installed, YNH_APP_INSTANCE_NAME = ynhexample
+#    - the second time the app is installed, YNH_APP_INSTANCE_NAME = ynhexample__2
+#    - ynhexample__{N} for the subsequent installations, with N=3,4, ...
+# The app instance name is probably what you are interested the most, since this is
+# guaranteed to be unique. This is a good unique identifier to define installation path,
+# db names, ...
+app=$YNH_APP_INSTANCE_NAME
+
+#=================================================
+# CHECK IF THE APP CAN BE INSTALLED WITH THESE ARGS
+#=================================================
+
+final_path=/var/www/$app
+test ! -e "$final_path" || ynh_die "This path already contains a folder"
+
+# Normalize the url path syntax
+path_url=$(ynh_normalize_url_path $path_url)
+
+# Check web path availability
+ynh_webpath_available $domain $path_url
+# Register (book) web path
+ynh_webpath_register $app $domain $path_url
 
 # Enregistre les infos dans la config YunoHost
 ynh_app_setting_set $app domain $domain
-ynh_app_setting_set $app path $path
+ynh_app_setting_set $app path $path_url
 ynh_app_setting_set $app admin $admin
 ynh_app_setting_set $app email $email
 ynh_app_setting_set $app upload $upload
+ynh_app_setting_set $app database $database
 
-# Install dependencies
-sudo apt-get update
-sudo apt-get install -y -qq php5-cli php5-imagick php5-gd php5-mcrypt php-xml
 
-# Create db
-db_user=$app
-db_user=${db_user//-/_} # mariadb ne supporte pas les - dans les noms de base de données. Ils sont donc remplacé par des _
-db_pwd=$(ynh_string_random)
-CHECK_VAR "$db_pwd" "db_pwd empty"
-ynh_mysql_create_db "$db_user" "$db_user" $db_pwd
-ynh_app_setting_set $app db_pwd $db_pwd
-ynh_app_setting_set $app db_user $db_user
+#=================================================
+# INSTALL DEPENDENCIES
+#=================================================
+
+ynh_install_app_dependencies php5-cli php5-imagick php5-gd php5-mcrypt php-xml
+
+#=================================================
+# CREATE A MYSQL DATABASE
+#=================================================
+# If your app uses a MySQL database, you can use these lines to bootstrap
+# a database, an associated user and save the password in app settings
+
+db_name=$(ynh_sanitize_dbid $app)
+ynh_app_setting_set $app db_name $db_name
+ynh_mysql_setup_db $db_name $db_name
 
 # We download the sources and check the md5sum
 # 1 - hubzilla
-hubzilla_file=`sudo cat ../sources/hubzilla/source_file`;
-sudo wget -nv -i ../sources/hubzilla/source_url -O ${hubzilla_file}.zip
-sudo md5sum -c ../sources/hubzilla/source_md5 --status || (echo "Corrupt source" >&2 && false)
-sudo unzip -q ${hubzilla_file}.zip -d ../sources/hubzilla/
-sudo cp -r ../sources/hubzilla/${hubzilla_file}/. $final_path
-
-# 2 - Addons
-addons_file=`sudo cat ../sources/hubzilla-addons/source_file`;
-sudo wget -nv -i ../sources/hubzilla-addons/source_url -O ${addons_file}.zip
-sudo md5sum -c ../sources/hubzilla-addons/source_md5 --status || (echo "Corrupt source" >&2 && false)
-sudo unzip -q ${addons_file}.zip -d ../sources/hubzilla-addons/
+ynh_app_setting_set $app final_path $final_path
+ynh_setup_source "$final_path"
 sudo mkdir $final_path/addon
-sudo cp -r ../sources/hubzilla-addons/${addons_file}/. $final_path/addon
+ynh_setup_source "$final_path/addon" "app_addons"
+
 
 # 3 - some extra folders
 sudo mkdir -p "${final_path}/store/[data]/smarty3"
 sudo chmod -R 777 $final_path/store
 
 # Import database schema
-sudo mysql -u$db_user -p$db_pwd $db_user < $final_path/install/schema_mysql.sql
+ynh_mysql_connect_as "$db_name" "$db_pwd" "$db_name" < $final_path/install/schema_mysql.sql
 
 # Copy the template install/htconfig.sample.php to .htconfig.php
 sudo cp $final_path/install/htconfig.sample.php $final_path/.htconfig.php
@@ -78,33 +100,44 @@ sudo cp $final_path/install/htconfig.sample.php $final_path/.htconfig.php
 # Use sed to add the database information to .htconfig.php
 sudo sed -i "s/your.mysqlhost.com/localhost/g" $final_path/.htconfig.php
 sudo sed -i "s/mysqlpassword/$db_pwd/g" $final_path/.htconfig.php
-sudo sed -i "s/mysqlusername/$db_user/g" $final_path/.htconfig.php
-sudo sed -i "s/mysqldatabasename/$db_user/g" $final_path/.htconfig.php
+sudo sed -i "s/mysqlusername/$db_name/g" $final_path/.htconfig.php
+sudo sed -i "s/mysqldatabasename/$db_name/g" $final_path/.htconfig.php
 sudo sed -i "s/mysite.example/$domain/g" $final_path/.htconfig.php
 sudo sed -i "s/if the auto install failed, put a unique random string here/$(ynh_string_random)$(ynh_string_random)$(ynh_string_random)/g" $final_path/.htconfig.php
 sudo sed -i "s/\['admin_email'\] = '';/\['admin_email'\] = '$email';/g" $final_path/.htconfig.php
+sudo sed -i "s@//error_reporting(E_ERROR | E_WARNING | E_PARSE );@error_reporting(E_ERROR | E_WARNING | E_PARSE );@g" $final_path/.htconfig.php
+sudo sed -i "s@//ini_set('error_log','php.out');@ini_set('error_log','php.log');@g" $final_path/.htconfig.php
+sudo sed -i "s@//ini_set('log_errors','1');@ini_set('log_errors','1');@g" $final_path/.htconfig.php
+sudo sed -i "s@//ini_set('display_errors', '0');@ini_set('display_errors', '0');@g" $final_path/.htconfig.php
+
 # addon ldap config
 sudo su -c "cat ../conf/ldap_conf.php >> $final_path/.htconfig.php"
 
-# Set www-data to owner
-sudo chown -R www-data:www-data $final_path
 
-# Modify Nginx configuration file and copy it to Nginx conf directory
-sed -i "s@YNH_WWW_PATH@$path@g" ../conf/nginx.conf
-sed -i "s@YNH_WWW_ALIAS@$final_path@g" ../conf/nginx.conf
-sed -i "s@UPLOADTOCHANGE@$upload@g" ../conf/nginx.conf
-nginxconf=/etc/nginx/conf.d/$domain.d/$app.conf
-sudo cp ../conf/nginx.conf $nginxconf
-sudo chown root: $nginxconf
-sudo chmod 600 $nginxconf
+#=================================================
+# NGINX CONFIGURATION
+#=================================================
 
-# Dedicated php-fpm
-sed -i "s@UPLOADTOCHANGE@$upload@g" ../conf/php-fpm.conf
-sed -i "s@NAMETOCHANGE@$app@g" ../conf/php-fpm.conf
-phpfpmconf=/etc/php5/fpm/pool.d/$app.conf
-sudo cp ../conf/php-fpm.conf $phpfpmconf
-sudo chown root: $phpfpmconf
-sudo chmod 644 $phpfpmconf
+# Create a dedicated nginx config
+ynh_add_nginx_config
+
+#=================================================
+# CREATE DEDICATED USER
+#=================================================
+
+# Create a system user
+ynh_system_user_create $app
+
+#=================================================
+# PHP-FPM CONFIGURATION
+#=================================================
+
+
+# Create a dedicated php-fpm config
+ynh_add_fpm_config
+
+# Set right permissions for curl install
+chown -R $app: $final_path
 
 # Set up poller
 sed -i "s@YNH_WWW_PATH@$final_path@g" ../conf/poller-cron
@@ -113,10 +146,20 @@ sudo cp ../conf/poller-cron /etc/cron.d/$app
 # Make app public
 ynh_app_setting_set $app skipped_uris "/"
 
+#=================================================
+# STORE THE CHECKSUM OF THE CONFIG FILE
+#=================================================
 
+# Calculate and store the config file checksum into the app settings
+ynh_store_file_checksum "$final_path/.htconfig.php"
+
+#=================================================
+# SETUP LOGROTATE
+#=================================================
+
+# Use logrotate to manage application logfile(s)
+ynh_use_logrotate "$final_path/php.log"
 
 # Reload services
-sudo service php5-fpm reload || true
-sudo service nginx reload || true
-
+systemctl reload nginx
 sudo yunohost app ssowatconf

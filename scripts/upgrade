@@ -1,67 +1,125 @@
 #!/bin/bash
 
-source .fonctions       # Charge les fonctions génériques habituellement utilisées dans le script
+#=================================================
+# GENERIC START
+#=================================================
+# IMPORT GENERIC HELPERS
+#=================================================
 
-# Récupère les infos de l'application.
-app=$YNH_APP_INSTANCE_NAME
-
-# Source app helpers
+source _common.sh
 source /usr/share/yunohost/helpers
 
+#=================================================
+# LOAD SETTINGS
+#=================================================
+
+app=$YNH_APP_INSTANCE_NAME
+
 domain=$(ynh_app_setting_get $app domain)
-path=$(ynh_app_setting_get $app path)
+path_url=$(ynh_app_setting_get $app path)
 final_path=$(ynh_app_setting_get $app final_path)
 upload=$(ynh_app_setting_get $app upload)
+db_name=$(ynh_app_setting_get $app db_name)
 
-CHECK_PATH      # Vérifie et corrige la syntaxe du path.
+#=================================================
+# BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
+#=================================================
 
-# Make backup of old app folder and create again the app folder
-sudo mv ${final_path} ${final_path}.old
-sudo mkdir -p $final_path
+# Backup the current version of the app
+ynh_backup_before_upgrade
+ynh_clean_setup () {
+	# restore it if the upgrade fails
+	ynh_restore_upgradebackup
+}
+# Exit if an error occurs during the execution of the script
+ynh_abort_if_errors
+
+#=================================================
+# REMOVE APP MAIN DIR
+#=================================================
+ 
+# Create a temporary directory
+tmpdir="$(mktemp -d)"
+# Backup the config file in the temp dir
+cp -a "$final_path/.htconfig.php" "$tmpdir/.htconfig.php"
+cp -a "$final_path/store" "$tmpdir/store"
+cp -a "$final_path/php.log" "$tmpdir/php.log"
 
 
-# We download the sources and check the md5sum
-# 1 - hubzilla
-hubzilla_file=`sudo cat ../sources/hubzilla/source_file`;
-sudo wget -nv -i ../sources/hubzilla/source_url -O ${hubzilla_file}.zip
-sudo md5sum -c ../sources/hubzilla/source_md5 --status || (echo "Corrupt source" >&2 && false)
-sudo unzip -q ${hubzilla_file}.zip -d ../sources/hubzilla/
-sudo cp -r ../sources/hubzilla/${hubzilla_file}/. $final_path
-sudo cp -a ${final_path}.old/store ${final_path}
-sudo cp -a ${final_path}.old/.htconfig.php ${final_path}
-sudo rm -Rf ${final_path}.old
+# Remove the app directory securely
+ynh_secure_remove "$final_path"
 
-# 2 - Addons
-addons_file=`sudo cat ../sources/hubzilla-addons/source_file`;
-sudo wget -nv -i ../sources/hubzilla-addons/source_url -O ${addons_file}.zip
-sudo md5sum -c ../sources/hubzilla-addons/source_md5 --status || (echo "Corrupt source" >&2 && false)
-sudo unzip -q ${addons_file}.zip -d ../sources/hubzilla-addons/
-sudo mkdir $final_path/addon
-sudo cp -r ../sources/hubzilla-addons/${addons_file}/. $final_path/addon
+# If db_name doesn't exist, create it
+if [ -z $db_name ]; then
+	db_name=$(ynh_sanitize_dbid $app)
+	ynh_app_setting_set $app db_name $db_name
+fi
 
-# 3 - some extra folders
+# If final_path doesn't exist, create it
+if [ -z $final_path ]; then
+	final_path=/var/www/$app
+	ynh_app_setting_set $app final_path $final_path
+fi
+
+#=================================================
+# CHECK THE PATH
+#=================================================
+
+# Normalize the URL path syntax
+path_url=$(ynh_normalize_url_path $path_url)
+
+#=================================================
+# STANDARD UPGRADE STEPS
+#=================================================
+# DOWNLOAD, CHECK AND UNPACK SOURCE
+#=================================================
+
+# Download, check integrity, uncompress and patch the source from app.src
+ynh_setup_source "$final_path"
+sudo cp -a "$tmpdir/store" "${final_path}"
+sudo cp -a "$tmpdir/.htconfig.php" "${final_path}"
+sudo cp -a "$tmpdir/php.log" "${final_path}"
+sudo rm -Rf "$tmpdir"
 sudo chmod -R 777 $final_path/store
+sudo mkdir $final_path/addon
+ynh_setup_source "$final_path/addon" "app_addons"
 
 
+#=================================================
+# NGINX CONFIGURATION
+#=================================================
 
-# Set www-data to owner
-sudo chown -R www-data:www-data $final_path
+# Create a dedicated nginx config
+ynh_add_nginx_config
 
-# Modify Nginx configuration file and copy it to Nginx conf directory
-sed -i "s@YNH_WWW_PATH@$path@g" ../conf/nginx.conf
-sed -i "s@YNH_WWW_ALIAS@$final_path@g" ../conf/nginx.conf
-sed -i "s@UPLOADTOCHANGE@$upload@g" ../conf/nginx.conf
-nginxconf=/etc/nginx/conf.d/$domain.d/$app.conf
-sudo cp ../conf/nginx.conf $nginxconf
-sudo chown root: $nginxconf
-sudo chmod 600 $nginxconf
+#=================================================
+# CREATE DEDICATED USER
+#=================================================
 
-# Dedicated php-fpm
-sed -i "s@UPLOADTOCHANGE@$upload@g" ../conf/php-fpm.conf
-sed -i "s@NAMETOCHANGE@$app@g" ../conf/php-fpm.conf
-phpfpmconf=/etc/php5/fpm/pool.d/$app.conf
-sudo cp ../conf/php-fpm.conf $phpfpmconf
-sudo chown root: $phpfpmconf
+# Create a system user
+ynh_system_user_create $app
+
+# Set right permissions for curl install
+chown -R $app: $final_path
+
+#=================================================
+# PHP-FPM CONFIGURATION
+#=================================================
+
+# Create a dedicated php-fpm config
+ynh_add_fpm_config
+
+# Verify the checksum and backup the file if it's different
+ynh_backup_if_checksum_is_different "$final_path/.htconfig.php"
+# Recalculate and store the config file checksum into the app settings
+ynh_store_file_checksum "$final_path/.htconfig.php"
+
+#=================================================
+# SETUP LOGROTATE
+#=================================================
+
+# Use logrotate to manage app-specific logfile(s)
+ynh_use_logrotate  "$final_path/php.log" --non-append
 
 # Set up poller
 sed -i "s@YNH_WWW_PATH@$final_path@g" ../conf/poller-cron
@@ -70,7 +128,8 @@ sudo cp ../conf/poller-cron /etc/cron.d/$app
 # Make app public
 ynh_app_setting_set $app skipped_uris "/"
 
-# Reload services
-sudo service php5-fpm reload || true
-sudo service nginx reload || true
-sudo yunohost app ssowatconf
+#=================================================
+# RELOAD NGINX
+#=================================================
+
+systemctl reload nginx

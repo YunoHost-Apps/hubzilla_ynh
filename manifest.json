@@ -8,20 +8,20 @@
     },
     "url": "https://github.com/redmatrix/hubzilla",
     "license": "Free as-is",
-    "version": "3.2.1",
+    "version": "3.2.2",
     "maintainer": {
         "name": "Andrew Manning",
         "email": "andrew@reticu.li"
     },
-    "multi_instance": false,
     "services": [
         "nginx",
         "php5-fpm",
         "mysql"
     ],
     "requirements": {
-        "yunohost": ">= 2.4.0"
+        "yunohost": ">= 2.7.2"
     },
+    "multi_instance": true,
     "arguments": {
         "install" : [
             {
@@ -39,16 +39,6 @@
                     "en": "Choose the Hubzilla administrator (must be an existing YunoHost user)",
                     "fr": "Choisissez l'administrateur de Hubzilla (doit être un utilisateur YunoHost existant)"
                 }
-            },
-            {
-                "name": "upload",
-                "ask": {
-                    "en": "Maximum upload size (MB)",
-                    "fr": "Taille maximale des fichiers envoyés (MB)"
-                },
-                "choices": ["64M", "128M", "256M", "512M", "1024M"],
-                "default": "256M",
-                "optional": false
             }
         ]
     }

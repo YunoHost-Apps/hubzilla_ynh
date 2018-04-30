@@ -20,7 +20,9 @@ Current snapshot in *sources*:
 - [X] Remove the admin email,path and is_public form installation form.
 - [X] Stop modification of php.ini : exec().
 - [X] Make changes to nginx configuration accouding to Hubzilla official guide.
-- [ ] Force redirection to https by default.
+- [X] Force redirection to https by default.
+- [X] Multi-instance.
+- [X] Adeed php.log in the root folder for debugging php, with logrotate applied on it.(can be accesssed by admin->logs and entering the php.log).
 
 ## Important Notes
 
@@ -47,28 +49,6 @@ Hubzilla requires browser-approved SSL certificates. If you have certificates no
 #### YunoHost >= 2.5 :
 Once the dedicated domain has been added to YunoHost, go again to the admin panel, go to domains then select your domain and click on "Install Let's Encrypt certificate".
 
-#### Yunohost < 2.5 :
-For older versions of YunoHost, once you have added the new domain, SSH into your YunoHost server and perform the following steps:
-
-1. Install [certbot](https://certbot.eff.org/) to make installing free SSL certificates from Let's Encrypt simple.
-
-1. Stop nginx
-
-		service nginx stop
-
-1. Run the **certbot** utility with the **certonly** option
-
-		certbot certonly
-
-1. Copy the generated certificate and key into the appropriate location for YunoHost to use
-
-		cp /etc/letsencrypt/live/YOUR_DOMAIN/fullchain.pem /etc/yunohost/certs/YOUR_DOMAIN/crt.pem
-		cp /etc/letsencrypt/live/YOUR_DOMAIN/privkey.pem /etc/yunohost/certs/YOUR_DOMAIN/key.pem
-
-1. Restart nginx
-
-		service nginx start
-
 ### Install the Hubzilla application
 Use the YunoHost admin panel to install Hubzilla by entering the GitHub repo address in the custom app URL
 
@@ -81,3 +61,5 @@ When installation is complete, you will need to visit your new hub's page and lo
 **For normal YunoHost users:** Normal LDAP users can login through Ldap authentication and create there channels.
 
 **If the admin cannot access the admin settings:** If you cannot access the admin settings at `https://hub.example.com/admin` when you log in as the administrator, or you want to grant admin rights to any other user(s) on the hub, then you have to manually add 4096 to the account_roles under accounts for that user in the database through phpMYAdmin.
+
+**For logs:**: Go to admin->logs and enter the file name **php.log**. 
