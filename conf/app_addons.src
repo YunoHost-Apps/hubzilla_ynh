@@ -1,5 +1,5 @@
-SOURCE_URL=https://github.com/redmatrix/hubzilla-addons/archive/3.2.2.zip
-SOURCE_SUM=05b4cbc853248fa855fb5941d9ea5ced
+SOURCE_URL=https://github.com/redmatrix/hubzilla-addons/archive/3.4.zip
+SOURCE_SUM=a4436a813c4f6f6d1e6c500953b961fe
 SOURCE_SUM_PRG=md5sum
 SOURCE_FORMAT=zip
 SOURCE_IN_SUBDIR=
