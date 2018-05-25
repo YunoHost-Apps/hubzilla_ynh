@@ -66,7 +66,7 @@ ynh_app_setting_set $app database $database
 #=================================================
 # INSTALL DEPENDENCIES
 #=================================================
-pkg_dependencies=php5-cli php5-imagick php5-gd php5-mcrypt 
+pkg_dependencies="php5-cli php5-imagick php5-gd php5-mcrypt" 
 if [ "$(lsb_release --codename --short)" != "jessie" ]; then
 	pkg_dependencies="$pkg_dependencies php-xml"
 fi
