@@ -99,6 +99,7 @@ ynh_mysql_connect_as "$db_name" "$db_pwd" "$db_name" < $final_path/install/schem
 
 # Copy the template install/htconfig.sample.php to .htconfig.php
 sudo cp $final_path/install/htconfig.sample.php $final_path/.htconfig.php
+sudo touch "$final_path/php.log"
 
 # Use sed to add the database information to .htconfig.php
 sudo sed -i "s/your.mysqlhost.com/localhost/g" $final_path/.htconfig.php
