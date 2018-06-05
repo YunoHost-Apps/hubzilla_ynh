@@ -1,4 +1,0 @@
-url: $baseurl/bookmarks
-requires: local_channel
-name: View Bookmarks
-photo: $baseurl/app/bookmarks.png

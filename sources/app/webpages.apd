@@ -1,4 +1,0 @@
-url: $baseurl/webpages/$nick
-requires: local_channel, webpages
-name: Webpages
-photo: $baseurl/app/webpages.png

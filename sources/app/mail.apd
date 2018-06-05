@@ -1,4 +1,0 @@
-url: $baseurl/message
-requires: local_channel
-name: Mail
-photo: $baseurl/app/mail.png

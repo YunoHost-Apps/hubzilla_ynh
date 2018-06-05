@@ -1,4 +1,0 @@
-url: $baseurl/probe
-requires: local_channel
-name: Remote Diagnostics
-photo: $baseurl/app/probe.png

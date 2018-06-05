@@ -1,4 +1,0 @@
-url: $baseurl/settings
-requires: local_channel
-name: Settings
-photo: $baseurl/app/settings.png

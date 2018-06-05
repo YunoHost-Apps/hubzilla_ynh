@@ -1,4 +1,0 @@
-url: $baseurl/cloud/$nick
-requires: local_channel
-name: Files
-photo: $baseurl/app/storage.png
