@@ -22,7 +22,6 @@
     "requirements": {
         "yunohost": ">= 2.7.2"
     },
-    }, 
     "previous_maintainers": {
         "name": "Andrew Manning",
         "email": "andrew@reticu.li",
