@@ -1,5 +1,5 @@
-SOURCE_URL=https://github.com/redmatrix/hubzilla-addons/archive/3.4.zip
-SOURCE_SUM=a4436a813c4f6f6d1e6c500953b961fe
+SOURCE_URL=https://framagit.org/hubzilla/addons/-/archive/3.4.1/addons-3.4.1.zip
+SOURCE_SUM=6e6af1a80a3871116d0c0a5c6d671cf3
 SOURCE_SUM_PRG=md5sum
 SOURCE_FORMAT=zip
 SOURCE_IN_SUBDIR=

@@ -1,5 +1,5 @@
-SOURCE_URL=https://github.com/redmatrix/hubzilla/archive/3.4.zip
-SOURCE_SUM=f9c9f15ca151b5ebdd36a9528788d800
+SOURCE_URL=https://framagit.org/hubzilla/core/-/archive/3.4.1/core-3.4.1.zip
+SOURCE_SUM=b5b99ed98c2301f24cde05bc5db5bbfa
 SOURCE_SUM_PRG=md5sum
 SOURCE_FORMAT=zip
 SOURCE_IN_SUBDIR=

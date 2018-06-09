@@ -8,10 +8,11 @@
     },
     "url": "https://github.com/redmatrix/hubzilla",
     "license": "Free as-is",
-    "version": "3.4",
+    "version": "3.4.1",
     "maintainer": {
-        "name": "Andrew Manning",
-        "email": "andrew@reticu.li"
+        "name": "Anmol Sharma",
+        "email": "anmol@datamol.org",
+        "url": "https://pod.datamol.org/channel/anmol"
     },
     "services": [
         "nginx",
@@ -21,6 +22,12 @@
     "requirements": {
         "yunohost": ">= 2.7.2"
     },
+    }, 
+    "previous_maintainers": {
+        "name": "Andrew Manning",
+        "email": "andrew@reticu.li",
+        "url": "https://hub.reticu.li/channel/andrewmanning"
+        },
     "multi_instance": true,
     "arguments": {
         "install" : [

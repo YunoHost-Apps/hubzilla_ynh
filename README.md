@@ -9,8 +9,8 @@
 
 Current snapshot in *sources*:
 
-* https://github.com/redmatrix/hubzilla: 3.4 (commit be4c9a9598350fb4333480f0c7b302acebcddfd4)
-* https://github.com/redmatrix/hubzilla-addons: 3.4 (commit 5ab387a5177adb2aa289b3b5eeba445703021d55)
+* https://framagit.org/hubzilla/core: 3.4.1 (commit 2f7dfb0286ec530dbca03862da54206cd0db8a2c)
+* https://framagit.org/hubzilla/addons: 3.4.1 (commit 190d1ead26135bea1ecfd90eb0a6b862b71314f3)
 
 ## To-Do's
 - [X] Installation and remove script.
@@ -26,25 +26,16 @@ Current snapshot in *sources*:
 
 ## Important Notes
 
-Before installing, read the [Hubzilla installation instructions](https://github.com/redmatrix/hubzilla/blob/master/install/INSTALL.txt) for important information about
+Before installing, read the [Hubzilla installation instructions](https://framagit.org/hubzilla/core/blob/master/install/INSTALL.txt) for important information about
 
 - SSL certificate validation requirement (now with support for [Let's Encrypt!](https://letsencrypt.org)). See Installation section below.
 - Dedicated domain (must install under web root like **https://hub.example.com/** not **https://example.com/hub/** )
-- Required packages (all of these are not yet installed by this YunoHost installer package). This YunoHost package installs the following additional packages:
-  - php5-cli
-  - php5-imagick
-  - php5-gd
-  - php5-mcrypt
-- This package requires a **system-wide change to php.ini** that enables the `exec()` perimission. [See the PHP manual for more information](php.net/manual/function.exec.php).
-
 
 
 ## Installation
 
 ### Register a new domain and add it to YunoHost
 Hubzilla requires a dedicated domain, so obtain one and add it using the YunoHost admin panel. **Domains -> Add domain**. As Hubzilla uses the full domain and is installed on the root, you can create a subdomain such as hubzilla.domain.tld. Don't forget to update your DNS if you manage them manually.
-
-Hubzilla requires browser-approved SSL certificates. If you have certificates not issued by [Let's Encrypt](https://letsencrypt.org/), install them manually as usual.
 
 #### YunoHost >= 2.5 :
 Once the dedicated domain has been added to YunoHost, go again to the admin panel, go to domains then select your domain and click on "Install Let's Encrypt certificate".
