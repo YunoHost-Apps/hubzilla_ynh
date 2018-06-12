@@ -125,11 +125,11 @@ ynh_use_logrotate  "$final_path/php.log" --non-append
 sed -i "s@YNH_WWW_PATH@$final_path@g" ../conf/poller-cron
 sudo cp ../conf/poller-cron /etc/cron.d/$app
 
-pkg_dependencies="php5-cli php5-imagick php5-gd php5-mcrypt"
-if [ "$(lsb_release --codename --short)" != "jessie" ]; then
-	pkg_dependencies="$pkg_dependencies php-xml"
-fi
-ynh_install_app_dependencies $pkg_dependencies
+#=================================================
+# INSTALL DEPENDENCIES
+#=================================================
+ynh_install_app_dependencies php5-cli 'php5-imagick|php-imagick' php5-gd php5-mcrypt 'php-xml|base-files(<<9.0)'
+
 
 # Make app public
 ynh_app_setting_set $app skipped_uris "/"
