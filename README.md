@@ -1,5 +1,7 @@
 # Hubzilla Hub for YunoHost
 
+[![Integration level](https://dash.yunohost.org/integration/hubzilla.svg)](https://ci-apps.yunohost.org/jenkins/job/hubzilla%20%28Community%29/lastBuild/consoleFull)
+
 [![Install Hubzilla with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=hubzilla)
 
 
