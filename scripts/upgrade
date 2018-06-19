@@ -122,7 +122,8 @@ ynh_store_file_checksum "$final_path/.htconfig.php"
 ynh_use_logrotate  "$final_path/php.log" --non-append
 
 # Set up poller
-sed -i "s@YNH_WWW_PATH@$final_path@g" ../conf/poller-cron
+ynh_replace_string  "YNH_WWW_PATH" "$final_path" ../conf/poller-cron
+ynh_replace_string "__USER__" "$app"  ../conf/poller-cron
 sudo cp ../conf/poller-cron /etc/cron.d/$app
 
 #=================================================
