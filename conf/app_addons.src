@@ -1,5 +1,5 @@
-SOURCE_URL=https://framagit.org/hubzilla/addons/-/archive/3.6/addons-3.6.zip
-SOURCE_SUM=571590fa6d4933e37d5855df8d846892
+SOURCE_URL=https://framagit.org/hubzilla/addons/-/archive/3.6.1/addons-3.6.1.zip
+SOURCE_SUM=8ab443ef248781a41f840bf9a3afef0e
 SOURCE_SUM_PRG=md5sum
 SOURCE_FORMAT=zip
 SOURCE_IN_SUBDIR=

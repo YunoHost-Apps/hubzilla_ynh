@@ -1,5 +1,5 @@
-SOURCE_URL=https://framagit.org/hubzilla/core/-/archive/3.6/core-3.6.zip
-SOURCE_SUM=0e9a7c194ec5add1800dd2ef015482ae
+SOURCE_URL=https://framagit.org/hubzilla/core/-/archive/3.6.1/core-3.6.1.zip
+SOURCE_SUM=5c9c52dca5cba05e97cbb068277269fb
 SOURCE_SUM_PRG=md5sum
 SOURCE_FORMAT=zip
 SOURCE_IN_SUBDIR=
