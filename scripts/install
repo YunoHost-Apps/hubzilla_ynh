@@ -66,7 +66,7 @@ ynh_app_setting_set $app database $database
 #=================================================
 # INSTALL DEPENDENCIES
 #=================================================
-ynh_install_app_dependencies php5-cli 'php5-imagick|php-imagick' php5-gd php5-mcrypt 'php-xml|base-files(<<9.0)'
+ynh_install_app_dependencies php-mbstring php5-cli 'php5-imagick|php-imagick' php5-gd php5-mcrypt 'php-xml|base-files(<<9.0)'
 
 #=================================================
 # CREATE A MYSQL DATABASE
