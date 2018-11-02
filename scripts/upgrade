@@ -24,7 +24,6 @@ db_name=$(ynh_app_setting_get $app db_name)
 #=================================================
 # BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
 #=================================================
-( cd $final_path && util/safemode on )
 # Backup the current version of the app
 ynh_backup_before_upgrade
 ynh_clean_setup () {
@@ -131,7 +130,6 @@ sudo cp ../conf/poller-cron /etc/cron.d/$app
 #=================================================
 ynh_install_app_dependencies php-mbstring php5-cli 'php5-imagick|php-imagick' php5-gd php5-mcrypt 'php-xml|base-files(<<9.0)'
 
-( cd $final_path && util/safemode off )
 
 # Make app public
 ynh_app_setting_set $app skipped_uris "/"
