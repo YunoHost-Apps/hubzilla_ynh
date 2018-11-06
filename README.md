@@ -11,8 +11,8 @@
 
 Current snapshot in *sources*:
 
-* https://framagit.org/hubzilla/core: 3.8.2 (commit c8dd516d6c743d0371dc2ccb476eb70bcc17fa0a)
-* https://framagit.org/hubzilla/addons: 3.8.2 (commit 95beb112a0ea3bbdc1033262002fe5e384e5cb60)
+* https://framagit.org/hubzilla/core: 3.8.3 (commit a9fd3608ea50ec4522075b3315a35c8eed9581d7)
+* https://framagit.org/hubzilla/addons: 3.8.3 (commit fc752b052c57e4ad209eb44dc0fc821e22f40772)
 
 ## To-Do's
 - [X] Installation and remove script.

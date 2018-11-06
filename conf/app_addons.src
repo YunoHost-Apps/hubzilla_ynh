@@ -1,5 +1,5 @@
-SOURCE_URL=https://framagit.org/hubzilla/addons/-/archive/3.8.2/addons-3.8.2.tar.gz
-SOURCE_SUM=617baa56a2c4a5d1059cd44b37c4ba3cb98baa3bdf9b63583b9d906e968619a3
+SOURCE_URL=https://framagit.org/hubzilla/addons/-/archive/3.8.3/addons-3.8.3.tar.gz
+SOURCE_SUM=692f29c5e253feef6711fbe3e129f7e9d98d669fde930d9b9ed42d44975c199e
 SOURCE_SUM_PRG=sha256sum
 SOURCE_FORMAT=tar.gz
 SOURCE_IN_SUBDIR=
