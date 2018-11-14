@@ -3,16 +3,13 @@
 [![Integration level](https://dash.yunohost.org/integration/hubzilla.svg)](https://ci-apps.yunohost.org/jenkins/job/hubzilla%20%28Community%29/lastBuild/consoleFull)
 
 [![Install Hubzilla with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=hubzilla)
-
+<br>
+Version: **3.8.4**
 
 ## Hubzilla
 [Hubzilla](http://hubzilla.org) is a powerful platform for creating interconnected websites featuring a decentralized identity, communications, and permissions framework built using common webserver technology.
 
 
-Current snapshot in *sources*:
-
-* https://framagit.org/hubzilla/core: 3.8.3 (commit a9fd3608ea50ec4522075b3315a35c8eed9581d7)
-* https://framagit.org/hubzilla/addons: 3.8.3 (commit fc752b052c57e4ad209eb44dc0fc821e22f40772)
 
 ## This app claims following features:
 - [X] Ldap integration
