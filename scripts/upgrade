@@ -21,8 +21,8 @@ final_path=$(ynh_app_setting_get $app final_path)
 upload=$(ynh_app_setting_get $app upload)
 db_name=$(ynh_app_setting_get $app db_name)
 db_pwd=$(ynh_app_setting_get $app mysqlpwd)
-version=( grep STD_VERSION $final_path/boot.php |  cut -c 38- | rev | cut -c 5- | rev )
-last_update=( grep  update_time: /etc/yunohost/apps/$app/settings.yml |  cut -c 14- )
+version=$(grep STD_VERSION $final_path/boot.php |  cut -c 38- | rev | cut -c 5- | rev)
+last_update=$(grep  update_time: /etc/yunohost/apps/$app/settings.yml |  cut -c 14-)
 
 
 #=================================================
