@@ -1,5 +1,5 @@
-SOURCE_URL=https://framagit.org/hubzilla/core/-/archive/3.8.4/core-3.8.4.tar.gz
-SOURCE_SUM=5a6df2c6fdcfaa21d00fc688bbc5d21a48e1d2885f7bd0286f180df8399ac51b
+SOURCE_URL=https://framagit.org/hubzilla/core/-/archive/3.8.5/core-3.8.5.tar.gz
+SOURCE_SUM=a4713fe5cd181abc62e0b6d7470b5ba642be07ecc63a5eb3c65c2050dba197d4
 SOURCE_SUM_PRG=sha256sum
 SOURCE_FORMAT=tar.gz
 SOURCE_IN_SUBDIR=

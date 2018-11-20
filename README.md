@@ -4,7 +4,7 @@
 
 [![Install Hubzilla with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=hubzilla)
 <br>
-Version: **3.8.4**
+Version: **3.8.5**
 
 ## Hubzilla
 [Hubzilla](http://hubzilla.org) is a powerful platform for creating interconnected websites featuring a decentralized identity, communications, and permissions framework built using common webserver technology.

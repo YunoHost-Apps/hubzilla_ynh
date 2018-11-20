@@ -20,6 +20,10 @@ path_url=$(ynh_app_setting_get $app path)
 final_path=$(ynh_app_setting_get $app final_path)
 upload=$(ynh_app_setting_get $app upload)
 db_name=$(ynh_app_setting_get $app db_name)
+db_pwd=$(ynh_app_setting_get $app mysqlpwd)
+version=( grep STD_VERSION $final_path/boot.php |  cut -c 38- | rev | cut -c 5- | rev )
+last_update=( grep  update_time: /etc/yunohost/apps/$app/settings.yml |  cut -c 14- )
+
 
 #=================================================
 # BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
@@ -136,6 +140,14 @@ sudo cp ../conf/poller-cron /etc/cron.d/$app
 #=================================================
 ynh_install_app_dependencies php-mbstring php5-cli 'php5-imagick|php-imagick' php5-gd php5-mcrypt 'php-xml|base-files(<<9.0)'
 
+#=================================================
+# CHECK VERSION FOR SPECIFIC MYSQL UPDATE
+#=================================================
+
+# Check version and if this version was a fresh install push mysq query
+if [ -z "$last_update" ] | [ "$version" == "3.8.4" ]; then
+	ynh_mysql_connect_as "$db_name" "$db_pwd" "$db_name" < "../conf/sql/385.sql"
+fi
 
 # Make app public
 ynh_app_setting_set $app skipped_uris "/"
