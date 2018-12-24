@@ -1,10 +1,18 @@
-# Hubzilla Hub for YunoHost
+# Hubzilla for YunoHost
 
 [![Integration level](https://dash.yunohost.org/integration/hubzilla.svg)](https://ci-apps.yunohost.org/jenkins/job/hubzilla%20%28Community%29/lastBuild/consoleFull)
 
 [![Install Hubzilla with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=hubzilla)
 <br>
-Version: **3.8.5**
+Version: **3.8.8**
+
+### Interesting links
+
+- [YunoHost project](https://yunohost.org)
+- [Hubzilla website](http://hubzilla.org)
+- [Hubzilla code on Framagit](https://framagit.org/hubzilla/core)
+- [Hubzilla addons on Framagit](https://framagit.org/hubzilla/addons)
+
 
 ## Hubzilla
 [Hubzilla](http://hubzilla.org) is a powerful platform for creating interconnected websites featuring a decentralized identity, communications, and permissions framework built using common webserver technology.
