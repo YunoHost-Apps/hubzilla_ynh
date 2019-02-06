@@ -4,7 +4,7 @@
 
 [![Install Hubzilla with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=hubzilla)
 <br>
-Version: **3.8.8**
+Version: **3.8.9**
 
 ### Interesting links
 
