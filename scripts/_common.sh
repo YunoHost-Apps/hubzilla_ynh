@@ -5,7 +5,7 @@
 #=================================================
 
 # dependencies used by the app
-pkg_dependencies=php-mbstring php5-cli 'php5-imagick|php-imagick' php5-gd php5-mcrypt 'php-xml|base-files(<<9.0)'
+pkg_dependencies="php-mbstring php-cli php-imagick php-xml php-zip"
 
 #=================================================
 # PERSONAL HELPERS
