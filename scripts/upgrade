@@ -12,6 +12,7 @@ source /usr/share/yunohost/helpers
 #=================================================
 # LOAD SETTINGS
 #=================================================
+ynh_print_info "Loading installation settings..."
 
 app=$YNH_APP_INSTANCE_NAME
 
@@ -24,10 +25,22 @@ db_pwd=$(ynh_app_setting_get $app mysqlpwd)
 version=$(grep STD_VERSION $final_path/boot.php |  cut -c 38- | rev | cut -c 5- | rev)
 last_update=$(grep  update_time: /etc/yunohost/apps/$app/settings.yml |  cut -c 14-)
 
+#=================================================
+# ENSURE DOWNWARD COMPATIBILITY
+#=================================================
+
+# If db_name doesn't exist, create it
+if [ -z $db_name ]; then
+	db_name=$(ynh_sanitize_dbid $app)
+	ynh_app_setting_set $app db_name $db_name
+fi
+
 
 #=================================================
 # BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
 #=================================================
+ynh_print_info "Backing up the app before upgrading (may take a while)..."
+
 # Backup the current version of the app
 ynh_backup_before_upgrade
 ynh_clean_setup () {
@@ -37,10 +50,13 @@ ynh_clean_setup () {
 # Exit if an error occurs during the execution of the script
 ynh_abort_if_errors
 
+
+#=================================================
+# STANDARD UPGRADE STEPS
 #=================================================
 # REMOVE APP MAIN DIR
 #=================================================
- 
+ynh_print_info "Upgrading source files..."
 # Create a temporary directory
 tmpdir="$(mktemp -d)"
 # Backup the config file in the temp dir
@@ -52,24 +68,11 @@ cp -a "$final_path/php.log" "$tmpdir/php.log"
 # Remove the app directory securely
 ynh_secure_remove "$final_path"
 
-# If db_name doesn't exist, create it
-if [ -z $db_name ]; then
-	db_name=$(ynh_sanitize_dbid $app)
-	ynh_app_setting_set $app db_name $db_name
-fi
-
 # If final_path doesn't exist, create it
 if [ -z $final_path ]; then
 	final_path=/var/www/$app
 	ynh_app_setting_set $app final_path $final_path
 fi
-
-#=================================================
-# CHECK THE PATH
-#=================================================
-
-# Normalize the URL path syntax
-path_url=$(ynh_normalize_url_path $path_url)
 
 #=================================================
 # STANDARD UPGRADE STEPS
@@ -91,6 +94,7 @@ ynh_setup_source "$final_path/addon" "app_addons"
 #=================================================
 # NGINX CONFIGURATION
 #=================================================
+ynh_print_info "Upgrading nginx web server configuration..."
 
 # Create a dedicated nginx config
 ynh_add_nginx_config
@@ -98,8 +102,9 @@ ynh_add_nginx_config
 #=================================================
 # CREATE DEDICATED USER
 #=================================================
+ynh_print_info "Making sure dedicated system user exists..."
 
-# Create a system user
+# Create a dedicated user (if not existing)
 ynh_system_user_create $app
 
 # Set right permissions for curl install
@@ -108,11 +113,14 @@ chown -R $app: $final_path
 #=================================================
 # PHP-FPM CONFIGURATION
 #=================================================
+ynh_print_info "Upgrading php-fpm configuration..."
 
 # Create a dedicated php-fpm config
 ynh_add_fpm_config
 
-# Verify the checksum and backup the file if it's different
+
+### Verify the checksum of a file, stored by `ynh_store_file_checksum` in the install script.
+### And create a backup of this file if the checksum is different. So the file will be backed up if the admin had modified it.
 ynh_backup_if_checksum_is_different "$final_path/.htconfig.php"
 # Recalculate and store the config file checksum into the app settings
 ynh_store_file_checksum "$final_path/.htconfig.php"
@@ -120,25 +128,29 @@ ynh_store_file_checksum "$final_path/.htconfig.php"
 #=================================================
 # SETUP LOGROTATE
 #=================================================
+ynh_print_info "Upgrading logrotate configuration..."
 
 # Use logrotate to manage app-specific logfile(s)
-ynh_use_logrotate  "$final_path/php.log" --non-append
+ynh_use_logrotate --non-append
 
 #=================================================
 # SETUP FAIL2BAN
 #=================================================
-
+ynh_print_info "Add Fail2Ban..."
 ynh_add_fail2ban_config "$final_path/php.log" "^.*auth\.php.*failed login attempt.*from IP <HOST>.*$" 5
 
-# Set up poller
+# Set cron job
+ynh_print_info "Setting up cron job..."
 ynh_replace_string  "YNH_WWW_PATH" "$final_path" ../conf/poller-cron
 ynh_replace_string "__USER__" "$app"  ../conf/poller-cron
 sudo cp ../conf/poller-cron /etc/cron.d/$app
 
 #=================================================
-# INSTALL DEPENDENCIES
+# UPGRADE DEPENDENCIES
 #=================================================
-ynh_install_app_dependencies php-mbstring php5-cli 'php5-imagick|php-imagick' php5-gd php5-mcrypt 'php-xml|base-files(<<9.0)'
+ynh_print_info "Upgrading dependencies..."
+
+ynh_install_app_dependencies $pkg_dependencies
 
 #=================================================
 # CHECK VERSION FOR SPECIFIC MYSQL UPDATE
@@ -149,11 +161,22 @@ if [ -z "$last_update" ] && [ "$version" == "3.8.4" ]; then
 	ynh_mysql_connect_as "$db_name" "$db_pwd" "$db_name" < "../conf/sql/385.sql"
 fi
 
-# Make app public
+#=================================================
+# SETUP SSOWAT
+#=================================================
+# As Hubzilla is social network and have its own permission there is no need to keep Hubzilla behind SSO
+ynh_print_info "Configuring SSOwat..."
 ynh_app_setting_set $app skipped_uris "/"
 
 #=================================================
 # RELOAD NGINX
 #=================================================
+ynh_print_info "Reloading nginx web server..."
 
 systemctl reload nginx
+
+#=================================================
+# END OF SCRIPT
+#=================================================
+
+ynh_print_info "Upgrade of $app completed"
