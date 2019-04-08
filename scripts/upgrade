@@ -58,7 +58,7 @@ ynh_abort_if_errors
 #=================================================
 ynh_print_info "Upgrading source files..."
 # Create a temporary directory
-tmpdir="$(mktemp -d)"
+tmpdir="$(ynh_smart_mktemp 6000)"
 # Backup the config file in the temp dir
 cp -a "$final_path/.htconfig.php" "$tmpdir/.htconfig.php"
 cp -a "$final_path/store" "$tmpdir/store"
