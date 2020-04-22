@@ -144,7 +144,7 @@ chmod -R 777 $final_path/store
 
 # Import database schema
 ynh_script_progression --message="Importing database..." --time --weight=1
-ynh_mysql_connect_as --user="$db_name" --password="$db_pwd" --database="db_name" < $final_path/install/schema_mysql.sql
+ynh_mysql_connect_as --user="$db_name" --password="$db_pwd" --database="$db_name" < $final_path/install/schema_mysql.sql
 
 # Copy the template install/htconfig.sample.php to .htconfig.php
 ynh_script_progression --message="Moving .htconfig.php to root of Hubzilla ..." --time --weight=1
