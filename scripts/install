@@ -161,18 +161,17 @@ touch "$final_path/php.log"
 ### `ynh_replace_string` is used to replace a string in a file.
 ### (It's compatible with sed regular expressions syntax)
 
-ynh_script_progression --message="Replace the .htconfig.php values...." --time --weight=1
-ynh_replace_string --match_string="your.mysqlhost.com" --replace_string="localhost" --target_file="$final_path/.htconfig.php"
-ynh_replace_string --match_string="mysqlpassword" --replace_string="$db_pwd" --target_file="$final_path/.htconfig.php"
-ynh_replace_string --match_string="mysqlusername" --replace_string="$db_name" --target_file="$final_path/.htconfig.php"
-ynh_replace_string --match_string="mysqldatabasename" --replace_string="$db_name" --target_file="$final_path/.htconfig.php"
-ynh_replace_string --match_string="mysite.example" --replace_string="$domain" --target_file="$final_path/.htconfig.php"
-ynh_replace_string --match_string="if the auto install failed, put a unique random string here" --replace_string="$(ynh_string_random)$(ynh_string_random)$(ynh_string_random)" --target_file="$final_path/.htconfig.php"
-ynh_replace_string --match_string="['admin_email'] = '';" --replace_string="['admin_email'] = '$email';" --target_file="$final_path/.htconfig.php"
-ynh_replace_string --match_string="error_reporting(E_ERROR | E_WARNING | E_PARSE );" --replace_string="error_reporting(E_ERROR | E_WARNING | E_PARSE );" --target_file="$final_path/.htconfig.php"
-ynh_replace_string --match_string="ini_set('error_log','php.out');" --replace_string="ini_set('error_log','php.log');" --target_file="$final_path/.htconfig.php"
-ynh_replace_string --match_string="ini_set('log_errors','1');" --replace_string="ini_set('log_errors','1');" --target_file="$final_path/.htconfig.php"
-ynh_replace_string --match_string="ini_set('display_errors', '0');" --replace_string="ini_set('display_errors', '0');" --target_file="$final_path/.htconfig.php"
+sed -i "s/your.mysqlhost.com/localhost/g" $final_path/.htconfig.php
+sed -i "s/mysqlpassword/$db_pwd/g" $final_path/.htconfig.php
+sed -i "s/mysqlusername/$db_name/g" $final_path/.htconfig.php
+sed -i "s/mysqldatabasename/$db_name/g" $final_path/.htconfig.php
+sed -i "s/mysite.example/$domain/g" $final_path/.htconfig.php
+sed -i "s/if the auto install failed, put a unique random string here/$(ynh_string_random)$(ynh_string_random)$(ynh_string_random)/g" $final_path/.htconfig.php
+sed -i "s/\['admin_email'\] = '';/\['admin_email'\] = '$email';/g" $final_path/.htconfig.php
+sed -i "s@//error_reporting(E_ERROR | E_WARNING | E_PARSE );@error_reporting(E_ERROR | E_WARNING | E_PARSE );@g" $final_path/.htconfig.php
+sed -i "s@//ini_set('error_log','php.out');@ini_set('error_log','php.log');@g" $final_path/.htconfig.php
+sed -i "s@//ini_set('log_errors','1');@ini_set('log_errors','1');@g" $final_path/.htconfig.php
+sed -i "s@//ini_set('display_errors', '0');@ini_set('display_errors', '0');@g" $final_path/.htconfig.php
 
 # addon ldap config
 ynh_script_progression --message="Push Ldap configuration to .htconfig.php..." --time --weight=1
