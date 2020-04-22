@@ -31,42 +31,50 @@ email=$(sudo yunohost user info $admin | grep "mail:" | cut -d' ' -f2)
 upload="256M"
 database="1"
 
-# This is a multi-instance app, meaning it can be installed several times independently
-# The id of the app as stated in the manifest is available as $YNH_APP_ID
-# The instance number is available as $YNH_APP_INSTANCE_NUMBER (equals "1", "2", ...)
-# The app instance name is available as $YNH_APP_INSTANCE_NAME
-#    - the first time the app is installed, YNH_APP_INSTANCE_NAME = ynhexample
-#    - the second time the app is installed, YNH_APP_INSTANCE_NAME = ynhexample__2
-#    - ynhexample__{N} for the subsequent installations, with N=3,4, ...
-# The app instance name is probably what you are interested the most, since this is
-# guaranteed to be unique. This is a good unique identifier to define installation path,
-# db names, ...
+### If it's a multi-instance app, meaning it can be installed several times independently
+### The id of the app as stated in the manifest is available as $YNH_APP_ID
+### The instance number is available as $YNH_APP_INSTANCE_NUMBER (equals "1", "2", ...)
+### The app instance name is available as $YNH_APP_INSTANCE_NAME
+###    - the first time the app is installed, YNH_APP_INSTANCE_NAME = ynhexample
+###    - the second time the app is installed, YNH_APP_INSTANCE_NAME = ynhexample__2
+###    - ynhexample__{N} for the subsequent installations, with N=3,4, ...
+### The app instance name is probably what interests you most, since this is
+### guaranteed to be unique. This is a good unique identifier to define installation path,
+### db names, ...
 app=$YNH_APP_INSTANCE_NAME
 
 #=================================================
 # CHECK IF THE APP CAN BE INSTALLED WITH THESE ARGS
 #=================================================
-ynh_print_info "Validating installation parameters..."
+### About --weight and --time
+### ynh_script_progression will show to your final users the progression of each scripts.
+### In order to do that, --weight will represent the relative time of execution compared to the other steps in the script.
+### --time is a packager option, it will show you the execution time since the previous call.
+### This option should be removed before releasing your app.
+### Use the execution time, given by --time, to estimate the weight of a step.
+### A common way to do it is to set a weight equal to the execution time in second +1.
+### The execution time is given for the duration since the previous call. So the weight should be applied to this previous call.
+ynh_script_progression --message="Validating installation parameters..." --time --weight=1
 
 ### If the app uses nginx as web server (written in HTML/PHP in most cases), the final path should be "/var/www/$app".
 ### If the app provides an internal web server (or uses another application server such as uwsgi), the final path should be "/opt/yunohost/$app"
 final_path=/var/www/$app
-test ! -e "$final_path" || ynh_die "This path already contains a folder"
+test ! -e "$final_path" || ynh_die --message="This path already contains a folder"
 
 # Register (book) web path
-ynh_webpath_register $app $domain $path_url
+ynh_webpath_register --app=$app --domain=$domain --path_url=$path_url
 
 #=================================================
 # STORE SETTINGS FROM MANIFEST
 #=================================================
-ynh_print_info "Storing installation settings..."
+ynh_script_progression --message="Storing installation settings..." --time --weight=1
 
-ynh_app_setting_set $app domain $domain
-ynh_app_setting_set $app path $path_url
-ynh_app_setting_set $app admin $admin
-ynh_app_setting_set $app email $email
-ynh_app_setting_set $app upload $upload
-ynh_app_setting_set $app database $database
+ynh_app_setting_set --app=$app --key=domain   --value=$domain
+ynh_app_setting_set --app=$app --key=path     --value=$path_url
+ynh_app_setting_set --app=$app --key=admin    --value=$admin
+ynh_app_setting_set --app=$app --key=email    --value=$email
+ynh_app_setting_set --app=$app --key=upload   --value=$upload
+ynh_app_setting_set --app=$app --key=database --value=$database
 
 
 #=================================================
@@ -74,7 +82,7 @@ ynh_app_setting_set $app database $database
 #=================================================
 # INSTALL DEPENDENCIES
 #=================================================
-ynh_print_info "Installing dependencies..."
+ynh_script_progression --message="Installing dependencies..." --time --weight=1
 
 ### `ynh_install_app_dependencies` allows you to add any "apt" dependencies to the package.
 ### Those deb packages will be installed as dependencies of this package.
@@ -89,7 +97,7 @@ ynh_install_app_dependencies $pkg_dependencies
 #=================================================
 # CREATE A MYSQL DATABASE
 #=================================================
-ynh_print_info "Creating a MySQL database..."
+ynh_script_progression --message="Creating a MySQL database..." --time --weight=1
 
 ### Use these lines if you need a database for the application.
 ### `ynh_mysql_setup_db` will create a database, an associated user and a ramdom password.
@@ -100,50 +108,51 @@ ynh_print_info "Creating a MySQL database..."
 ###		- Remove also the section "REMOVE THE MYSQL DATABASE" in the remove script
 ###		- As well as the section "RESTORE THE MYSQL DATABASE" in the restore script
 
-db_name=$(ynh_sanitize_dbid $app)
-ynh_app_setting_set $app db_name $db_name
-ynh_mysql_setup_db $db_name $db_name
+db_name=$(ynh_sanitize_dbid --db_name=$app)
+db_user=$db_name
+ynh_app_setting_set --app=$app --key=db_name --value=$db_name
+ynh_mysql_setup_db --db_user=$db_user --db_name=$db_name
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
 
 # 1 - Hubzilla
-ynh_print_info "Setting up Hubzilla source files..."
+ynh_script_progression --message="Setting up Hubzilla source files..."  --time --weight=1
 
 ### `ynh_setup_source` is used to install an app from a zip or tar.gz file,
 ### downloaded from an upstream source, like a git repository.
 ### `ynh_setup_source` use the file conf/app.src
 
-ynh_app_setting_set $app final_path $final_path
+ynh_app_setting_set --app=$app --key=final_path --value=$final_path
 # Download, check integrity, uncompress and patch the source from app.src
-ynh_setup_source "$final_path"
+ynh_setup_source --dest_dir="$final_path"
 
 # 2 - Hubzilla Addons
 
 # Make addon Directory and unpack the Hubzilla addons to this directory
-ynh_print_info "Create addon directory inside Hubzilla root folder..."
-sudo mkdir $final_path/addon
-ynh_print_info "Setting up Hubzilla addons source files..."
-ynh_setup_source "$final_path/addon" "app_addons"
+ynh_script_progression --message="Create addon directory inside Hubzilla root folder..." --time --weight=1
+mkdir $final_path/addon
+ynh_script_progression --message="Setting up Hubzilla addons source files..." --time --weight=1
+ynh_setup_source --dest_dir="$final_path/addon" --source_id="app_addons"
 
 
 # 3 - Some extra folders
-ynh_print_info "Creating smarty3 folder for personal data..."
-sudo mkdir -p "${final_path}/store/[data]/smarty3"
-sudo chmod -R 777 $final_path/store
+ynh_script_progression --message="Creating smarty3 folder for personal data..." --time --weight=1
+mkdir -p "${final_path}/store/[data]/smarty3"
+chmod -R 777 $final_path/store
 
 # Import database schema
-ynh_print_info "Importing database..."
-ynh_mysql_connect_as "$db_name" "$db_pwd" "$db_name" < $final_path/install/schema_mysql.sql
+ynh_script_progression --message="Importing database..." --time --weight=1
+ynh_mysql_connect_as --user="$db_name" --password="$db_pwd" < $final_path/install/schema_mysql.sql
 
 # Copy the template install/htconfig.sample.php to .htconfig.php
-ynh_print_info "Moving .htconfig.php to root of Hubzilla ..."
-sudo cp $final_path/install/htconfig.sample.php $final_path/.htconfig.php
+ynh_script_progression --message="Moving .htconfig.php to root of Hubzilla ..." --time --weight=1
+cp $final_path/install/htconfig.sample.php $final_path/.htconfig.php
 
 # Create php.log inside Hubzilla for logs
-ynh_print_info "Create php.log for the Hubzilla debuging..."
-sudo touch "$final_path/php.log"
+ynh_script_progression --message="Create php.log for the Hubzilla debuging..." --time --weight=1
+touch "$final_path/php.log"
 
 #=================================================
 # MODIFY A CONFIG FILE
@@ -152,28 +161,28 @@ sudo touch "$final_path/php.log"
 ### `ynh_replace_string` is used to replace a string in a file.
 ### (It's compatible with sed regular expressions syntax)
 
-ynh_print_info "Replace the .htconfig.php values...."
-sudo sed -i "s/your.mysqlhost.com/localhost/g" $final_path/.htconfig.php
-sudo sed -i "s/mysqlpassword/$db_pwd/g" $final_path/.htconfig.php
-sudo sed -i "s/mysqlusername/$db_name/g" $final_path/.htconfig.php
-sudo sed -i "s/mysqldatabasename/$db_name/g" $final_path/.htconfig.php
-sudo sed -i "s/mysite.example/$domain/g" $final_path/.htconfig.php
-sudo sed -i "s/if the auto install failed, put a unique random string here/$(ynh_string_random)$(ynh_string_random)$(ynh_string_random)/g" $final_path/.htconfig.php
-sudo sed -i "s/\['admin_email'\] = '';/\['admin_email'\] = '$email';/g" $final_path/.htconfig.php
-sudo sed -i "s@//error_reporting(E_ERROR | E_WARNING | E_PARSE );@error_reporting(E_ERROR | E_WARNING | E_PARSE );@g" $final_path/.htconfig.php
-sudo sed -i "s@//ini_set('error_log','php.out');@ini_set('error_log','php.log');@g" $final_path/.htconfig.php
-sudo sed -i "s@//ini_set('log_errors','1');@ini_set('log_errors','1');@g" $final_path/.htconfig.php
-sudo sed -i "s@//ini_set('display_errors', '0');@ini_set('display_errors', '0');@g" $final_path/.htconfig.php
+ynh_script_progression --message="Replace the .htconfig.php values...." --time --weight=1
+ynh_replace_string --match_string="your.mysqlhost.com" --replace_string="localhost" --target_file="$final_path/.htconfig.php"
+ynh_replace_string --match_string="mysqlpassword" --replace_string="$db_pwd" --target_file="$final_path/.htconfig.php"
+ynh_replace_string --match_string="mysqlusername" --replace_string="$db_name" --target_file="$final_path/.htconfig.php"
+ynh_replace_string --match_string="mysqldatabasename" --replace_string="$db_name" --target_file="$final_path/.htconfig.php"
+ynh_replace_string --match_string="mysite.example" --replace_string="$domain" --target_file="$final_path/.htconfig.php"
+ynh_replace_string --match_string="if the auto install failed, put a unique random string here" --replace_string="$(ynh_string_random)$(ynh_string_random)$(ynh_string_random)" --target_file="$final_path/.htconfig.php"
+ynh_replace_string --match_string="['admin_email'] = '';" --replace_string="['admin_email'] = '$email';" --target_file="$final_path/.htconfig.php"
+ynh_replace_string --match_string="error_reporting(E_ERROR | E_WARNING | E_PARSE );" --replace_string="error_reporting(E_ERROR | E_WARNING | E_PARSE );" --target_file="$final_path/.htconfig.php"
+ynh_replace_string --match_string="ini_set('error_log','php.out');" --replace_string="ini_set('error_log','php.log');" --target_file="$final_path/.htconfig.php"
+ynh_replace_string --match_string="ini_set('log_errors','1');" --replace_string="ini_set('log_errors','1');" --target_file="$final_path/.htconfig.php"
+ynh_replace_string --match_string="ini_set('display_errors', '0');" --replace_string="ini_set('display_errors', '0');" --target_file="$final_path/.htconfig.php"
 
 # addon ldap config
-ynh_print_info "Push Ldap configuration to .htconfig.php..."
+ynh_script_progression --message="Push Ldap configuration to .htconfig.php..." --time --weight=1
 sudo su -c "cat ../conf/ldap_conf.php >> $final_path/.htconfig.php"
 
 
 #=================================================
 # NGINX CONFIGURATION
 #=================================================
-ynh_print_info "Configuring nginx web server..."
+ynh_script_progression --message="Configuring nginx web server..." --time --weight=1
 
 ### `ynh_add_nginx_config` will use the file conf/nginx.conf
 
@@ -183,19 +192,19 @@ ynh_add_nginx_config
 #=================================================
 # CREATE DEDICATED USER
 #=================================================
-ynh_print_info "Configuring system user..."
+ynh_script_progression --message="Configuring system user..." --time --weight=1
 
 # Create a system user
-ynh_system_user_create $app
+ynh_system_user_create --username=$app
 
 #=================================================
 # PHP-FPM CONFIGURATION
 #=================================================
-ynh_print_info "Configuring php-fpm..."
+ynh_script_progression --message="Configuring php-fpm..." --time --weight=1
 
 ### `ynh_add_fpm_config` is used to set up a PHP config.
 ### You can remove it if your app doesn't use PHP.
-### `ynh_add_fpm_config` will use the files conf/php-fpm.conf and conf/php-fpm.ini
+### `ynh_add_fpm_config` will use the files conf/php-fpm.conf
 ### If you're not using these lines:
 ###		- You can remove these files in conf/.
 ###		- Remove the section "BACKUP THE PHP-FPM CONFIGURATION" in the backup script
@@ -208,14 +217,14 @@ ynh_print_info "Configuring php-fpm..."
 ynh_add_fpm_config
 
 # Set right permissions for Hubzilla
-ynh_print_info "Set right for Hubzilla..."
+ynh_script_progression --message="Set right for Hubzilla..." --time --weight=1
 chown -R $app: $final_path
 
 # Set up cron job
-ynh_print_info "Setting up cron job..."
-ynh_replace_string  "YNH_WWW_PATH" "$final_path" ../conf/poller-cron
-ynh_replace_string "__USER__" "$app"  ../conf/poller-cron
-sudo cp ../conf/poller-cron /etc/cron.d/$app 
+ynh_script_progression --message="Setting up cron job..."  --time --weight=1
+ynh_replace_string --match_string="YNH_WWW_PATH" --replace_string="$final_path"  --target_file="../conf/poller-cron"
+ynh_replace_string --match_string="__USER__" --replace_string="$app"  --target_file="../conf/poller-cron"
+cp ../conf/poller-cron /etc/cron.d/$app 
 
 #=================================================
 # STORE THE CONFIG FILE CHECKSUM
@@ -226,12 +235,12 @@ sudo cp ../conf/poller-cron /etc/cron.d/$app
 ### you can make a backup of this file before modifying it again if the admin had modified it.
 
 # Calculate and store the config file checksum into the app settings
-ynh_store_file_checksum "$final_path/.htconfig.php"
+ynh_store_file_checksum --file="$final_path/.htconfig.php"
 
 #=================================================
 # SETUP LOGROTATE
 #=================================================
-ynh_print_info "Configuring log rotation..."
+ynh_script_progression --message="Configuring log rotation..." --time --weight=1
 
 ### `ynh_use_logrotate` is used to configure a logrotate configuration for the logs of this app.
 ### Use this helper only if there is effectively a log file for this app.
@@ -247,25 +256,25 @@ ynh_use_logrotate "$final_path/php.log"
 #=================================================
 # SETUP FAIL2BAN
 #=================================================
-ynh_print_info "Add Fail2Ban..."
-ynh_add_fail2ban_config "$final_path/php.log" "^.*auth\.php.*failed login attempt.*from IP <HOST>.*$" 5
+ynh_script_progression --message="Add Fail2Ban..." --time --weight=1
+ynh_add_fail2ban_config --logpath="$final_path/php.log" --failregex="^.*auth\.php.*failed login attempt.*from IP <HOST>.*$" --max_retry="5"
 
 #=================================================
 # SETUP SSOWAT
 #=================================================
 # As Hubzilla is social network and have its own permission there is no need to keep Hubzilla behind SSO
-ynh_print_info "Configuring SSOwat..."
-ynh_app_setting_set $app skipped_uris "/"
+ynh_script_progression --message="Configuring SSOwat..."  --time --weight=1
+ynh_app_setting_set --app=$app --key=unprotected_uris --value="/"
 
 #=================================================
 # RELOAD NGINX
 #=================================================
-ynh_print_info "Reloading nginx web server..."
+ynh_script_progression --message="Reloading nginx web server..." --time --weight=1
 
-systemctl reload nginx
+ynh_systemd_action --service_name=nginx --action=reload
 
 #=================================================
 # END OF SCRIPT
 #=================================================
 
-ynh_print_info "Installation of $app completed"
+ynh_script_progression --message="Installation of $app completed" --time --last
