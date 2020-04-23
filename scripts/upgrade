@@ -12,16 +12,16 @@ source /usr/share/yunohost/helpers
 #=================================================
 # LOAD SETTINGS
 #=================================================
-ynh_print_info "Loading installation settings..."
+ynh_script_progression --message="Loading installation settings..." --time --weight=1
 
 app=$YNH_APP_INSTANCE_NAME
 
-domain=$(ynh_app_setting_get $app domain)
-path_url=$(ynh_app_setting_get $app path)
-final_path=$(ynh_app_setting_get $app final_path)
-upload=$(ynh_app_setting_get $app upload)
-db_name=$(ynh_app_setting_get $app db_name)
-db_pwd=$(ynh_app_setting_get $app mysqlpwd)
+domain=$(ynh_app_setting_get --app=$app --key=domain)
+path_url=$(ynh_app_setting_get --app=$app --key=path)
+final_path=$(ynh_app_setting_get --app=$app --key=final_path)
+upload=$(ynh_app_setting_get --app=$app --key=upload)
+db_name=$(ynh_app_setting_get --app=$app --key=db_name)
+db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
 version=$(grep STD_VERSION $final_path/boot.php |  cut -c 38- | rev | cut -c 5- | rev)
 last_update=$(grep  update_time: /etc/yunohost/apps/$app/settings.yml |  cut -c 14-)
 
@@ -30,16 +30,16 @@ last_update=$(grep  update_time: /etc/yunohost/apps/$app/settings.yml |  cut -c 
 #=================================================
 
 # If db_name doesn't exist, create it
-if [ -z $db_name ]; then
-	db_name=$(ynh_sanitize_dbid $app)
-	ynh_app_setting_set $app db_name $db_name
+if [ -z "$db_name" ]; then
+	db_name=$(ynh_sanitize_dbid --db_name=$app)
+	ynh_app_setting_set --app=$app --key=db_name --value=$db_name
 fi
 
 
 #=================================================
 # BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
 #=================================================
-ynh_print_info "Backing up the app before upgrading (may take a while)..."
+ynh_script_progression --message="Backing up the app before upgrading (may take a while)..." --time --weight=1
 
 # Backup the current version of the app
 ynh_backup_before_upgrade
@@ -69,9 +69,9 @@ cp -a "$final_path/php.log" "$tmpdir/php.log"
 ynh_secure_remove "$final_path"
 
 # If final_path doesn't exist, create it
-if [ -z $final_path ]; then
+if [ -z "$final_path" ]; then
 	final_path=/var/www/$app
-	ynh_app_setting_set $app final_path $final_path
+	ynh_app_setting_set --app=$app --key=final_path --value=$final_path
 fi
 
 #=================================================
@@ -80,21 +80,24 @@ fi
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
 
+ynh_script_progression --message="Upgrading source files..." --time --weight=1
+
 # Download, check integrity, uncompress and patch the source from app.src
-ynh_setup_source "$final_path"
-sudo cp -a "$tmpdir/store" "${final_path}"
-sudo cp -a "$tmpdir/.htconfig.php" "${final_path}"
-sudo cp -a "$tmpdir/php.log" "${final_path}"
-sudo rm -Rf "$tmpdir"
-sudo chmod -R 777 $final_path/store
-sudo mkdir $final_path/addon
-ynh_setup_source "$final_path/addon" "app_addons"
+	ynh_setup_source --dest_dir="$final_path"
+
+cp -a "$tmpdir/store" "${final_path}"
+cp -a "$tmpdir/.htconfig.php" "${final_path}"
+cp -a "$tmpdir/php.log" "${final_path}"
+rm -Rf "$tmpdir"
+chmod -R 777 $final_path/store
+mkdir $final_path/addon
+ynh_setup_source --dest_dir="$final_path/addon" --source_id="app_addons"
 
 
 #=================================================
 # NGINX CONFIGURATION
 #=================================================
-ynh_print_info "Upgrading nginx web server configuration..."
+ynh_script_progression --message="Upgrading nginx web server configuration..." --time --weight=1
 
 # Create a dedicated nginx config
 ynh_add_nginx_config
@@ -102,10 +105,10 @@ ynh_add_nginx_config
 #=================================================
 # CREATE DEDICATED USER
 #=================================================
-ynh_print_info "Making sure dedicated system user exists..."
+ynh_script_progression --message="Making sure dedicated system user exists..." --time --weight=1
 
 # Create a dedicated user (if not existing)
-ynh_system_user_create $app
+ynh_system_user_create --username=$app
 
 # Set right permissions for curl install
 chown -R $app: $final_path
@@ -121,34 +124,34 @@ ynh_add_fpm_config
 
 ### Verify the checksum of a file, stored by `ynh_store_file_checksum` in the install script.
 ### And create a backup of this file if the checksum is different. So the file will be backed up if the admin had modified it.
-ynh_backup_if_checksum_is_different "$final_path/.htconfig.php"
-# Recalculate and store the config file checksum into the app settings
-ynh_store_file_checksum "$final_path/.htconfig.php"
+ynh_backup_if_checksum_is_different --file="$final_path/.htconfig.php"
+# Recalculate and store the checksum of the file for the next upgrade.
+ynh_store_file_checksum --file="$final_path/.htconfig.php"
 
 #=================================================
 # SETUP LOGROTATE
 #=================================================
-ynh_print_info "Upgrading logrotate configuration..."
+ynh_script_progression --message="Upgrading logrotate configuration..." --time --weight=1
 
 # Use logrotate to manage app-specific logfile(s)
 ynh_use_logrotate --non-append
 
+# UPGRADE FAIL2BAN
 #=================================================
-# SETUP FAIL2BAN
-#=================================================
-ynh_print_info "Add Fail2Ban..."
-ynh_add_fail2ban_config "$final_path/php.log" "^.*auth\.php.*failed login attempt.*from IP <HOST>.*$" 5
+ynh_script_progression --message="Reconfiguring fail2ban..." --time --weight=1
+
+ynh_add_fail2ban_config --logpath="$final_path/php.log" --failregex="^.*auth\.php.*failed login attempt.*from IP <HOST>.*$" --max_retry="5"
 
 # Set cron job
 ynh_print_info "Setting up cron job..."
-ynh_replace_string  "YNH_WWW_PATH" "$final_path" ../conf/poller-cron
-ynh_replace_string "__USER__" "$app"  ../conf/poller-cron
+ynh_replace_string  --match_string="YNH_WWW_PATH" --replace_string="$final_path" --target_file="../conf/poller-cron"
+ynh_replace_string --match_string="__USER__" --replace_string="$app"  --target_file="../conf/poller-cron"
 sudo cp ../conf/poller-cron /etc/cron.d/$app
 
 #=================================================
 # UPGRADE DEPENDENCIES
 #=================================================
-ynh_print_info "Upgrading dependencies..."
+ynh_script_progression --message="Upgrading dependencies..." --time --weight=1
 
 ynh_install_app_dependencies $pkg_dependencies
 
@@ -165,18 +168,18 @@ fi
 # SETUP SSOWAT
 #=================================================
 # As Hubzilla is social network and have its own permission there is no need to keep Hubzilla behind SSO
-ynh_print_info "Configuring SSOwat..."
-ynh_app_setting_set $app skipped_uris "/"
+ynh_script_progression --message="Upgrading SSOwat configuration..." --time --weight=1
+ynh_app_setting_set --app=$app --key=unprotected_uris --value="/"
 
 #=================================================
 # RELOAD NGINX
 #=================================================
-ynh_print_info "Reloading nginx web server..."
+ynh_script_progression --message="Reloading nginx web server..." --time --weight=1
 
-systemctl reload nginx
+ynh_systemd_action --service_name=nginx --action=reload
 
 #=================================================
 # END OF SCRIPT
 #=================================================
 
-ynh_print_info "Upgrade of $app completed"
+ynh_script_progression --message="Upgrade of $app completed" --time --last

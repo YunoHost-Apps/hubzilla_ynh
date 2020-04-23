@@ -8,7 +8,7 @@
     },
     "url": "https://zotlabs.org/page/hubzilla/hubzilla-project",
     "license": "MIT",
-    "version": "4.0.3~ynh1",
+    "version": "4.7.2~ynh1",
     "maintainer": {
         "name": "Anmol Sharma",
         "email": "anmol@datamol.org",
@@ -20,7 +20,7 @@
         "mysql"
     ],
     "requirements": {
-        "yunohost": ">= 2.7.2"
+        "yunohost": ">= 3.5s"
     },
     "previous_maintainers": {
         "name": "Andrew Manning",
@@ -45,7 +45,6 @@
                     "en": "Choose the Hubzilla administrator (must be an existing YunoHost user)",
                     "fr": "Choisissez l'administrateur de Hubzilla (doit être un utilisateur YunoHost existant)"
                 }
-            }
-        ]
+            }        ]
     }
 }
