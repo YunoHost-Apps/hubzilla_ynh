@@ -3,8 +3,8 @@
     "id": "hubzilla",
     "name": "Hubzilla",
     "description": {
-        "en": "Hubzilla is a decentralized publication platform and social network.",
-        "fr": "Hubzilla est une plateforme de publication décentralisée et un réseau social."
+        "en": "A decentralized publication platform and social network.",
+        "fr": "Une plateforme de publication décentralisée et un réseau social."
     },
     "url": "https://zotlabs.org/page/hubzilla/hubzilla-project",
     "license": "MIT",
