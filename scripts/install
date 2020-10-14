@@ -31,7 +31,7 @@ email=$(sudo yunohost user info $admin | grep "mail:" | cut -d' ' -f2)
 upload="256M"
 random_string="$(ynh_string_random)$(ynh_string_random)$(ynh_string_random)"
 database=$YNH_APP_ARG_DATABASE
-
+database=expr $database
 ### If it's a multi-instance app, meaning it can be installed several times independently
 ### The id of the app as stated in the manifest is available as $YNH_APP_ID
 ### The instance number is available as $YNH_APP_INSTANCE_NUMBER (equals "1", "2", ...)
