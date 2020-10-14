@@ -16,7 +16,8 @@
     "services": [
         "nginx",
         "php7.3-fpm",
-        "mysql"
+        "mysql",
+        "postgresql"
     ],
     "requirements": {
         "yunohost": ">= 3.8.1"
@@ -46,6 +47,7 @@
             },
             {
                 "name": "database",
+                "type": "int",
                 "ask": {
                     "en": "Choose the database to be used for the Hubzilla [mysql:1,postgresql:2]",
                     "fr": "Choisissez la database de l'Hubzilla [mysql:1,postgresql:2]"
