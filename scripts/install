@@ -131,7 +131,7 @@ chmod -R 777 $final_path/store
 
 # Copy the template install/htconfig.sample.php to .htconfig.php
 ynh_script_progression --message="Moving .htconfig.php to root of Hubzilla ..."
-$config="$final_path/.htconfig.php"
+config="$final_path/.htconfig.php"
 cp $final_path/install/htconfig.sample.php $config
 
 # Create php.log inside Hubzilla for logs
