@@ -59,7 +59,7 @@ ynh_backup --src_path="/etc/php/$phpversion/fpm/pool.d/$app.conf"
 #=================================================
 # BACKUP OF THE  DATABASE
 #=================================================
-ynh_script_progression --message="Backing up the MySQL database..." -
+ynh_script_progression --message="Backing up the MySQL database..."
 
 if [  $database -eq 1 ]; then
 	ynh_script_progression --message="Backup of the  MySQL database..."
