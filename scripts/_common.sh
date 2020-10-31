@@ -5,7 +5,11 @@
 #=================================================
 
 # dependencies used by the app
-pkg_dependencies="php-mbstring php-cli php-imagick php-xml php-zip"
+YNH_PHP_VERSION="7.3"
+
+extra_php_dependencies="php${YNH_PHP_VERSION}-mbstring php${YNH_PHP_VERSION}-cli php${YNH_PHP_VERSION}-imagick php${YNH_PHP_VERSION}-xml php${YNH_PHP_VERSION}-zip php${YNH_PHP_VERSION}-pgsql php${YNH_PHP_VERSION}-json php${YNH_PHP_VERSION}-gd"
+# dependencies used by the app
+pkg_dependencies="postgresql postgresql-contrib"
 
 #=================================================
 # PERSONAL HELPERS
@@ -31,7 +35,7 @@ ynh_smart_mktemp () {
         elif is_there_enough_space /var; then
                 local tmpdir=/var
         elif is_there_enough_space /; then
-                local tmpdir=/   
+                local tmpdir=/
         elif is_there_enough_space /home; then
                 local tmpdir=/home
         else

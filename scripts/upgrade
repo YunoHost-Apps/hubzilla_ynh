@@ -12,7 +12,7 @@ source /usr/share/yunohost/helpers
 #=================================================
 # LOAD SETTINGS
 #=================================================
-ynh_script_progression --message="Loading installation settings..." --time --weight=1
+ynh_script_progression --message="Loading installation settings..."
 
 app=$YNH_APP_INSTANCE_NAME
 
@@ -20,10 +20,10 @@ domain=$(ynh_app_setting_get --app=$app --key=domain)
 path_url=$(ynh_app_setting_get --app=$app --key=path)
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 upload=$(ynh_app_setting_get --app=$app --key=upload)
-db_name=$(ynh_app_setting_get --app=$app --key=db_name)
-db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
 version=$(grep STD_VERSION $final_path/boot.php |  cut -c 38- | rev | cut -c 5- | rev)
 last_update=$(grep  update_time: /etc/yunohost/apps/$app/settings.yml |  cut -c 14-)
+database=$(ynh_app_setting_get --app=$app --key=database)
+phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 
 #=================================================
 # ENSURE DOWNWARD COMPATIBILITY
@@ -39,7 +39,7 @@ fi
 #=================================================
 # BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
 #=================================================
-ynh_script_progression --message="Backing up the app before upgrading (may take a while)..." --time --weight=1
+ynh_script_progression --message="Backing up the app before upgrading (may take a while)..."
 
 # Backup the current version of the app
 ynh_backup_before_upgrade
@@ -80,7 +80,7 @@ fi
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
 
-ynh_script_progression --message="Upgrading source files..." --time --weight=1
+ynh_script_progression --message="Upgrading source files..."
 
 # Download, check integrity, uncompress and patch the source from app.src
 	ynh_setup_source --dest_dir="$final_path"
@@ -97,7 +97,7 @@ ynh_setup_source --dest_dir="$final_path/addon" --source_id="app_addons"
 #=================================================
 # NGINX CONFIGURATION
 #=================================================
-ynh_script_progression --message="Upgrading nginx web server configuration..." --time --weight=1
+ynh_script_progression --message="Upgrading nginx web server configuration..."
 
 # Create a dedicated nginx config
 ynh_add_nginx_config
@@ -105,7 +105,7 @@ ynh_add_nginx_config
 #=================================================
 # CREATE DEDICATED USER
 #=================================================
-ynh_script_progression --message="Making sure dedicated system user exists..." --time --weight=1
+ynh_script_progression --message="Making sure dedicated system user exists..."
 
 # Create a dedicated user (if not existing)
 ynh_system_user_create --username=$app
@@ -119,26 +119,25 @@ chown -R $app: $final_path
 ynh_print_info "Upgrading php-fpm configuration..."
 
 # Create a dedicated php-fpm config
-ynh_add_fpm_config
-
+ynh_add_fpm_config --package="$extra_php_dependencies"
 
 ### Verify the checksum of a file, stored by `ynh_store_file_checksum` in the install script.
 ### And create a backup of this file if the checksum is different. So the file will be backed up if the admin had modified it.
-ynh_backup_if_checksum_is_different --file="$final_path/.htconfig.php"
+ynh_backup_if_checksum_is_different --file="$final_path/.htconfig.php.back"
 # Recalculate and store the checksum of the file for the next upgrade.
 ynh_store_file_checksum --file="$final_path/.htconfig.php"
 
 #=================================================
 # SETUP LOGROTATE
 #=================================================
-ynh_script_progression --message="Upgrading logrotate configuration..." --time --weight=1
+ynh_script_progression --message="Upgrading logrotate configuration..."
 
 # Use logrotate to manage app-specific logfile(s)
 ynh_use_logrotate --non-append
 
 # UPGRADE FAIL2BAN
 #=================================================
-ynh_script_progression --message="Reconfiguring fail2ban..." --time --weight=1
+ynh_script_progression --message="Re-configure fail2ban..."
 
 ynh_add_fail2ban_config --logpath="$final_path/php.log" --failregex="^.*auth\.php.*failed login attempt.*from IP <HOST>.*$" --max_retry="5"
 
@@ -146,35 +145,43 @@ ynh_add_fail2ban_config --logpath="$final_path/php.log" --failregex="^.*auth\.ph
 ynh_print_info "Setting up cron job..."
 ynh_replace_string  --match_string="YNH_WWW_PATH" --replace_string="$final_path" --target_file="../conf/poller-cron"
 ynh_replace_string --match_string="__USER__" --replace_string="$app"  --target_file="../conf/poller-cron"
-sudo cp ../conf/poller-cron /etc/cron.d/$app
+ynh_replace_string --match_string="__PHP_VERSION__" --replace_string="$phpversion"  --target_file="../conf/poller-cron"
+sudo cp -f ../conf/poller-cron /etc/cron.d/$app
 
 #=================================================
 # UPGRADE DEPENDENCIES
 #=================================================
-ynh_script_progression --message="Upgrading dependencies..." --time --weight=1
+ynh_script_progression --message="Upgrading dependencies..."
+if [  $database -eq 1 ]; then
+	#=================================================
+	# CHECK VERSION FOR SPECIFIC MYSQL UPDATE
+	#=================================================
 
-ynh_install_app_dependencies $pkg_dependencies
+	# Check version and if this version was a fresh install push mysq query
+	db_name=$(ynh_app_setting_get --app=$app --key=db_name)
+	db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
+	if [ -z "$last_update" ] && [ "$version" == "3.8.4" ]; then
+		ynh_mysql_connect_as "$db_name" "$db_pwd" "$db_name" < "../conf/sql/385.sql"
+	fi
 
-#=================================================
-# CHECK VERSION FOR SPECIFIC MYSQL UPDATE
-#=================================================
 
-# Check version and if this version was a fresh install push mysq query
-if [ -z "$last_update" ] && [ "$version" == "3.8.4" ]; then
-	ynh_mysql_connect_as "$db_name" "$db_pwd" "$db_name" < "../conf/sql/385.sql"
+elif [ $database -eq 2 ]; then
+	ynh_install_app_dependencies $pkg_dependencies
 fi
+
+
 
 #=================================================
 # SETUP SSOWAT
 #=================================================
 # As Hubzilla is social network and have its own permission there is no need to keep Hubzilla behind SSO
-ynh_script_progression --message="Upgrading SSOwat configuration..." --time --weight=1
+ynh_script_progression --message="Upgrading SSOwat configuration..."
 ynh_app_setting_set --app=$app --key=unprotected_uris --value="/"
 
 #=================================================
 # RELOAD NGINX
 #=================================================
-ynh_script_progression --message="Reloading nginx web server..." --time --weight=1
+ynh_script_progression --message="Reloading nginx web server..."
 
 ynh_systemd_action --service_name=nginx --action=reload
 
@@ -182,4 +189,4 @@ ynh_systemd_action --service_name=nginx --action=reload
 # END OF SCRIPT
 #=================================================
 
-ynh_script_progression --message="Upgrade of $app completed" --time --last
+ynh_script_progression --message="Upgrade of $app completed"
