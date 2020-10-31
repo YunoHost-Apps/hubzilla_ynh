@@ -7,7 +7,7 @@
 	; Manifest
 		domain="domain.tld"	(DOMAIN)
 		admin="john"	(USER)
-		upload="256M"
+		database="1"   (STRING)
 	; Checks
 		pkg_linter=1
 		setup_sub_dir=0
