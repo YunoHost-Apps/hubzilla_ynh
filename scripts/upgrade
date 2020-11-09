@@ -88,7 +88,7 @@ ynh_script_progression --message="Upgrading source files..."
 cp -a "$tmpdir/store" "${final_path}"
 cp -a "$tmpdir/.htconfig.php" "${final_path}"
 cp -a "$tmpdir/php.log" "${final_path}"
-rm -Rf "$tmpdir"
+ynh_secure_remove "$tmpdir"
 chmod -R 777 $final_path/store
 mkdir $final_path/addon
 ynh_setup_source --dest_dir="$final_path/addon" --source_id="app_addons"
