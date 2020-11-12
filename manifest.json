@@ -8,7 +8,7 @@
     },
     "url": "https://zotlabs.org/page/hubzilla/hubzilla-project",
     "license": "MIT",
-    "version": "4.7.2~ynh2",
+    "version": "5.0.1~ynh2",
     "maintainer": {
         "name": "Anmol Sharma",
         "email": "anmol@datamol.org"

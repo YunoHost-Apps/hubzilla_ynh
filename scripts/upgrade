@@ -164,12 +164,15 @@ if [  $database -eq 1 ]; then
 		ynh_mysql_connect_as "$db_name" "$db_pwd" "$db_name" < "../conf/sql/385.sql"
 	fi
 
-
 elif [ $database -eq 2 ]; then
 	ynh_install_app_dependencies $pkg_dependencies
 fi
 
-
+if [ -z "$last_update" ] && [ $version -lt 5.0.0 ] && [ $version -nt 5.0.0 ] && [ -f "$final_path/util/z6convert.php" ] ; then
+	pushd "$final_path"
+	php${YNH_PHP_VERSION} util/z6convert.php
+	popd
+fi
 
 #=================================================
 # SETUP SSOWAT
