@@ -84,9 +84,6 @@ elif [ $database -eq 2 ]; then
 	ynh_psql_execute_file_as_root --file="./db.sql" --database="$db_name"
 fi
 
-
-
-
 #=================================================
 # RECREATE THE DEDICATED USER
 #=================================================
@@ -107,7 +104,6 @@ ynh_add_fpm_config --package="$extra_php_dependencies"
 
 #=================================================
 # SPECIFIC RESTORATION
-#=================================================
 #=================================================
 # RESTORE THE CRON FILE
 #=================================================
