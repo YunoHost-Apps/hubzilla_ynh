@@ -153,7 +153,7 @@ if [  $database -eq 1 ]; then
 	# CHECK VERSION FOR SPECIFIC MYSQL UPDATE
 	#=================================================
 
-	# Check version and if this version was a fresh install push mysq query
+	# Check version and if this version was a fresh install push mysql query
 	db_name=$(ynh_app_setting_get --app=$app --key=db_name)
 	db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
 	is_version_equal_three_eight_four=$(awk 'BEGIN{ print "'$version'"<"'3.8.4'" }')
