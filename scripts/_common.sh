@@ -8,6 +8,7 @@
 YNH_PHP_VERSION="7.3"
 
 extra_php_dependencies="php${YNH_PHP_VERSION}-mbstring php${YNH_PHP_VERSION}-cli php${YNH_PHP_VERSION}-imagick php${YNH_PHP_VERSION}-xml php${YNH_PHP_VERSION}-zip php${YNH_PHP_VERSION}-pgsql php${YNH_PHP_VERSION}-json php${YNH_PHP_VERSION}-gd"
+
 # dependencies used by the app
 pkg_dependencies="postgresql postgresql-contrib"
 
@@ -42,7 +43,7 @@ ynh_smart_mktemp () {
 		ynh_die "Insufficient free space to continue..."
         fi
 
-        echo "$(sudo mktemp --directory --tmpdir="$tmpdir")"
+        echo "$(mktemp --directory --tmpdir="$tmpdir")"
 }
 #=================================================
 # FUTURE OFFICIAL HELPERS
