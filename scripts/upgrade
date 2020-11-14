@@ -35,7 +35,6 @@ if [ -z "$db_name" ]; then
 	ynh_app_setting_set --app=$app --key=db_name --value=$db_name
 fi
 
-
 #=================================================
 # BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
 #=================================================
@@ -50,20 +49,19 @@ ynh_clean_setup () {
 # Exit if an error occurs during the execution of the script
 ynh_abort_if_errors
 
-
 #=================================================
 # STANDARD UPGRADE STEPS
 #=================================================
 # REMOVE APP MAIN DIR
 #=================================================
 ynh_print_info "Upgrading source files..."
+
 # Create a temporary directory
 tmpdir="$(ynh_smart_mktemp 6000)"
 # Backup the config file in the temp dir
 cp -a "$final_path/.htconfig.php" "$tmpdir/.htconfig.php"
 cp -a "$final_path/store" "$tmpdir/store"
 cp -a "$final_path/php.log" "$tmpdir/php.log"
-
 
 # Remove the app directory securely
 ynh_secure_remove "$final_path"
@@ -79,27 +77,25 @@ fi
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
-
 ynh_script_progression --message="Upgrading source files..."
 
 # Download, check integrity, uncompress and patch the source from app.src
-	ynh_setup_source --dest_dir="$final_path"
+ynh_setup_source --dest_dir="$final_path"
 
 cp -a "$tmpdir/store" "${final_path}"
 cp -a "$tmpdir/.htconfig.php" "${final_path}"
 cp -a "$tmpdir/php.log" "${final_path}"
-rm -Rf "$tmpdir"
+ynh_secure_remove "$tmpdir"
 chmod -R 777 $final_path/store
 mkdir $final_path/addon
 ynh_setup_source --dest_dir="$final_path/addon" --source_id="app_addons"
 
-
 #=================================================
 # NGINX CONFIGURATION
 #=================================================
-ynh_script_progression --message="Upgrading nginx web server configuration..."
+ynh_script_progression --message="Upgrading NGINX web server configuration..."
 
-# Create a dedicated nginx config
+# Create a dedicated NGINX config
 ynh_add_nginx_config
 
 #=================================================
@@ -116,7 +112,7 @@ chown -R $app: $final_path
 #=================================================
 # PHP-FPM CONFIGURATION
 #=================================================
-ynh_print_info "Upgrading php-fpm configuration..."
+ynh_print_info "Upgrading PHP-FPM configuration..."
 
 # Create a dedicated php-fpm config
 ynh_add_fpm_config --package="$extra_php_dependencies"
@@ -137,7 +133,7 @@ ynh_use_logrotate --non-append
 
 # UPGRADE FAIL2BAN
 #=================================================
-ynh_script_progression --message="Re-configure fail2ban..."
+ynh_script_progression --message="Re-configure Fail2Ban..."
 
 ynh_add_fail2ban_config --logpath="$final_path/php.log" --failregex="^.*auth\.php.*failed login attempt.*from IP <HOST>.*$" --max_retry="5"
 
@@ -146,7 +142,7 @@ ynh_print_info "Setting up cron job..."
 ynh_replace_string  --match_string="YNH_WWW_PATH" --replace_string="$final_path" --target_file="../conf/poller-cron"
 ynh_replace_string --match_string="__USER__" --replace_string="$app"  --target_file="../conf/poller-cron"
 ynh_replace_string --match_string="__PHP_VERSION__" --replace_string="$phpversion"  --target_file="../conf/poller-cron"
-sudo cp -f ../conf/poller-cron /etc/cron.d/$app
+cp -f ../conf/poller-cron /etc/cron.d/$app
 
 #=================================================
 # UPGRADE DEPENDENCIES
@@ -157,19 +153,24 @@ if [  $database -eq 1 ]; then
 	# CHECK VERSION FOR SPECIFIC MYSQL UPDATE
 	#=================================================
 
-	# Check version and if this version was a fresh install push mysq query
+	# Check version and if this version was a fresh install push mysql query
 	db_name=$(ynh_app_setting_get --app=$app --key=db_name)
 	db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
-	if [ -z "$last_update" ] && [ "$version" == "3.8.4" ]; then
+	is_version_equal_three_eight_four=$(awk 'BEGIN{ print "'$version'"<"'3.8.4'" }')
+	if [ -z "$last_update" ] && [ "$is_version_equal_three_eight_four" -eq 1 ]; then
 		ynh_mysql_connect_as "$db_name" "$db_pwd" "$db_name" < "../conf/sql/385.sql"
 	fi
-
 
 elif [ $database -eq 2 ]; then
 	ynh_install_app_dependencies $pkg_dependencies
 fi
+is_version_less_then_five=$(awk 'BEGIN{ print "'$version'"<"'5.0.0'" }')
 
-
+if [ "$is_version_less_then_five" -eq 1 ] && [ -f "$final_path/util/z6convert.php" ] ; then
+	pushd "$final_path"
+		php${YNH_PHP_VERSION} util/z6convert.php
+	popd
+fi
 
 #=================================================
 # SETUP SSOWAT
@@ -181,7 +182,7 @@ ynh_app_setting_set --app=$app --key=unprotected_uris --value="/"
 #=================================================
 # RELOAD NGINX
 #=================================================
-ynh_script_progression --message="Reloading nginx web server..."
+ynh_script_progression --message="Reloading NGINX web server..."
 
 ynh_systemd_action --service_name=nginx --action=reload
 

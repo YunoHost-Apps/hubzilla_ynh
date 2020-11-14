@@ -3,12 +3,12 @@
     "id": "hubzilla",
     "name": "Hubzilla",
     "description": {
-        "en": "A decentralized publication platform and social network.",
-        "fr": "Une plateforme de publication décentralisée et un réseau social."
+        "en": "Decentralized publication platform and social network.",
+        "fr": "Plateforme de publication décentralisée et un réseau social."
     },
     "url": "https://zotlabs.org/page/hubzilla/hubzilla-project",
     "license": "MIT",
-    "version": "4.7.2~ynh2",
+    "version": "5.0.1~ynh1",
     "maintainer": {
         "name": "Anmol Sharma",
         "email": "anmol@datamol.org"
@@ -50,7 +50,7 @@
                 "type": "string",
                 "ask": {
                     "en": "Choose the database to be used for the Hubzilla [mysql:1,postgresql:2]",
-                    "fr": "Choisissez la database de l'Hubzilla [mysql:1,postgresql:2]"
+                    "fr": "Choisissez la database de Hubzilla [mysql:1,postgresql:2]"
                 },
                 "choices": ["1", "2"],
                 "default": "1"
