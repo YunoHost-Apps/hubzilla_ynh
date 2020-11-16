@@ -16,7 +16,7 @@
 		setup_private=0
 		setup_public=1
 		upgrade=1
-		#upgrade=1	from_commit=CommitHash
+		upgrade=1	from_commit=ef50ba8e42f55190f358fccc51a99c86ef77e971
 		backup_restore=1
 		multi_instance=1
 		incorrect_path=1
