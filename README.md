@@ -1,6 +1,7 @@
 # Hubzilla for YunoHost
 
 [![Integration level](https://dash.yunohost.org/integration/hubzilla.svg)](https://dash.yunohost.org/appci/app/hubzilla) ![](https://ci-apps.yunohost.org/ci/badges/hubzilla.status.svg) ![](https://ci-apps.yunohost.org/ci/badges/hubzilla.maintain.svg)
+
 [![Install Hubzilla with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=hubzilla)
 
 > *This package allow you to install Hubzilla quickly and simply on a YunoHost server.
@@ -20,7 +21,7 @@ If you don't have YunoHost, please see [here](https://yunohost.org/#/install) to
 - [X] Multi-instance
 - [X] Adeed php.log in the root folder for debugging PHP, with logrotate applied on it (can be accesssed by **admin->logs** and entering the **php.log**).
 - [X] Fail2Ban
-- [X] Choose between **Mysql** and **PostgreSQL** database to be used for the Hubzilla while installation.
+- [X] Option to choose between **Mysql** and **PostgreSQL** for the Hubzilla
 
 ## Installation
 Before installing, read the [Hubzilla installation instructions](https://framagit.org/hubzilla/core/blob/master/install/INSTALL.txt) for important information about:
@@ -34,7 +35,7 @@ Before installing, read the [Hubzilla installation instructions](https://framagi
 
 - **For normal YunoHost users**: Normal LDAP users can login through LDAP authentication and create there channels.
 
-- **Failing to get admin rights**: If the admin cannot access the admin settings at `https://hubzilla.example.com/admin` or you want to grant admin rights to any other user(s) on the hub, then you have to **manually add 4096** to the **account_roles** under **accounts** for that user in the **database through phpMyAdmin**.
+- **Failing to get admin rights**: If the admin cannot access the admin settings at `https://hubzilla.example.com/admin` then you have to **manually add 4096** to the **account_roles** under **accounts** for that user in the **database through phpMyAdmin**.
 
 - **For logs**: Go to **admin->logs** and enter the file name **php.log**.
 
