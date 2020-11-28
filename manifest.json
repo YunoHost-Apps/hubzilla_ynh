@@ -8,10 +8,9 @@
     },
     "url": "https://zotlabs.org/page/hubzilla/hubzilla-project",
     "license": "MIT",
-    "version": "5.0.2~ynh1",
+    "version": "5.0.3~ynh1",
     "maintainer": {
-        "name": "Anmol Sharma",
-        "email": "anmol@datamol.org"
+        "name": "Anmol Sharma"
     },
     "services": [
         "nginx",
