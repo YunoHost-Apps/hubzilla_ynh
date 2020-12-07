@@ -19,7 +19,7 @@
         "postgresql"
     ],
     "requirements": {
-        "yunohost": ">= 3.8.1"
+        "yunohost": ">= 4.0.0"
     },
     "previous_maintainers": {
         "name": "Andrew Manning",
