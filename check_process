@@ -19,11 +19,8 @@
 		upgrade=1	from_commit=fff29441b225ccf6bbae976db559478688185b2b
 		backup_restore=1
 		multi_instance=1
-		incorrect_path=1
 		port_already_use=0
 		change_url=0
-;;; Levels
-	Level 5=auto
 ;;; Options
 Email=anmol@datamol.org
 Notification=change
