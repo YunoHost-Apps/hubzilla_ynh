@@ -27,7 +27,7 @@ ynh_abort_if_errors
 domain=$YNH_APP_ARG_DOMAIN
 path_url="/"
 admin=$YNH_APP_ARG_ADMIN
-email=$(sudo yunohost user info $admin | grep "mail:" | cut -d' ' -f2)
+email=$(yunohost user info $admin | grep "mail:" | cut -d' ' -f2)
 upload="256M"
 random_string="$(ynh_string_random)$(ynh_string_random)$(ynh_string_random)"
 database=`expr $YNH_APP_ARG_DATABASE`
