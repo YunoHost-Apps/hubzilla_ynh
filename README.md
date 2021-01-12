@@ -1,9 +1,9 @@
 # Hubzilla for YunoHost
 
-
 [![Integration level](https://dash.yunohost.org/integration/hubzilla.svg)](https://dash.yunohost.org/appci/app/hubzilla) ![](https://ci-apps.yunohost.org/ci/badges/hubzilla.status.svg) ![](https://ci-apps.yunohost.org/ci/badges/hubzilla.maintain.svg)
 
-[![Install Hubzilla with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=hubzilla)
+
+[![Install Hubzilla with YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=hubzilla)
 
 
 > *This package allow you to install Hubzilla quickly and simply on a YunoHost server.
