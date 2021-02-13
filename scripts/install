@@ -92,7 +92,31 @@ ynh_script_progression --message="Create addon directory inside Hubzilla root fo
 # ynh_setup_source --dest_dir="$final_path/addon" --source_id="app_addons"
 
 pushd "$final_path"
-	`util/add_addon_repo https://framagit.org/hubzilla/addons.git hzaddons`
+	mkdir -p extend/addon/hzaddons
+	mkdir addon
+	git clone https://framagit.org/hubzilla/addons.git $final_path/extend/addon/hzaddons
+	filelist=(`ls extend/addon/hzaddons`)
+	cd addon
+	for a in "${filelist[@]}" ; do
+		base=`basename $a`
+		if [ $base = '.git' ]; then
+			#echo 'ignoring git'
+			continue;
+		fi
+		if [ ! -d ../extend/addon/hzaddons/$base ]; then
+			#echo $a 'not a directory'
+			continue;
+		fi
+		if [ -x $base ]; then
+			#echo $base 'file exists'
+			continue;
+		fi
+
+		echo linking $base
+
+		ln -s ../extend/addon/hzaddons/$base $base
+done
+
 popd
 
 # 3 - Some extra folders
