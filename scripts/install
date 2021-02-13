@@ -91,7 +91,9 @@ ynh_script_progression --message="Create addon directory inside Hubzilla root fo
 
 # ynh_setup_source --dest_dir="$final_path/addon" --source_id="app_addons"
 
- `cd $final_path && util/add_addon_repo https://framagit.org/hubzilla/addons.git hzaddons`
+pushd "$final_path"
+	`util/add_addon_repo https://framagit.org/hubzilla/addons.git hzaddons`
+popd
 
 # 3 - Some extra folders
 ynh_script_progression --message="Creating smarty3 folder for personal data..."
