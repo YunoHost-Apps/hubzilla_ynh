@@ -56,15 +56,7 @@ ynh_abort_if_errors
 #=================================================
 ynh_print_info "Upgrading source files..."
 
-# Create a temporary directory
-tmpdir="$(ynh_smart_mktemp 6000)"
-# Backup the config file in the temp dir
-cp -a "$final_path/.htconfig.php" "$tmpdir/.htconfig.php"
-cp -a "$final_path/store" "$tmpdir/store"
-cp -a "$final_path/php.log" "$tmpdir/php.log"
 
-# Remove the app directory securely
-ynh_secure_remove "$final_path"
 
 # If final_path doesn't exist, create it
 if [ -z "$final_path" ]; then
@@ -79,16 +71,35 @@ fi
 #=================================================
 ynh_script_progression --message="Upgrading source files..."
 
-# Download, check integrity, uncompress and patch the source from app.src
-ynh_setup_source --dest_dir="$final_path"
+if [ `cd $final_path && git rev-parse --is-inside-work-tree` ]; then
+    `cd $final_path && util/udall`
+	chmod -R 777 $final_path/store
+else
 
-cp -a "$tmpdir/store" "${final_path}"
-cp -a "$tmpdir/.htconfig.php" "${final_path}"
-cp -a "$tmpdir/php.log" "${final_path}"
-ynh_secure_remove "$tmpdir"
-chmod -R 777 $final_path/store
-mkdir $final_path/addon
-ynh_setup_source --dest_dir="$final_path/addon" --source_id="app_addons"
+    # Create a temporary directory
+	tmpdir="$(ynh_smart_mktemp 6000)"
+	# Backup the config file in the temp dir
+	cp -a "$final_path/.htconfig.php" "$tmpdir/.htconfig.php"
+	cp -a "$final_path/store" "$tmpdir/store"
+	cp -a "$final_path/php.log" "$tmpdir/php.log"
+
+	# Remove the app directory securely
+	ynh_secure_remove "$final_path"
+
+	# Download, check integrity, uncompress and patch the source from app.src
+	ynh_setup_source --dest_dir="$final_path"
+
+	cp -a "$tmpdir/store" "${final_path}"
+	cp -a "$tmpdir/.htconfig.php" "${final_path}"
+	cp -a "$tmpdir/php.log" "${final_path}"
+	ynh_secure_remove "$tmpdir"
+	chmod -R 777 $final_path/store
+	mkdir $final_path/addon
+	ynh_setup_source --dest_dir="$final_path/addon" --source_id="app_addons"
+
+fi
+
+
 
 #=================================================
 # NGINX CONFIGURATION

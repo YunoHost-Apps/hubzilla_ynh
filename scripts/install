@@ -76,18 +76,22 @@ fi
 # 1 - Hubzilla
 ynh_script_progression --message="Setting up Hubzilla source files..."
 
+git clone https://framagit.org/hubzilla/core.git "$final_path"
+
 ynh_app_setting_set --app=$app --key=final_path --value=$final_path
 # Download, check integrity, uncompress and patch the source from app.src
-ynh_setup_source --dest_dir="$final_path"
+# ynh_setup_source --dest_dir="$final_path"
 
 # 2 - Hubzilla Addons
 
 # Make addon Directory and unpack the Hubzilla addons to this directory
 ynh_script_progression --message="Create addon directory inside Hubzilla root folder..."
-mkdir $final_path/addon
-ynh_script_progression --message="Setting up Hubzilla addons source files..."
+# mkdir $final_path/addon
+# ynh_script_progression --message="Setting up Hubzilla addons source files..."
 
-ynh_setup_source --dest_dir="$final_path/addon" --source_id="app_addons"
+# ynh_setup_source --dest_dir="$final_path/addon" --source_id="app_addons"
+
+ `cd "$final_path" util/add_addon_repo https://framagit.org/hubzilla/addons.git hzaddons`
 
 # 3 - Some extra folders
 ynh_script_progression --message="Creating smarty3 folder for personal data..."
