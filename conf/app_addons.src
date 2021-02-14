@@ -1,5 +1,5 @@
-SOURCE_URL=https://framagit.org/hubzilla/addons/-/archive/5.2.1/addons-5.2.1.tar.gz
-SOURCE_SUM=fbe5268f7e764edfcf2137362762cf3b0e29bf74dbae23b76fb1e418597cd74f
+SOURCE_URL=https://framagit.org/hubzilla/addons/-/archive/5.2.2/addons-5.2.2.tar.gz
+SOURCE_SUM=074559f51107f27d6eb4806c77ede213ca77b608a9c2c5b870138f587d8776ca
 SOURCE_SUM_PRG=sha256sum
 SOURCE_FORMAT=tar.gz
 SOURCE_IN_SUBDIR=
