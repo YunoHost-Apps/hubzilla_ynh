@@ -115,7 +115,7 @@ pushd "$final_path"
 		echo linking $base
 
 		ln -s ../extend/addon/hzaddons/$base $base
-done
+	done
 
 popd
 
