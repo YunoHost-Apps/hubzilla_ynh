@@ -66,8 +66,6 @@ fi
 #=================================================
 ynh_print_info "Upgrading source files..."
 
-
-
 # If final_path doesn't exist, create it
 if [ -z "$final_path" ]; then
 	final_path=/var/www/$app
@@ -224,13 +222,6 @@ if [ "$is_version_less_then_five" -eq 1 ] && [ -f "$final_path/util/z6convert.ph
 		php${YNH_PHP_VERSION} util/z6convert.php
 	popd
 fi
-
-#=================================================
-# SETUP SSOWAT
-#=================================================
-# As Hubzilla is social network and have its own permission there is no need to keep Hubzilla behind SSO
-ynh_script_progression --message="Upgrading SSOwat configuration..."
-ynh_app_setting_set --app=$app --key=unprotected_uris --value="/"
 
 #=================================================
 # RELOAD NGINX
