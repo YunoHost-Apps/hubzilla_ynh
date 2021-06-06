@@ -50,13 +50,21 @@ ynh_clean_setup () {
 ynh_abort_if_errors
 
 #=================================================
+# Migrate legacy permissions to new system
+#=================================================
+if ynh_legacy_permissions_exists
+then
+	ynh_legacy_permissions_delete_all
+
+	ynh_app_setting_delete --app=$app --key=is_public
+fi
+
+#=================================================
 # STANDARD UPGRADE STEPS
 #=================================================
 # REMOVE APP MAIN DIR
 #=================================================
 ynh_print_info "Upgrading source files..."
-
-
 
 # If final_path doesn't exist, create it
 if [ -z "$final_path" ]; then
@@ -214,13 +222,6 @@ if [ "$is_version_less_then_five" -eq 1 ] && [ -f "$final_path/util/z6convert.ph
 		php${YNH_PHP_VERSION} util/z6convert.php
 	popd
 fi
-
-#=================================================
-# SETUP SSOWAT
-#=================================================
-# As Hubzilla is social network and have its own permission there is no need to keep Hubzilla behind SSO
-ynh_script_progression --message="Upgrading SSOwat configuration..."
-ynh_app_setting_set --app=$app --key=unprotected_uris --value="/"
 
 #=================================================
 # RELOAD NGINX
