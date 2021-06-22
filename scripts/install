@@ -200,7 +200,6 @@ cat ../conf/ldap_conf.php >> $final_path/.htconfig.php
 # NGINX CONFIGURATION
 #=================================================
 ynh_script_progression --message="Configuring NGINX web server..."
-### `ynh_add_nginx_config` will use the file conf/nginx.conf
 
 # Create a dedicated NGINX config
 ynh_add_nginx_config
