@@ -6,9 +6,14 @@
         "en": "Decentralized publication platform and social network.",
         "fr": "Plateforme de publication décentralisée et un réseau social."
     },
-    "url": "https://zotlabs.org/page/hubzilla/hubzilla-project",
-    "license": "MIT",
     "version": "5.6~ynh1",
+    "url": "https://zotlabs.org/page/hubzilla/hubzilla-project",
+    "upstream": {
+        "license": "MIT",
+        "website": "https://zotlabs.org/page/hubzilla/hubzilla-project",
+        "code": "https://framagit.org/hubzilla/core"
+    },
+    "license": "MIT",
     "maintainer": {
         "name": "Anmol Sharma"
     },
