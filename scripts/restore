@@ -61,7 +61,7 @@ ynh_restore_file --origin_path="/etc/nginx/conf.d/$domain.d/$app.conf"
 ynh_print_info "Recreating the dedicated system user..."
 
 # Create the dedicated user (if not existing)
-ynh_system_user_create $app --home_dir="$final_path"
+ynh_system_user_create --username=$app --home_dir="$final_path"
 
 #=================================================
 # RESTORE THE APP MAIN DIR
