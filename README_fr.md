@@ -13,7 +13,7 @@ Si vous n'avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) pour
 
 Plateforme de publication décentralisée et un réseau social.
 
-**Version incluse :** 5.6~ynh1
+**Version incluse :** 6.0~ynh1
 
 
 

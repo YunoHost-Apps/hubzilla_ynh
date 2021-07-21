@@ -27,7 +27,7 @@ ynh_abort_if_errors
 domain=$YNH_APP_ARG_DOMAIN
 path_url="/"
 admin=$YNH_APP_ARG_ADMIN
-email=$(ynh_user_get_info $admin 'mail')
+email=$(ynh_user_get_info --username=$admin --key=mail)
 upload="256M"
 random_string="$(ynh_string_random)$(ynh_string_random)$(ynh_string_random)"
 database=`expr $YNH_APP_ARG_DATABASE`
@@ -84,7 +84,7 @@ fi
 # 1 - Hubzilla
 ynh_script_progression --message="Setting up Hubzilla source files..."
 
-git clone https://framagit.org/hubzilla/core.git "$final_path"
+git clone --quiet https://framagit.org/hubzilla/core.git "$final_path"
 
 ynh_app_setting_set --app=$app --key=final_path --value=$final_path
 # Download, check integrity, uncompress and patch the source from app.src
@@ -102,7 +102,7 @@ ynh_script_progression --message="Create addon directory inside Hubzilla root fo
 pushd "$final_path"
 	mkdir -p extend/addon/hzaddons
 	mkdir addon
-	git clone https://framagit.org/hubzilla/addons.git $final_path/extend/addon/hzaddons
+	git clone --quiet https://framagit.org/hubzilla/addons.git $final_path/extend/addon/hzaddons
 	filelist=(`ls extend/addon/hzaddons`)
 	cd addon
 	for a in "${filelist[@]}" ; do
@@ -135,6 +135,7 @@ chmod -R 775 $final_path/store
 
 # Copy the template install/htconfig.sample.php to .htconfig.php
 ynh_script_progression --message="Moving .htconfig.php to root of Hubzilla ..."
+
 config="$final_path/.htconfig.php"
 cp $final_path/install/htconfig.sample.php $config
 
@@ -156,6 +157,7 @@ if [  $database -eq 1 ]; then
 	db_user=$db_name
 	ynh_app_setting_set --app=$app --key=db_name --value=$db_name
 	ynh_mysql_setup_db --db_user=$db_user --db_name=$db_name
+
 	ynh_script_progression --message="Importing database..."
 	ynh_mysql_connect_as --user="$db_name" --password="$db_pwd" --database="$db_name" < $final_path/install/schema_mysql.sql
 elif [ $database -eq 2 ]; then
@@ -178,6 +180,7 @@ fi
 #=================================================
 
 phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
+
 ynh_replace_string --match_string="your.mysqlhost.com" --replace_string="localhost" --target_file="$config"
 ynh_replace_string --match_string= "mysqlpassword" --replace_string="$db_pwd" --target_file="$config"
 ynh_replace_string --match_string="mysqlusername" --replace_string="$db_name" --target_file="$config"
@@ -190,6 +193,10 @@ ynh_replace_string --match_string= "//ini_set('error_log','php.out');" --replace
 ynh_replace_string --match_string= "//ini_set('log_errors','1');" --replace_string="ini_set('log_errors','1');" --target_file="$config"
 ynh_replace_string --match_string= "//ini_set('display_errors', '0');" --replace_string="ini_set('display_errors', '0');" --target_file="$config"
 sed -i "s/\['php_path'\] = 'php';/\['php_path'\] = 'php$phpversion';/g" "$config"
+
+
+#ynh_add_config --template="../conf/htconfig.sample.php" --destination="$final_path/.htconfig.php"
+
 
 # addon ldap config
 ynh_script_progression --message="Push LDAP configuration to .htconfig.php..."
@@ -214,6 +221,8 @@ ynh_add_fpm_config --package="$extra_php_dependencies"
 
 # Set up cron job
 ynh_add_config --template="../conf/poller-cron" --destination="/etc/cron.d/$app"
+chown root: "/etc/cron.d/$app"
+chmod 644 "/etc/cron.d/$app"
 
 #=================================================
 # SETUP LOGROTATE
@@ -234,7 +243,7 @@ ynh_add_fail2ban_config --logpath="$final_path/php.log" --failregex="^.*auth\.ph
 # SETUP SSOWAT
 #=================================================
 # As Hubzilla is social network and have its own permission there is no need to keep Hubzilla behind SSO
-ynh_script_progression --message="Configuring SSOwat..."
+ynh_script_progression --message="Configuring permissions..."
 
 ynh_permission_update --permission="main" --add="visitors"
 
