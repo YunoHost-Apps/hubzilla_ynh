@@ -195,7 +195,7 @@ ynh_replace_string --match_string= "//ini_set('display_errors', '0');" --replace
 sed -i "s/\['php_path'\] = 'php';/\['php_path'\] = 'php$phpversion';/g" "$config"
 
 
-ynh_add_config --template="../conf/local-sample.config.php" --destination="$final_path/config/local.config.php"
+#ynh_add_config --template="../conf/htconfig.sample.php" --destination="$final_path/.htconfig.php"
 
 
 # addon ldap config
