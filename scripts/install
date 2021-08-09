@@ -27,7 +27,7 @@ ynh_abort_if_errors
 domain=$YNH_APP_ARG_DOMAIN
 path_url="/"
 admin=$YNH_APP_ARG_ADMIN
-email=$(ynh_user_get_info $admin 'mail')
+email=$(ynh_user_get_info --username=$admin --key=mail)
 upload="256M"
 random_string="$(ynh_string_random)$(ynh_string_random)$(ynh_string_random)"
 database=`expr $YNH_APP_ARG_DATABASE`
@@ -59,6 +59,14 @@ ynh_app_setting_set --app=$app --key=database --value=$database
 ynh_app_setting_set --app=$app --key=random_string --value=$random_string
 
 #=================================================
+# CREATE DEDICATED USER
+#=================================================
+ynh_script_progression --message="Configuring system user..."
+
+# Create a system user
+ynh_system_user_create --username=$app --home_dir="$final_path"
+
+#=================================================
 # STANDARD MODIFICATIONS
 #=================================================
 # INSTALL DEPENDENCIES
@@ -76,7 +84,7 @@ fi
 # 1 - Hubzilla
 ynh_script_progression --message="Setting up Hubzilla source files..."
 
-git clone https://framagit.org/hubzilla/core.git "$final_path"
+git clone --quiet https://framagit.org/hubzilla/core.git "$final_path"
 
 ynh_app_setting_set --app=$app --key=final_path --value=$final_path
 # Download, check integrity, uncompress and patch the source from app.src
@@ -94,7 +102,7 @@ ynh_script_progression --message="Create addon directory inside Hubzilla root fo
 pushd "$final_path"
 	mkdir -p extend/addon/hzaddons
 	mkdir addon
-	git clone https://framagit.org/hubzilla/addons.git $final_path/extend/addon/hzaddons
+	git clone --quiet https://framagit.org/hubzilla/addons.git $final_path/extend/addon/hzaddons
 	filelist=(`ls extend/addon/hzaddons`)
 	cd addon
 	for a in "${filelist[@]}" ; do
@@ -123,16 +131,21 @@ popd
 ynh_script_progression --message="Creating smarty3 folder for personal data..."
 
 mkdir -p "${final_path}/store/[data]/smarty3"
-chmod -R 777 $final_path/store
+chmod -R 775 $final_path/store
 
 # Copy the template install/htconfig.sample.php to .htconfig.php
 ynh_script_progression --message="Moving .htconfig.php to root of Hubzilla ..."
+
 config="$final_path/.htconfig.php"
 cp $final_path/install/htconfig.sample.php $config
 
 # Create php.log inside Hubzilla for logs
 ynh_script_progression --message="Create php.log for the Hubzilla debuging..."
 touch "$final_path/php.log"
+
+chmod 750 "$final_path"
+chmod -R o-rwx "$final_path"
+chown -R $app:www-data "$final_path"
 
 #=================================================
 # CREATE A  DATABASE
@@ -144,6 +157,7 @@ if [  $database -eq 1 ]; then
 	db_user=$db_name
 	ynh_app_setting_set --app=$app --key=db_name --value=$db_name
 	ynh_mysql_setup_db --db_user=$db_user --db_name=$db_name
+
 	ynh_script_progression --message="Importing database..."
 	ynh_mysql_connect_as --user="$db_name" --password="$db_pwd" --database="$db_name" < $final_path/install/schema_mysql.sql
 elif [ $database -eq 2 ]; then
@@ -166,6 +180,7 @@ fi
 #=================================================
 
 phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
+
 ynh_replace_string --match_string="your.mysqlhost.com" --replace_string="localhost" --target_file="$config"
 ynh_replace_string --match_string= "mysqlpassword" --replace_string="$db_pwd" --target_file="$config"
 ynh_replace_string --match_string="mysqlusername" --replace_string="$db_name" --target_file="$config"
@@ -179,6 +194,10 @@ ynh_replace_string --match_string= "//ini_set('log_errors','1');" --replace_stri
 ynh_replace_string --match_string= "//ini_set('display_errors', '0');" --replace_string="ini_set('display_errors', '0');" --target_file="$config"
 sed -i "s/\['php_path'\] = 'php';/\['php_path'\] = 'php$phpversion';/g" "$config"
 
+
+#ynh_add_config --template="../conf/htconfig.sample.php" --destination="$final_path/.htconfig.php"
+
+
 # addon ldap config
 ynh_script_progression --message="Push LDAP configuration to .htconfig.php..."
 
@@ -188,18 +207,9 @@ cat ../conf/ldap_conf.php >> $final_path/.htconfig.php
 # NGINX CONFIGURATION
 #=================================================
 ynh_script_progression --message="Configuring NGINX web server..."
-### `ynh_add_nginx_config` will use the file conf/nginx.conf
 
 # Create a dedicated NGINX config
 ynh_add_nginx_config
-
-#=================================================
-# CREATE DEDICATED USER
-#=================================================
-ynh_script_progression --message="Configuring system user..."
-
-# Create a system user
-ynh_system_user_create --username=$app
 
 #=================================================
 # PHP-FPM CONFIGURATION
@@ -209,23 +219,10 @@ ynh_script_progression --message="Configuring PHP-FPM..."
 # Create a dedicated PHP-FPM config
 ynh_add_fpm_config --package="$extra_php_dependencies"
 
-# Set right permissions for Hubzilla
-ynh_script_progression --message="Set right for Hubzilla..."
-chown -R $app: $final_path
-
 # Set up cron job
-ynh_script_progression --message="Setting up cron job..."
-ynh_replace_string --match_string="YNH_WWW_PATH" --replace_string="$final_path"  --target_file="../conf/poller-cron"
-ynh_replace_string --match_string="__USER__" --replace_string="$app"  --target_file="../conf/poller-cron"
-ynh_replace_string --match_string="__PHP_VERSION__" --replace_string="$phpversion"  --target_file="../conf/poller-cron"
-cp ../conf/poller-cron /etc/cron.d/$app
-
-#=================================================
-# STORE THE CONFIG FILE CHECKSUM
-#=================================================
-
-# Calculate and store the config file checksum into the app settings
-ynh_store_file_checksum --file="$config"
+ynh_add_config --template="../conf/poller-cron" --destination="/etc/cron.d/$app"
+chown root: "/etc/cron.d/$app"
+chmod 644 "/etc/cron.d/$app"
 
 #=================================================
 # SETUP LOGROTATE
@@ -239,15 +236,16 @@ ynh_use_logrotate "$final_path/php.log"
 # SETUP FAIL2BAN
 #=================================================
 ynh_script_progression --message="Add Fail2Ban..."
+
 ynh_add_fail2ban_config --logpath="$final_path/php.log" --failregex="^.*auth\.php.*failed login attempt.*from IP <HOST>.*$" --max_retry="5"
 
 #=================================================
 # SETUP SSOWAT
 #=================================================
 # As Hubzilla is social network and have its own permission there is no need to keep Hubzilla behind SSO
-ynh_script_progression --message="Configuring SSOwat..."
-ynh_permission_update --permission="main" --add="visitors"
+ynh_script_progression --message="Configuring permissions..."
 
+ynh_permission_update --permission="main" --add="visitors"
 
 #=================================================
 # RELOAD NGINX
