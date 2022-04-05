@@ -11,9 +11,9 @@ Si vous n'avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) pour
 
 ## Vue d'ensemble
 
-Plateforme de publication décentralisée et un réseau social.
+Plateforme de publication décentralisée et un réseau social
 
-**Version incluse :** 6.0~ynh1
+**Version incluse :** 7.2~ynh1
 
 
 
