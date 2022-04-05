@@ -22,7 +22,7 @@
     },
     "services": [
         "nginx",
-        "php8.0-fpm",
+        "php7.4-fpm",
         "mysql"
     ],
     "previous_maintainers": {
