@@ -23,8 +23,7 @@
     "services": [
         "nginx",
         "php8.0-fpm",
-        "mysql",
-        "postgresql"
+        "mysql"
     ],
     "previous_maintainers": {
         "name": "Andrew Manning",
