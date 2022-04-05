@@ -36,7 +36,7 @@ app=$YNH_APP_INSTANCE_NAME
 #=================================================
 # CHECK IF THE APP CAN BE INSTALLED WITH THESE ARGS
 #=================================================
-ynh_script_progression --message="Validating installation parameters..."
+ynh_script_progression --message="Validating installation parameters..." --weight=1
 
 final_path=/var/www/$app
 test ! -e "$final_path" || ynh_die --message="This path already contains a folder"
@@ -47,7 +47,7 @@ ynh_webpath_register --app=$app --domain=$domain --path_url=$path_url
 #=================================================
 # STORE SETTINGS FROM MANIFEST
 #=================================================
-ynh_script_progression --message="Storing installation settings..."
+ynh_script_progression --message="Storing installation settings..." --weight=1
 
 ynh_app_setting_set --app=$app --key=domain   --value=$domain
 ynh_app_setting_set --app=$app --key=path     --value=$path_url
@@ -58,7 +58,7 @@ ynh_app_setting_set --app=$app --key=random_string --value=$random_string
 #=================================================
 # CREATE DEDICATED USER
 #=================================================
-ynh_script_progression --message="Configuring system user..."
+ynh_script_progression --message="Configuring system user..." --weight=1
 
 # Create a system user
 ynh_system_user_create --username=$app --home_dir="$final_path"
@@ -68,7 +68,7 @@ ynh_system_user_create --username=$app --home_dir="$final_path"
 #=================================================
 # INSTALL DEPENDENCIES
 #=================================================
-ynh_script_progression --message="Installing dependencies..."
+ynh_script_progression --message="Installing dependencies..." --weight=1
 
 ynh_install_app_dependencies $pkg_dependencies
 
@@ -77,7 +77,7 @@ ynh_install_app_dependencies $pkg_dependencies
 #=================================================
 
 # 1 - Hubzilla
-ynh_script_progression --message="Setting up Hubzilla source files..."
+ynh_script_progression --message="Setting up Hubzilla source files..." --weight=2
 
 git clone --quiet https://framagit.org/hubzilla/core.git "$final_path"
 
@@ -88,7 +88,7 @@ ynh_app_setting_set --app=$app --key=final_path --value=$final_path
 # 2 - Hubzilla Addons
 
 # Make addon Directory and unpack the Hubzilla addons to this directory
-ynh_script_progression --message="Create addon directory inside Hubzilla root folder..."
+ynh_script_progression --message="Create addon directory inside Hubzilla root folder..." --weight=2
 # mkdir $final_path/addon
 # ynh_script_progression --message="Setting up Hubzilla addons source files..."
 
@@ -123,7 +123,7 @@ pushd "$final_path"
 popd
 
 # 3 - Some extra folders
-ynh_script_progression --message="Creating smarty3 folder for personal data..."
+ynh_script_progression --message="Creating smarty3 folder for personal data..." --weight=2
 
 mkdir -p "${final_path}/store/[data]/smarty3"
 chmod -R 775 $final_path/store
@@ -135,7 +135,7 @@ chmod -R 775 $final_path/store
 #cp $final_path/install/htconfig.sample.php $config
 
 # Create php.log inside Hubzilla for logs
-ynh_script_progression --message="Create php.log for the Hubzilla debuging..."
+ynh_script_progression --message="Create php.log for the Hubzilla debuging..." --weight=2
 touch "$final_path/php.log"
 
 chmod 750 "$final_path"
@@ -160,8 +160,8 @@ ynh_script_progression --message="Adding a configuration file..." --weight=1
 
 ynh_add_config --template="../conf/htconfig.sample.php" --destination="$final_path/.htconfig.php"
 
-chmod 400 "$final_path/some_config_file"
-chown $app:$app "$final_path/some_config_file"
+chmod 400 "$final_path/.htconfig.php"
+chown $app:$app "$final_path/.htconfig.php"
 
 #=================================================
 # NGINX CONFIGURATION
