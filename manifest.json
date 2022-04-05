@@ -3,10 +3,10 @@
     "id": "hubzilla",
     "name": "Hubzilla",
     "description": {
-        "en": "Decentralized publication platform and social network.",
-        "fr": "Plateforme de publication décentralisée et un réseau social."
+        "en": "Decentralized publication platform and social network",
+        "fr": "Plateforme de publication décentralisée et un réseau social"
     },
-    "version": "6.0~ynh1",
+    "version": "7.2~ynh1",
     "url": "https://zotlabs.org/page/hubzilla/hubzilla-project",
     "upstream": {
         "license": "MIT",
@@ -19,7 +19,7 @@
     },
     "services": [
         "nginx",
-        "php7.3-fpm",
+        "php8.0-fpm",
         "mysql",
         "postgresql"
     ],
