@@ -130,10 +130,10 @@ mkdir -p "${final_path}/store/[data]/smarty3"
 chmod -R 775 $final_path/store
 
 # Copy the template install/htconfig.sample.php to .htconfig.php
-ynh_script_progression --message="Moving .htconfig.php to root of Hubzilla ..."
+#ynh_script_progression --message="Moving .htconfig.php to root of Hubzilla ..."
 
-config="$final_path/.htconfig.php"
-cp $final_path/install/htconfig.sample.php $config
+#config="$final_path/.htconfig.php"
+#cp $final_path/install/htconfig.sample.php $config
 
 # Create php.log inside Hubzilla for logs
 ynh_script_progression --message="Create php.log for the Hubzilla debuging..."
@@ -155,29 +155,20 @@ ynh_mysql_setup_db --db_user=$db_user --db_name=$db_name
 ynh_mysql_connect_as --user="$db_user" --password="$db_pwd" --database="$db_name" < $final_path/install/schema_mysql.sql
 
 #=================================================
-# MODIFY A CONFIG FILE
+# ADD A CONFIGURATION
 #=================================================
-
-phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
-
-config=$final_path/.htconfig.php
-
-
-
-ynh_replace_string --match_string= "//error_reporting(E_ERROR | E_WARNING | E_PARSE );" --replace_string="error_reporting(E_ERROR | E_WARNING | E_PARSE );" --target_file="$config"
-ynh_replace_string --match_string= "//ini_set('error_log','php.out');" --replace_string="ini_set('error_log','php.log');" --target_file="$config"
-ynh_replace_string --match_string= "//ini_set('log_errors','1');" --replace_string="ini_set('log_errors','1');" --target_file="$config"
-ynh_replace_string --match_string= "//ini_set('display_errors', '0');" --replace_string="ini_set('display_errors', '0');" --target_file="$config"
-sed -i "s/\['php_path'\] = 'php';/\['php_path'\] = 'php$phpversion';/g" "$config"
-
+ynh_script_progression --message="Adding a configuration file..." --weight=1
 
 ynh_add_config --template="../conf/htconfig.sample.php" --destination="$final_path/.htconfig.php"
 
+chmod 400 "$final_path/some_config_file"
+chown $app:$app "$final_path/some_config_file"
+
 
 # addon ldap config
-ynh_script_progression --message="Push LDAP configuration to .htconfig.php..."
+#ynh_script_progression --message="Push LDAP configuration to .htconfig.php..."
 
-cat ../conf/ldap_conf.php >> $final_path/.htconfig.php
+#cat ../conf/ldap_conf.php >> $final_path/.htconfig.php
 
 #=================================================
 # NGINX CONFIGURATION
@@ -199,8 +190,8 @@ phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 #=================================================
 # CRON CONFIGURATION
 #=================================================
+ynh_script_progression --message="Set up cron job..."
 
-# Set up cron job
 ynh_add_config --template="../conf/cron" --destination="/etc/cron.d/$app"
 chown root: "/etc/cron.d/$app"
 chmod 644 "/etc/cron.d/$app"
