@@ -28,9 +28,8 @@ domain=$YNH_APP_ARG_DOMAIN
 path_url="/"
 admin=$YNH_APP_ARG_ADMIN
 email=$(ynh_user_get_info --username=$admin --key=mail)
-upload="256M"
 random_string=$(ynh_string_random --length=64)
-database=`expr $YNH_APP_ARG_DATABASE`
+time_zone=$
 
 app=$YNH_APP_INSTANCE_NAME
 
@@ -55,7 +54,6 @@ ynh_app_setting_set --app=$app --key=path     --value=$path_url
 ynh_app_setting_set --app=$app --key=admin    --value=$admin
 ynh_app_setting_set --app=$app --key=email    --value=$email
 ynh_app_setting_set --app=$app --key=upload   --value=$upload
-ynh_app_setting_set --app=$app --key=database --value=$database
 ynh_app_setting_set --app=$app --key=random_string --value=$random_string
 
 #=================================================
@@ -73,7 +71,7 @@ ynh_system_user_create --username=$app --home_dir="$final_path"
 #=================================================
 ynh_script_progression --message="Installing dependencies..."
 
-ynh_exec_warn_less ynh_install_app_dependencies $pkg_dependencies
+ynh_install_app_dependencies $pkg_dependencies
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
@@ -146,32 +144,15 @@ chmod -R o-rwx "$final_path"
 chown -R $app:www-data "$final_path"
 
 #=================================================
-# CREATE A  DATABASE
+# CREATE A MYSQL DATABASE
 #=================================================
+ynh_script_progression --message="Creating a MySQL database..." --weight=1
 
-if [  $database -eq 1 ]; then
-	ynh_script_progression --message="Creating a MySQL database..."
-	db_name=$(ynh_sanitize_dbid --db_name=$app)
-	db_user=$db_name
-	ynh_app_setting_set --app=$app --key=db_name --value=$db_name
-	ynh_mysql_setup_db --db_user=$db_user --db_name=$db_name
-
-	ynh_script_progression --message="Importing database..."
-	ynh_mysql_connect_as --user="$db_name" --password="$db_pwd" --database="$db_name" < $final_path/install/schema_mysql.sql
-elif [ $database -eq 2 ]; then
-	# Create postgresql database
-	ynh_script_progression --message="Creating a postgresql database..."
-	ynh_replace_string --match_string="db_type = 0;" --replace_string="db_type = 1;" --target_file="$config"
-	db_name=$(ynh_sanitize_dbid --db_name=$app)
-	db_user=$app
-	ynh_psql_test_if_first_run
-	ynh_psql_setup_db --db_user=$db_user --db_name=$db_name
-	ynh_app_setting_set --app=$app --key=db_name --value=$db_name
-	ynh_script_progression --message="Importing database..."
-	ynh_psql_connect_as --user="$db_name" --password="$db_pwd" --database="$db_name" < $final_path/install/schema_postgres.sql
-else
-	ynh_die --message="Some problem occured in creating the database, contact maintainer"
-fi
+db_name=$(ynh_sanitize_dbid --db_name=$app)
+db_user=$db_name
+ynh_app_setting_set --app=$app --key=db_name --value=$db_name
+ynh_mysql_setup_db --db_user=$db_user --db_name=$db_name
+ynh_mysql_connect_as --user="$db_user" --password="$db_pwd" --database="$db_name" < $final_path/install/schema_mysql.sql
 
 #=================================================
 # MODIFY A CONFIG FILE
@@ -179,13 +160,10 @@ fi
 
 phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 
-ynh_replace_string --match_string="your.mysqlhost.com" --replace_string="localhost" --target_file="$config"
-ynh_replace_string --match_string= "mysqlpassword" --replace_string="$db_pwd" --target_file="$config"
-ynh_replace_string --match_string="mysqlusername" --replace_string="$db_name" --target_file="$config"
-ynh_replace_string --match_string= "mysqldatabasename" --replace_string="$db_name" --target_file="$config"
-ynh_replace_string --match_string= "mysite.example" --replace_string="$domain" --target_file="$config"
-ynh_replace_string --match_string= "if the auto install failed, put a unique random string here" --replace_string="$random_string" --target_file="$config"
-sed -i "s/\['admin_email'\] = '';/\['admin_email'\] = '$email';/g" "$config"
+config=$final_path/.htconfig.php
+
+
+
 ynh_replace_string --match_string= "//error_reporting(E_ERROR | E_WARNING | E_PARSE );" --replace_string="error_reporting(E_ERROR | E_WARNING | E_PARSE );" --target_file="$config"
 ynh_replace_string --match_string= "//ini_set('error_log','php.out');" --replace_string="ini_set('error_log','php.log');" --target_file="$config"
 ynh_replace_string --match_string= "//ini_set('log_errors','1');" --replace_string="ini_set('log_errors','1');" --target_file="$config"
@@ -193,7 +171,7 @@ ynh_replace_string --match_string= "//ini_set('display_errors', '0');" --replace
 sed -i "s/\['php_path'\] = 'php';/\['php_path'\] = 'php$phpversion';/g" "$config"
 
 
-#ynh_add_config --template="../conf/htconfig.sample.php" --destination="$final_path/.htconfig.php"
+ynh_add_config --template="../conf/htconfig.sample.php" --destination="$final_path/.htconfig.php"
 
 
 # addon ldap config

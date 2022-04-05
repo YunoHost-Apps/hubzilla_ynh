@@ -13,11 +13,11 @@
 // Then set the following for your MySQL installation
 
 $db_host = 'localhost'; // Use 'localhost' or ':/path/to/socket.file' if you aren't using a remote server
-$db_port = 0;                    // leave 0 for default or set your port
+$db_port = 3306;                    // leave 0 for default or set your port
 $db_user = '__DB_USER__';
 $db_pass = '__DB_PWD';
 $db_data = '__DB_NAME__';
-$db_type = 0; // use 1 for postgres, 0 for mysql
+$db_type = mysql; // use 1 for postgres, 0 for mysql
 
 /*
  * Notice: Many of the following settings will be available in the admin panel 
@@ -35,13 +35,13 @@ $db_type = 0; // use 1 for postgres, 0 for mysql
 // Choose a legal default timezone. If you are unsure, use "America/Los_Angeles".
 // It can be changed later and only applies to timestamps for anonymous viewers.
 
-App::$config['system']['timezone'] = 'America/Los_Angeles';
+App::$config['system']['timezone'] = '__TIME_ZONE__';
 
 // What is your site name? DO NOT ADD A TRAILING SLASH!
 
-App::$config['system']['baseurl'] = 'https://mysite.example';
+App::$config['system']['baseurl'] = 'https://__DOMAIN__';
 App::$config['system']['sitename'] = "Hubzilla";
-App::$config['system']['location_hash'] = 'if the auto install failed, put a unique random string here';
+App::$config['system']['location_hash'] = '__RANDOM_STRING__';
 
 
 // These lines set additional security headers to be sent with all responses
@@ -66,11 +66,11 @@ App::$config['system']['ssl_cookie_protection'] = 1;
 
 App::$config['system']['register_policy'] = REGISTER_OPEN;
 App::$config['system']['register_text'] = '';
-App::$config['system']['admin_email'] = '';
+App::$config['system']['admin_email'] = '__EMAIL__';
 
 // Location of PHP command line processor
 
-App::$config['system']['php_path'] = 'php';
+App::$config['system']['php_path'] = '/usr/bin/php__PHPVERSION__';
 
 
 // Configure how we communicate with directory servers.

@@ -31,7 +31,6 @@ final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 domain=$(ynh_app_setting_get --app=$app --key=domain)
 db_name=$(ynh_app_setting_get --app=$app --key=db_name)
 phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
-database=$(ynh_app_setting_get --app=$app --key=database)
 
 #=================================================
 # DECLARE DATA AND CONF FILES TO BACKUP
@@ -57,20 +56,6 @@ ynh_backup --src_path="/etc/nginx/conf.d/$domain.d/$app.conf"
 ynh_backup --src_path="/etc/php/$phpversion/fpm/pool.d/$app.conf"
 
 #=================================================
-# BACKUP OF THE  DATABASE
-#=================================================
-
-if [  $database -eq 1 ]; then
-	# Backup MySQL database
-	ynh_print_info --message="Backup of the MySQL database..."
-	ynh_mysql_dump_db --database="$db_name" > db.sql
-elif [ $database -eq 2 ]; then
-	# Backup PostgreSQL database
-	ynh_print_info --message="Backup of the PostgreSQL database..."
-    ynh_psql_dump_db --database="$db_name" > db.sql
-fi
-
-#=================================================
 # SPECIFIC BACKUP
 #=================================================
 # BACKUP LOGROTATE
@@ -90,6 +75,13 @@ ynh_backup --src_path="/etc/cron.d/$app"
 
 ynh_backup --src_path="/etc/fail2ban/jail.d/$app.conf"
 ynh_backup --src_path="/etc/fail2ban/filter.d/$app.conf"
+
+#=================================================
+# BACKUP THE MYSQL DATABASE
+#=================================================
+ynh_print_info --message="Backing up the MySQL database..."
+
+ynh_mysql_dump_db --database="$db_name" > db.sql
 
 #=================================================
 # END OF SCRIPT
