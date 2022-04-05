@@ -145,7 +145,7 @@ chown -R $app:www-data "$final_path"
 #=================================================
 # CREATE A MYSQL DATABASE
 #=================================================
-ynh_script_progression --message="Creating a MySQL database..." --weight=1
+ynh_script_progression --message="Creating a MySQL database..." --weight=2
 
 db_name=$(ynh_sanitize_dbid --db_name=$app)
 db_user=$db_name
@@ -163,16 +163,10 @@ ynh_add_config --template="../conf/htconfig.sample.php" --destination="$final_pa
 chmod 400 "$final_path/some_config_file"
 chown $app:$app "$final_path/some_config_file"
 
-
-# addon ldap config
-#ynh_script_progression --message="Push LDAP configuration to .htconfig.php..."
-
-#cat ../conf/ldap_conf.php >> $final_path/.htconfig.php
-
 #=================================================
 # NGINX CONFIGURATION
 #=================================================
-ynh_script_progression --message="Configuring NGINX web server..."
+ynh_script_progression --message="Configuring NGINX web server..." --weight=1
 
 # Create a dedicated NGINX config
 ynh_add_nginx_config
@@ -180,7 +174,7 @@ ynh_add_nginx_config
 #=================================================
 # PHP-FPM CONFIGURATION
 #=================================================
-ynh_script_progression --message="Configuring PHP-FPM..."
+ynh_script_progression --message="Configuring PHP-FPM..." --weight=1
 
 # Create a dedicated PHP-FPM config
 ynh_add_fpm_config
@@ -189,7 +183,7 @@ phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 #=================================================
 # CRON CONFIGURATION
 #=================================================
-ynh_script_progression --message="Set up cron job..."
+ynh_script_progression --message="Set up cron job..." --weight=1
 
 ynh_add_config --template="../conf/cron" --destination="/etc/cron.d/$app"
 chown root: "/etc/cron.d/$app"
@@ -198,7 +192,7 @@ chmod 644 "/etc/cron.d/$app"
 #=================================================
 # SETUP LOGROTATE
 #=================================================
-ynh_script_progression --message="Configuring log rotation..."
+ynh_script_progression --message="Configuring log rotation..." --weight=1
 
 # Use logrotate to manage application logfile(s)
 ynh_use_logrotate "$final_path/php.log"
@@ -206,14 +200,14 @@ ynh_use_logrotate "$final_path/php.log"
 #=================================================
 # SETUP FAIL2BAN
 #=================================================
-ynh_script_progression --message="Add Fail2Ban..."
+ynh_script_progression --message="Add Fail2Ban..." --weight=1
 
 ynh_add_fail2ban_config --logpath="$final_path/php.log" --failregex="^.*auth\.php.*failed login attempt.*from IP <HOST>.*$" --max_retry="5"
 
 #=================================================
 # RELOAD NGINX
 #=================================================
-ynh_script_progression --message="Reloading NGINX web server..."
+ynh_script_progression --message="Reloading NGINX web server..." --weight=1
 
 ynh_systemd_action --service_name=nginx --action=reload
 
@@ -221,4 +215,4 @@ ynh_systemd_action --service_name=nginx --action=reload
 # END OF SCRIPT
 #=================================================
 
-ynh_script_progression --message="Installation of $app completed"
+ynh_script_progression --message="Installation of $app completed" --last
