@@ -1,7 +1,8 @@
 {
-    "packaging_format": 1,
-    "id": "hubzilla",
+
     "name": "Hubzilla",
+    "id": "hubzilla",
+    "packaging_format": 1,
     "description": {
         "en": "Decentralized publication platform and social network",
         "fr": "Plateforme de publication décentralisée et un réseau social"
@@ -17,15 +18,15 @@
     "maintainer": {
         "name": "Anmol Sharma"
     },
+    "requirements": {
+        "yunohost": ">= 4.3.0"
+    },
     "services": [
         "nginx",
         "php8.0-fpm",
         "mysql",
         "postgresql"
     ],
-    "requirements": {
-        "yunohost": ">= 4.3.0"
-    },
     "previous_maintainers": {
         "name": "Andrew Manning",
         "email": "andrew@reticu.li"
