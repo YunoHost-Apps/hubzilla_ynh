@@ -29,7 +29,7 @@ path_url="/"
 admin=$YNH_APP_ARG_ADMIN
 email=$(ynh_user_get_info --username=$admin --key=mail)
 upload="256M"
-random_string="$(ynh_string_random)$(ynh_string_random)$(ynh_string_random)"
+random_string=$(ynh_string_random --length=64)
 database=`expr $YNH_APP_ARG_DATABASE`
 
 app=$YNH_APP_INSTANCE_NAME
@@ -73,9 +73,7 @@ ynh_system_user_create --username=$app --home_dir="$final_path"
 #=================================================
 ynh_script_progression --message="Installing dependencies..."
 
-if [ $database -eq 2 ]; then
-	ynh_install_app_dependencies $pkg_dependencies
-fi
+ynh_exec_warn_less ynh_install_app_dependencies $pkg_dependencies
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
@@ -217,10 +215,15 @@ ynh_add_nginx_config
 ynh_script_progression --message="Configuring PHP-FPM..."
 
 # Create a dedicated PHP-FPM config
-ynh_add_fpm_config --package="$extra_php_dependencies"
+ynh_add_fpm_config
+phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
+
+#=================================================
+# CRON CONFIGURATION
+#=================================================
 
 # Set up cron job
-ynh_add_config --template="../conf/poller-cron" --destination="/etc/cron.d/$app"
+ynh_add_config --template="../conf/cron" --destination="/etc/cron.d/$app"
 chown root: "/etc/cron.d/$app"
 chmod 644 "/etc/cron.d/$app"
 

@@ -14,7 +14,7 @@
 
 $db_host = 'localhost'; // Use 'localhost' or ':/path/to/socket.file' if you aren't using a remote server
 $db_port = 0;                    // leave 0 for default or set your port
-$db_user = '__DB_NAME__';
+$db_user = '__DB_USER__';
 $db_pass = '__DB_PWD';
 $db_data = '__DB_NAME__';
 $db_type = 0; // use 1 for postgres, 0 for mysql
