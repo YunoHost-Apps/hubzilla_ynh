@@ -1,5 +1,4 @@
 {
-
     "name": "Hubzilla",
     "id": "hubzilla",
     "packaging_format": 1,
@@ -41,16 +40,6 @@
             {
                 "name": "admin",
                 "type": "user"
-            },
-            {
-                "name": "database",
-                "type": "string",
-                "ask": {
-                    "en": "Choose the database to be used for the Hubzilla [mysql:1,postgresql:2]",
-                    "fr": "Choisissez la database de Hubzilla [mysql:1,postgresql:2]"
-                },
-                "choices": ["1", "2"],
-                "default": "1"
             }
         ]
     }

@@ -35,7 +35,7 @@ $db_type = mysql; // use 1 for postgres, 0 for mysql
 // Choose a legal default timezone. If you are unsure, use "America/Los_Angeles".
 // It can be changed later and only applies to timestamps for anonymous viewers.
 
-App::$config['system']['timezone'] = '__TIME_ZONE__';
+App::$config['system']['timezone'] = '__TIMEZONE__';
 
 // What is your site name? DO NOT ADD A TRAILING SLASH!
 
