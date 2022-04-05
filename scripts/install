@@ -29,7 +29,7 @@ path_url="/"
 admin=$YNH_APP_ARG_ADMIN
 email=$(ynh_user_get_info --username=$admin --key=mail)
 random_string=$(ynh_string_random --length=64)
-time_zone=$
+timezone="$(cat /etc/timezone)"
 
 app=$YNH_APP_INSTANCE_NAME
 
@@ -210,14 +210,6 @@ ynh_use_logrotate "$final_path/php.log"
 ynh_script_progression --message="Add Fail2Ban..."
 
 ynh_add_fail2ban_config --logpath="$final_path/php.log" --failregex="^.*auth\.php.*failed login attempt.*from IP <HOST>.*$" --max_retry="5"
-
-#=================================================
-# SETUP SSOWAT
-#=================================================
-# As Hubzilla is social network and have its own permission there is no need to keep Hubzilla behind SSO
-ynh_script_progression --message="Configuring permissions..."
-
-ynh_permission_update --permission="main" --add="visitors"
 
 #=================================================
 # RELOAD NGINX

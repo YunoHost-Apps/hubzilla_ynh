@@ -188,23 +188,6 @@ chown root: "/etc/cron.d/$app"
 chmod 644 "/etc/cron.d/$app"
 
 #=================================================
-# UPGRADE DEPENDENCIES
-#=================================================
-ynh_script_progression --message="Upgrading dependencies..."
-
-#=================================================
-# CHECK VERSION FOR SPECIFIC MYSQL UPDATE
-#=================================================
-
-# Check version and if this version was a fresh install push mysql query
-db_name=$(ynh_app_setting_get --app=$app --key=db_name)
-db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
-is_version_equal_three_eight_four=$(awk 'BEGIN{ print "'$version'"<"'3.8.4'" }')
-if [ -z "$last_update" ] && [ "$is_version_equal_three_eight_four" -eq 1 ]; then
-	ynh_mysql_connect_as "$db_name" "$db_pwd" "$db_name" < "../conf/sql/385.sql"
-fi
-
-#=================================================
 # RELOAD NGINX
 #=================================================
 ynh_script_progression --message="Reloading NGINX web server..."
