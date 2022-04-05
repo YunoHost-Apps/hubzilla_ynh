@@ -29,7 +29,7 @@ path_url="/"
 admin=$YNH_APP_ARG_ADMIN
 email=$(ynh_user_get_info --username=$admin --key=mail)
 upload="256M"
-random_string="$(ynh_string_random)$(ynh_string_random)$(ynh_string_random)"
+random_string="$(ynh_string_random --length=64)"
 database=`expr $YNH_APP_ARG_DATABASE`
 
 app=$YNH_APP_INSTANCE_NAME
@@ -50,11 +50,11 @@ ynh_webpath_register --app=$app --domain=$domain --path_url=$path_url
 #=================================================
 ynh_script_progression --message="Storing installation settings..."
 
-ynh_app_setting_set --app=$app --key=domain   --value=$domain
-ynh_app_setting_set --app=$app --key=path     --value=$path_url
-ynh_app_setting_set --app=$app --key=admin    --value=$admin
-ynh_app_setting_set --app=$app --key=email    --value=$email
-ynh_app_setting_set --app=$app --key=upload   --value=$upload
+ynh_app_setting_set --app=$app --key=domain --value=$domain
+ynh_app_setting_set --app=$app --key=path --value=$path_url
+ynh_app_setting_set --app=$app --key=admin --value=$admin
+ynh_app_setting_set --app=$app --key=email --value=$email
+ynh_app_setting_set --app=$app --key=upload --value=$upload
 ynh_app_setting_set --app=$app --key=database --value=$database
 ynh_app_setting_set --app=$app --key=random_string --value=$random_string
 
@@ -73,9 +73,7 @@ ynh_system_user_create --username=$app --home_dir="$final_path"
 #=================================================
 ynh_script_progression --message="Installing dependencies..."
 
-if [ $database -eq 2 ]; then
-	ynh_install_app_dependencies $pkg_dependencies
-fi
+ynh_exec_warn_less ynh_install_app_dependencies $pkg_dependencies
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
@@ -134,10 +132,10 @@ mkdir -p "${final_path}/store/[data]/smarty3"
 chmod -R 775 $final_path/store
 
 # Copy the template install/htconfig.sample.php to .htconfig.php
-ynh_script_progression --message="Moving .htconfig.php to root of Hubzilla ..."
+#ynh_script_progression --message="Moving .htconfig.php to root of Hubzilla ..."
 
-config="$final_path/.htconfig.php"
-cp $final_path/install/htconfig.sample.php $config
+#config="$final_path/.htconfig.php"
+#cp $final_path/install/htconfig.sample.php $config
 
 # Create php.log inside Hubzilla for logs
 ynh_script_progression --message="Create php.log for the Hubzilla debuging..."
@@ -176,32 +174,14 @@ else
 fi
 
 #=================================================
-# MODIFY A CONFIG FILE
+# ADD A CONFIGURATION
 #=================================================
+ynh_script_progression --message="Adding a configuration file..."
 
-phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
+ynh_add_config --template="../conf/htconfig.sample.php" --destination="$final_path/.htconfig.php"
 
-ynh_replace_string --match_string="your.mysqlhost.com" --replace_string="localhost" --target_file="$config"
-ynh_replace_string --match_string= "mysqlpassword" --replace_string="$db_pwd" --target_file="$config"
-ynh_replace_string --match_string="mysqlusername" --replace_string="$db_name" --target_file="$config"
-ynh_replace_string --match_string= "mysqldatabasename" --replace_string="$db_name" --target_file="$config"
-ynh_replace_string --match_string= "mysite.example" --replace_string="$domain" --target_file="$config"
-ynh_replace_string --match_string= "if the auto install failed, put a unique random string here" --replace_string="$random_string" --target_file="$config"
-sed -i "s/\['admin_email'\] = '';/\['admin_email'\] = '$email';/g" "$config"
-ynh_replace_string --match_string= "//error_reporting(E_ERROR | E_WARNING | E_PARSE );" --replace_string="error_reporting(E_ERROR | E_WARNING | E_PARSE );" --target_file="$config"
-ynh_replace_string --match_string= "//ini_set('error_log','php.out');" --replace_string="ini_set('error_log','php.log');" --target_file="$config"
-ynh_replace_string --match_string= "//ini_set('log_errors','1');" --replace_string="ini_set('log_errors','1');" --target_file="$config"
-ynh_replace_string --match_string= "//ini_set('display_errors', '0');" --replace_string="ini_set('display_errors', '0');" --target_file="$config"
-sed -i "s/\['php_path'\] = 'php';/\['php_path'\] = 'php$phpversion';/g" "$config"
-
-
-#ynh_add_config --template="../conf/htconfig.sample.php" --destination="$final_path/.htconfig.php"
-
-
-# addon ldap config
-ynh_script_progression --message="Push LDAP configuration to .htconfig.php..."
-
-cat ../conf/ldap_conf.php >> $final_path/.htconfig.php
+chmod 400 "$final_path/.htconfig.php"
+chown $app:$app "$final_path/.htconfig.php"
 
 #=================================================
 # NGINX CONFIGURATION
@@ -217,7 +197,13 @@ ynh_add_nginx_config
 ynh_script_progression --message="Configuring PHP-FPM..."
 
 # Create a dedicated PHP-FPM config
-ynh_add_fpm_config --package="$extra_php_dependencies"
+ynh_add_fpm_config
+phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
+
+#=================================================
+# CRON CONFIGURATION
+#=================================================
+ynh_script_progression --message="Configuring CRON..."
 
 # Set up cron job
 ynh_add_config --template="../conf/poller-cron" --destination="/etc/cron.d/$app"

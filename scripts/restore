@@ -42,8 +42,6 @@ phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 #=================================================
 ynh_script_progression --message="Validating restoration parameters..."
 
-ynh_webpath_available --domain=$domain --path_url=$path_url \
-	|| ynh_die --message="Path not available: ${domain}${path_url}"
 test ! -d $final_path \
 	|| ynh_die --message="There is already a directory: $final_path "
 
@@ -52,6 +50,7 @@ test ! -d $final_path \
 #=================================================
 # RESTORE THE NGINX CONFIGURATION
 #=================================================
+ynh_script_progression --message="Restoring the NGINX web server configuration..."
 
 ynh_restore_file --origin_path="/etc/nginx/conf.d/$domain.d/$app.conf"
 
@@ -77,13 +76,12 @@ chown -R $app:www-data "$final_path"
 #=================================================
 # RESTORE THE MYSQL DATABASE
 #=================================================
-ynh_script_progression --message="Restoring the MySQL database..."
 
 if [  $database -eq 1 ]; then
 	ynh_script_progression --message="Restoring  MySQL database..."
 	db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
-	ynh_mysql_setup_db --db_user=$db_name --db_name=$db_name --db_pwd=$db_pwd
-	ynh_mysql_connect_as --user=$db_name --password=$db_pwd --database=$db_name < ./db.sql
+	ynh_mysql_setup_db --db_user=$db_user --db_name=$db_name --db_pwd=$db_pwd
+	ynh_mysql_connect_as --user=$db_user --password=$db_pwd --database=$db_name < ./db.sql
 elif [ $database -eq 2 ]; then
 	# Removing postgresql database
 	ynh_script_progression --message="Reinstalling dependencies..."
@@ -103,8 +101,16 @@ ynh_script_progression --message="Restoring PHP-FPM configuration..."
 
 ynh_restore_file --origin_path="/etc/php/$phpversion/fpm/pool.d/$app.conf"
 
-# Recreate a dedicated php-fpm config
-ynh_add_fpm_config --package="$extra_php_dependencies"
+# Recreate a dedicated PHP-FPM config
+ynh_add_fpm_config
+
+#=================================================
+# REINSTALL DEPENDENCIES
+#=================================================
+ynh_script_progression --message="Reinstalling dependencies..."
+
+# Define and install dependencies
+ynh_install_app_dependencies $pkg_dependencies
 
 #=================================================
 # SPECIFIC RESTORATION

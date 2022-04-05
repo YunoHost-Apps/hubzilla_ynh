@@ -26,8 +26,29 @@ database=$(ynh_app_setting_get --app=$app --key=database)
 phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 
 #=================================================
+# CHECK VERSION
+#=================================================
+
+upgrade_type=$(ynh_check_app_version_changed)
+
+#=================================================
+# BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
+#=================================================
+ynh_script_progression --message="Backing up the app before upgrading (may take a while)..."
+
+# Backup the current version of the app
+ynh_backup_before_upgrade
+ynh_clean_setup () {
+	# restore it if the upgrade fails
+	ynh_restore_upgradebackup
+}
+# Exit if an error occurs during the execution of the script
+ynh_abort_if_errors
+
+#=================================================
 # ENSURE DOWNWARD COMPATIBILITY
 #=================================================
+ynh_script_progression --message="Ensuring downward compatibility..."
 
 # If db_name doesn't exist, create it
 if [ -z "$db_name" ]; then
@@ -47,20 +68,6 @@ if ynh_legacy_permissions_exists; then
 
 	ynh_app_setting_delete --app=$app --key=is_public
 fi
-
-#=================================================
-# BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
-#=================================================
-ynh_script_progression --message="Backing up the app before upgrading (may take a while)..."
-
-# Backup the current version of the app
-ynh_backup_before_upgrade
-ynh_clean_setup () {
-	# restore it if the upgrade fails
-	ynh_restore_upgradebackup
-}
-# Exit if an error occurs during the execution of the script
-ynh_abort_if_errors
 
 #=================================================
 # CREATE DEDICATED USER
@@ -154,7 +161,7 @@ ynh_add_nginx_config
 ynh_print_info "Upgrading PHP-FPM configuration..."
 
 # Create a dedicated php-fpm config
-ynh_add_fpm_config --package="$extra_php_dependencies"
+ynh_add_fpm_config
 
 ### Verify the checksum of a file, stored by `ynh_store_file_checksum` in the install script.
 ### And create a backup of this file if the checksum is different. So the file will be backed up if the admin had modified it.
@@ -170,6 +177,7 @@ ynh_script_progression --message="Upgrading logrotate configuration..."
 # Use logrotate to manage app-specific logfile(s)
 ynh_use_logrotate --non-append
 
+#=================================================
 # UPGRADE FAIL2BAN
 #=================================================
 ynh_script_progression --message="Re-configure Fail2Ban..."
@@ -183,6 +191,7 @@ ynh_add_config --template="../conf/poller-cron" --destination="/etc/cron.d/$app"
 # UPGRADE DEPENDENCIES
 #=================================================
 ynh_script_progression --message="Upgrading dependencies..."
+
 if [  $database -eq 1 ]; then
 	#=================================================
 	# CHECK VERSION FOR SPECIFIC MYSQL UPDATE
@@ -193,7 +202,7 @@ if [  $database -eq 1 ]; then
 	db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
 	is_version_equal_three_eight_four=$(awk 'BEGIN{ print "'$version'"<"'3.8.4'" }')
 	if [ -z "$last_update" ] && [ "$is_version_equal_three_eight_four" -eq 1 ]; then
-		ynh_mysql_connect_as "$db_name" "$db_pwd" "$db_name" < "../conf/sql/385.sql"
+		ynh_mysql_connect_as --user="$db_name" --password="$db_pwd" --database="$db_name" < "../conf/sql/385.sql"
 	fi
 
 elif [ $database -eq 2 ]; then
