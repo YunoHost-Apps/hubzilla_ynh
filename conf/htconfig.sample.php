@@ -89,7 +89,7 @@ App::$config['system']['directory_mode']  = DIRECTORY_MODE_NORMAL;
 
 // Uncomment the following 4 lines to turn on PHP error logging.
 error_reporting(E_ERROR | E_WARNING | E_PARSE ); 
-ini_set('error_log','php.out'); 
+ini_set('error_log','php.log'); 
 ini_set('log_errors','1'); 
 ini_set('display_errors', '0');
 

@@ -159,18 +159,18 @@ if [  $database -eq 1 ]; then
 	ynh_mysql_setup_db --db_user=$db_user --db_name=$db_name
 
 	ynh_script_progression --message="Importing database..."
-	ynh_mysql_connect_as --user="$db_name" --password="$db_pwd" --database="$db_name" < $final_path/install/schema_mysql.sql
+	ynh_mysql_connect_as --user="$db_user" --password="$db_pwd" --database="$db_name" < $final_path/install/schema_mysql.sql
 elif [ $database -eq 2 ]; then
 	# Create postgresql database
 	ynh_script_progression --message="Creating a postgresql database..."
 	ynh_replace_string --match_string="db_type = 0;" --replace_string="db_type = 1;" --target_file="$config"
 	db_name=$(ynh_sanitize_dbid --db_name=$app)
-	db_user=$app
+	db_user=$db_name
 	ynh_psql_test_if_first_run
 	ynh_psql_setup_db --db_user=$db_user --db_name=$db_name
 	ynh_app_setting_set --app=$app --key=db_name --value=$db_name
 	ynh_script_progression --message="Importing database..."
-	ynh_psql_connect_as --user="$db_name" --password="$db_pwd" --database="$db_name" < $final_path/install/schema_postgres.sql
+	ynh_psql_connect_as --user="$db_user" --password="$db_pwd" --database="$db_name" < $final_path/install/schema_postgres.sql
 else
 	ynh_die --message="Some problem occured in creating the database, contact maintainer"
 fi
@@ -183,7 +183,7 @@ phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 
 ynh_replace_string --match_string="your.mysqlhost.com" --replace_string="localhost" --target_file="$config"
 ynh_replace_string --match_string= "mysqlpassword" --replace_string="$db_pwd" --target_file="$config"
-ynh_replace_string --match_string="mysqlusername" --replace_string="$db_name" --target_file="$config"
+ynh_replace_string --match_string="mysqlusername" --replace_string="$db_user" --target_file="$config"
 ynh_replace_string --match_string= "mysqldatabasename" --replace_string="$db_name" --target_file="$config"
 ynh_replace_string --match_string= "mysite.example" --replace_string="$domain" --target_file="$config"
 ynh_replace_string --match_string= "if the auto install failed, put a unique random string here" --replace_string="$random_string" --target_file="$config"
