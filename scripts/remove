@@ -18,7 +18,7 @@ app=$YNH_APP_INSTANCE_NAME
 
 domain=$(ynh_app_setting_get --app=$app --key=domain)
 db_name=$(ynh_app_setting_get --app=$app --key=db_name)
-db_user="$db_name"
+db_user=$db_name
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 database=$(ynh_app_setting_get --app=$app --key=database)
 
@@ -34,17 +34,9 @@ if [  $database -eq 1 ]; then
 	ynh_mysql_remove_db --db_user=$db_user --db_name=$db_name
 elif [ $database -eq 2 ]; then
 	# Removing PostgreSQL database
-	ynh_script_progression --message="Removing  postgresql database..."
+	ynh_script_progression --message="Removing  PostgreSQL database..."
     ynh_psql_remove_db --db_user=$db_user --db_name=$db_name
 fi
-
-#=================================================
-# REMOVE DEPENDENCIES
-#=================================================
-ynh_script_progression --message="Removing dependencies..."
-
-# Remove metapackage and its dependencies
-ynh_remove_app_dependencies
 
 #=================================================
 # REMOVE APP MAIN DIR
@@ -69,6 +61,14 @@ ynh_script_progression --message="Removing PHP-FPM configuration..."
 
 # Remove the dedicated PHP-FPM config
 ynh_remove_fpm_config
+
+#=================================================
+# REMOVE DEPENDENCIES
+#=================================================
+ynh_script_progression --message="Removing dependencies..."
+
+# Remove metapackage and its dependencies
+ynh_remove_app_dependencies
 
 #=================================================
 # REMOVE LOGROTATE CONFIGURATION

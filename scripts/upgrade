@@ -24,6 +24,21 @@ version=$(grep STD_VERSION $final_path/boot.php |  cut -c 38- | rev | cut -c 5- 
 last_update=$(grep  update_time: /etc/yunohost/apps/$app/settings.yml |  cut -c 14-)
 database=$(ynh_app_setting_get --app=$app --key=database)
 phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
+db_name=$(ynh_app_setting_get --app=$app --key=db_name)
+
+#=================================================
+# BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
+#=================================================
+ynh_script_progression --message="Backing up the app before upgrading (may take a while)..."
+
+# Backup the current version of the app
+ynh_backup_before_upgrade
+ynh_clean_setup () {
+	# restore it if the upgrade fails
+	ynh_restore_upgradebackup
+}
+# Exit if an error occurs during the execution of the script
+ynh_abort_if_errors
 
 #=================================================
 # ENSURE DOWNWARD COMPATIBILITY
@@ -47,20 +62,6 @@ if ynh_legacy_permissions_exists; then
 
 	ynh_app_setting_delete --app=$app --key=is_public
 fi
-
-#=================================================
-# BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
-#=================================================
-ynh_script_progression --message="Backing up the app before upgrading (may take a while)..."
-
-# Backup the current version of the app
-ynh_backup_before_upgrade
-ynh_clean_setup () {
-	# restore it if the upgrade fails
-	ynh_restore_upgradebackup
-}
-# Exit if an error occurs during the execution of the script
-ynh_abort_if_errors
 
 #=================================================
 # CREATE DEDICATED USER
@@ -149,12 +150,24 @@ ynh_script_progression --message="Upgrading NGINX web server configuration..."
 ynh_add_nginx_config
 
 #=================================================
+# UPGRADE DEPENDENCIES
+#=================================================
+ynh_script_progression --message="Upgrading dependencies..."
+
+ynh_exec_warn_less ynh_install_app_dependencies $pkg_dependencies
+
+#=================================================
 # PHP-FPM CONFIGURATION
 #=================================================
 ynh_print_info "Upgrading PHP-FPM configuration..."
 
 # Create a dedicated php-fpm config
-ynh_add_fpm_config --package="$extra_php_dependencies"
+ynh_add_fpm_config
+
+#=================================================
+# UPDATE A CONFIG FILE
+#=================================================
+ynh_script_progression --message="Updating a configuration file..."
 
 ### Verify the checksum of a file, stored by `ynh_store_file_checksum` in the install script.
 ### And create a backup of this file if the checksum is different. So the file will be backed up if the admin had modified it.
@@ -182,30 +195,31 @@ ynh_add_config --template="../conf/poller-cron" --destination="/etc/cron.d/$app"
 #=================================================
 # UPGRADE DEPENDENCIES
 #=================================================
-ynh_script_progression --message="Upgrading dependencies..."
-if [  $database -eq 1 ]; then
-	#=================================================
-	# CHECK VERSION FOR SPECIFIC MYSQL UPDATE
-	#=================================================
+# ynh_script_progression --message="Upgrading dependencies..."
 
-	# Check version and if this version was a fresh install push mysql query
-	db_name=$(ynh_app_setting_get --app=$app --key=db_name)
-	db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
-	is_version_equal_three_eight_four=$(awk 'BEGIN{ print "'$version'"<"'3.8.4'" }')
-	if [ -z "$last_update" ] && [ "$is_version_equal_three_eight_four" -eq 1 ]; then
-		ynh_mysql_connect_as "$db_name" "$db_pwd" "$db_name" < "../conf/sql/385.sql"
-	fi
+# if [  $database -eq 1 ]; then
+# 	#=================================================
+# 	# CHECK VERSION FOR SPECIFIC MYSQL UPDATE
+# 	#=================================================
 
-elif [ $database -eq 2 ]; then
-	ynh_install_app_dependencies $pkg_dependencies
-fi
-is_version_less_then_five=$(awk 'BEGIN{ print "'$version'"<"'5.0.0'" }')
+# 	# Check version and if this version was a fresh install push mysql query
+# 	db_name=$(ynh_app_setting_get --app=$app --key=db_name)
+# 	db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
+# 	is_version_equal_three_eight_four=$(awk 'BEGIN{ print "'$version'"<"'3.8.4'" }')
+# 	if [ -z "$last_update" ] && [ "$is_version_equal_three_eight_four" -eq 1 ]; then
+# 		ynh_mysql_connect_as "$db_name" "$db_pwd" "$db_name" < "../conf/sql/385.sql"
+# 	fi
 
-if [ "$is_version_less_then_five" -eq 1 ] && [ -f "$final_path/util/z6convert.php" ] ; then
-	pushd "$final_path"
-		php${YNH_PHP_VERSION} util/z6convert.php
-	popd
-fi
+# elif [ $database -eq 2 ]; then
+# 	ynh_install_app_dependencies $pkg_dependencies
+# fi
+# is_version_less_then_five=$(awk 'BEGIN{ print "'$version'"<"'5.0.0'" }')
+
+# if [ "$is_version_less_then_five" -eq 1 ] && [ -f "$final_path/util/z6convert.php" ] ; then
+# 	pushd "$final_path"
+# 		php${YNH_PHP_VERSION} util/z6convert.php
+# 	popd
+# fi
 
 #=================================================
 # RELOAD NGINX

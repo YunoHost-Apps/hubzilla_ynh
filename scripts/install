@@ -50,11 +50,11 @@ ynh_webpath_register --app=$app --domain=$domain --path_url=$path_url
 #=================================================
 ynh_script_progression --message="Storing installation settings..."
 
-ynh_app_setting_set --app=$app --key=domain   --value=$domain
-ynh_app_setting_set --app=$app --key=path     --value=$path_url
-ynh_app_setting_set --app=$app --key=admin    --value=$admin
-ynh_app_setting_set --app=$app --key=email    --value=$email
-ynh_app_setting_set --app=$app --key=upload   --value=$upload
+ynh_app_setting_set --app=$app --key=domain --value=$domain
+ynh_app_setting_set --app=$app --key=path --value=$path_url
+ynh_app_setting_set --app=$app --key=admin --value=$admin
+ynh_app_setting_set --app=$app --key=email --value=$email
+ynh_app_setting_set --app=$app --key=upload --value=$upload
 ynh_app_setting_set --app=$app --key=database --value=$database
 ynh_app_setting_set --app=$app --key=random_string --value=$random_string
 
@@ -73,9 +73,7 @@ ynh_system_user_create --username=$app --home_dir="$final_path"
 #=================================================
 ynh_script_progression --message="Installing dependencies..."
 
-if [ $database -eq 2 ]; then
-	ynh_install_app_dependencies $pkg_dependencies
-fi
+ynh_exec_warn_less ynh_install_app_dependencies $pkg_dependencies
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
@@ -87,17 +85,11 @@ ynh_script_progression --message="Setting up Hubzilla source files..."
 git clone --quiet https://framagit.org/hubzilla/core.git "$final_path"
 
 ynh_app_setting_set --app=$app --key=final_path --value=$final_path
-# Download, check integrity, uncompress and patch the source from app.src
-# ynh_setup_source --dest_dir="$final_path"
 
 # 2 - Hubzilla Addons
 
 # Make addon Directory and unpack the Hubzilla addons to this directory
 ynh_script_progression --message="Create addon directory inside Hubzilla root folder..."
-# mkdir $final_path/addon
-# ynh_script_progression --message="Setting up Hubzilla addons source files..."
-
-# ynh_setup_source --dest_dir="$final_path/addon" --source_id="app_addons"
 
 pushd "$final_path"
 	mkdir -p extend/addon/hzaddons
@@ -148,6 +140,16 @@ chmod -R o-rwx "$final_path"
 chown -R $app:www-data "$final_path"
 
 #=================================================
+# ADD A CONFIGURATION
+#=================================================
+ynh_script_progression --message="Adding a configuration file..."
+
+ynh_add_config --template="../conf/htconfig.sample.php" --destination="$final_path/.htconfig.php"
+
+chmod 400 "$final_path/.htconfig.php"
+chown $app:$app "$final_path/.htconfig.php"
+
+#=================================================
 # CREATE A  DATABASE
 #=================================================
 
@@ -157,51 +159,20 @@ if [  $database -eq 1 ]; then
 	db_user=$db_name
 	ynh_app_setting_set --app=$app --key=db_name --value=$db_name
 	ynh_mysql_setup_db --db_user=$db_user --db_name=$db_name
-
-	ynh_script_progression --message="Importing database..."
 	ynh_mysql_connect_as --user="$db_user" --password="$db_pwd" --database="$db_name" < $final_path/install/schema_mysql.sql
 elif [ $database -eq 2 ]; then
 	# Create postgresql database
-	ynh_script_progression --message="Creating a postgresql database..."
+	ynh_script_progression --message="Creating a PostgreSQL database..."
 	ynh_replace_string --match_string="db_type = 0;" --replace_string="db_type = 1;" --target_file="$config"
 	db_name=$(ynh_sanitize_dbid --db_name=$app)
 	db_user=$db_name
 	ynh_psql_test_if_first_run
 	ynh_psql_setup_db --db_user=$db_user --db_name=$db_name
 	ynh_app_setting_set --app=$app --key=db_name --value=$db_name
-	ynh_script_progression --message="Importing database..."
 	ynh_psql_connect_as --user="$db_user" --password="$db_pwd" --database="$db_name" < $final_path/install/schema_postgres.sql
 else
 	ynh_die --message="Some problem occured in creating the database, contact maintainer"
 fi
-
-#=================================================
-# MODIFY A CONFIG FILE
-#=================================================
-
-phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
-
-ynh_replace_string --match_string="your.mysqlhost.com" --replace_string="localhost" --target_file="$config"
-ynh_replace_string --match_string= "mysqlpassword" --replace_string="$db_pwd" --target_file="$config"
-ynh_replace_string --match_string="mysqlusername" --replace_string="$db_user" --target_file="$config"
-ynh_replace_string --match_string= "mysqldatabasename" --replace_string="$db_name" --target_file="$config"
-ynh_replace_string --match_string= "mysite.example" --replace_string="$domain" --target_file="$config"
-ynh_replace_string --match_string= "if the auto install failed, put a unique random string here" --replace_string="$random_string" --target_file="$config"
-sed -i "s/\['admin_email'\] = '';/\['admin_email'\] = '$email';/g" "$config"
-ynh_replace_string --match_string= "//error_reporting(E_ERROR | E_WARNING | E_PARSE );" --replace_string="error_reporting(E_ERROR | E_WARNING | E_PARSE );" --target_file="$config"
-ynh_replace_string --match_string= "//ini_set('error_log','php.out');" --replace_string="ini_set('error_log','php.log');" --target_file="$config"
-ynh_replace_string --match_string= "//ini_set('log_errors','1');" --replace_string="ini_set('log_errors','1');" --target_file="$config"
-ynh_replace_string --match_string= "//ini_set('display_errors', '0');" --replace_string="ini_set('display_errors', '0');" --target_file="$config"
-sed -i "s/\['php_path'\] = 'php';/\['php_path'\] = 'php$phpversion';/g" "$config"
-
-
-#ynh_add_config --template="../conf/htconfig.sample.php" --destination="$final_path/.htconfig.php"
-
-
-# addon ldap config
-ynh_script_progression --message="Push LDAP configuration to .htconfig.php..."
-
-cat ../conf/ldap_conf.php >> $final_path/.htconfig.php
 
 #=================================================
 # NGINX CONFIGURATION
@@ -217,7 +188,13 @@ ynh_add_nginx_config
 ynh_script_progression --message="Configuring PHP-FPM..."
 
 # Create a dedicated PHP-FPM config
-ynh_add_fpm_config --package="$extra_php_dependencies"
+ynh_add_fpm_config
+phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
+
+#=================================================
+#CRON JOB CONFIGURATION
+#=================================================
+ynh_script_progression --message="Configuring Cron..."
 
 # Set up cron job
 ynh_add_config --template="../conf/poller-cron" --destination="/etc/cron.d/$app"
@@ -238,14 +215,6 @@ ynh_use_logrotate "$final_path/php.log"
 ynh_script_progression --message="Add Fail2Ban..."
 
 ynh_add_fail2ban_config --logpath="$final_path/php.log" --failregex="^.*auth\.php.*failed login attempt.*from IP <HOST>.*$" --max_retry="5"
-
-#=================================================
-# SETUP SSOWAT
-#=================================================
-# As Hubzilla is social network and have its own permission there is no need to keep Hubzilla behind SSO
-ynh_script_progression --message="Configuring permissions..."
-
-ynh_permission_update --permission="main" --add="visitors"
 
 #=================================================
 # RELOAD NGINX

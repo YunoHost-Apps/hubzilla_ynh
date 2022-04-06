@@ -19,7 +19,7 @@
     },
     "services": [
         "nginx",
-        "php7.3-fpm",
+        "php8.1-fpm",
         "mysql",
         "postgresql"
     ],
