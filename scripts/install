@@ -127,7 +127,7 @@ mkdir -p "${final_path}/store/[data]/smarty3"
 chmod -R 775 $final_path/store
 
 # Copy the template install/htconfig.sample.php to .htconfig.php
-ynh_script_progression --message="Moving .htconfig.php to root of Hubzilla ..."
+ynh_script_progression --message="Moving .htconfig.php to root of Hubzilla..."
 
 config="$final_path/.htconfig.php"
 cp $final_path/install/htconfig.sample.php $config
