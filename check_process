@@ -11,10 +11,14 @@
 		setup_private=0
 		setup_public=1
 		upgrade=1
-		upgrade=1	from_commit=3642c110f0e927ba36ee32e738a81e6afce958f7
+		upgrade=1	from_commit=f71b1ffaa30926cdce90813c825d05cb7e89d709
 		backup_restore=1
 		multi_instance=1
 		change_url=0
 ;;; Options
 Email=anmol@datamol.org
-Notification=change
+Notification=none
+;;; Upgrade options
+	; commit=f71b1ffaa30926cdce90813c825d05cb7e89d709
+		name=#78
+		manifest_arg=domain=DOMAIN&path=PATH&is_public=1&language=fr&admin=USER&password=pass&port=666&

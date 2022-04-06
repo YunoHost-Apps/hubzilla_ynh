@@ -17,6 +17,10 @@
     "maintainer": {
         "name": "Anmol Sharma"
     },
+    "previous_maintainers": {
+        "name": "Andrew Manning",
+        "email": "andrew@reticu.li"
+        },
     "services": [
         "nginx",
         "php8.1-fpm",
@@ -26,10 +30,6 @@
     "requirements": {
         "yunohost": ">= 4.3.0"
     },
-    "previous_maintainers": {
-        "name": "Andrew Manning",
-        "email": "andrew@reticu.li"
-        },
     "multi_instance": true,
     "arguments": {
         "install" : [
@@ -45,7 +45,7 @@
                 "name": "database",
                 "type": "string",
                 "ask": {
-                    "en": "Choose the database to be used for the Hubzilla [MySQL: 1, PostgreSQL: 2]",
+                    "en": "Choose the database to be used for Hubzilla [MySQL: 1, PostgreSQL: 2]",
                     "fr": "Choisissez la base de données de Hubzilla [MySQL : 1, PostgreSQL : 2]"
                 },
                 "choices": ["1", "2"],
