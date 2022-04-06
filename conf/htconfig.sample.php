@@ -14,8 +14,8 @@
 
 $db_host = 'localhost'; // Use 'localhost' or ':/path/to/socket.file' if you aren't using a remote server
 $db_port = 0;                    // leave 0 for default or set your port
-$db_user = '__DB_NAME__';
-$db_pass = '__DB_PWD';
+$db_user = '__DB_USER__';
+$db_pass = '__DB_PWD__';
 $db_data = '__DB_NAME__';
 $db_type = 0; // use 1 for postgres, 0 for mysql
 
@@ -39,9 +39,9 @@ App::$config['system']['timezone'] = 'America/Los_Angeles';
 
 // What is your site name? DO NOT ADD A TRAILING SLASH!
 
-App::$config['system']['baseurl'] = 'https://mysite.example';
+App::$config['system']['baseurl'] = 'https://__DOMAIN__';
 App::$config['system']['sitename'] = "Hubzilla";
-App::$config['system']['location_hash'] = 'if the auto install failed, put a unique random string here';
+App::$config['system']['location_hash'] = '__RANDOM_STRING__';
 
 
 // These lines set additional security headers to be sent with all responses
@@ -66,11 +66,11 @@ App::$config['system']['ssl_cookie_protection'] = 1;
 
 App::$config['system']['register_policy'] = REGISTER_OPEN;
 App::$config['system']['register_text'] = '';
-App::$config['system']['admin_email'] = '';
+App::$config['system']['admin_email'] = '__EMAIL__';
 
 // Location of PHP command line processor
 
-App::$config['system']['php_path'] = 'php';
+App::$config['system']['php_path'] = '/usr/bin/php__PHPVERSION__';
 
 
 // Configure how we communicate with directory servers.
@@ -88,7 +88,16 @@ App::$config['system']['directory_mode']  = DIRECTORY_MODE_NORMAL;
 // or change the name (below) to a file/path where this is allowed.
 
 // Uncomment the following 4 lines to turn on PHP error logging.
-//error_reporting(E_ERROR | E_WARNING | E_PARSE ); 
-//ini_set('error_log','php.out'); 
-//ini_set('log_errors','1'); 
-//ini_set('display_errors', '0');
+error_reporting(E_ERROR | E_WARNING | E_PARSE ); 
+ini_set('error_log','php.out'); 
+ini_set('log_errors','1'); 
+ini_set('display_errors', '0');
+
+App::$config['system']['addon'] = 'ldapauth';
+
+App::$config['ldapauth']['ldap_server'] = 'localhost';
+App::$config['ldapauth']['ldap_searchdn'] = 'ou=users,dc=yunohost,dc=org';
+App::$config['ldapauth']['ldap_userattr'] = 'uid';
+App::$config['ldapauth']['ldap_autocreateaccount_emailattribute'] = 'mail';
+App::$config['ldapauth']['create_account'] = '1';
+
