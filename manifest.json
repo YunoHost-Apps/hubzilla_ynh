@@ -45,8 +45,8 @@
                 "name": "database",
                 "type": "string",
                 "ask": {
-                    "en": "Choose the database to be used for the Hubzilla [mysql:1,postgresql:2]",
-                    "fr": "Choisissez la database de Hubzilla [mysql:1,postgresql:2]"
+                    "en": "Choose the database to be used for the Hubzilla [MySQL: 1, PostgreSQL: 2]",
+                    "fr": "Choisissez la base de données de Hubzilla [MySQL : 1, PostgreSQL : 2]"
                 },
                 "choices": ["1", "2"],
                 "default": "1"
