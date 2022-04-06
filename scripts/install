@@ -31,6 +31,7 @@ email=$(ynh_user_get_info --username=$admin --key=mail)
 upload="256M"
 random_string="$(ynh_string_random)$(ynh_string_random)$(ynh_string_random)"
 database=`expr $YNH_APP_ARG_DATABASE`
+phpversion=$YNH_PHP_VERSION
 
 app=$YNH_APP_INSTANCE_NAME
 
@@ -163,7 +164,7 @@ if [  $database -eq 1 ]; then
 elif [ $database -eq 2 ]; then
 	# Create postgresql database
 	ynh_script_progression --message="Creating a PostgreSQL database..."
-	ynh_replace_string --match_string="db_type = 0;" --replace_string="db_type = 1;" --target_file="$config"
+	ynh_replace_string --match_string="db_type = 0;" --replace_string="db_type = 1;" --target_file="$final_path/.htconfig.php"
 	db_name=$(ynh_sanitize_dbid --db_name=$app)
 	db_user=$db_name
 	ynh_psql_test_if_first_run
