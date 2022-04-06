@@ -141,16 +141,6 @@ chmod -R o-rwx "$final_path"
 chown -R $app:www-data "$final_path"
 
 #=================================================
-# ADD A CONFIGURATION
-#=================================================
-ynh_script_progression --message="Adding a configuration file..."
-
-ynh_add_config --template="../conf/htconfig.sample.php" --destination="$final_path/.htconfig.php"
-
-chmod 400 "$final_path/.htconfig.php"
-chown $app:$app "$final_path/.htconfig.php"
-
-#=================================================
 # CREATE A  DATABASE
 #=================================================
 
@@ -164,7 +154,6 @@ if [  $database -eq 1 ]; then
 elif [ $database -eq 2 ]; then
 	# Create postgresql database
 	ynh_script_progression --message="Creating a PostgreSQL database..."
-	ynh_replace_string --match_string="db_type = 0;" --replace_string="db_type = 1;" --target_file="$final_path/.htconfig.php"
 	db_name=$(ynh_sanitize_dbid --db_name=$app)
 	db_user=$db_name
 	ynh_psql_test_if_first_run
@@ -174,6 +163,18 @@ elif [ $database -eq 2 ]; then
 else
 	ynh_die --message="Some problem occured in creating the database, contact maintainer"
 fi
+
+#=================================================
+# ADD A CONFIGURATION
+#=================================================
+ynh_script_progression --message="Adding a configuration file..."
+
+ynh_add_config --template="../conf/htconfig.sample.php" --destination="$final_path/.htconfig.php"
+if [  $database -eq 2 ]; then
+	ynh_replace_string --match_string="db_type = 0;" --replace_string="db_type = 1;" --target_file="$final_path/.htconfig.php"
+fi
+chmod 400 "$final_path/.htconfig.php"
+chown $app:$app "$final_path/.htconfig.php"
 
 #=================================================
 # NGINX CONFIGURATION
