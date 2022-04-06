@@ -15,7 +15,7 @@ If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/in
 
 ## Overview
 
-Decentralized publication platform and social network.
+Decentralized publication platform and social network
 
 **Shipped version:** 7.2~ynh1
 
