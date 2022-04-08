@@ -112,6 +112,7 @@ ynh_add_fpm_config
 #=================================================
 # RESTORE THE CRON FILE
 #=================================================
+ynh_script_progression --message="Restoring the cron configuration..."
 
 ynh_restore_file --origin_path="/etc/cron.d/$app"
 
