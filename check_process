@@ -2,7 +2,7 @@
 	; Manifest
 		domain="domain.tld"
 		admin="john"
-		database="1"
+		database="mysql"
 	; Checks
 		pkg_linter=1
 		setup_sub_dir=0
