@@ -1,6 +1,7 @@
-SOURCE_URL=https://framagit.org/hubzilla/addons/-/archive/6.0/addons-6.0.tar.gz
-SOURCE_SUM=e728d832c2993c5cd2bb66f5151919fb948338336205dbd865af0b94bb06c53e
+SOURCE_URL=https://framagit.org/hubzilla/addons/-/archive/7.4/addons-7.4.tar.gz
+SOURCE_SUM=12e5162d7fc9bdac4ceb6b8862c919bbbc6a2d45b8cc7205c66b2299edd91ee6
 SOURCE_SUM_PRG=sha256sum
 SOURCE_FORMAT=tar.gz
-SOURCE_IN_SUBDIR=
+SOURCE_IN_SUBDIR=true
 SOURCE_FILENAME=
+SOURCE_EXTRACT=true

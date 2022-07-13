@@ -18,35 +18,23 @@ app=$YNH_APP_INSTANCE_NAME
 
 domain=$(ynh_app_setting_get --app=$app --key=domain)
 path_url=$(ynh_app_setting_get --app=$app --key=path)
+admin=$(ynh_app_setting_get --app=$app --key=admin)
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
-upload=$(ynh_app_setting_get --app=$app --key=upload)
-version=$(grep STD_VERSION $final_path/boot.php |  cut -c 38- | rev | cut -c 5- | rev)
-last_update=$(grep  update_time: /etc/yunohost/apps/$app/settings.yml |  cut -c 14-)
-database=$(ynh_app_setting_get --app=$app --key=database)
+db_name=$(ynh_app_setting_get --app=$app --key=db_name)
+db_user=$db_name
 phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
+database=$(ynh_app_setting_get --app=$app --key=database)
+upload=$(ynh_app_setting_get --app=$app --key=upload)
+random_string=$(ynh_app_setting_get --app=$app --key=random_string)
+
+email=$(ynh_user_get_info --username=$admin --key=mail)
 
 #=================================================
-# ENSURE DOWNWARD COMPATIBILITY
+# CHECK VERSION
 #=================================================
+ynh_script_progression --message="Checking version..."
 
-# If db_name doesn't exist, create it
-if [ -z "$db_name" ]; then
-	db_name=$(ynh_sanitize_dbid --db_name=$app)
-	ynh_app_setting_set --app=$app --key=db_name --value=$db_name
-fi
-
-# If final_path doesn't exist, create it
-if [ -z "$final_path" ]; then
-	final_path=/var/www/$app
-	ynh_app_setting_set --app=$app --key=final_path --value=$final_path
-fi
-
-# Cleaning legacy permissions
-if ynh_legacy_permissions_exists; then
-	ynh_legacy_permissions_delete_all
-
-	ynh_app_setting_delete --app=$app --key=is_public
-fi
+upgrade_type=$(ynh_check_app_version_changed)
 
 #=================================================
 # BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
@@ -56,11 +44,46 @@ ynh_script_progression --message="Backing up the app before upgrading (may take 
 # Backup the current version of the app
 ynh_backup_before_upgrade
 ynh_clean_setup () {
-	# restore it if the upgrade fails
+	# Restore it if the upgrade fails
 	ynh_restore_upgradebackup
 }
 # Exit if an error occurs during the execution of the script
 ynh_abort_if_errors
+
+#=================================================
+# STANDARD UPGRADE STEPS
+#=================================================
+# ENSURE DOWNWARD COMPATIBILITY
+#=================================================
+ynh_script_progression --message="Ensuring downward compatibility..."
+
+# If final_path doesn't exist, create it
+if [ -z "$final_path" ]; then
+	final_path=/var/www/$app
+	ynh_app_setting_set --app=$app --key=final_path --value=$final_path
+fi
+
+# If db_name doesn't exist, create it
+if [ -z "$db_name" ]; then
+	db_name=$(ynh_sanitize_dbid --db_name=$app)
+	ynh_app_setting_set --app=$app --key=db_name --value=$db_name
+fi
+
+# Cleaning legacy permissions
+if ynh_legacy_permissions_exists; then
+	ynh_legacy_permissions_delete_all
+
+	ynh_app_setting_delete --app=$app --key=is_public
+fi
+
+# Switch $database to "mysql" or "postgresql"
+if [[ $database == "1" ]] 2>/dev/null; then
+	database="mysql"
+	ynh_app_setting_set --app=$app --key=database --value=$database
+elif [[ $database == "2" ]] 2>/dev/null; then
+	database="postgresql"
+	ynh_app_setting_set --app=$app --key=database --value=$database
+fi
 
 #=================================================
 # CREATE DEDICATED USER
@@ -71,74 +94,42 @@ ynh_script_progression --message="Making sure dedicated system user exists..."
 ynh_system_user_create --username=$app --home_dir="$final_path"
 
 #=================================================
-# STANDARD UPGRADE STEPS
-#=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
-ynh_script_progression --message="Upgrading source files..."
 
-if [ `cd $final_path && git rev-parse --is-inside-work-tree` ]; then
-	pushd "$final_path"
-		git pull
-		cd extend/addon/hzaddons
-		git pull
-		cd ../../..
-		filelist=(`ls extend/addon/hzaddons`)
-		cd addon
-		for a in "${filelist[@]}" ; do
-			base=`basename $a`
-			if [ $base = '.git' ]; then
-				#echo 'ignoring git'
-				continue;
-			fi
-			if [ ! -d ../extend/addon/hzaddons/$base ]; then
-				#echo $a 'not a directory'
-				continue;
-			fi
-			if [ -x $base ]; then
-				#echo $base 'file exists'
-				continue;
-			fi
-
-			echo linking $base
-
-			ln -s ../extend/addon/hzaddons/$base $base
-		done
-		for x in `ls` ; do
-			if [ -L "$x" ] && ! [ -e "$x" ]; then
-				echo "removing dead symlink $x" ;
-				rm -- "$x";
-			fi;
-		done
-	popd
-	chmod -R 775 $final_path/store
-else
-
-    # Create a temporary directory
-	tmpdir="$(ynh_smart_mktemp 6000)"
-	# Backup the config file in the temp dir
-	cp -a "$final_path/.htconfig.php" "$tmpdir/.htconfig.php"
-	cp -a "$final_path/store" "$tmpdir/store"
-	cp -a "$final_path/php.log" "$tmpdir/php.log"
-
-	# Remove the app directory securely
-	ynh_secure_remove "$final_path"
+if [ "$upgrade_type" == "UPGRADE_APP" ]
+then
+	ynh_script_progression --message="Upgrading source files..."
 
 	# Download, check integrity, uncompress and patch the source from app.src
-	ynh_setup_source --dest_dir="$final_path"
-
-	cp -a "$tmpdir/store" "${final_path}"
-	cp -a "$tmpdir/.htconfig.php" "${final_path}"
-	cp -a "$tmpdir/php.log" "${final_path}"
-	ynh_secure_remove "$tmpdir"
-	chmod -R 775 $final_path/store
-	mkdir $final_path/addon
+	ynh_setup_source --dest_dir="$final_path" --keep="store/ .htconfig.php php.log"
 	ynh_setup_source --dest_dir="$final_path/addon" --source_id="app_addons"
 fi
 
+mkdir -p "$final_path/store"
+mkdir -p  "$final_path/cache/smarty3"
 chmod 750 "$final_path"
 chmod -R o-rwx "$final_path"
 chown -R $app:www-data "$final_path"
+chmod -R 775 $final_path/store $final_path/cache
+
+#=================================================
+# UPGRADE DEPENDENCIES
+#=================================================
+ynh_script_progression --message="Upgrading dependencies..."
+
+if [ $database = "postgresql" ]; then
+	pkg_dependencies="$pkg_dependencies $pg_pkg_dependencies"
+fi
+ynh_install_app_dependencies $pkg_dependencies
+
+#=================================================
+# PHP-FPM CONFIGURATION
+#=================================================
+ynh_script_progression --message="Upgrading PHP-FPM configuration..."
+
+# Create a dedicated PHP-FPM config
+ynh_add_fpm_config
 
 #=================================================
 # NGINX CONFIGURATION
@@ -149,19 +140,43 @@ ynh_script_progression --message="Upgrading NGINX web server configuration..."
 ynh_add_nginx_config
 
 #=================================================
-# PHP-FPM CONFIGURATION
+# SPECIFIC UPGRADE
 #=================================================
-ynh_print_info "Upgrading PHP-FPM configuration..."
+# UPDATE A CONFIG FILE
+#=================================================
+ynh_script_progression --message="Updating a configuration file..." --weight=1
 
-# Create a dedicated php-fpm config
-ynh_add_fpm_config --package="$extra_php_dependencies"
+if [ $database = "mysql" ]; then
+	db_type=0
+	db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
+elif [ $database = "postgresql" ]; then
+	db_type=1
+	db_pwd=$(ynh_app_setting_get --app=$app --key=psqlpwd)
+fi
 
-### Verify the checksum of a file, stored by `ynh_store_file_checksum` in the install script.
-### And create a backup of this file if the checksum is different. So the file will be backed up if the admin had modified it.
-ynh_backup_if_checksum_is_different --file="$final_path/.htconfig.php.back"
-# Recalculate and store the checksum of the file for the next upgrade.
-ynh_store_file_checksum --file="$final_path/.htconfig.php"
+ynh_add_config --template="../conf/htconfig.sample.php" --destination="$final_path/.htconfig.php"
 
+# addon ldap config
+ynh_script_progression --message="Push LDAP configuration to .htconfig.php..."
+
+cat ../conf/ldap_conf.php >> $final_path/.htconfig.php
+ynh_store_file_checksum --file=$final_path/.htconfig.php
+
+chmod 600 "$final_path/.htconfig.php"
+chown $app:$app "$final_path/.htconfig.php"
+
+#=================================================
+# UPGRADE CRON JOB
+#=================================================
+ynh_script_progression --message="Upgrading cron job..."
+
+# Set up cron job
+ynh_add_config --template="../conf/poller-cron" --destination="/etc/cron.d/$app"
+chown root: "/etc/cron.d/$app"
+chmod 644 "/etc/cron.d/$app"
+
+#=================================================
+# GENERIC FINALIZATION
 #=================================================
 # SETUP LOGROTATE
 #=================================================
@@ -170,42 +185,13 @@ ynh_script_progression --message="Upgrading logrotate configuration..."
 # Use logrotate to manage app-specific logfile(s)
 ynh_use_logrotate --non-append
 
+#=================================================
 # UPGRADE FAIL2BAN
 #=================================================
-ynh_script_progression --message="Re-configure Fail2Ban..."
+ynh_script_progression --message="Reconfiguring Fail2Ban..."
 
+# Create a dedicated Fail2Ban config
 ynh_add_fail2ban_config --logpath="$final_path/php.log" --failregex="^.*auth\.php.*failed login attempt.*from IP <HOST>.*$" --max_retry="5"
-
-# Set up cron job
-ynh_add_config --template="../conf/poller-cron" --destination="/etc/cron.d/$app"
-
-#=================================================
-# UPGRADE DEPENDENCIES
-#=================================================
-ynh_script_progression --message="Upgrading dependencies..."
-if [  $database -eq 1 ]; then
-	#=================================================
-	# CHECK VERSION FOR SPECIFIC MYSQL UPDATE
-	#=================================================
-
-	# Check version and if this version was a fresh install push mysql query
-	db_name=$(ynh_app_setting_get --app=$app --key=db_name)
-	db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
-	is_version_equal_three_eight_four=$(awk 'BEGIN{ print "'$version'"<"'3.8.4'" }')
-	if [ -z "$last_update" ] && [ "$is_version_equal_three_eight_four" -eq 1 ]; then
-		ynh_mysql_connect_as "$db_name" "$db_pwd" "$db_name" < "../conf/sql/385.sql"
-	fi
-
-elif [ $database -eq 2 ]; then
-	ynh_install_app_dependencies $pkg_dependencies
-fi
-is_version_less_then_five=$(awk 'BEGIN{ print "'$version'"<"'5.0.0'" }')
-
-if [ "$is_version_less_then_five" -eq 1 ] && [ -f "$final_path/util/z6convert.php" ] ; then
-	pushd "$final_path"
-		php${YNH_PHP_VERSION} util/z6convert.php
-	popd
-fi
 
 #=================================================
 # RELOAD NGINX
