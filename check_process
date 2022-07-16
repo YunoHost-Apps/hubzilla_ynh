@@ -2,7 +2,7 @@
 	; Manifest
 		domain="domain.tld"
 		admin="john"
-		database="1"
+		database="mysql"
 	; Checks
 		pkg_linter=1
 		setup_sub_dir=0
@@ -18,3 +18,7 @@
 ;;; Options
 Email=anmol@datamol.org
 Notification=change
+;;; Upgrade options
+	; commit=3642c110f0e927ba36ee32e738a81e6afce958f7
+		name=21.05.21~ynh1
+		manifest_arg=domain=DOMAIN&admin=USER&database=1&

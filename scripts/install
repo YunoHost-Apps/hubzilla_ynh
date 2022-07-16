@@ -13,10 +13,6 @@ source /usr/share/yunohost/helpers
 # MANAGE SCRIPT FAILURE
 #=================================================
 
-ynh_clean_setup () {
-	### Remove this function if there's nothing to clean before calling the remove script.
-	true
-}
 # Exit if an error occurs during the execution of the script
 ynh_abort_if_errors
 
@@ -27,12 +23,13 @@ ynh_abort_if_errors
 domain=$YNH_APP_ARG_DOMAIN
 path_url="/"
 admin=$YNH_APP_ARG_ADMIN
-email=$(ynh_user_get_info --username=$admin --key=mail)
-upload="256M"
-random_string="$(ynh_string_random)$(ynh_string_random)$(ynh_string_random)"
-database=`expr $YNH_APP_ARG_DATABASE`
+database=$YNH_APP_ARG_DATABASE
 
 app=$YNH_APP_INSTANCE_NAME
+
+email=$(ynh_user_get_info --username=$admin --key=mail)
+upload="256M"
+random_string="$(ynh_string_random --length=48)"
 
 #=================================================
 # CHECK IF THE APP CAN BE INSTALLED WITH THESE ARGS
@@ -50,13 +47,25 @@ ynh_webpath_register --app=$app --domain=$domain --path_url=$path_url
 #=================================================
 ynh_script_progression --message="Storing installation settings..."
 
-ynh_app_setting_set --app=$app --key=domain   --value=$domain
-ynh_app_setting_set --app=$app --key=path     --value=$path_url
-ynh_app_setting_set --app=$app --key=admin    --value=$admin
-ynh_app_setting_set --app=$app --key=email    --value=$email
-ynh_app_setting_set --app=$app --key=upload   --value=$upload
+ynh_app_setting_set --app=$app --key=domain --value=$domain
+ynh_app_setting_set --app=$app --key=path --value=$path_url
+ynh_app_setting_set --app=$app --key=admin --value=$admin
 ynh_app_setting_set --app=$app --key=database --value=$database
+ynh_app_setting_set --app=$app --key=email --value=$email
+ynh_app_setting_set --app=$app --key=upload --value=$upload
 ynh_app_setting_set --app=$app --key=random_string --value=$random_string
+
+#=================================================
+# STANDARD MODIFICATIONS
+#=================================================
+# INSTALL DEPENDENCIES
+#=================================================
+ynh_script_progression --message="Installing dependencies..."
+
+if [ $database = "postgresql" ]; then
+	pkg_dependencies="$pkg_dependencies $pg_pkg_dependencies"
+fi
+ynh_exec_warn_less ynh_install_app_dependencies $pkg_dependencies
 
 #=================================================
 # CREATE DEDICATED USER
@@ -67,141 +76,50 @@ ynh_script_progression --message="Configuring system user..."
 ynh_system_user_create --username=$app --home_dir="$final_path"
 
 #=================================================
-# STANDARD MODIFICATIONS
+# CREATE A DATABASE
 #=================================================
-# INSTALL DEPENDENCIES
-#=================================================
-ynh_script_progression --message="Installing dependencies..."
 
-if [ $database -eq 2 ]; then
-	ynh_install_app_dependencies $pkg_dependencies
+db_name=$(ynh_sanitize_dbid --db_name=$app)
+db_user=$db_name
+ynh_app_setting_set --app=$app --key=db_name --value=$db_name
+
+if [ $database = "mysql" ]; then
+	ynh_script_progression --message="Creating a MySQL database..."
+	ynh_mysql_setup_db --db_user=$db_user --db_name=$db_name
+	db_type=0
+elif [ $database = "postgresql" ]; then
+	ynh_script_progression --message="Creating a PostgreSQL database..."
+	ynh_psql_test_if_first_run
+	ynh_psql_setup_db --db_user=$db_user --db_name=$db_name
+	db_type=1
 fi
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
-
-# 1 - Hubzilla
-ynh_script_progression --message="Setting up Hubzilla source files..."
-
-git clone --quiet https://framagit.org/hubzilla/core.git "$final_path"
+ynh_script_progression --message="Setting up source files..."
 
 ynh_app_setting_set --app=$app --key=final_path --value=$final_path
 # Download, check integrity, uncompress and patch the source from app.src
-# ynh_setup_source --dest_dir="$final_path"
-
-# 2 - Hubzilla Addons
-
-# Make addon Directory and unpack the Hubzilla addons to this directory
-ynh_script_progression --message="Create addon directory inside Hubzilla root folder..."
-# mkdir $final_path/addon
-# ynh_script_progression --message="Setting up Hubzilla addons source files..."
-
-# ynh_setup_source --dest_dir="$final_path/addon" --source_id="app_addons"
-
-pushd "$final_path"
-	mkdir -p extend/addon/hzaddons
-	mkdir addon
-	git clone --quiet https://framagit.org/hubzilla/addons.git $final_path/extend/addon/hzaddons
-	filelist=(`ls extend/addon/hzaddons`)
-	cd addon
-	for a in "${filelist[@]}" ; do
-		base=`basename $a`
-		if [ $base = '.git' ]; then
-			#echo 'ignoring git'
-			continue;
-		fi
-		if [ ! -d ../extend/addon/hzaddons/$base ]; then
-			#echo $a 'not a directory'
-			continue;
-		fi
-		if [ -x $base ]; then
-			#echo $base 'file exists'
-			continue;
-		fi
-
-		echo linking $base
-
-		ln -s ../extend/addon/hzaddons/$base $base
-	done
-
-popd
-
-# 3 - Some extra folders
-ynh_script_progression --message="Creating smarty3 folder for personal data..."
-
-mkdir -p "${final_path}/store/[data]/smarty3"
-chmod -R 775 $final_path/store
-
-# Copy the template install/htconfig.sample.php to .htconfig.php
-ynh_script_progression --message="Moving .htconfig.php to root of Hubzilla ..."
-
-config="$final_path/.htconfig.php"
-cp $final_path/install/htconfig.sample.php $config
-
-# Create php.log inside Hubzilla for logs
-ynh_script_progression --message="Create php.log for the Hubzilla debuging..."
+ynh_setup_source --dest_dir="$final_path"
+ynh_setup_source --dest_dir="$final_path/addon" --source_id="app_addons"
 touch "$final_path/php.log"
+mkdir -p "$final_path/store"
+mkdir -p  "$final_path/cache/smarty3"
 
 chmod 750 "$final_path"
 chmod -R o-rwx "$final_path"
 chown -R $app:www-data "$final_path"
+chmod -R 775 $final_path/store $final_path/cache
 
 #=================================================
-# CREATE A  DATABASE
+# PHP-FPM CONFIGURATION
 #=================================================
+ynh_script_progression --message="Configuring PHP-FPM..."
 
-if [  $database -eq 1 ]; then
-	ynh_script_progression --message="Creating a MySQL database..."
-	db_name=$(ynh_sanitize_dbid --db_name=$app)
-	db_user=$db_name
-	ynh_app_setting_set --app=$app --key=db_name --value=$db_name
-	ynh_mysql_setup_db --db_user=$db_user --db_name=$db_name
-
-	ynh_script_progression --message="Importing database..."
-	ynh_mysql_connect_as --user="$db_name" --password="$db_pwd" --database="$db_name" < $final_path/install/schema_mysql.sql
-elif [ $database -eq 2 ]; then
-	# Create postgresql database
-	ynh_script_progression --message="Creating a postgresql database..."
-	ynh_replace_string --match_string="db_type = 0;" --replace_string="db_type = 1;" --target_file="$config"
-	db_name=$(ynh_sanitize_dbid --db_name=$app)
-	db_user=$app
-	ynh_psql_test_if_first_run
-	ynh_psql_setup_db --db_user=$db_user --db_name=$db_name
-	ynh_app_setting_set --app=$app --key=db_name --value=$db_name
-	ynh_script_progression --message="Importing database..."
-	ynh_psql_connect_as --user="$db_name" --password="$db_pwd" --database="$db_name" < $final_path/install/schema_postgres.sql
-else
-	ynh_die --message="Some problem occured in creating the database, contact maintainer"
-fi
-
-#=================================================
-# MODIFY A CONFIG FILE
-#=================================================
-
+# Create a dedicated PHP-FPM config
+ynh_add_fpm_config
 phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
-
-ynh_replace_string --match_string="your.mysqlhost.com" --replace_string="localhost" --target_file="$config"
-ynh_replace_string --match_string= "mysqlpassword" --replace_string="$db_pwd" --target_file="$config"
-ynh_replace_string --match_string="mysqlusername" --replace_string="$db_name" --target_file="$config"
-ynh_replace_string --match_string= "mysqldatabasename" --replace_string="$db_name" --target_file="$config"
-ynh_replace_string --match_string= "mysite.example" --replace_string="$domain" --target_file="$config"
-ynh_replace_string --match_string= "if the auto install failed, put a unique random string here" --replace_string="$random_string" --target_file="$config"
-sed -i "s/\['admin_email'\] = '';/\['admin_email'\] = '$email';/g" "$config"
-ynh_replace_string --match_string= "//error_reporting(E_ERROR | E_WARNING | E_PARSE );" --replace_string="error_reporting(E_ERROR | E_WARNING | E_PARSE );" --target_file="$config"
-ynh_replace_string --match_string= "//ini_set('error_log','php.out');" --replace_string="ini_set('error_log','php.log');" --target_file="$config"
-ynh_replace_string --match_string= "//ini_set('log_errors','1');" --replace_string="ini_set('log_errors','1');" --target_file="$config"
-ynh_replace_string --match_string= "//ini_set('display_errors', '0');" --replace_string="ini_set('display_errors', '0');" --target_file="$config"
-sed -i "s/\['php_path'\] = 'php';/\['php_path'\] = 'php$phpversion';/g" "$config"
-
-
-#ynh_add_config --template="../conf/htconfig.sample.php" --destination="$final_path/.htconfig.php"
-
-
-# addon ldap config
-ynh_script_progression --message="Push LDAP configuration to .htconfig.php..."
-
-cat ../conf/ldap_conf.php >> $final_path/.htconfig.php
 
 #=================================================
 # NGINX CONFIGURATION
@@ -212,18 +130,46 @@ ynh_script_progression --message="Configuring NGINX web server..."
 ynh_add_nginx_config
 
 #=================================================
-# PHP-FPM CONFIGURATION
+# SPECIFIC SETUP
 #=================================================
-ynh_script_progression --message="Configuring PHP-FPM..."
+# PROVISION DATABASE
+#=================================================
+ynh_script_progression --message="Provisionning database..."
 
-# Create a dedicated PHP-FPM config
-ynh_add_fpm_config --package="$extra_php_dependencies"
+if [ $database = "mysql" ]; then
+	ynh_mysql_connect_as --user="$db_name" --password="$db_pwd" --database="$db_name" < $final_path/install/schema_mysql.sql
+elif [ $database = "postgresql" ]; then
+	ynh_psql_connect_as --user="$db_name" --password="$db_pwd" --database="$db_name" < $final_path/install/schema_postgres.sql
+fi
+
+#=================================================
+# ADD A CONFIGURATION
+#=================================================
+ynh_script_progression --message="Adding a configuration file..."
+
+ynh_add_config --template="../conf/htconfig.sample.php" --destination="$final_path/.htconfig.php"
+
+# addon ldap config
+ynh_script_progression --message="Push LDAP configuration to .htconfig.php..."
+
+cat ../conf/ldap_conf.php >> $final_path/.htconfig.php
+ynh_store_file_checksum --file=$final_path/.htconfig.php
+
+chmod 600 "$final_path/.htconfig.php"
+chown $app:$app "$final_path/.htconfig.php"
+
+#=================================================
+# SET CRON JOB
+#=================================================
+ynh_script_progression --message="Setuping cron job..."
 
 # Set up cron job
 ynh_add_config --template="../conf/poller-cron" --destination="/etc/cron.d/$app"
 chown root: "/etc/cron.d/$app"
 chmod 644 "/etc/cron.d/$app"
 
+#=================================================
+# GENERIC FINALIZATION
 #=================================================
 # SETUP LOGROTATE
 #=================================================
@@ -235,14 +181,14 @@ ynh_use_logrotate "$final_path/php.log"
 #=================================================
 # SETUP FAIL2BAN
 #=================================================
-ynh_script_progression --message="Add Fail2Ban..."
+ynh_script_progression --message="Configuring Fail2Ban..."
 
+# Create a dedicated Fail2Ban config
 ynh_add_fail2ban_config --logpath="$final_path/php.log" --failregex="^.*auth\.php.*failed login attempt.*from IP <HOST>.*$" --max_retry="5"
 
 #=================================================
 # SETUP SSOWAT
 #=================================================
-# As Hubzilla is social network and have its own permission there is no need to keep Hubzilla behind SSO
 ynh_script_progression --message="Configuring permissions..."
 
 ynh_permission_update --permission="main" --add="visitors"

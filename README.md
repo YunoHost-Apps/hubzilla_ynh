@@ -5,7 +5,7 @@ It shall NOT be edited by hand.
 
 # Hubzilla for YunoHost
 
-[![Integration level](https://dash.yunohost.org/integration/hubzilla.svg)](https://dash.yunohost.org/appci/app/hubzilla) ![](https://ci-apps.yunohost.org/ci/badges/hubzilla.status.svg) ![](https://ci-apps.yunohost.org/ci/badges/hubzilla.maintain.svg)  
+[![Integration level](https://dash.yunohost.org/integration/hubzilla.svg)](https://dash.yunohost.org/appci/app/hubzilla) ![Working status](https://ci-apps.yunohost.org/ci/badges/hubzilla.status.svg) ![Maintenance status](https://ci-apps.yunohost.org/ci/badges/hubzilla.maintain.svg)  
 [![Install Hubzilla with YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=hubzilla)
 
 *[Lire ce readme en français.](./README_fr.md)*
@@ -17,13 +17,11 @@ If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/in
 
 Decentralized publication platform and social network.
 
-**Shipped version:** 6.0~ynh1
-
-
+**Shipped version:** 7.4~ynh1
 
 ## Screenshots
 
-![](./doc/screenshots/hubzilla-1.png)
+![Screenshot of Hubzilla](./doc/screenshots/hubzilla-1.png)
 
 ## Disclaimers / important information
 
@@ -47,20 +45,21 @@ Before installing, read the [Hubzilla installation instructions](https://framagi
 
 ## Documentation and resources
 
-* Official app website: https://zotlabs.org/page/hubzilla/hubzilla-project
-* Upstream app code repository: https://framagit.org/hubzilla/core
-* YunoHost documentation for this app: https://yunohost.org/app_hubzilla
-* Report a bug: https://github.com/YunoHost-Apps/hubzilla_ynh/issues
+* Official app website: <https://zotlabs.org/page/hubzilla/hubzilla-project>
+* Upstream app code repository: <https://framagit.org/hubzilla/core>
+* YunoHost documentation for this app: <https://yunohost.org/app_hubzilla>
+* Report a bug: <https://github.com/YunoHost-Apps/hubzilla_ynh/issues>
 
 ## Developer info
 
 Please send your pull request to the [testing branch](https://github.com/YunoHost-Apps/hubzilla_ynh/tree/testing).
 
 To try the testing branch, please proceed like that.
-```
+
+``` bash
 sudo yunohost app install https://github.com/YunoHost-Apps/hubzilla_ynh/tree/testing --debug
 or
 sudo yunohost app upgrade hubzilla -u https://github.com/YunoHost-Apps/hubzilla_ynh/tree/testing --debug
 ```
 
-**More info regarding app packaging:** https://yunohost.org/packaging_apps
+**More info regarding app packaging:** <https://yunohost.org/packaging_apps>
