@@ -17,7 +17,8 @@ Si vous n'avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) pour
 
 Plateforme de publication décentralisée et un réseau social.
 
-**Version incluse :** 7.4~ynh1
+**Version incluse :** 7.6.1~ynh1
+
 
 ## Captures d'écran
 
