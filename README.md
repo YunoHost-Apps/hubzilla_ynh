@@ -19,7 +19,6 @@ Decentralized publication platform and social network.
 
 **Shipped version:** 7.6.1~ynh1
 
-
 ## Screenshots
 
 ![Screenshot of Hubzilla](./doc/screenshots/hubzilla-1.png)
