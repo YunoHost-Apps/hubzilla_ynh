@@ -1,17 +1,17 @@
 ## Installation
-Avant l'installation, lisez les [instructions d'installation de Hubzilla](https://framagit.org/hubzilla/core/blob/master/install/INSTALL.txt) pour obtenir des informations importantes sur :
+Avant l'installation, lisez les [instructions d'installation de Hubzilla](https://framagit.org/hubzilla/core/blob/master/install/INSTALL.txt) pour obtenir des informations importantes surÂ :
 
-### Enregistrez un nouveau domaine et ajoutez-le à YunoHost
-- Hubzilla nécessite un domaine dédié, alors obtenez-en un et ajoutez-le à l'aide du panneau d'administration YunoHost. **Domaines -> Ajouter un domaine**. Comme Hubzilla utilise le domaine complet et est installé à la racine, vous pouvez créer un sous-domaine tel que hubzilla.domain.tld. N'oubliez pas de mettre à jour vos DNS si vous les gérez manuellement.
+### Enregistrez un nouveau domaine et ajoutez-le Ã  YunoHost
+- Hubzilla nÃ©cessite un domaine dÃ©diÃ©, alors obtenez-en un et ajoutez-le Ã  l'aide du panneau d'administration YunoHost. **Domaines -> Ajouter un domaine**. Comme Hubzilla utilise le domaine complet et est installÃ© Ã  la racine, vous pouvez crÃ©er un sous-domaine tel que hubzilla.domain.tld. N'oubliez pas de mettre Ã  jour vos DNS si vous les gÃ©rez manuellement.
 
-## Droits d'utilisateur de l'administrateur Ldap, journaux et échec des mises à jour de la base de données
+##Â Droits d'utilisateur de l'administrateur Ldap, journaux et Ã©chec des mises Ã  jour de la base de donnÃ©es
 
-- **Pour les droits d'administrateur** : lorsque l'installation est terminée, vous devrez visiter la page de votre nouveau hub et vous connecter avec le **nom d'utilisateur du compte administrateur** qui a été saisi au moment du processus d'installation. Vous devriez alors pouvoir créer votre premier canal et disposer des **droits d'administrateur** pour le hub.
+- **Pour les droits d'administrateur**Â : lorsque l'installation est terminÃ©e, vous devrez visiter la page de votre nouveau hub et vous connecter avec le **nom d'utilisateur du compte administrateur** qui a Ã©tÃ© saisi au moment du processus d'installation. Vous devriez alors pouvoir crÃ©er votre premier canal et disposer des **droits d'administrateur** pour le hub.
 
-- **Pour les utilisateurs YunoHost normaux** : les utilisateurs LDAP normaux peuvent se connecter via l'authentification LDAP et y créer des canaux.
+- **Pour les utilisateurs YunoHost normaux**Â : les utilisateurs LDAP normaux peuvent se connecter via l'authentification LDAP et y crÃ©er des canaux.
 
-- **Échec de l'obtention des droits d'administrateur** : si l'administrateur ne peut pas accéder aux paramètres d'administration sur `https://hubzilla.example.com/admin`, vous devez **ajouter manuellement 4096** aux **account_roles* * sous **comptes** pour cet utilisateur dans la **base de données via phpMyAdmin**.
+- **Ã‰chec de l'obtention des droits d'administrateur**Â : si l'administrateur ne peut pas accÃ©der aux paramÃ¨tres d'administration sur `https://hubzilla.example.com/admin`, vous devez **ajouter manuellement 4096** aux **account_roles* * sous **comptes** pour cet utilisateur dans la **base de donnÃ©es via phpMyAdmin**.
 
-- **Pour les logs** : Allez dans **admin->logs** et saisissez le nom du fichier **php.log**.
+- **Pour les logs**Â : Allez dans **admin->logs** et saisissez le nom du fichier **php.log**.
 
-- **Échec de la base de données après la mise à niveau :** Parfois, la mise à niveau de la base de données échoue après la mise à niveau de la version. Vous pouvez aller au hub, par exemple. `https://hubzilla.example.com/admin/dbsync/` et vérifiez le nombre de mises à jour défaillantes. Ces mises à jour devront être exécutées manuellement par **phpMyAdmin**.
+- **Ã‰chec de la base de donnÃ©es aprÃ¨s la mise Ã  niveauÂ :** Parfois, la mise Ã  niveau de la base de donnÃ©es Ã©choue aprÃ¨s la mise Ã  niveau de la version. Vous pouvez aller au hub, par exemple. `https://hubzilla.example.com/admin/dbsync/` et vÃ©rifiez le nombre de mises Ã  jour dÃ©faillantes. Ces mises Ã  jour devront Ãªtre exÃ©cutÃ©es manuellement par **phpMyAdmin**.
