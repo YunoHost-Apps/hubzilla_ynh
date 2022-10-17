@@ -15,7 +15,8 @@ If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/in
 
 ## Overview
 
-Decentralized publication platform and social network.
+[Hubzilla](https://hub.libranet.de/directory?f=&global=1&pubforums=1) is a social networking platform built with control of your privacy at center stage. Your online communications can be as public as you wish or as private as you require. Private conversations, private photos, private videos. Your media isn't hidden behind an obscure URL which can be guessed, it is protected by state-of-the-art cross-domain authentication. What this all means for you: **less drama**.
+
 
 **Shipped version:** 7.8~ynh1
 
