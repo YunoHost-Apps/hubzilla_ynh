@@ -47,7 +47,10 @@
                     "en": "Choose the database to be used for the Hubzilla]",
                     "fr": "Choisissez la database de Hubzilla"
                 },
-                "choices": ["mysql", "postgresql"],
+                "choices": [
+                    "mysql",
+                    "postgresql"
+                ],
                 "default": "mysql"
             }
         ]
