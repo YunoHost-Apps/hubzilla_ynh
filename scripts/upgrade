@@ -101,20 +101,9 @@ if [ "$upgrade_type" == "UPGRADE_APP" ]
 then
 	ynh_script_progression --message="Upgrading source files..." --weight=1
 
-	tmpdir="$(mktemp -d)"
-	cp "$final_path/.htconfig.php" "$tmpdir/.htconfig.php"
-	cp "$final_path/php.log" "$tmpdir/php.log"
-	rsync -a "$final_path/store" "$tmpdir/."
-	ynh_secure_remove --file="$final_path"
-
 	# Download, check integrity, uncompress and patch the source from app.src
 	ynh_setup_source --dest_dir="$final_path" --keep="store/ .htconfig.php php.log"
 	ynh_setup_source --dest_dir="$final_path/addon" --source_id="app_addons"
-
-	cp "$tmpdir/.htconfig.php" "$final_path/.htconfig.php"
-	cp "$tmpdir/php.log" "$final_path/php.log"
-	rsync -a "$tmpdir/store" "$final_path/."
-	ynh_secure_remove --file="$tmpdir"
 fi
 
 mkdir -p "$final_path/store"
