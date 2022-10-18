@@ -6,7 +6,7 @@
         "en": "Decentralized publication platform and social network.",
         "fr": "Plateforme de publication décentralisée et un réseau social."
     },
-    "version": "7.6.1~ynh1",
+    "version": "7.8~ynh1",
     "url": "https://zotlabs.org/page/hubzilla/hubzilla-project",
     "upstream": {
         "license": "MIT",
@@ -47,7 +47,10 @@
                     "en": "Choose the database to be used for the Hubzilla]",
                     "fr": "Choisissez la database de Hubzilla"
                 },
-                "choices": ["mysql", "postgresql"],
+                "choices": [
+                    "mysql",
+                    "postgresql"
+                ],
                 "default": "mysql"
             }
         ]

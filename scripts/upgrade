@@ -12,7 +12,7 @@ source /usr/share/yunohost/helpers
 #=================================================
 # LOAD SETTINGS
 #=================================================
-ynh_script_progression --message="Loading installation settings..."
+ynh_script_progression --message="Loading settings..." --weight=1
 
 app=$YNH_APP_INSTANCE_NAME
 
@@ -32,14 +32,14 @@ email=$(ynh_user_get_info --username=$admin --key=mail)
 #=================================================
 # CHECK VERSION
 #=================================================
-ynh_script_progression --message="Checking version..."
+ynh_script_progression --message="Checking version..." --weight=1
 
 upgrade_type=$(ynh_check_app_version_changed)
 
 #=================================================
 # BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
 #=================================================
-ynh_script_progression --message="Backing up the app before upgrading (may take a while)..."
+ynh_script_progression --message="Backing up the app before upgrading (may take a while)..." --weight=1
 
 # Backup the current version of the app
 ynh_backup_before_upgrade
@@ -55,7 +55,7 @@ ynh_abort_if_errors
 #=================================================
 # ENSURE DOWNWARD COMPATIBILITY
 #=================================================
-ynh_script_progression --message="Ensuring downward compatibility..."
+ynh_script_progression --message="Ensuring downward compatibility..." --weight=1
 
 # If final_path doesn't exist, create it
 if [ -z "$final_path" ]; then
@@ -88,7 +88,7 @@ fi
 #=================================================
 # CREATE DEDICATED USER
 #=================================================
-ynh_script_progression --message="Making sure dedicated system user exists..."
+ynh_script_progression --message="Making sure dedicated system user exists..." --weight=1
 
 # Create a dedicated user (if not existing)
 ynh_system_user_create --username=$app --home_dir="$final_path"
@@ -99,11 +99,22 @@ ynh_system_user_create --username=$app --home_dir="$final_path"
 
 if [ "$upgrade_type" == "UPGRADE_APP" ]
 then
-	ynh_script_progression --message="Upgrading source files..."
+	ynh_script_progression --message="Upgrading source files..." --weight=1
+
+	tmpdir="$(mktemp -d)"
+	cp "$final_path/.htconfig.php" "$tmpdir/.htconfig.php"
+	cp "$final_path/php.log" "$tmpdir/php.log"
+	rsync -a "$final_path/store" "$tmpdir/."
+	ynh_secure_remove --file="$final_path"
 
 	# Download, check integrity, uncompress and patch the source from app.src
 	ynh_setup_source --dest_dir="$final_path" --keep="store/ .htconfig.php php.log"
 	ynh_setup_source --dest_dir="$final_path/addon" --source_id="app_addons"
+
+	cp "$tmpdir/.htconfig.php" "$final_path/.htconfig.php"
+	cp "$tmpdir/php.log" "$final_path/php.log"
+	rsync -a "$tmpdir/store" "$final_path/."
+	ynh_secure_remove --file="$tmpdir"
 fi
 
 mkdir -p "$final_path/store"
@@ -116,7 +127,7 @@ chmod -R 775 $final_path/store $final_path/cache
 #=================================================
 # UPGRADE DEPENDENCIES
 #=================================================
-ynh_script_progression --message="Upgrading dependencies..."
+ynh_script_progression --message="Upgrading dependencies..." --weight=1
 
 if [ $database = "postgresql" ]; then
 	pkg_dependencies="$pkg_dependencies $pg_pkg_dependencies"
@@ -126,7 +137,7 @@ ynh_install_app_dependencies $pkg_dependencies
 #=================================================
 # PHP-FPM CONFIGURATION
 #=================================================
-ynh_script_progression --message="Upgrading PHP-FPM configuration..."
+ynh_script_progression --message="Upgrading PHP-FPM configuration..." --weight=1
 
 # Create a dedicated PHP-FPM config
 ynh_add_fpm_config
@@ -134,7 +145,7 @@ ynh_add_fpm_config
 #=================================================
 # NGINX CONFIGURATION
 #=================================================
-ynh_script_progression --message="Upgrading NGINX web server configuration..."
+ynh_script_progression --message="Upgrading NGINX web server configuration..." --weight=1
 
 # Create a dedicated NGINX config
 ynh_add_nginx_config
@@ -168,7 +179,7 @@ chown $app:$app "$final_path/.htconfig.php"
 #=================================================
 # UPGRADE CRON JOB
 #=================================================
-ynh_script_progression --message="Upgrading cron job..."
+ynh_script_progression --message="Upgrading cron job..." --weight=1
 
 # Set up cron job
 ynh_add_config --template="../conf/poller-cron" --destination="/etc/cron.d/$app"
@@ -180,7 +191,7 @@ chmod 644 "/etc/cron.d/$app"
 #=================================================
 # SETUP LOGROTATE
 #=================================================
-ynh_script_progression --message="Upgrading logrotate configuration..."
+ynh_script_progression --message="Upgrading logrotate configuration..." --weight=1
 
 # Use logrotate to manage app-specific logfile(s)
 ynh_use_logrotate --non-append
@@ -188,7 +199,7 @@ ynh_use_logrotate --non-append
 #=================================================
 # UPGRADE FAIL2BAN
 #=================================================
-ynh_script_progression --message="Reconfiguring Fail2Ban..."
+ynh_script_progression --message="Reconfiguring Fail2Ban..." --weight=1
 
 # Create a dedicated Fail2Ban config
 ynh_add_fail2ban_config --logpath="$final_path/php.log" --failregex="^.*auth\.php.*failed login attempt.*from IP <HOST>.*$" --max_retry="5"
@@ -196,7 +207,7 @@ ynh_add_fail2ban_config --logpath="$final_path/php.log" --failregex="^.*auth\.ph
 #=================================================
 # RELOAD NGINX
 #=================================================
-ynh_script_progression --message="Reloading NGINX web server..."
+ynh_script_progression --message="Reloading NGINX web server..." --weight=1
 
 ynh_systemd_action --service_name=nginx --action=reload
 
@@ -204,4 +215,4 @@ ynh_systemd_action --service_name=nginx --action=reload
 # END OF SCRIPT
 #=================================================
 
-ynh_script_progression --message="Upgrade of $app completed"
+ynh_script_progression --message="Upgrade of $app completed" --last

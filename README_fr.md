@@ -15,10 +15,10 @@ Si vous n'avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) pour
 
 ## Vue d'ensemble
 
-Plateforme de publication décentralisée et un réseau social.
+[Hubzilla](https://hub.libranet.de/directory?f=&global=1&pubforums=1) est une plate-forme de réseau social conçue avec le contrôle de votre vie privée au centre de la scène. Vos communications en ligne peuvent être aussi publiques que vous le souhaitez ou aussi privées que vous le souhaitez. Conversations privées, photos privées, vidéos privées. Votre média n'est pas caché derrière une URL obscure qui peut être devinée, il est protégé par une authentification interdomaine de pointe. Qu'est-ce que tout cela signifie pour vous : **moins de drames**.
 
-**Version incluse :** 7.6.1~ynh1
 
+**Version incluse :** 7.8~ynh1
 
 ## Captures d'écran
 
@@ -27,22 +27,22 @@ Plateforme de publication décentralisée et un réseau social.
 ## Avertissements / informations importantes
 
 ## Installation
-Before installing, read the [Hubzilla installation instructions](https://framagit.org/hubzilla/core/blob/master/install/INSTALL.txt) for important information about:
+Avant l'installation, lisez les [instructions d'installation de Hubzilla](https://framagit.org/hubzilla/core/blob/master/install/INSTALL.txt) pour obtenir des informations importantes sur :
 
-### Register a new domain and add it to YunoHost
-- Hubzilla requires a dedicated domain, so obtain one and add it using the YunoHost admin panel. **Domains -> Add domain**. As Hubzilla uses the full domain and is installed on the root, you can create a subdomain such as hubzilla.domain.tld. Don't forget to update your DNS if you manage them manually.
+### Enregistrez un nouveau domaine et ajoutez-le à YunoHost
+- Hubzilla nécessite un domaine dédié, alors obtenez-en un et ajoutez-le à l'aide du panneau d'administration YunoHost. **Domaines -> Ajouter un domaine**. Comme Hubzilla utilise le domaine complet et est installé à la racine, vous pouvez créer un sous-domaine tel que hubzilla.domain.tld. N'oubliez pas de mettre à jour vos DNS si vous les gérez manuellement.
 
-## Ldap Admin user rights, logs and failed database updates
+## Droits d'utilisateur de l'administrateur Ldap, journaux et échec des mises à jour de la base de données
 
-- **For admin rights**: When installation is complete, you will need to visit your new hub's page and login with the **admin account username** which was entered at the time of installation process. You should then be able to create your first channel and have the **admin rights** for the hub.
+- **Pour les droits d'administrateur** : lorsque l'installation est terminée, vous devrez visiter la page de votre nouveau hub et vous connecter avec le **nom d'utilisateur du compte administrateur** qui a été saisi au moment du processus d'installation. Vous devriez alors pouvoir créer votre premier canal et disposer des **droits d'administrateur** pour le hub.
 
-- **For normal YunoHost users**: Normal LDAP users can login through LDAP authentication and create there channels.
+- **Pour les utilisateurs YunoHost normaux** : les utilisateurs LDAP normaux peuvent se connecter via l'authentification LDAP et y créer des canaux.
 
-- **Failing to get admin rights**: If the admin cannot access the admin settings at `https://hubzilla.example.com/admin` then you have to **manually add 4096** to the **account_roles** under **accounts** for that user in the **database through phpMyAdmin**.
+- **Échec de l'obtention des droits d'administrateur** : si l'administrateur ne peut pas accéder aux paramètres d'administration sur `https://hubzilla.example.com/admin`, vous devez **ajouter manuellement 4096** aux **account_roles* * sous **comptes** pour cet utilisateur dans la **base de données via phpMyAdmin**.
 
-- **For logs**: Go to **admin->logs** and enter the file name **php.log**.
+- **Pour les logs** : Allez dans **admin->logs** et saisissez le nom du fichier **php.log**.
 
-- **Failed Database after Upgrade:** Some times databse upgrade fails after version upgrade. You can go to hub eg. `https://hubzilla.example.com/admin/dbsync/` and check the numbers of failled update. These updates will have to be ran manually by **phpMyAdmin**.
+- **Échec de la base de données après la mise à niveau :** Parfois, la mise à niveau de la base de données échoue après la mise à niveau de la version. Vous pouvez aller au hub, par exemple. `https://hubzilla.example.com/admin/dbsync/` et vérifiez le nombre de mises à jour défaillantes. Ces mises à jour devront être exécutées manuellement par **phpMyAdmin**.
 
 ## Documentations et ressources
 
