@@ -117,8 +117,6 @@ then
 	ynh_secure_remove --file="$tmpdir"
 fi
 
-fi
-
 mkdir -p "$final_path/store"
 mkdir -p  "$final_path/cache/smarty3"
 chmod 750 "$final_path"
