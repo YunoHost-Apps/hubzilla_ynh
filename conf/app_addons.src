@@ -1,5 +1,5 @@
-SOURCE_URL=https://framagit.org/hubzilla/addons/-/archive/7.8/addons-7.8.tar.gz
-SOURCE_SUM=aab80f439ba2fd335476533b7e5b2be2abc3e6176d2d631b3e88ef4c8e7f6846
+SOURCE_URL=https://framagit.org/hubzilla/addons/-/archive/7.8.1/addons-7.8.1.tar.gz
+SOURCE_SUM=bdcd994ee3d61798d27cc33ac081d4ed441cec7ef929f2a76aa1c04e32b0625f
 SOURCE_SUM_PRG=sha256sum
 SOURCE_FORMAT=tar.gz
 SOURCE_IN_SUBDIR=true
