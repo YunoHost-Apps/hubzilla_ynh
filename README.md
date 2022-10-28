@@ -44,6 +44,34 @@ Before installing, read the [Hubzilla installation instructions](https://framagi
 
 - **Failed Database after Upgrade:** Some times databse upgrade fails after version upgrade. You can go to hub eg. `https://hubzilla.example.com/admin/dbsync/` and check the numbers of failled update. These updates will have to be ran manually by **phpMyAdmin**.
 
+
+## Customize PHP settings in hubzilla.conf
+
+You may customizes the file /etc/php/8.0/fpm/pool.d/hubzilla.conf
+
+the values for
+
+pm.max_children =
+pm.start_servers = 
+pm.min_spare_servers = 
+pm.max_spare_servers = 
+
+as described here:
+https://chrismoore.ca/2018/10/finding-the-correct-pm-max-children-settings-for-php-fpm/
+
+the lines
+
+php_admin_value[upload_max_filesize] = 50M
+php_admin_value[post_max_size] = 50M
+
+should be uncommented and edited - otherwise Hubzilla uploads do just work for files with less then 2MB
+and
+depending of the server hardware also uncommented and edited this lines:
+
+php_admin_value[max_input_time] = 300
+php_admin_value[memory_limit] = 256M
+
+
 ## Documentation and resources
 
 * Official app website: <https://zotlabs.org/page/hubzilla/hubzilla-project>
