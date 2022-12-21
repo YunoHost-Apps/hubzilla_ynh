@@ -89,6 +89,10 @@ ynh_app_setting_set --app=$app --key=db_name --value=$db_name
 if [ $database = "mysql" ]; then
 	ynh_script_progression --message="Creating a MySQL database..." --weight=1
 	ynh_mysql_setup_db --db_user=$db_user --db_name=$db_name
+
+	ynh_mysql_connect_as --user=$db_user --password="$db_pwd" --database=$db_name \
+    <<< "ALTER DATABASE $db_name CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"
+
 	db_type=0
 elif [ $database = "postgresql" ]; then
 	ynh_script_progression --message="Creating a PostgreSQL database..." --weight=1
