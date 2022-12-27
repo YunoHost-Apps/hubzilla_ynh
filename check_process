@@ -11,8 +11,6 @@
 		setup_private=0
 		setup_public=1
 		upgrade=1
-		# 5.0.4~ynh1
-		upgrade=1	from_commit=3642c110f0e927ba36ee32e738a81e6afce958f7
 		# 7.6.1~ynh1
 		upgrade=1	from_commit=a556293d9e4b84389d3e0f47cfe8fe9b575e05f9
 		backup_restore=1
@@ -23,6 +21,6 @@
 Email=anmol@datamol.org
 Notification=change
 ;;; Upgrade options
-	; commit=3642c110f0e927ba36ee32e738a81e6afce958f7
-		name=21.05.21~ynh1
+	; commit=a556293d9e4b84389d3e0f47cfe8fe9b575e05f9
+		name=7.6.1~ynh1
 		manifest_arg=domain=DOMAIN&admin=USER&database=1&
