@@ -171,6 +171,9 @@ ynh_script_progression --message="Updating a configuration file..." --weight=1
 if [ $database = "mysql" ]; then
 	db_type=0
 	db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
+        # Change your databases character set and collation
+        ynh_mysql_connect_as --user=$db_user --password="$db_pwd" --database=$db_name \
+        <<< "ALTER DATABASE $db_name CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"
 elif [ $database = "postgresql" ]; then
 	db_type=1
 	db_pwd=$(ynh_app_setting_get --app=$app --key=psqlpwd)
