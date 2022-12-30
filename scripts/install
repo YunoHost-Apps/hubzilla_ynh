@@ -27,12 +27,16 @@ domain=$YNH_APP_ARG_DOMAIN
 path_url="/"
 admin=$YNH_APP_ARG_ADMIN
 database=$YNH_APP_ARG_DATABASE
+phpversion=$YNH_PHP_VERSION
 
 app=$YNH_APP_INSTANCE_NAME
 
 email=$(ynh_user_get_info --username=$admin --key=mail)
 upload="256M"
 random_string="$(ynh_string_random --length=48)"
+fpm_footprint="low"
+fpm_free_footprint=0
+fpm_usage="low"
 
 #=================================================
 # CHECK IF THE APP CAN BE INSTALLED WITH THESE ARGS
@@ -57,6 +61,9 @@ ynh_app_setting_set --app=$app --key=database --value=$database
 ynh_app_setting_set --app=$app --key=email --value=$email
 ynh_app_setting_set --app=$app --key=upload --value=$upload
 ynh_app_setting_set --app=$app --key=random_string --value=$random_string
+ynh_app_setting_set --app=$app --key=fpm_footprint --value=$fpm_footprint
+ynh_app_setting_set --app=$app --key=fpm_free_footprint --value=$fpm_free_footprint
+ynh_app_setting_set --app=$app --key=fpm_usage --value=$fpm_usage
 
 #=================================================
 # STANDARD MODIFICATIONS
@@ -125,7 +132,7 @@ chmod -R 775 $final_path/store $final_path/cache
 ynh_script_progression --message="Configuring PHP-FPM..." --weight=1
 
 # Create a dedicated PHP-FPM config
-ynh_add_fpm_config
+ynh_add_fpm_config --usage=$fpm_usage --footprint=$fpm_footprint
 phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 
 #=================================================
