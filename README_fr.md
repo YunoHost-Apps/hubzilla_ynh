@@ -5,24 +5,24 @@ It shall NOT be edited by hand.
 
 # Hubzilla pour YunoHost
 
-[![Niveau d'intégration](https://dash.yunohost.org/integration/hubzilla.svg)](https://dash.yunohost.org/appci/app/hubzilla) ![Statut du fonctionnement](https://ci-apps.yunohost.org/ci/badges/hubzilla.status.svg) ![Statut de maintenance](https://ci-apps.yunohost.org/ci/badges/hubzilla.maintain.svg)  
+[![Niveau d’intégration](https://dash.yunohost.org/integration/hubzilla.svg)](https://dash.yunohost.org/appci/app/hubzilla) ![Statut du fonctionnement](https://ci-apps.yunohost.org/ci/badges/hubzilla.status.svg) ![Statut de maintenance](https://ci-apps.yunohost.org/ci/badges/hubzilla.maintain.svg)
 [![Installer Hubzilla avec YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=hubzilla)
 
 *[Read this readme in english.](./README.md)*
 
-> *Ce package vous permet d'installer Hubzilla rapidement et simplement sur un serveur YunoHost.
-Si vous n'avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) pour savoir comment l'installer et en profiter.*
+> *Ce package vous permet d’installer Hubzilla rapidement et simplement sur un serveur YunoHost.
+Si vous n’avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) pour savoir comment l’installer et en profiter.*
 
-## Vue d'ensemble
+## Vue d’ensemble
 
 [Hubzilla](https://hub.libranet.de/directory?f=&global=1&pubforums=1) est une plate-forme de réseau social conçue avec le contrôle de votre vie privée au centre de la scène. Vos communications en ligne peuvent être aussi publiques que vous le souhaitez ou aussi privées que vous le souhaitez. Conversations privées, photos privées, vidéos privées. Votre média n'est pas caché derrière une URL obscure qui peut être devinée, il est protégé par une authentification interdomaine de pointe. Qu'est-ce que tout cela signifie pour vous : **moins de drames**.
 
 
 **Version incluse :** 7.8.7~ynh1
 
-## Captures d'écran
+## Captures d’écran
 
-![Capture d'écran de Hubzilla](./doc/screenshots/hubzilla-1.png)
+![Capture d’écran de Hubzilla](./doc/screenshots/hubzilla-1.png)
 
 ## Avertissements / informations importantes
 
@@ -46,8 +46,8 @@ Avant l'installation, lisez les [instructions d'installation de Hubzilla](https:
 
 ## Documentations et ressources
 
-* Site officiel de l'app : <https://zotlabs.org/page/hubzilla/hubzilla-project>
-* Dépôt de code officiel de l'app : <https://framagit.org/hubzilla/core>
+* Site officiel de l’app : <https://zotlabs.org/page/hubzilla/hubzilla-project>
+* Dépôt de code officiel de l’app : <https://framagit.org/hubzilla/core>
 * Documentation YunoHost pour cette app : <https://yunohost.org/app_hubzilla>
 * Signaler un bug : <https://github.com/YunoHost-Apps/hubzilla_ynh/issues>
 
@@ -63,4 +63,4 @@ ou
 sudo yunohost app upgrade hubzilla -u https://github.com/YunoHost-Apps/hubzilla_ynh/tree/testing --debug
 ```
 
-**Plus d'infos sur le packaging d'applications :** <https://yunohost.org/packaging_apps>
+**Plus d’infos sur le packaging d’applications :** <https://yunohost.org/packaging_apps>
