@@ -23,4 +23,4 @@ Notification=change
 ;;; Upgrade options
 	; commit=d5184fd47e8c65d7c47e8fcbbfee34d8ee84ca0b
 		name=7.8.6~ynh1
-		manifest_arg=domain=DOMAIN&admin=USER&database=1&
+		manifest_arg=domain=DOMAIN&admin=USER&database=mysql&
