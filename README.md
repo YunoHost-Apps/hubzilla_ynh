@@ -6,6 +6,7 @@ It shall NOT be edited by hand.
 # Hubzilla for YunoHost
 
 [![Integration level](https://dash.yunohost.org/integration/hubzilla.svg)](https://dash.yunohost.org/appci/app/hubzilla) ![Working status](https://ci-apps.yunohost.org/ci/badges/hubzilla.status.svg) ![Maintenance status](https://ci-apps.yunohost.org/ci/badges/hubzilla.maintain.svg)
+
 [![Install Hubzilla with YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=hubzilla)
 
 *[Lire ce readme en français.](./README_fr.md)*
