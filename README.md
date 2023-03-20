@@ -6,6 +6,7 @@ It shall NOT be edited by hand.
 # Hubzilla for YunoHost
 
 [![Integration level](https://dash.yunohost.org/integration/hubzilla.svg)](https://dash.yunohost.org/appci/app/hubzilla) ![Working status](https://ci-apps.yunohost.org/ci/badges/hubzilla.status.svg) ![Maintenance status](https://ci-apps.yunohost.org/ci/badges/hubzilla.maintain.svg)
+
 [![Install Hubzilla with YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=hubzilla)
 
 *[Lire ce readme en français.](./README_fr.md)*
@@ -18,7 +19,7 @@ If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/in
 [Hubzilla](https://hub.libranet.de/directory?f=&global=1&pubforums=1) is a social networking platform built with control of your privacy at center stage. Your online communications can be as public as you wish or as private as you require. Private conversations, private photos, private videos. Your media isn't hidden behind an obscure URL which can be guessed, it is protected by state-of-the-art cross-domain authentication. What this all means for you: **less drama**.
 
 
-**Shipped version:** 8.0~ynh1
+**Shipped version:** 8.2~ynh1
 
 ## Screenshots
 
