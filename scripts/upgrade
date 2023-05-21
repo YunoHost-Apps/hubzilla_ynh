@@ -15,6 +15,7 @@ source /usr/share/yunohost/helpers
 ynh_script_progression --message="Loading settings..." --weight=1
 
 email=$(ynh_user_get_info --username=$admin --key=mail)
+timezone=$(cat /etc/timezone)
 
 #=================================================
 # CHECK VERSION
@@ -73,36 +74,10 @@ chmod -R 775 $install_dir/store $install_dir/cache
 ynh_script_progression --message="Upgrading PHP-FPM configuration..." --weight=1
 
 # Create a dedicated PHP-FPM config
-ynh_add_fpm_config --phpversion=$phpversion --usage=$fpm_usage --footprint=$fpm_footprint
-
-#=================================================
-# NGINX CONFIGURATION
-#=================================================
-ynh_script_progression --message="Upgrading NGINX web server configuration..." --weight=1
+ynh_add_fpm_config --usage=$fpm_usage --footprint=$fpm_footprint
 
 # Create a dedicated NGINX config
 ynh_add_nginx_config
-
-#=================================================
-# SPECIFIC UPGRADE
-#=================================================
-# UPDATE A CONFIG FILE
-#=================================================
-ynh_script_progression --message="Updating a configuration file..." --weight=1
-
-if [ $database = "mysql" ]; then
-	ynh_mysql_connect_as --user=$db_user --password="$db_pwd" --database=$db_name <<< "ALTER DATABASE $db_name CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"
-
-ynh_add_config --template="../conf/htconfig.sample.php" --destination="$install_dir/.htconfig.php"
-
-# addon ldap config
-ynh_script_progression --message="Push LDAP configuration to .htconfig.php..."
-
-cat ../conf/ldap_conf.php >> $install_dir/.htconfig.php
-ynh_store_file_checksum --file=$install_dir/.htconfig.php
-
-chmod 600 "$install_dir/.htconfig.php"
-chown $app:$app "$install_dir/.htconfig.php"
 
 #=================================================
 # UPGRADE CRON JOB
