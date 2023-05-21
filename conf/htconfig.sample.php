@@ -17,7 +17,7 @@ $db_port = 0;                    // leave 0 for default or set your port
 $db_user = '__DB_USER__';
 $db_pass = '__DB_PWD__';
 $db_data = '__DB_NAME__';
-$db_type = 0; // use 1 for postgres, 0 for mysql
+$db_type = __DB_TYPE__; // use 1 for postgres, 0 for mysql
 
 /*
  * Notice: Many of the following settings will be available in the admin panel 
