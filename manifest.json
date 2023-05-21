@@ -1,0 +1,58 @@
+{
+    "packaging_format": 1,
+    "id": "hubzilla",
+    "name": "Hubzilla",
+    "description": {
+        "en": "Decentralized publication platform and social network.",
+        "fr": "Plateforme de publication décentralisée et un réseau social."
+    },
+    "version": "8.4.1~ynh1",
+    "url": "https://zotlabs.org/page/hubzilla/hubzilla-project",
+    "upstream": {
+        "license": "MIT",
+        "website": "https://zotlabs.org/page/hubzilla/hubzilla-project",
+        "code": "https://framagit.org/hubzilla/core"
+    },
+    "license": "MIT",
+    "maintainer": {
+        "name": "Anmol Sharma"
+    },
+    "previous_maintainers": {
+        "name": "Andrew Manning",
+        "email": "andrew@reticu.li"
+    },
+    "requirements": {
+        "yunohost": ">= 11.0.9"
+    },
+    "multi_instance": true,
+    "services": [
+        "nginx",
+        "php8.0-fpm",
+        "mysql"
+    ],
+    "arguments": {
+        "install": [
+            {
+                "name": "domain",
+                "type": "domain"
+            },
+            {
+                "name": "admin",
+                "type": "user"
+            },
+            {
+                "name": "database",
+                "type": "string",
+                "ask": {
+                    "en": "Choose the database to be used for the Hubzilla]",
+                    "fr": "Choisissez la database de Hubzilla"
+                },
+                "choices": [
+                    "mysql",
+                    "postgresql"
+                ],
+                "default": "mysql"
+            }
+        ]
+    }
+}

@@ -10,6 +10,19 @@ source _common.sh
 source /usr/share/yunohost/helpers
 
 #=================================================
+# LOAD SETTINGS
+#=================================================
+ynh_script_progression --message="Loading settings..." --weight=1
+
+app=$YNH_APP_INSTANCE_NAME
+
+domain=$(ynh_app_setting_get --app=$app --key=domain)
+db_name=$(ynh_app_setting_get --app=$app --key=db_name)
+db_user=$db_name
+final_path=$(ynh_app_setting_get --app=$app --key=final_path)
+database=$(ynh_app_setting_get --app=$app --key=database)
+
+#=================================================
 # STANDARD REMOVE
 #=================================================
 # REMOVE LOGROTATE CONFIGURATION
@@ -30,6 +43,16 @@ ynh_remove_fail2ban_config
 
 # Remove a cron file
 ynh_secure_remove --file="/etc/cron.d/$app"
+
+#=================================================
+# GENERIC FINALIZATION
+#=================================================
+# REMOVE DEDICATED USER
+#=================================================
+ynh_script_progression --message="Removing the dedicated system user..." --weight=1
+
+# Delete a system user
+ynh_system_user_delete --username=$app
 
 #=================================================
 # END OF SCRIPT
