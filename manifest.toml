@@ -1,0 +1,65 @@
+packaging_format = 2
+
+id = "hubzilla"
+name = "Hubzilla"
+description.en = "Decentralized publication platform and social network."
+description.fr = "Plateforme de publication décentralisée et un réseau social."
+
+version = "8.4.1~ynh1"
+
+maintainers = ["Anmol Sharma"]
+
+[upstream]
+license = "MIT"
+website = "https://zotlabs.org/page/hubzilla/hubzilla-project"
+code = "https://framagit.org/hubzilla/core"
+cpe = "???" # FIXME: optional but recommended if relevant, this is meant to contain the Common Platform Enumeration, which is sort of a standard id for applications defined by the NIST. In particular, Yunohost may use this is in the future to easily track CVE (=security reports) related to apps. The CPE may be obtained by searching here: https://nvd.nist.gov/products/cpe/search. For example, for Nextcloud, the CPE is 'cpe:2.3:a:nextcloud:nextcloud' (no need to include the version number)
+fund = "???" # FIXME: optional but recommended (or remove if irrelevant / not applicable). This is meant to be an URL where people can financially support this app, especially when its development is based on volunteers and/or financed by its community. YunoHost may later advertise it in the webadmin.
+
+[integration]
+yunohost = ">= 11.0.9"
+architectures = "all" # FIXME: can be replaced by a list of supported archs using the dpkg --print-architecture nomenclature (amd64/i386/armhf/arm64), for example: ["amd64", "i386"]
+multi_instance = true
+ldap = "?" # FIXME: replace with true, false, or "not_relevant". Not to confuse with the "sso" key : the "ldap" key corresponds to wether or not a user *can* login on the app using its YunoHost credentials.
+sso = "?" # FIXME: replace with true, false, or "not_relevant". Not to confuse with the "ldap" key : the "sso" key corresponds to wether or not a user is *automatically logged-in* on the app when logged-in on the YunoHost portal.
+disk = "50M" # FIXME: replace with an **estimate** minimum disk requirement. e.g. 20M, 400M, 1G, ...
+ram.build = "50M" # FIXME: replace with an **estimate** minimum ram requirement. e.g. 50M, 400M, 1G, ...
+ram.runtime = "50M" # FIXME: replace with an **estimate** minimum ram requirement. e.g. 50M, 400M, 1G, ...
+
+[install]
+    [install.domain]
+    # this is a generic question - ask strings are automatically handled by Yunohost's core
+    type = "domain"
+    full_domain = true
+
+    [install.admin]
+    # this is a generic question - ask strings are automatically handled by Yunohost's core
+    type = "user"
+
+    [install.database]
+    ask.en = "Choose the database to be used for the Hubzilla]"
+    ask.fr = "Choisissez la database de Hubzilla"
+    type = "string"
+    choices = ["mysql", "postgresql"]
+    default = "mysql"
+
+[resources]
+    [resources.sources]
+        [resources.sources.main]
+        url = "https://framagit.org/hubzilla/core/-/archive/8.4.1/core-8.4.1.tar.gz"
+        sha256 = "93dd8fc4d30da8a79a77303381b1451f8215c62f8b913e215664a9396cf47d61"
+
+        [resources.sources.app_addons]
+        url = "https://framagit.org/hubzilla/addons/-/archive/8.4.1/addons-8.4.1.tar.gz"
+        sha256 = "67f7b881f195b258c3d61922a6ce0f92832b907cafd5feb11b8abea4b2b055a0"
+
+
+    [resources.system_user]
+
+    [resources.install_dir]
+
+    [resources.permissions]
+    main.url = "/"
+
+    [resources.database]
+    type = "mysql"
