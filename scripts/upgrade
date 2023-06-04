@@ -14,44 +14,13 @@ source /usr/share/yunohost/helpers
 #=================================================
 ynh_script_progression --message="Loading settings..." --weight=1
 
-app=$YNH_APP_INSTANCE_NAME
-
-domain=$(ynh_app_setting_get --app=$app --key=domain)
-path_url=$(ynh_app_setting_get --app=$app --key=path)
-admin=$(ynh_app_setting_get --app=$app --key=admin)
-final_path=$(ynh_app_setting_get --app=$app --key=final_path)
-db_name=$(ynh_app_setting_get --app=$app --key=db_name)
-db_user=$db_name
-phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
-database=$(ynh_app_setting_get --app=$app --key=database)
-upload=$(ynh_app_setting_get --app=$app --key=upload)
-random_string=$(ynh_app_setting_get --app=$app --key=random_string)
-
 email=$(ynh_user_get_info --username=$admin --key=mail)
-fpm_footprint=$(ynh_app_setting_get --app=$app --key=fpm_footprint)
-fpm_free_footprint=$(ynh_app_setting_get --app=$app --key=fpm_free_footprint)
-fpm_usage=$(ynh_app_setting_get --app=$app --key=fpm_usage)
 
 #=================================================
 # CHECK VERSION
 #=================================================
-ynh_script_progression --message="Checking version..." --weight=1
 
 upgrade_type=$(ynh_check_app_version_changed)
-
-#=================================================
-# BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
-#=================================================
-ynh_script_progression --message="Backing up the app before upgrading (may take a while)..." --weight=1
-
-# Backup the current version of the app
-ynh_backup_before_upgrade
-ynh_clean_setup () {
-	# Restore it if the upgrade fails
-	ynh_restore_upgradebackup
-}
-# Exit if an error occurs during the execution of the script
-ynh_abort_if_errors
 
 #=================================================
 # STANDARD UPGRADE STEPS
@@ -60,17 +29,6 @@ ynh_abort_if_errors
 #=================================================
 ynh_script_progression --message="Ensuring downward compatibility..." --weight=1
 
-# If final_path doesn't exist, create it
-if [ -z "$final_path" ]; then
-	final_path=/var/www/$app
-	ynh_app_setting_set --app=$app --key=final_path --value=$final_path
-fi
-
-# If db_name doesn't exist, create it
-if [ -z "$db_name" ]; then
-	db_name=$(ynh_sanitize_dbid --db_name=$app)
-	ynh_app_setting_set --app=$app --key=db_name --value=$db_name
-fi
 
 # If fpm_footprint doesn't exist, create it
 if [ -z "$fpm_footprint" ]; then
@@ -90,13 +48,6 @@ if [ -z "$fpm_usage" ]; then
     ynh_app_setting_set --app=$app --key=fpm_usage --value=$fpm_usage
 fi
 
-# Cleaning legacy permissions
-if ynh_legacy_permissions_exists; then
-	ynh_legacy_permissions_delete_all
-
-	ynh_app_setting_delete --app=$app --key=is_public
-fi
-
 # Switch $database to "mysql" or "postgresql"
 if [[ $database == "1" ]] 2>/dev/null; then
 	database="mysql"
@@ -107,14 +58,6 @@ elif [[ $database == "2" ]] 2>/dev/null; then
 fi
 
 #=================================================
-# CREATE DEDICATED USER
-#=================================================
-ynh_script_progression --message="Making sure dedicated system user exists..." --weight=1
-
-# Create a dedicated user (if not existing)
-ynh_system_user_create --username=$app --home_dir="$final_path"
-
-#=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
 
@@ -123,26 +66,16 @@ then
 	ynh_script_progression --message="Upgrading source files..." --weight=1
 
 	# Download, check integrity, uncompress and patch the source from app.src
-	ynh_setup_source --dest_dir="$final_path" --keep="store/ .htconfig.php php.log"
-	ynh_setup_source --dest_dir="$final_path/addon" --source_id="app_addons"
+	ynh_setup_source --dest_dir="$install_dir" --keep="store/ .htconfig.php php.log"
+	ynh_setup_source --dest_dir="$install_dir/addon" --source_id="addons"
 fi
 
-mkdir -p "$final_path/store"
-mkdir -p  "$final_path/cache/smarty3"
-chmod 750 "$final_path"
-chmod -R o-rwx "$final_path"
-chown -R $app:www-data "$final_path"
-chmod -R 775 $final_path/store $final_path/cache
+mkdir -p "$install_dir/store"
+mkdir -p  "$install_dir/cache/smarty3"
 
-#=================================================
-# UPGRADE DEPENDENCIES
-#=================================================
-ynh_script_progression --message="Upgrading dependencies..." --weight=1
-
-if [ $database = "postgresql" ]; then
-	pkg_dependencies="$pkg_dependencies $pg_pkg_dependencies"
-fi
-ynh_install_app_dependencies $pkg_dependencies
+chmod -R o-rwx "$install_dir"
+chown -R $app:www-data "$install_dir"
+chmod -R 775 $install_dir/store $install_dir/cache
 
 #=================================================
 # PHP-FPM CONFIGURATION
@@ -151,12 +84,6 @@ ynh_script_progression --message="Upgrading PHP-FPM configuration..." --weight=1
 
 # Create a dedicated PHP-FPM config
 ynh_add_fpm_config --phpversion=$phpversion --usage=$fpm_usage --footprint=$fpm_footprint
-phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
-
-#=================================================
-# NGINX CONFIGURATION
-#=================================================
-ynh_script_progression --message="Upgrading NGINX web server configuration..." --weight=1
 
 # Create a dedicated NGINX config
 ynh_add_nginx_config
@@ -171,24 +98,24 @@ ynh_script_progression --message="Updating a configuration file..." --weight=1
 if [ $database = "mysql" ]; then
 	db_type=0
 	db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
-        # Change your databases character set and collation
-        ynh_mysql_connect_as --user=$db_user --password="$db_pwd" --database=$db_name \
+    # Change your databases character set and collation
+    ynh_mysql_connect_as --user=$db_user --password="$db_pwd" --database=$db_name \
         <<< "ALTER DATABASE $db_name CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"
 elif [ $database = "postgresql" ]; then
 	db_type=1
 	db_pwd=$(ynh_app_setting_get --app=$app --key=psqlpwd)
 fi
 
-ynh_add_config --template="../conf/htconfig.sample.php" --destination="$final_path/.htconfig.php"
+ynh_add_config --template="../conf/htconfig.sample.php" --destination="$install_dir/.htconfig.php"
 
 # addon ldap config
 ynh_script_progression --message="Push LDAP configuration to .htconfig.php..."
 
-cat ../conf/ldap_conf.php >> $final_path/.htconfig.php
-ynh_store_file_checksum --file=$final_path/.htconfig.php
+cat ../conf/ldap_conf.php >> $install_dir/.htconfig.php
+ynh_store_file_checksum --file=$install_dir/.htconfig.php
 
-chmod 600 "$final_path/.htconfig.php"
-chown $app:$app "$final_path/.htconfig.php"
+chmod 600 "$install_dir/.htconfig.php"
+chown $app:$app "$install_dir/.htconfig.php"
 
 #=================================================
 # UPGRADE CRON JOB
@@ -210,20 +137,8 @@ ynh_script_progression --message="Upgrading logrotate configuration..." --weight
 # Use logrotate to manage app-specific logfile(s)
 ynh_use_logrotate --non-append
 
-#=================================================
-# UPGRADE FAIL2BAN
-#=================================================
-ynh_script_progression --message="Reconfiguring Fail2Ban..." --weight=1
-
 # Create a dedicated Fail2Ban config
-ynh_add_fail2ban_config --logpath="$final_path/php.log" --failregex="^.*auth\.php.*failed login attempt.*from IP <HOST>.*$" --max_retry="5"
-
-#=================================================
-# RELOAD NGINX
-#=================================================
-ynh_script_progression --message="Reloading NGINX web server..." --weight=1
-
-ynh_systemd_action --service_name=nginx --action=reload
+ynh_add_fail2ban_config --logpath="$install_dir/php.log" --failregex="^.*auth\.php.*failed login attempt.*from IP <HOST>.*$" --max_retry="5"
 
 #=================================================
 # END OF SCRIPT
