@@ -97,6 +97,8 @@ ynh_script_progression --message="Updating a configuration file..." --weight=1
 
 if [ $database = "mysql" ]; then
 	db_type=0
+	db_name=$(ynh_sanitize_dbid --db_name=$app)
+	db_user=$db_name
 	db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
     # Change your databases character set and collation
     ynh_mysql_connect_as --user=$db_user --password="$db_pwd" --database=$db_name \
