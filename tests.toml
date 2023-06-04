@@ -1,0 +1,29 @@
+test_format = 1.0
+
+[default]
+
+
+    # ------------
+    # Tests to run
+    # ------------
+
+    exclude = ["change_url"]
+
+    # -------------------------------
+    # Default args to use for install
+    # -------------------------------
+
+    args.database="mysql"
+
+    # -------------------------------
+    # Commits to test upgrade from
+    # -------------------------------
+
+    test_upgrade_from.7c4bcff615c9ea9e87b2d5bad110dc10b1921efc.name = "Upgrade from 8.4.1"
+
+    
+[with_postgresql]
+
+    only = ["install.subdir"]
+
+    args.database="postgresql"
