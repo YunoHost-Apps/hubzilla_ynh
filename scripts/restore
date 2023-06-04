@@ -11,62 +11,31 @@ source ../settings/scripts/_common.sh
 source /usr/share/yunohost/helpers
 
 #=================================================
-# MANAGE SCRIPT FAILURE
-#=================================================
-
-#REMOVEME? ynh_clean_setup () {
-	true
-}
-# Exit if an error occurs during the execution of the script
-#REMOVEME? ynh_abort_if_errors
-
-#=================================================
-# LOAD SETTINGS
-#=================================================
-ynh_script_progression --message="Loading settings..." --weight=1
-
-#REMOVEME? app=$YNH_APP_INSTANCE_NAME
-
-#REMOVEME? domain=$(ynh_app_setting_get --app=$app --key=domain)
-#REMOVEME? path=$(ynh_app_setting_get --app=$app --key=path)
-#REMOVEME? admin=$(ynh_app_setting_get --app=$app --key=admin)
-#REMOVEME? #REMOVEME? install_dir=$(ynh_app_setting_get --app=$app --key=install_dir)
-#REMOVEME? db_name=$(ynh_app_setting_get --app=$app --key=db_name)
-#REMOVEME? db_user=$db_name
-#REMOVEME? phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
-#REMOVEME? database=$(ynh_app_setting_get --app=$app --key=database)
-
-#REMOVEME? fpm_footprint=$(ynh_app_setting_get --app=$app --key=fpm_footprint)
-#REMOVEME? fpm_usage=$(ynh_app_setting_get --app=$app --key=fpm_usage)
-
-#=================================================
-# CHECK IF THE APP CAN BE RESTORED
-#=================================================
-#REMOVEME? ynh_script_progression --message="Validating restoration parameters..." --weight=1
-
-#REMOVEME? test ! -d $install_dir \
-	|| ynh_die --message="There is already a directory: $install_dir "
-
-#=================================================
-# STANDARD RESTORATION STEPS
-#=================================================
-# RECREATE THE DEDICATED USER
-#=================================================
-#REMOVEME? ynh_script_progression --message="Recreating the dedicated system user..." --weight=1
-
-# Create the dedicated user (if not existing)
-#REMOVEME? ynh_system_user_create --username=$app --home_dir="$install_dir"
-
-#=================================================
 # RESTORE THE APP MAIN DIR
 #=================================================
 ynh_script_progression --message="Restoring the app main directory..." --weight=1
 
 ynh_restore_file --origin_path="$install_dir"
 
-chmod 750 "$install_dir"
 chmod -R o-rwx "$install_dir"
 chown -R $app:www-data "$install_dir"
+
+#=================================================
+# RESTORE THE DATABASE
+#=================================================
+
+if [ $database = "mysql" ]; then
+	ynh_script_progression --message="Restoring  MySQL database..." --weight=1
+	db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
+	ynh_mysql_setup_db --db_user=$db_user --db_name=$db_name --db_pwd=$db_pwd
+	ynh_mysql_connect_as --user=$db_user --password=$db_pwd --database=$db_name < ./db.sql
+elif [ $database = "postgresql" ]; then
+	ynh_script_progression --message="Restoring the PostgreSQL database..." --weight=1
+	db_pwd=$(ynh_app_setting_get --app=$app --key=psqlpwd)
+	ynh_psql_test_if_first_run
+	ynh_psql_setup_db --db_user=$db_user --db_name=$db_name --db_pwd=$db_pwd
+	ynh_psql_execute_file_as_root --file="./db.sql" --database="$db_name"
+fi
 
 #=================================================
 # RESTORE FAIL2BAN CONFIGURATION
@@ -77,63 +46,11 @@ ynh_restore_file --origin_path="/etc/fail2ban/jail.d/$app.conf"
 ynh_restore_file --origin_path="/etc/fail2ban/filter.d/$app.conf"
 ynh_systemd_action --action=restart --service_name=fail2ban
 
-#=================================================
-# SPECIFIC RESTORATION
-#=================================================
-# REINSTALL DEPENDENCIES
-#=================================================
-#REMOVEME? ynh_script_progression --message="Reinstalling dependencies..." --weight=1
-
-if [ $database = "postgresql" ]; then
-#REMOVEME? 	pkg_dependencies="$pkg_dependencies $pg_pkg_dependencies"
-fi
-#REMOVEME? ynh_install_app_dependencies $pkg_dependencies
-
-#=================================================
-# RESTORE THE PHP-FPM CONFIGURATION
-#=================================================
-ynh_script_progression --message="Restoring the PHP-FPM configuration..." --weight=1
-
 ynh_restore_file --origin_path="/etc/php/$phpversion/fpm/pool.d/$app.conf"
-
-# Recreate a dedicated php-fpm config
-ynh_add_fpm_config --usage=$fpm_usage --footprint=$fpm_footprint --phpversion=$phpversion
-
-#=================================================
-# RESTORE THE NGINX CONFIGURATION
-#=================================================
-ynh_script_progression --message="Restoring the NGINX web server configuration..." --weight=1
 
 ynh_restore_file --origin_path="/etc/nginx/conf.d/$domain.d/$app.conf"
 
-#=================================================
-# RESTORE THE DATABASE
-#=================================================
-
-if [ $database = "mysql" ]; then
-#REMOVEME? 	ynh_script_progression --message="Restoring  MySQL database..." --weight=1
-#REMOVEME? 	db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
-#REMOVEME? 	ynh_mysql_setup_db --db_user=$db_user --db_name=$db_name --db_pwd=$db_pwd
-	ynh_mysql_connect_as --user=$db_user --password=$db_pwd --database=$db_name < ./db.sql
-elif [ $database = "postgresql" ]; then
-#REMOVEME? 	ynh_script_progression --message="Restoring the PostgreSQL database..." --weight=1
-#REMOVEME? 	db_pwd=$(ynh_app_setting_get --app=$app --key=psqlpwd)
-#REMOVEME? 	ynh_psql_test_if_first_run
-#REMOVEME? 	ynh_psql_setup_db --db_user=$db_user --db_name=$db_name --db_pwd=$db_pwd
-	ynh_psql_execute_file_as_root --file="./db.sql" --database="$db_name"
-fi
-
-#=================================================
-# RESTORE VARIOUS FILES
-#=================================================
-ynh_script_progression --message="Restoring various files..." --weight=1
-
 ynh_restore_file --origin_path="/etc/cron.d/$app"
-
-#=================================================
-# RESTORE THE LOGROTATE CONFIGURATION
-#=================================================
-ynh_script_progression --message="Restoring the logrotate configuration..." --weight=1
 
 ynh_restore_file --origin_path="/etc/logrotate.d/$app"
 

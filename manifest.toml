@@ -2,10 +2,10 @@ packaging_format = 2
 
 id = "hubzilla"
 name = "Hubzilla"
-description.en = "Decentralized publication platform and social network."
-description.fr = "Plateforme de publication décentralisée et un réseau social."
+description.en = "Decentralized publication platform and social network"
+description.fr = "Plateforme de publication décentralisée et un réseau social"
 
-version = "8.4.1~ynh1"
+version = "8.4.2~ynh1"
 
 maintainers = ["Anmol Sharma"]
 
@@ -18,7 +18,7 @@ code = "https://framagit.org/hubzilla/core"
 yunohost = ">= 11.1.19"
 architectures = "all"
 multi_instance = true
-ldap = false
+ldap = true
 sso = false
 disk = "50M"
 ram.build = "50M"
@@ -33,7 +33,7 @@ ram.runtime = "50M"
     type = "user"
 
     [install.database]
-    ask.en = "Choose the database to be used for the Hubzilla]"
+    ask.en = "Choose the database to be used for the Hubzilla"
     ask.fr = "Choisissez la database de Hubzilla"
     type = "string"
     choices = ["mysql", "postgresql"]
@@ -42,10 +42,10 @@ ram.runtime = "50M"
 [resources]
     [resources.sources]
         [resources.sources.main]
-        url = "https://framagit.org/hubzilla/core/-/archive/8.4.1/core-8.4.1.tar.gz"
-        sha256 = "93dd8fc4d30da8a79a77303381b1451f8215c62f8b913e215664a9396cf47d61"
+        url = "https://framagit.org/hubzilla/core/-/archive/8.4.2/core-8.4.2.tar.gz"
+        sha256 = "1cd38c98b086ac3c72560c1ff16c22c01c10c07bdcb35db1870590cea6b03e5b"
 
-        [resources.sources.app_addons]
+        [resources.sources.addons]
         url = "https://framagit.org/hubzilla/addons/-/archive/8.4.1/addons-8.4.1.tar.gz"
         sha256 = "67f7b881f195b258c3d61922a6ce0f92832b907cafd5feb11b8abea4b2b055a0"
 
@@ -58,8 +58,12 @@ ram.runtime = "50M"
     main.url = "/"
 
     [resources.apt]
-    packages = "php8.2-curl php8.2-gd php8.2-mysql php8.2-mbstring php8.2-xml php8.2-zip php8.2-cli php8.2-imagick php8.2-pgsql php8.2-json"
+    packages = "php8.2-curl php8.2-gd php8.2-mysql php8.2-pgsql php8.2-mbstring php8.2-xml php8.2-zip php8.2-cli php8.2-imagick php8.2-json"
 
-
-    [resources.database]
-    type = "mysql"
+    packages_from_raw_bash = """
+            if [[ "$database" == "mysql" ]]; then 
+                echo "mariadb-server"
+            elif [[ "$database" == "postgresql" ]]; then 
+                echo "postgresql postgresql-contrib"
+            fi
+        """

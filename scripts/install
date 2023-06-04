@@ -34,46 +34,31 @@ ynh_app_setting_set --app=$app --key=fpm_free_footprint --value=$fpm_free_footpr
 ynh_app_setting_set --app=$app --key=fpm_usage --value=$fpm_usage
 
 #=================================================
-# STANDARD MODIFICATIONS
-#=================================================
-# INSTALL DEPENDENCIES
-#=================================================
-#REMOVEME? ynh_script_progression --message="Installing dependencies..." --weight=1
-
-if [ $database = "postgresql" ]; then
-#REMOVEME? 	pkg_dependencies="$pkg_dependencies $pg_pkg_dependencies"
-fi
-#REMOVEME? ynh_exec_warn_less ynh_install_app_dependencies $pkg_dependencies
-
-#=================================================
-# CREATE DEDICATED USER
-#=================================================
-#REMOVEME? ynh_script_progression --message="Configuring system user..." --weight=1
-
-# Create a system user
-#REMOVEME? ynh_system_user_create --username=$app --home_dir="$install_dir"
-
-#=================================================
 # CREATE A DATABASE
 #=================================================
 
-#REMOVEME? db_name=$(ynh_sanitize_dbid --db_name=$app)
-#REMOVEME? db_user=$db_name
-#REMOVEME? ynh_app_setting_set --app=$app --key=db_name --value=$db_name
 
-if [ $database = "mysql" ]; then
-#REMOVEME? 	ynh_script_progression --message="Creating a MySQL database..." --weight=1
-#REMOVEME? 	ynh_mysql_setup_db --db_user=$db_user --db_name=$db_name
+#=================================================
+# CREATE A MYSQL DATABASE
+#=================================================
+ynh_script_progression --message="Creating a database..." --weight=2
 
-	ynh_mysql_connect_as --user=$db_user --password="$db_pwd" --database=$db_name \
+db_name=$(ynh_sanitize_dbid --db_name=$app)
+db_user=$db_name
+db_pwd=$(ynh_string_random --length=30)
+ynh_app_setting_set --app=$app --key=db_name --value=$db_name
+ynh_app_setting_set --app=$app --key=db_user --value=$db_user
+ynh_app_setting_set --app=$app --key=db_pwd --value=$db_pwd
+
+if [ $database == "mysql" ]; then
+    ynh_mysql_setup_db --db_user=$db_user --db_name=$db_name
+    ynh_mysql_connect_as --user=$db_user --password="$db_pwd" --database=$db_name \
     <<< "ALTER DATABASE $db_name CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"
-
-	db_type=0
-elif [ $database = "postgresql" ]; then
-#REMOVEME? 	ynh_script_progression --message="Creating a PostgreSQL database..." --weight=1
-#REMOVEME? 	ynh_psql_test_if_first_run
-#REMOVEME? 	ynh_psql_setup_db --db_user=$db_user --db_name=$db_name
-	db_type=1
+    db_type=0
+elif [ $database == "postgresql" ]; then
+	ynh_psql_test_if_first_run
+    ynh_psql_setup_db --db_user=$db_user --db_name=$db_name
+    db_type=1
 fi
 
 #=================================================
@@ -81,15 +66,14 @@ fi
 #=================================================
 ynh_script_progression --message="Setting up source files..." --weight=1
 
-#REMOVEME? ynh_app_setting_set --app=$app --key=install_dir --value=$install_dir
 # Download, check integrity, uncompress and patch the source from app.src
 ynh_setup_source --dest_dir="$install_dir"
-ynh_setup_source --dest_dir="$install_dir/addon" --source_id="app_addons"
+ynh_setup_source --dest_dir="$install_dir/addon" --source_id="addons"
+
 touch "$install_dir/php.log"
 mkdir -p "$install_dir/store"
 mkdir -p  "$install_dir/cache/smarty3"
 
-chmod 750 "$install_dir"
 chmod -R o-rwx "$install_dir"
 chown -R $app:www-data "$install_dir"
 chmod -R 775 $install_dir/store $install_dir/cache
@@ -101,12 +85,6 @@ ynh_script_progression --message="Configuring PHP-FPM..." --weight=1
 
 # Create a dedicated PHP-FPM config
 ynh_add_fpm_config --usage=$fpm_usage --footprint=$fpm_footprint
-#REMOVEME? phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
-
-#=================================================
-# NGINX CONFIGURATION
-#=================================================
-ynh_script_progression --message="Configuring NGINX web server..." --weight=1
 
 # Create a dedicated NGINX config
 ynh_add_nginx_config
