@@ -19,9 +19,9 @@ yunohost = ">= 11.1.19"
 architectures = "all"
 multi_instance = true
 ldap = true
-sso = false
+sso = true
 disk = "50M"
-ram.build = "50M"
+ram.build = "200M"
 ram.runtime = "50M"
 
 [install]
@@ -33,7 +33,7 @@ ram.runtime = "50M"
     type = "user"
 
     [install.database]
-    ask.en = "Choose the database to be used for the Hubzilla"
+    ask.en = "Choose Hubzilla database"
     ask.fr = "Choisissez la database de Hubzilla"
     type = "string"
     choices = ["mysql", "postgresql"]
@@ -48,7 +48,6 @@ ram.runtime = "50M"
         [resources.sources.addons]
         url = "https://framagit.org/hubzilla/addons/-/archive/8.4.1/addons-8.4.1.tar.gz"
         sha256 = "67f7b881f195b258c3d61922a6ce0f92832b907cafd5feb11b8abea4b2b055a0"
-
 
     [resources.system_user]
 
