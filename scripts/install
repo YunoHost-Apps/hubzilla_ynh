@@ -36,11 +36,6 @@ ynh_app_setting_set --app=$app --key=fpm_usage --value=$fpm_usage
 #=================================================
 # CREATE A DATABASE
 #=================================================
-
-
-#=================================================
-# CREATE A MYSQL DATABASE
-#=================================================
 ynh_script_progression --message="Creating a database..." --weight=2
 
 db_name=$(ynh_sanitize_dbid --db_name=$app)
@@ -109,10 +104,6 @@ ynh_script_progression --message="Adding a configuration file..." --weight=1
 
 ynh_add_config --template="../conf/htconfig.sample.php" --destination="$install_dir/.htconfig.php"
 
-# addon ldap config
-ynh_script_progression --message="Push LDAP configuration to .htconfig.php..."
-
-cat ../conf/ldap_conf.php >> $install_dir/.htconfig.php
 ynh_store_file_checksum --file=$install_dir/.htconfig.php
 
 chmod 600 "$install_dir/.htconfig.php"
