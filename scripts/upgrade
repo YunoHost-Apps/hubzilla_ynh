@@ -93,31 +93,27 @@ ynh_add_nginx_config
 #=================================================
 # UPDATE A CONFIG FILE
 #=================================================
-ynh_script_progression --message="Updating a configuration file..." --weight=1
+# ynh_script_progression --message="Updating a configuration file..." --weight=1
 
-if [ $database = "mysql" ]; then
-	db_type=0
-	db_name=$(ynh_sanitize_dbid --db_name=$app)
-	db_user=$db_name
-	db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
-    # Change your databases character set and collation
-    ynh_mysql_connect_as --user=$db_user --password="$db_pwd" --database=$db_name \
-        <<< "ALTER DATABASE $db_name CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"
-elif [ $database = "postgresql" ]; then
-	db_type=1
-	db_pwd=$(ynh_app_setting_get --app=$app --key=psqlpwd)
-fi
+# if [ $database = "mysql" ]; then
+# 	db_type=0
+# 	db_name=$(ynh_sanitize_dbid --db_name=$app)
+# 	db_user=$db_name
+# 	db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
+#     # Change your databases character set and collation
+#     ynh_mysql_connect_as --user=$db_user --password="$db_pwd" --database=$db_name \
+#         <<< "ALTER DATABASE $db_name CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"
+# elif [ $database = "postgresql" ]; then
+# 	db_type=1
+# 	db_pwd=$(ynh_app_setting_get --app=$app --key=psqlpwd)
+# fi
 
-ynh_add_config --template="../conf/htconfig.sample.php" --destination="$install_dir/.htconfig.php"
+# ynh_add_config --template="../conf/htconfig.sample.php" --destination="$install_dir/.htconfig.php"
 
-# addon ldap config
-ynh_script_progression --message="Push LDAP configuration to .htconfig.php..."
+# ynh_store_file_checksum --file=$install_dir/.htconfig.php
 
-cat ../conf/ldap_conf.php >> $install_dir/.htconfig.php
-ynh_store_file_checksum --file=$install_dir/.htconfig.php
-
-chmod 600 "$install_dir/.htconfig.php"
-chown $app:$app "$install_dir/.htconfig.php"
+# chmod 600 "$install_dir/.htconfig.php"
+# chown $app:$app "$install_dir/.htconfig.php"
 
 #=================================================
 # UPGRADE CRON JOB

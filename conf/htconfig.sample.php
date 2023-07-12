@@ -92,3 +92,12 @@ error_reporting(E_ERROR | E_WARNING | E_PARSE );
 ini_set('error_log','php.log');
 ini_set('log_errors','1');
 ini_set('display_errors', '0');
+
+
+App::$config['system']['addon'] = 'ldapauth';
+
+App::$config['ldapauth']['ldap_server'] = 'localhost';
+App::$config['ldapauth']['ldap_searchdn'] = 'ou=users,dc=yunohost,dc=org';
+App::$config['ldapauth']['ldap_userattr'] = 'uid';
+App::$config['ldapauth']['ldap_autocreateaccount_emailattribute'] = 'mail';
+App::$config['ldapauth']['create_account'] = '1';
