@@ -5,7 +5,7 @@ name = "Hubzilla"
 description.en = "Decentralized publication platform and social network"
 description.fr = "Plateforme de publication décentralisée et un réseau social"
 
-version = "8.4.2~ynh1"
+version = "8.6~ynh1"
 
 maintainers = ["Anmol Sharma"]
 
@@ -15,7 +15,7 @@ website = "https://zotlabs.org/page/hubzilla/hubzilla-project"
 code = "https://framagit.org/hubzilla/core"
 
 [integration]
-yunohost = ">= 11.1.19"
+yunohost = ">= 11.1.21"
 architectures = "all"
 multi_instance = true
 ldap = true
@@ -42,8 +42,8 @@ ram.runtime = "50M"
 [resources]
     [resources.sources]
         [resources.sources.main]
-        url = "https://framagit.org/hubzilla/core/-/archive/8.4.2/core-8.4.2.tar.gz"
-        sha256 = "1cd38c98b086ac3c72560c1ff16c22c01c10c07bdcb35db1870590cea6b03e5b"
+        url = "https://framagit.org/hubzilla/core/-/archive/8.6/core-8.6.tar.gz"
+        sha256 = "8fc7ea5ec0f1bea8c2047f6d44612d5246b78e6a40c1ad59f88641d1fef767b8"
 
         [resources.sources.addons]
         url = "https://framagit.org/hubzilla/addons/-/archive/8.4.1/addons-8.4.1.tar.gz"
