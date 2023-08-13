@@ -5,9 +5,9 @@ name = "Hubzilla"
 description.en = "Decentralized publication platform and social network"
 description.fr = "Plateforme de publication décentralisée et un réseau social"
 
-version = "8.6.1~ynh1"
+version = "8.6.1~ynh2"
 
-maintainers = ["Anmol Sharma"]
+maintainers = [""]
 
 [upstream]
 license = "MIT"
