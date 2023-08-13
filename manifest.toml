@@ -5,7 +5,7 @@ name = "Hubzilla"
 description.en = "Decentralized publication platform and social network"
 description.fr = "Plateforme de publication décentralisée et un réseau social"
 
-version = "8.6~ynh1"
+version = "8.6.1~ynh1"
 
 maintainers = ["Anmol Sharma"]
 
@@ -15,7 +15,7 @@ website = "https://zotlabs.org/page/hubzilla/hubzilla-project"
 code = "https://framagit.org/hubzilla/core"
 
 [integration]
-yunohost = ">= 11.1.21"
+yunohost = ">= 11.2"
 architectures = "all"
 multi_instance = true
 ldap = true
@@ -27,7 +27,6 @@ ram.runtime = "50M"
 [install]
     [install.domain]
     type = "domain"
-    full_domain = true
 
     [install.admin]
     type = "user"
@@ -42,12 +41,12 @@ ram.runtime = "50M"
 [resources]
     [resources.sources]
         [resources.sources.main]
-        url = "https://framagit.org/hubzilla/core/-/archive/8.6/core-8.6.tar.gz"
-        sha256 = "8fc7ea5ec0f1bea8c2047f6d44612d5246b78e6a40c1ad59f88641d1fef767b8"
+        url = "https://framagit.org/hubzilla/core/-/archive/8.6.1/core-8.6.1.tar.gz"
+        sha256 = "16c2d5426725ad82d8bdcbfcfdc9457d14f6c636bb521b61353566101412a96e"
 
         [resources.sources.addons]
-        url = "https://framagit.org/hubzilla/addons/-/archive/8.4.1/addons-8.4.1.tar.gz"
-        sha256 = "67f7b881f195b258c3d61922a6ce0f92832b907cafd5feb11b8abea4b2b055a0"
+        url = "https://framagit.org/hubzilla/addons/-/archive/8.6.1/addons-8.6.1.tar.gz"
+        sha256 = "6dad585ca61511043625b197c0d74e84a293c67f187bdf0d4752a5b88537d288"
 
     [resources.system_user]
 
@@ -57,7 +56,7 @@ ram.runtime = "50M"
     main.url = "/"
 
     [resources.apt]
-    packages = "php8.2-curl php8.2-gd php8.2-mysql php8.2-pgsql php8.2-mbstring php8.2-xml php8.2-zip php8.2-cli php8.2-imagick php8.2-json"
+    packages = "php8.2-curl php8.2-gd php8.2-mysql php8.2-pgsql php8.2-mbstring php8.2-xml php8.2-zip php8.2-cli php8.2-imagick"
 
     packages_from_raw_bash = """
             if [[ "$database" == "mysql" ]]; then 
