@@ -45,8 +45,8 @@ ram.runtime = "50M"
         sha256 = "16c2d5426725ad82d8bdcbfcfdc9457d14f6c636bb521b61353566101412a96e"
 
         [resources.sources.addons]
-        url = "https://framagit.org/hubzilla/addons/-/archive/8.4.1/addons-8.4.1.tar.gz"
-        sha256 = "67f7b881f195b258c3d61922a6ce0f92832b907cafd5feb11b8abea4b2b055a0"
+        url = "https://framagit.org/hubzilla/addons/-/archive/8.6.1/addons-8.6.1.tar.gz"
+        sha256 = "6dad585ca61511043625b197c0d74e84a293c67f187bdf0d4752a5b88537d288"
 
     [resources.system_user]
 
