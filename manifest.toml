@@ -15,7 +15,7 @@ website = "https://zotlabs.org/page/hubzilla/hubzilla-project"
 code = "https://framagit.org/hubzilla/core"
 
 [integration]
-yunohost = ">= 11.1.21"
+yunohost = ">= 11.2"
 architectures = "all"
 multi_instance = true
 ldap = true
@@ -42,8 +42,8 @@ ram.runtime = "50M"
 [resources]
     [resources.sources]
         [resources.sources.main]
-        url = "https://framagit.org/hubzilla/core/-/archive/8.6/core-8.6.tar.gz"
-        sha256 = "8fc7ea5ec0f1bea8c2047f6d44612d5246b78e6a40c1ad59f88641d1fef767b8"
+        url = "https://framagit.org/hubzilla/core/-/archive/8.6.1/core-8.6.1.tar.gz"
+        sha256 = "16c2d5426725ad82d8bdcbfcfdc9457d14f6c636bb521b61353566101412a96e"
 
         [resources.sources.addons]
         url = "https://framagit.org/hubzilla/addons/-/archive/8.4.1/addons-8.4.1.tar.gz"
