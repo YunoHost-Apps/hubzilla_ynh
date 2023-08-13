@@ -69,20 +69,30 @@ touch "$install_dir/php.log"
 mkdir -p "$install_dir/store"
 mkdir -p  "$install_dir/cache/smarty3"
 
-chmod -R o-rwx "$install_dir"
 chown -R $app:www-data "$install_dir"
 chmod -R 775 $install_dir/store $install_dir/cache
 
 #=================================================
-# PHP-FPM CONFIGURATION
+# SYSTEM CONFIGURATION
 #=================================================
-ynh_script_progression --message="Configuring PHP-FPM..." --weight=1
+ynh_script_progression --message="Adding system configurations related to $app..." --weight=1
 
 # Create a dedicated PHP-FPM config
 ynh_add_fpm_config --usage=$fpm_usage --footprint=$fpm_footprint
 
 # Create a dedicated NGINX config
 ynh_add_nginx_config
+
+# Use logrotate to manage application logfile(s)
+ynh_use_logrotate "$install_dir/php.log"
+
+# Create a dedicated Fail2Ban config
+ynh_add_fail2ban_config --logpath="$install_dir/php.log" --failregex="^.*auth\.php.*failed login attempt.*from IP <HOST>.*$" --max_retry="5"
+
+# Set up cron job
+ynh_add_config --template="../conf/poller-cron" --destination="/etc/cron.d/$app"
+chown root: "/etc/cron.d/$app"
+chmod 644 "/etc/cron.d/$app"
 
 #=================================================
 # SPECIFIC SETUP
@@ -108,34 +118,6 @@ ynh_store_file_checksum --file=$install_dir/.htconfig.php
 
 chmod 600 "$install_dir/.htconfig.php"
 chown $app:$app "$install_dir/.htconfig.php"
-
-#=================================================
-# SET CRON JOB
-#=================================================
-ynh_script_progression --message="Setuping cron job..." --weight=1
-
-# Set up cron job
-ynh_add_config --template="../conf/poller-cron" --destination="/etc/cron.d/$app"
-chown root: "/etc/cron.d/$app"
-chmod 644 "/etc/cron.d/$app"
-
-#=================================================
-# GENERIC FINALIZATION
-#=================================================
-# SETUP LOGROTATE
-#=================================================
-ynh_script_progression --message="Configuring log rotation..." --weight=1
-
-# Use logrotate to manage application logfile(s)
-ynh_use_logrotate "$install_dir/php.log"
-
-#=================================================
-# SETUP FAIL2BAN
-#=================================================
-ynh_script_progression --message="Configuring Fail2Ban..." --weight=1
-
-# Create a dedicated Fail2Ban config
-ynh_add_fail2ban_config --logpath="$install_dir/php.log" --failregex="^.*auth\.php.*failed login attempt.*from IP <HOST>.*$" --max_retry="5"
 
 #=================================================
 # END OF SCRIPT
