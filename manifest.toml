@@ -5,7 +5,7 @@ name = "Hubzilla"
 description.en = "Decentralized publication platform and social network"
 description.fr = "Plateforme de publication décentralisée et un réseau social"
 
-version = "8.6.1~ynh2"
+version = "8.6.1~ynh3"
 
 maintainers = [""]
 
@@ -28,13 +28,17 @@ ram.runtime = "50M"
     [install.domain]
     type = "domain"
 
+    [install.init_main_permission]
+    type = "group"
+    default = "visitors"
+
     [install.admin]
     type = "user"
 
     [install.database]
     ask.en = "Choose Hubzilla database"
     ask.fr = "Choisissez la database de Hubzilla"
-    type = "string"
+    type = "select"
     choices = ["mysql", "postgresql"]
     default = "mysql"
 
@@ -56,7 +60,7 @@ ram.runtime = "50M"
     main.url = "/"
 
     [resources.apt]
-    packages = "php8.2-curl php8.2-gd php8.2-mysql php8.2-pgsql php8.2-mbstring php8.2-xml php8.2-zip php8.2-cli php8.2-imagick"
+    packages = "php8.2-curl, php8.2-gd, php8.2-mysql, php8.2-pgsql, php8.2-mbstring, php8.2-xml, php8.2-zip, php8.2-cli, php8.2-imagick"
 
     packages_from_raw_bash = """
             if [[ "$database" == "mysql" ]]; then 
