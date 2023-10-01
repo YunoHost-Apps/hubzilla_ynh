@@ -19,7 +19,7 @@ Si vous n’avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) po
 Hubzilla est une plate-forme de réseau social conçue avec le contrôle de votre vie privée au centre de la scène. Vos communications en ligne peuvent être aussi publiques que vous le souhaitez ou aussi privées que vous le souhaitez. Conversations privées, photos privées, vidéos privées. Votre média n'est pas caché derrière une URL obscure qui peut être devinée, il est protégé par une authentification interdomaine de pointe.
 
 
-**Version incluse :** 8.6.1~ynh2
+**Version incluse :** 8.6.3~ynh1
 
 ## Captures d’écran
 
@@ -29,7 +29,6 @@ Hubzilla est une plate-forme de réseau social conçue avec le contrôle de votr
 
 * Site officiel de l’app : <https://zotlabs.org/page/hubzilla/hubzilla-project>
 * Dépôt de code officiel de l’app : <https://framagit.org/hubzilla/core>
-* Documentation YunoHost pour cette app : <https://yunohost.org/app_hubzilla>
 * Signaler un bug : <https://github.com/YunoHost-Apps/hubzilla_ynh/issues>
 
 ## Informations pour les développeurs

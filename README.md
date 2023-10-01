@@ -19,7 +19,7 @@ If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/in
 Hubzilla is a social networking platform built with control of your privacy at center stage. Your online communications can be as public as you wish or as private as you require. Private conversations, private photos, private videos. Your media isn't hidden behind an obscure URL which can be guessed, it is protected by state-of-the-art cross-domain authentication.
 
 
-**Shipped version:** 8.6.1~ynh2
+**Shipped version:** 8.6.3~ynh1
 
 ## Screenshots
 
@@ -29,7 +29,6 @@ Hubzilla is a social networking platform built with control of your privacy at c
 
 * Official app website: <https://zotlabs.org/page/hubzilla/hubzilla-project>
 * Upstream app code repository: <https://framagit.org/hubzilla/core>
-* YunoHost documentation for this app: <https://yunohost.org/app_hubzilla>
 * Report a bug: <https://github.com/YunoHost-Apps/hubzilla_ynh/issues>
 
 ## Developer info
