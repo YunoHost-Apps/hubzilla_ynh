@@ -29,6 +29,7 @@ Hubzilla is a social networking platform built with control of your privacy at c
 
 * Official app website: <https://zotlabs.org/page/hubzilla/hubzilla-project>
 * Upstream app code repository: <https://framagit.org/hubzilla/core>
+* YunoHost Store: <https://apps.yunohost.org/app/hubzilla>
 * Report a bug: <https://github.com/YunoHost-Apps/hubzilla_ynh/issues>
 
 ## Developer info

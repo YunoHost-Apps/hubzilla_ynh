@@ -29,6 +29,7 @@ Hubzilla est une plate-forme de réseau social conçue avec le contrôle de votr
 
 * Site officiel de l’app : <https://zotlabs.org/page/hubzilla/hubzilla-project>
 * Dépôt de code officiel de l’app : <https://framagit.org/hubzilla/core>
+* YunoHost Store: <https://apps.yunohost.org/app/hubzilla>
 * Signaler un bug : <https://github.com/YunoHost-Apps/hubzilla_ynh/issues>
 
 ## Informations pour les développeurs
