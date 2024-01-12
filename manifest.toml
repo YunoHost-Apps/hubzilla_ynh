@@ -18,8 +18,11 @@ code = "https://framagit.org/hubzilla/core"
 yunohost = ">= 11.2"
 architectures = "all"
 multi_instance = true
+
 ldap = true
+
 sso = true
+
 disk = "50M"
 ram.build = "200M"
 ram.runtime = "50M"
@@ -60,7 +63,7 @@ ram.runtime = "50M"
     main.url = "/"
 
     [resources.apt]
-    packages = "php8.2-curl, php8.2-gd, php8.2-mysql, php8.2-pgsql, php8.2-mbstring, php8.2-xml, php8.2-zip, php8.2-cli, php8.2-imagick php8.2-gmp"
+    packages = "php8.2-curl, php8.2-gd, php8.2-mysql, php8.2-pgsql, php8.2-mbstring, php8.2-xml, php8.2-zip, php8.2-cli, php8.2-imagick, php8.2-gmp"
 
     packages_from_raw_bash = """
             if [[ "$database" == "mysql" ]]; then 
