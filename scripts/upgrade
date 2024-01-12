@@ -57,13 +57,22 @@ fi
 # MIGRATING DATABASE
 #=================================================
 
-# Check if using MariaDB
-# This migration should be done before the upgrade
-if mysqlshow | grep -q "^| $db_name "; then
-    remove_psql_in_case_of_error=1
-    mariadb-to-pg
-fi
-
+if mysqlshow | grep -q "^| $db_name "; then 
+  
+   ynh_script_progression --message="Creating a PostgreSQL database..." --weight=10 
+  
+   postgresql_db_pwd=$(ynh_string_random --length=24) 
+   ynh_app_setting_set --app=$app --key=postgresql_db_pwd --value=$postgresql_db_pwd 
+   ynh_psql_test_if_first_run 
+   ynh_psql_setup_db --db_user=$db_user --db_name=$db_name --db_pwd=$postgresql_db_pwd 
+   # Migrating from MySQL to PostgreSQL 
+   pgloader mysql://$db_user:$db_pwd@localhost:3306/$db_name postgresql://$db_user:$postgresql_db_pwd@localhost:5432/$db_name 
+   # Removinging MySQL database 
+   ynh_mysql_remove_db --db_user=$db_user --db_name=$db_name 
+else 
+   ynh_print_info --message="No migration needed" 
+fi 
+  
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
@@ -102,20 +111,7 @@ ynh_add_nginx_config
 #=================================================
 # ynh_script_progression --message="Updating a configuration file..." --weight=1
 
-# if [ $database = "mysql" ]; then
-# 	db_type=0
-# 	db_name=$(ynh_sanitize_dbid --db_name=$app)
-# 	db_user=$db_name
-# 	db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
-#     # Change your databases character set and collation
-#     ynh_mysql_connect_as --user=$db_user --password="$db_pwd" --database=$db_name \
-#         <<< "ALTER DATABASE $db_name CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"
-# elif [ $database = "postgresql" ]; then
-# 	db_type=1
-# 	db_pwd=$(ynh_app_setting_get --app=$app --key=psqlpwd)
-# fi
-
-# ynh_add_config --template="../conf/htconfig.sample.php" --destination="$install_dir/.htconfig.php"
+# ynh_add_config --template="htconfig.sample.php" --destination="$install_dir/.htconfig.php"
 
 # ynh_store_file_checksum --file=$install_dir/.htconfig.php
 
