@@ -67,7 +67,7 @@ ynh_setup_source --dest_dir="$install_dir/addon" --source_id="addons"
 
 touch "$install_dir/php.log"
 mkdir -p "$install_dir/store"
-mkdir -p  "$install_dir/cache/smarty3"
+mkdir -p "$install_dir/cache/smarty3"
 
 chown -R $app:www-data "$install_dir"
 chmod -R 775 $install_dir/store $install_dir/cache
@@ -90,7 +90,7 @@ ynh_use_logrotate "$install_dir/php.log"
 ynh_add_fail2ban_config --logpath="$install_dir/php.log" --failregex="^.*auth\.php.*failed login attempt.*from IP <HOST>.*$" --max_retry="5"
 
 # Set up cron job
-ynh_add_config --template="../conf/poller-cron" --destination="/etc/cron.d/$app"
+ynh_add_config --template="poller-cron" --destination="/etc/cron.d/$app"
 chown root: "/etc/cron.d/$app"
 chmod 644 "/etc/cron.d/$app"
 
@@ -112,7 +112,7 @@ fi
 #=================================================
 ynh_script_progression --message="Adding a configuration file..." --weight=1
 
-ynh_add_config --template="../conf/htconfig.sample.php" --destination="$install_dir/.htconfig.php"
+ynh_add_config --template="htconfig.sample.php" --destination="$install_dir/.htconfig.php"
 
 ynh_store_file_checksum --file=$install_dir/.htconfig.php
 
