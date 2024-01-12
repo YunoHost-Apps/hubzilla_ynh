@@ -11,7 +11,7 @@ maintainers = [""]
 
 [upstream]
 license = "MIT"
-website = "https://zotlabs.org/page/hubzilla/hubzilla-project"
+website = "https://hubzilla.org"
 code = "https://framagit.org/hubzilla/core"
 
 [integration]
