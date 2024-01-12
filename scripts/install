@@ -34,29 +34,6 @@ ynh_app_setting_set --app=$app --key=fpm_free_footprint --value=$fpm_free_footpr
 ynh_app_setting_set --app=$app --key=fpm_usage --value=$fpm_usage
 
 #=================================================
-# CREATE A DATABASE
-#=================================================
-ynh_script_progression --message="Creating a database..." --weight=2
-
-db_name=$(ynh_sanitize_dbid --db_name=$app)
-db_user=$db_name
-db_pwd=$(ynh_string_random --length=30)
-ynh_app_setting_set --app=$app --key=db_name --value=$db_name
-ynh_app_setting_set --app=$app --key=db_user --value=$db_user
-ynh_app_setting_set --app=$app --key=db_pwd --value=$db_pwd
-
-if [ $database == "mysql" ]; then
-    ynh_mysql_setup_db --db_user=$db_user --db_name=$db_name
-    ynh_mysql_connect_as --user=$db_user --password="$db_pwd" --database=$db_name \
-    <<< "ALTER DATABASE $db_name CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"
-    db_type=0
-elif [ $database == "postgresql" ]; then
-	ynh_psql_test_if_first_run
-    ynh_psql_setup_db --db_user=$db_user --db_name=$db_name
-    db_type=1
-fi
-
-#=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
 ynh_script_progression --message="Setting up source files..." --weight=1
@@ -101,11 +78,7 @@ chmod 644 "/etc/cron.d/$app"
 #=================================================
 ynh_script_progression --message="Provisionning database..." --weight=1
 
-if [ $database = "mysql" ]; then
-	ynh_mysql_connect_as --user="$db_name" --password="$db_pwd" --database="$db_name" < $install_dir/install/schema_mysql.sql
-elif [ $database = "postgresql" ]; then
-	ynh_psql_connect_as --user="$db_name" --password="$db_pwd" --database="$db_name" < $install_dir/install/schema_postgres.sql
-fi
+ynh_psql_connect_as --user="$db_name" --password="$db_pwd" --database="$db_name" < $install_dir/install/schema_postgres.sql
 
 #=================================================
 # ADD A CONFIGURATION
