@@ -57,3 +57,6 @@ ram.runtime = "50M"
 
     [resources.apt]
     packages = "pgloader, postgresql, postgresql-contrib, php8.2-curl, php8.2-gd, php8.2-mysql, php8.2-pgsql, php8.2-mbstring, php8.2-xml, php8.2-zip, php8.2-cli, php8.2-imagick, php8.2-gmp"
+
+    [resources.database]
+    type = "postgresql"
