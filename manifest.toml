@@ -5,7 +5,7 @@ name = "Hubzilla"
 description.en = "Decentralized publication platform and social network"
 description.fr = "Plateforme de publication décentralisée et un réseau social"
 
-version = "8.8.6~ynh2"
+version = "8.8.7~ynh1"
 
 maintainers = [""]
 
@@ -48,12 +48,12 @@ ram.runtime = "50M"
 [resources]
     [resources.sources]
         [resources.sources.main]
-        url = "https://framagit.org/hubzilla/core/-/archive/8.8.6/core-8.8.6.tar.gz"
-        sha256 = "02482d6a1a1a0e90c977afa6336309e282f8cb9a4c271a358f8e442af6adfcb3"
+        url = "https://framagit.org/hubzilla/core/-/archive/8.8.7/core-8.8.7.tar.gz"
+        sha256 = "f85782de953e704f5c3305fe747c5504e8a1a52eb4bcfa81e17f0f24ec884a90"
 
         [resources.sources.addons]
-        url = "https://framagit.org/hubzilla/addons/-/archive/8.8.6/addons-8.8.6.tar.gz"
-        sha256 = "b559cd6a5d18a1ce038d948a1fd76e1e85580c30a6350a01e942b1271118552a"
+        url = "https://framagit.org/hubzilla/addons/-/archive/8.8.7/addons-8.8.7.tar.gz"
+        sha256 = "c73efc78af7ba8256aab5221ed97f3f78d55e76c64cd160eb578dd92d0c21ff7"
 
     [resources.system_user]
 
