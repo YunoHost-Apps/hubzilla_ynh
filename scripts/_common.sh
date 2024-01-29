@@ -38,6 +38,8 @@ SET MySQL PARAMETERS
 net_read_timeout = '90',
 net_write_timeout = '180'
 
+ALTER SCHEMA 'hubzilla' RENAME TO 'public'
+
 ;
 EOT
         pgloader $tmpdir/commands.load
