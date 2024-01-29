@@ -60,6 +60,8 @@ fi
 # Check if using MariaDB
 # This migration should be done before the upgrade
 if mysqlshow | grep -q "^| $db_name "; then
+    ynh_script_progression --message="Provisionning database..." --weight=1
+    ynh_psql_connect_as --user="$db_name" --password="$db_pwd" --database="$db_name" < $install_dir/install/schema_postgres.sql
     # Migrate the database from MySQL/MariaDB to PostgreSQL
     remove_psql_in_case_of_error=1
     mariadb-to-pg
