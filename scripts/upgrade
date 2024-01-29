@@ -82,7 +82,7 @@ then
 	ynh_script_progression --message="Upgrading source files..." --weight=1
 
 	# Download, check integrity, uncompress and patch the source from app.src
-	ynh_setup_source --dest_dir="$install_dir" --keep="store/ .htconfig.php php.log"
+	ynh_setup_source --dest_dir="$install_dir" --keep="store/ php.log"
 	ynh_setup_source --dest_dir="$install_dir/addon" --source_id="addons"
 fi
 
@@ -109,14 +109,14 @@ ynh_add_nginx_config
 #=================================================
 # UPDATE A CONFIG FILE
 #=================================================
-# ynh_script_progression --message="Updating a configuration file..." --weight=1
+ynh_script_progression --message="Updating a configuration file..." --weight=1
 
-# ynh_add_config --template="htconfig.sample.php" --destination="$install_dir/.htconfig.php"
+ynh_add_config --template="htconfig.sample.php" --destination="$install_dir/.htconfig.php"
 
-# ynh_store_file_checksum --file=$install_dir/.htconfig.php
+ynh_store_file_checksum --file=$install_dir/.htconfig.php
 
-# chmod 600 "$install_dir/.htconfig.php"
-# chown $app:$app "$install_dir/.htconfig.php"
+chmod 600 "$install_dir/.htconfig.php"
+chown $app:$app "$install_dir/.htconfig.php"
 
 #=================================================
 # UPGRADE CRON JOB
