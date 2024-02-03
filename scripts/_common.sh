@@ -10,6 +10,14 @@ YNH_PHP_VERSION="8.2"
 # PERSONAL HELPERS
 #=================================================
 
+mysql_remove() {
+	ynh_mysql_remove_db --db_user=$db_user --db_name=$db_name
+}
+
+mysql_restore() {
+	ynh_mysql_setup_db --db_user=$db_user --db_name=$db_name --db_pwd=$db_pwd
+}
+
 #=================================================
 # EXPERIMENTAL HELPERS
 #=================================================

@@ -58,11 +58,11 @@ ynh_backup --src_path="/etc/cron.d/$app"
 # BACKUP THE DATABASE
 #=================================================
 
-if [ $database = "mysql" ]; then
+if mysqlshow | grep -q "^| $db_name "; then
 	# Backup MySQL database
 	ynh_print_info --message="Backup of the MySQL database..."
-	ynh_mysql_dump_db --database="$db_name" > db.sql
-elif [ $database = "postgresql" ]; then
+	ynh_mysql_dump_db --database="$db_name" > mydb.sql
+else
 	# Backup PostgreSQL database
 	ynh_print_info --message="Backup of the PostgreSQL database..."
 	ynh_psql_dump_db --database="$db_name" > db.sql
