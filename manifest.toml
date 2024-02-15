@@ -50,10 +50,13 @@ ram.runtime = "50M"
         [resources.sources.main]
         url = "https://framagit.org/hubzilla/core/-/archive/8.8.6/core-8.8.6.tar.gz"
         sha256 = "02482d6a1a1a0e90c977afa6336309e282f8cb9a4c271a358f8e442af6adfcb3"
+        autoupdate.strategy = "latest_gitlab_release"
 
         [resources.sources.addons]
         url = "https://framagit.org/hubzilla/addons/-/archive/8.8.6/addons-8.8.6.tar.gz"
         sha256 = "b559cd6a5d18a1ce038d948a1fd76e1e85580c30a6350a01e942b1271118552a"
+        autoupdate.strategy = "latest_gitlab_tag"
+        autoupdate.upstream = "https://framagit.org/hubzilla/addons"
 
     [resources.system_user]
 
