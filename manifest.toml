@@ -38,13 +38,6 @@ ram.runtime = "50M"
     [install.admin]
     type = "user"
 
-    [install.database]
-    ask.en = "Choose Hubzilla database"
-    ask.fr = "Choisissez la database de Hubzilla"
-    type = "select"
-    choices = ["mysql", "postgresql"]
-    default = "mysql"
-
 [resources]
     [resources.sources]
         [resources.sources.main]
@@ -66,12 +59,7 @@ ram.runtime = "50M"
     main.url = "/"
 
     [resources.apt]
-    packages = "php8.2-curl, php8.2-gd, php8.2-mysql, php8.2-pgsql, php8.2-mbstring, php8.2-xml, php8.2-zip, php8.2-cli, php8.2-imagick, php8.2-gmp"
+    packages = "postgresql, php8.2-curl, php8.2-gd, php8.2-pgsql, php8.2-mbstring, php8.2-xml, php8.2-zip, php8.2-cli, php8.2-imagick, php8.2-gmp"
 
-    packages_from_raw_bash = """
-            if [[ "$database" == "mysql" ]]; then 
-                echo "mariadb-server"
-            elif [[ "$database" == "postgresql" ]]; then 
-                echo "postgresql postgresql-contrib"
-            fi
-        """
+    [resources.database]
+    type = "postgresql"
