@@ -12,13 +12,9 @@ source /usr/share/yunohost/helpers
 #=================================================
 # REMOVE THE DATABASE
 #=================================================
-
-if [ $database = "mysql" ]; then
+if mysqlshow | grep -q "^| $db_name "; then
 	ynh_script_progression --message="Removing  MySQL database..." --weight=1
-	ynh_mysql_remove_db --db_user=$db_user --db_name=$db_name
-elif [ $database = "postgresql" ]; then
-	ynh_script_progression --message="Removing PostgreSQL database..." --weight=1
-	ynh_psql_remove_db --db_user=$db_user --db_name=$db_name
+    mysql_remove
 fi
 
 #=================================================
