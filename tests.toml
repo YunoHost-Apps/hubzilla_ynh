@@ -19,7 +19,7 @@ test_format = 1.0
     # Commits to test upgrade from
     # -------------------------------
 
-    test_upgrade_from.3e89436957f5a6f9b426836d671ffbb133d7db62.name = "Upgrade from 8.6.3~ynh1"
+    test_upgrade_from.702a58b0a02bd1aba620222eb2c111067506e3fa.name = "Upgrade from 8.6.6~ynh1"
 
     
 [with_postgresql]

@@ -15,7 +15,7 @@ ynh_abort_if_errors
 # RETRIEVE ARGUMENTS
 #=================================================
 
-phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
+phpversion="$YNH_PHP_VERSION"
 current_fpm_footprint=$(ynh_app_setting_get --app=$app --key=fpm_footprint)
 
 #=================================================

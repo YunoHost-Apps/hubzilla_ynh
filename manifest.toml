@@ -5,7 +5,7 @@ name = "Hubzilla"
 description.en = "Decentralized publication platform and social network"
 description.fr = "Plateforme de publication décentralisée et un réseau social"
 
-version = "8.8.6~ynh1"
+version = "9.0.1~ynh1"
 
 maintainers = [""]
 
@@ -38,23 +38,16 @@ ram.runtime = "50M"
     [install.admin]
     type = "user"
 
-    [install.database]
-    ask.en = "Choose Hubzilla database"
-    ask.fr = "Choisissez la database de Hubzilla"
-    type = "select"
-    choices = ["mysql", "postgresql"]
-    default = "mysql"
-
 [resources]
     [resources.sources]
         [resources.sources.main]
-        url = "https://framagit.org/hubzilla/core/-/archive/8.8.6/core-8.8.6.tar.gz"
-        sha256 = "02482d6a1a1a0e90c977afa6336309e282f8cb9a4c271a358f8e442af6adfcb3"
+        url = "https://framagit.org/hubzilla/core/-/archive/9.0.1/core-9.0.1.tar.bz2"
+        sha256 = "e0d3ef4f942058bf6a0784bac70b0a072e95275514953ba5984e4b1be25a2974"
         autoupdate.strategy = "latest_gitlab_release"
 
         [resources.sources.addons]
-        url = "https://framagit.org/hubzilla/addons/-/archive/8.8.6/addons-8.8.6.tar.gz"
-        sha256 = "b559cd6a5d18a1ce038d948a1fd76e1e85580c30a6350a01e942b1271118552a"
+        url = "https://framagit.org/hubzilla/addons/-/archive/9.0.1/addons-9.0.1.tar.bz2"
+        sha256 = "095770188e637ac4faf38fdca8dca786acf59e0bc1a3f7c09f0d5320dbff1a9f"
         autoupdate.strategy = "latest_gitlab_tag"
         autoupdate.upstream = "https://framagit.org/hubzilla/addons"
 
@@ -66,12 +59,7 @@ ram.runtime = "50M"
     main.url = "/"
 
     [resources.apt]
-    packages = "php8.2-curl, php8.2-gd, php8.2-mysql, php8.2-pgsql, php8.2-mbstring, php8.2-xml, php8.2-zip, php8.2-cli, php8.2-imagick, php8.2-gmp"
+    packages = "postgresql, php8.2-curl, php8.2-gd, php8.2-pgsql, php8.2-mbstring, php8.2-xml, php8.2-zip, php8.2-cli, php8.2-imagick, php8.2-gmp, php8.2-intl"
 
-    packages_from_raw_bash = """
-            if [[ "$database" == "mysql" ]]; then 
-                echo "mariadb-server"
-            elif [[ "$database" == "postgresql" ]]; then 
-                echo "postgresql postgresql-contrib"
-            fi
-        """
+    [resources.database]
+    type = "postgresql"
