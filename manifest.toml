@@ -7,7 +7,7 @@ description.fr = "Plateforme de publication décentralisée et un réseau social
 
 version = "9.0.1~ynh1"
 
-maintainers = [""]
+maintainers = []
 
 [upstream]
 license = "MIT"
