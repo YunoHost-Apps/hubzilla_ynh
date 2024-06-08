@@ -3,7 +3,7 @@
 请勿手动编辑。
 -->
 
-# YunoHost 的 Hubzilla
+# YunoHost 上的 Hubzilla
 
 [![集成程度](https://dash.yunohost.org/integration/hubzilla.svg)](https://dash.yunohost.org/appci/app/hubzilla) ![工作状态](https://ci-apps.yunohost.org/ci/badges/hubzilla.status.svg) ![维护状态](https://ci-apps.yunohost.org/ci/badges/hubzilla.maintain.svg)
 
@@ -19,7 +19,7 @@
 Hubzilla is a social networking platform built with control of your privacy at center stage. Your online communications can be as public as you wish or as private as you require. Private conversations, private photos, private videos. Your media isn't hidden behind an obscure URL which can be guessed, it is protected by state-of-the-art cross-domain authentication.
 
 
-**分发版本：** 9.0.1~ynh1
+**分发版本：** 9.0.2~ynh1
 
 ## 截图
 
