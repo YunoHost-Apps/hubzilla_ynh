@@ -5,7 +5,7 @@ EZ editatu eskuz.
 
 # Hubzilla YunoHost-erako
 
-[![Integrazio maila](https://dash.yunohost.org/integration/hubzilla.svg)](https://dash.yunohost.org/appci/app/hubzilla) ![Funtzionamendu egoera](https://ci-apps.yunohost.org/ci/badges/hubzilla.status.svg) ![Mantentze egoera](https://ci-apps.yunohost.org/ci/badges/hubzilla.maintain.svg)
+[![Integrazio maila](https://dash.yunohost.org/integration/hubzilla.svg)](https://ci-apps.yunohost.org/ci/apps/hubzilla/) ![Funtzionamendu egoera](https://ci-apps.yunohost.org/ci/badges/hubzilla.status.svg) ![Mantentze egoera](https://ci-apps.yunohost.org/ci/badges/hubzilla.maintain.svg)
 
 [![Instalatu Hubzilla YunoHost-ekin](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=hubzilla)
 
@@ -19,7 +19,7 @@ EZ editatu eskuz.
 Hubzilla is a social networking platform built with control of your privacy at center stage. Your online communications can be as public as you wish or as private as you require. Private conversations, private photos, private videos. Your media isn't hidden behind an obscure URL which can be guessed, it is protected by state-of-the-art cross-domain authentication.
 
 
-**Paketatutako bertsioa:** 9.0.2~ynh1
+**Paketatutako bertsioa:** 9.2~ynh1
 
 ## Pantaila-argazkiak
 

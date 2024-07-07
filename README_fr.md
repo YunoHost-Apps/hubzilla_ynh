@@ -5,7 +5,7 @@ Il NE doit PAS être modifié à la main.
 
 # Hubzilla pour YunoHost
 
-[![Niveau d’intégration](https://dash.yunohost.org/integration/hubzilla.svg)](https://dash.yunohost.org/appci/app/hubzilla) ![Statut du fonctionnement](https://ci-apps.yunohost.org/ci/badges/hubzilla.status.svg) ![Statut de maintenance](https://ci-apps.yunohost.org/ci/badges/hubzilla.maintain.svg)
+[![Niveau d’intégration](https://dash.yunohost.org/integration/hubzilla.svg)](https://ci-apps.yunohost.org/ci/apps/hubzilla/) ![Statut du fonctionnement](https://ci-apps.yunohost.org/ci/badges/hubzilla.status.svg) ![Statut de maintenance](https://ci-apps.yunohost.org/ci/badges/hubzilla.maintain.svg)
 
 [![Installer Hubzilla avec YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=hubzilla)
 
@@ -19,7 +19,7 @@ Il NE doit PAS être modifié à la main.
 Hubzilla est une plate-forme de réseau social conçue avec le contrôle de votre vie privée au centre de la scène. Vos communications en ligne peuvent être aussi publiques que vous le souhaitez ou aussi privées que vous le souhaitez. Conversations privées, photos privées, vidéos privées. Votre média n'est pas caché derrière une URL obscure qui peut être devinée, il est protégé par une authentification interdomaine de pointe.
 
 
-**Version incluse :** 9.0.2~ynh1
+**Version incluse :** 9.2~ynh1
 
 ## Captures d’écran
 
