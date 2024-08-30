@@ -1,27 +1,15 @@
 #!/bin/bash
 
 #=================================================
-# COMMON VARIABLES
+# COMMON VARIABLES AND CUSTOM HELPERS
 #=================================================
 # PHP APP SPECIFIC
 #=================================================
 YNH_PHP_VERSION="8.2"
-#=================================================
-# PERSONAL HELPERS
-#=================================================
-
 mysql_remove() {
-	ynh_mysql_remove_db --db_user=$db_user --db_name=$db_name
+	# FIXMEhelpers2.1 ynh_mysql_drop_db && ynh_mysql_drop_user --db_user=$db_user --db_name=$db_name
 }
 
 mysql_restore() {
-	ynh_mysql_setup_db --db_user=$db_user --db_name=$db_name --db_pwd=$db_pwd
+	# FIXMEhelpers2.1 ynh_mysql_create_db --db_user=$db_user --db_name=$db_name --db_pwd=$db_pwd
 }
-
-#=================================================
-# EXPERIMENTAL HELPERS
-#=================================================
-
-#=================================================
-# FUTURE OFFICIAL HELPERS
-#=================================================
