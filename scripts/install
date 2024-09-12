@@ -60,10 +60,10 @@ ynh_add_fpm_config --usage=$fpm_usage --footprint=$fpm_footprint
 ynh_add_nginx_config
 
 # Use logrotate to manage application logfile(s)
-ynh_use_logrotate "$data_dir/php.log"
+ynh_use_logrotate "$install_dir/php.log"
 
 # Create a dedicated Fail2Ban config
-ynh_add_fail2ban_config --logpath="$data_dir/php.log" --failregex="^.*auth\.php.*failed login attempt.*from IP <HOST>.*$" --max_retry="5"
+ynh_add_fail2ban_config --logpath="$install_dir/php.log" --failregex="^.*auth\.php.*failed login attempt.*from IP <HOST>.*$" --max_retry="5"
 
 # Set up cron job
 ynh_add_config --template="poller-cron" --destination="/etc/cron.d/$app"

@@ -109,7 +109,7 @@ ynh_script_progression --message="Upgrading logrotate configuration..." --weight
 ynh_use_logrotate --non-append
 
 # Create a dedicated Fail2Ban config
-ynh_add_fail2ban_config --logpath="$data_dir/php.log" --failregex="^.*auth\.php.*failed login attempt.*from IP <HOST>.*$" --max_retry="5"
+ynh_add_fail2ban_config --logpath="$install_dir/php.log" --failregex="^.*auth\.php.*failed login attempt.*from IP <HOST>.*$" --max_retry="5"
 
 #=================================================
 # END OF SCRIPT
