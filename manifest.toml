@@ -15,7 +15,8 @@ website = "https://hubzilla.org"
 code = "https://framagit.org/hubzilla/core"
 
 [integration]
-yunohost = ">= 11.2"
+yunohost = ">= 11.2.30"
+helpers_version = "2.1"
 architectures = "all"
 multi_instance = true
 
@@ -54,12 +55,13 @@ ram.runtime = "50M"
     [resources.system_user]
 
     [resources.install_dir]
+    group = "www-data:r-x"
 
     [resources.permissions]
     main.url = "/"
 
     [resources.apt]
-    packages = "postgresql, php8.2-curl, php8.2-gd, php8.2-pgsql, php8.2-mbstring, php8.2-xml, php8.2-zip, php8.2-cli, php8.2-imagick, php8.2-gmp, php8.2-intl"
+    packages = "postgresql, php8.3-curl, php8.3-gd, php8.3-pgsql, php8.3-mbstring, php8.3-xml, php8.3-zip, php8.3-cli, php8.3-imagick, php8.3-gmp, php8.3-intl"
 
     [resources.database]
     type = "postgresql"
