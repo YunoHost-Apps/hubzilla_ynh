@@ -18,6 +18,14 @@ ynh_script_progression "Ensuring downward compatibility..."
 ynh_app_setting_set_default --key=random_string --value="$(ynh_string_random --length=48)"
 
 #=================================================
+# WARN MYSQL DATABASE NOT SUPPORTED
+#=================================================
+
+if mysqlshow | grep -q "^| $db_name "; then
+	ynh_die "This package doesn't support MySQL database anymore"
+fi
+
+#=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
 ynh_script_progression "Upgrading source files..."
@@ -31,9 +39,9 @@ mkdir -p  "$install_dir/cache/smarty3"
 chmod -R 775 $install_dir/store $install_dir/cache
 
 #=================================================
-# PHP-FPM CONFIGURATION
+# REAPPLY SYSTEM CONFIGURATIONS
 #=================================================
-ynh_script_progression "Upgrading PHP-FPM configuration..."
+ynh_script_progression "Upgrading system configurations related to $app..."
 
 ynh_config_add_phpfpm
 
