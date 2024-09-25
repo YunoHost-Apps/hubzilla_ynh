@@ -6,32 +6,25 @@ source /usr/share/yunohost/helpers
 #=================================================
 # REMOVE THE DATABASE
 #=================================================
+
 if mysqlshow | grep -q "^| $db_name "; then
 	ynh_script_progression "Removing  MySQL database..."
     mysql_remove
 fi
 
 #=================================================
-# REMOVE SYSTEM CONFIGURATIONS
-#=================================================
 # REMOVE SYSTEMD SERVICE
-
 #=================================================
 ynh_script_progression "Removing system configurations related to $app..."
 
-# Remove the dedicated NGINX config
 ynh_config_remove_nginx
 
-# Remove the dedicated PHP-FPM config
 ynh_config_remove_phpfpm
 
-# Remove the app-specific logrotate config
 ynh_config_remove_logrotate
 
-# Remove the dedicated Fail2Ban config
 ynh_config_remove_fail2ban
 
-# Remove a cron file
 ynh_safe_rm "/etc/cron.d/$app"
 
 #=================================================

@@ -15,50 +15,19 @@ email=$(ynh_user_get_info --username=$admin --key=mail)
 #=================================================
 ynh_script_progression "Ensuring downward compatibility..."
 
-# If random_string doesn't exist, create it
-# FIXMEhelpers2.1: maybe replace with: ynh_app_setting_set_default --key=random_string --value="$(ynh_string_random --length=48)"
-if [ -z "${random_string:-}" ]; then
-    random_string="$(ynh_string_random --length=48)"
-    ynh_app_setting_set --key=random_string --value=$random_string
-fi
-
-# If fpm_footprint doesn't exist, create it
-if [ -z "${fpm_footprint:-}" ]; then
-    fpm_footprint=low
-#REMOVEME? Everything about fpm_footprint is removed in helpers2.1... |     ynh_app_setting_set --key=fpm_footprint --value=$fpm_footprint
-fi
-
-# If fpm_free_footprint doesn't exist, create it
-if [ -z "${fpm_free_footprint:-}" ]; then
-    fpm_free_footprint=0
-#REMOVEME? Everything about fpm_free_footprint is removed in helpers2.1... |     ynh_app_setting_set --key=fpm_free_footprint --value=$fpm_free_footprint
-fi
-
-# If fpm_usage doesn't exist, create it
-if [ -z "${fpm_usage:-}" ]; then
-    fpm_usage=low
-#REMOVEME? Everything about fpm_usage is removed in helpers2.1... |     ynh_app_setting_set --key=fpm_usage --value=$fpm_usage
-fi
+ynh_app_setting_set_default --key=random_string --value="$(ynh_string_random --length=48)"
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
+ynh_script_progression "Upgrading source files..."
 
-# FIXME: this is still supported but the recommendation is now to *always* re-setup the app sources wether or not the upstream sources changed
-if ynh_app_upstream_version_changed
-then
-	ynh_script_progression "Upgrading source files..."
-
-	# Download, check integrity, uncompress and patch the source from app.src
-	ynh_setup_source --dest_dir="$install_dir" --keep="store/ .htconfig.php php.log"
-	ynh_setup_source --dest_dir="$install_dir/addon" --source_id="addons"
-fi
+ynh_setup_source --dest_dir="$install_dir" --keep="store/ .htconfig.php php.log"
+ynh_setup_source --dest_dir="$install_dir/addon" --source_id="addons"
 
 mkdir -p "$install_dir/store"
 mkdir -p  "$install_dir/cache/smarty3"
 
-#REMOVEME? Assuming the install dir is setup using ynh_setup_source, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chmod -R o-rwx "$install_dir"
-#REMOVEME? Assuming the install dir is setup using ynh_setup_source, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chown -R $app:www-data "$install_dir"
 chmod -R 775 $install_dir/store $install_dir/cache
 
 #=================================================
@@ -66,33 +35,14 @@ chmod -R 775 $install_dir/store $install_dir/cache
 #=================================================
 ynh_script_progression "Upgrading PHP-FPM configuration..."
 
-# Create a dedicated PHP-FPM config
 ynh_config_add_phpfpm
 
-# Create a dedicated NGINX config
 ynh_config_add_nginx
 
-#=================================================
-# UPDATE A CONFIG FILE
-#=================================================
-# UPGRADE CRON JOB
-#=================================================
-ynh_script_progression "Upgrading cron job..."
-
-# Set up cron job
 ynh_config_add --template="poller-cron" --destination="/etc/cron.d/$app"
-#REMOVEME? Assuming the file is setup using ynh_config_add, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chown root: "/etc/cron.d/$app"
-#REMOVEME? Assuming the file is setup using ynh_config_add, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chmod 644 "/etc/cron.d/$app"
 
-#=================================================
-# SETUP LOGROTATE
-#=================================================
-ynh_script_progression "Upgrading logrotate configuration..."
-
-# Use logrotate to manage app-specific logfile(s)
 ynh_config_add_logrotate
 
-# Create a dedicated Fail2Ban config
 ynh_config_add_fail2ban --logpath="$install_dir/php.log" --failregex="^.*auth\.php.*failed login attempt.*from IP <HOST>.*$"
 
 #=================================================
