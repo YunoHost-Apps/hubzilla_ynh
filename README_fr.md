@@ -19,7 +19,7 @@ Il NE doit PAS être modifié à la main.
 Hubzilla est une plate-forme de réseau social conçue avec le contrôle de votre vie privée au centre de la scène. Vos communications en ligne peuvent être aussi publiques que vous le souhaitez ou aussi privées que vous le souhaitez. Conversations privées, photos privées, vidéos privées. Votre média n'est pas caché derrière une URL obscure qui peut être devinée, il est protégé par une authentification interdomaine de pointe.
 
 
-**Version incluse :** 9.4.2~ynh1
+**Version incluse :** 9.4.4~ynh1
 
 ## Captures d’écran
 
