@@ -5,7 +5,9 @@ Ini TIDAK boleh diedit dengan tangan.
 
 # Hubzilla untuk YunoHost
 
-[![Tingkat integrasi](https://dash.yunohost.org/integration/hubzilla.svg)](https://ci-apps.yunohost.org/ci/apps/hubzilla/) ![Status kerja](https://ci-apps.yunohost.org/ci/badges/hubzilla.status.svg) ![Status pemeliharaan](https://ci-apps.yunohost.org/ci/badges/hubzilla.maintain.svg)
+[![Tingkat integrasi](https://apps.yunohost.org/badge/integration/hubzilla)](https://ci-apps.yunohost.org/ci/apps/hubzilla/)
+![Status kerja](https://apps.yunohost.org/badge/state/hubzilla)
+![Status pemeliharaan](https://apps.yunohost.org/badge/maintained/hubzilla)
 
 [![Pasang Hubzilla dengan YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=hubzilla)
 
@@ -19,7 +21,7 @@ Ini TIDAK boleh diedit dengan tangan.
 Hubzilla is a social networking platform built with control of your privacy at center stage. Your online communications can be as public as you wish or as private as you require. Private conversations, private photos, private videos. Your media isn't hidden behind an obscure URL which can be guessed, it is protected by state-of-the-art cross-domain authentication.
 
 
-**Versi terkirim:** 9.4.2~ynh1
+**Versi terkirim:** 10.0~ynh1
 
 ## Tangkapan Layar
 
