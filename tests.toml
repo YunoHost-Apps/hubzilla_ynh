@@ -13,17 +13,9 @@ test_format = 1.0
     # Default args to use for install
     # -------------------------------
 
-    args.database="mysql"
-
     # -------------------------------
     # Commits to test upgrade from
     # -------------------------------
 
-    test_upgrade_from.702a58b0a02bd1aba620222eb2c111067506e3fa.name = "Upgrade from 8.6.6~ynh1"
+    test_upgrade_from.1ecc6d3f5427933bf71037a0912432900320f048.name = "Upgrade from 9.2.1~ynh1"
 
-    
-[with_postgresql]
-
-    only = ["install.subdir"]
-
-    args.database="postgresql"
