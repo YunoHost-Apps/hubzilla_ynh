@@ -1,25 +1,13 @@
 #!/bin/bash
 
 #=================================================
-# COMMON VARIABLES
-#=================================================
-
-#=================================================
-# PERSONAL HELPERS
+# COMMON VARIABLES AND CUSTOM HELPERS
 #=================================================
 
 mysql_remove() {
-	ynh_mysql_remove_db --db_user=$db_user --db_name=$db_name
+	ynh_mysql_drop_db && ynh_mysql_drop_user --db_user=$db_user --db_name=$db_name
 }
 
 mysql_restore() {
-	ynh_mysql_setup_db --db_user=$db_user --db_name=$db_name --db_pwd=$db_pwd
+	ynh_mysql_create_db --db_user=$db_user --db_name=$db_name --db_pwd=$db_pwd
 }
-
-#=================================================
-# EXPERIMENTAL HELPERS
-#=================================================
-
-#=================================================
-# FUTURE OFFICIAL HELPERS
-#=================================================
