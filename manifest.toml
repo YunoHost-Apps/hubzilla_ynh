@@ -5,7 +5,7 @@ name = "Hubzilla"
 description.en = "Decentralized publication platform and social network"
 description.fr = "Plateforme de publication décentralisée et un réseau social"
 
-version = "10.0.5~ynh1"
+version = "10.0.6~ynh1"
 
 maintainers = []
 
@@ -38,13 +38,13 @@ ram.runtime = "50M"
 [resources]
     [resources.sources]
         [resources.sources.main]
-        url = "https://framagit.org/hubzilla/core/-/archive/10.0.5/core-10.0.5.tar.bz2"
-        sha256 = "c0587fbb8e75146be27e9be596cc848ea55c7fe2570d8b0c089a8a21c13b9d1a"
+        url = "https://framagit.org/hubzilla/core/-/archive/10.0.6/core-10.0.6.tar.bz2"
+        sha256 = "c2b99ec1eb79aae2a3ef94cfddc343ed7b802a90d4711948f2e7d266a1ec50c5"
         autoupdate.strategy = "latest_gitlab_release"
 
         [resources.sources.addons]
-        url = "https://framagit.org/hubzilla/addons/-/archive/10.0.5/addons-10.0.5.tar.bz2"
-        sha256 = "bce890808d9c06a4b8430066ddcbd8faaf50e47312c33131124eb4dc9213aa41"
+        url = "https://framagit.org/hubzilla/addons/-/archive/10.0.6/addons-10.0.6.tar.bz2"
+        sha256 = "c904550f8699bc6d342436ad98fe8557ab5fbb95168ddf4a2722545c6cd01b06"
         autoupdate.strategy = "latest_gitlab_tag"
         autoupdate.upstream = "https://framagit.org/hubzilla/addons"
 
