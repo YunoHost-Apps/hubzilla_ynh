@@ -21,7 +21,7 @@
 Hubzilla is a social networking platform built with control of your privacy at center stage. Your online communications can be as public as you wish or as private as you require. Private conversations, private photos, private videos. Your media isn't hidden behind an obscure URL which can be guessed, it is protected by state-of-the-art cross-domain authentication.
 
 
-**Поставляемая версия:** 10.0.6~ynh1
+**Поставляемая версия:** 10.0.7~ynh1
 
 ## Снимки экрана
 
