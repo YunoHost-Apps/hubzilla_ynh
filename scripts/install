@@ -32,8 +32,11 @@ touch "$install_dir/php.log"
 mkdir -p "$install_dir/store"
 mkdir -p "$install_dir/cache/smarty3"
 
-chown -R $app:www-data "$install_dir"
-chmod -R 775 $install_dir/store $install_dir/cache
+#chmod -R 775 $install_dir/store $install_dir/cache
+
+chmod 770 "$install_dir"
+chmod -R o-rwx "$install_dir"
+chown -R "$app:www-data" "$install_dir"
 
 #=================================================
 # SYSTEM CONFIGURATION
