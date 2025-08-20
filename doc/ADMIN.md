@@ -11,5 +11,3 @@ Before installing, read the [Hubzilla installation instructions](https://framagi
 - **Failing to get admin rights**: If the admin cannot access the admin settings at `https://hubzilla.example.com/admin` then you have to **manually add 4096** to the **account_roles** under **accounts** for that user in the **database through phpMyAdmin**.
 
 - **For logs**: Go to **admin->logs** and enter the file name **php.log**.
-
-- **Failed Database after Upgrade:** Some times databse upgrade fails after version upgrade. You can go to hub eg. `https://hubzilla.example.com/admin/dbsync/` and check the numbers of failled update. These updates will have to be ran manually by **phpMyAdmin**.
