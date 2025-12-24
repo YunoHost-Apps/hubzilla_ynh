@@ -69,6 +69,9 @@ ynh_store_file_checksum $install_dir/.htconfig.php
 chmod 600 "$install_dir/.htconfig.php"
 chown $app:$app "$install_dir/.htconfig.php"
 
+chown -R $app:www-data "$install_dir"
+chmod -R 775 "$install_dir"
+
 #=================================================
 # END OF SCRIPT
 #=================================================
