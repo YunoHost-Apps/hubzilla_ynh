@@ -1,6 +1,5 @@
 #!/bin/bash
 
-source ../settings/scripts/_common.sh
 source /usr/share/yunohost/helpers
 
 #=================================================
@@ -13,14 +12,9 @@ ynh_restore "$install_dir"
 #=================================================
 # RESTORE THE DATABASE
 #=================================================
+ynh_script_progression "Restoring the PostgreSQL database..."
 
-if [ -f mydb.sql ]; then
-	ynh_script_progression "Restoring  MySQL database..."
-	ynh_mysql_db_shell < ./mydb.sql
-else
-	ynh_script_progression "Restoring the PostgreSQL database..."
-	ynh_psql_db_shell < ./db.sql
-fi
+ynh_psql_db_shell < ./db.sql
 
 #=================================================
 # RESTORE THE PHP-FPM CONFIGURATION
