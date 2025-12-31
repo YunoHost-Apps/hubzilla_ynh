@@ -15,7 +15,7 @@ website = "https://hubzilla.org"
 code = "https://framagit.org/hubzilla/core"
 
 [integration]
-yunohost = ">= 11.2"
+yunohost = ">= 12.1.38"
 architectures = "all"
 multi_instance = true
 ldap = false
