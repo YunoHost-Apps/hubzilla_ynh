@@ -19,7 +19,7 @@ if [ -f mydb.sql ]; then
 	ynh_mysql_db_shell < ./mydb.sql
 else
 	ynh_script_progression "Restoring the PostgreSQL database..."
-	ynh_psql_db_shell " < "./db.sql""
+	ynh_psql_db_shell < ./db.sql
 fi
 
 #=================================================
