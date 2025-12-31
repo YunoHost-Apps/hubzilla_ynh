@@ -1,6 +1,5 @@
 #!/bin/bash
 
-source ../settings/scripts/_common.sh
 source /usr/share/yunohost/helpers
 
 ynh_print_info "Declaring files to be backed up..."
@@ -30,15 +29,7 @@ ynh_backup "/etc/cron.d/$app"
 # BACKUP THE DATABASE
 #=================================================
 
-if mysqlshow | grep -q "^| $db_name "; then
-	# Backup MySQL database
-	ynh_print_info "Backup of the MySQL database..."
-	ynh_mysql_dump_db > mydb.sql
-else
-	# Backup PostgreSQL database
-	ynh_print_info "Backup of the PostgreSQL database..."
-	ynh_psql_dump_db > db.sql
-fi
+ynh_psql_dump_db > db.sql
 
 #=================================================
 # END OF SCRIPT

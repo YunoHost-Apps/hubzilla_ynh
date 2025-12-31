@@ -1,16 +1,6 @@
 #!/bin/bash
 
-source _common.sh
 source /usr/share/yunohost/helpers
-
-#=================================================
-# REMOVE THE DATABASE
-#=================================================
-
-if mysqlshow | grep -q "^| $db_name "; then
-	ynh_script_progression "Removing  MySQL database..."
-    mysql_remove
-fi
 
 #=================================================
 # REMOVE SYSTEMD SERVICE
