@@ -70,7 +70,7 @@ App::$config['system']['admin_email'] = '__EMAIL__';
 
 // Location of PHP command line processor
 
-App::$config['system']['php_path'] = '/usr/bin/php__PHPVERSION__';
+App::$config['system']['php_path'] = '/usr/bin/php__PHP_VERSION__';
 
 
 // Configure how we communicate with directory servers.
