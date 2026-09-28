@@ -4,9 +4,9 @@ Before installing, read the [Hubzilla installation instructions](https://framagi
 ### Register a new domain and add it to YunoHost
 - Hubzilla requires a dedicated domain, so obtain one and add it using the YunoHost admin panel. **Domains -> Add domain**. As Hubzilla uses the full domain and is installed on the root, you can create a subdomain such as hubzilla.domain.tld. Don't forget to update your DNS if you manage them manually.
 
-## Ldap Admin user rights, logs and failed database updates
+### Admin user rights, logs and failed database updates
 
-- **For admin rights**: When installation is complete, you will need to visit your new hub's page and login with the **admin account email address** which was entered at the time of installation process. You should then be able to create your first channel and have the **admin rights** for the hub.
+- **Admin account**: When installation is complete, you must visit your new website and create the first account using the **admin's email address** (the admin is the YunoHost user which was chosen at the beginning of the installation process). You will then be able to create your first channel and have access to your website's **admin section**.
 
 - **Failing to get admin rights**: If the admin cannot access the admin settings at `https://hubzilla.example.com/admin` then you have to **manually add 4096** to the **account_roles** under **accounts** for that user in the **database through phpMyAdmin**.
 
