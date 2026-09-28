@@ -36,6 +36,7 @@ mkdir -p  "$install_dir/cache/smarty3"
 
 chown -R $app:www-data "$install_dir"
 chmod -R 775 $install_dir/store $install_dir/cache
+chmod -R 770 $install_dir
 
 #=================================================
 # REAPPLY SYSTEM CONFIGURATIONS
